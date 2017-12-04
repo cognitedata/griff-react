@@ -4,7 +4,12 @@
   "description": "cognitechart-react React component",
   "main": "lib/exports.js",
   "module": "es/exports.js",
-  "files": ["css", "es", "lib", "umd"],
+  "files": [
+    "css",
+    "es",
+    "lib",
+    "umd"
+  ],
   "scripts": {
     "build": "nwb build-react-component src/exports.js",
     "clean": "nwb clean-module && nwb clean-demo",
@@ -15,7 +20,8 @@
   },
   "dependencies": {
     "bluebird": "^3.5.1",
-    "d3": "^4.12.0"
+    "d3": "^4.12.0",
+    "lodash": "^4.17.4"
   },
   "peerDependencies": {
     "react": "16.x"
@@ -29,5 +35,7 @@
   "homepage": "",
   "license": "MIT",
   "repository": "",
-  "keywords": ["react-component"]
+  "keywords": [
+    "react-component"
+  ]
 }
