@@ -11,6 +11,8 @@ process value.
 
 A more complex example will come soon.
 
+### Live demo https://cogchart.surge.sh
+
 ## Test locally
 
 ```sh
