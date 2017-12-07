@@ -14,7 +14,7 @@ A more complex example will come soon.
 ## Test locally
 
 ```sh
-git clone https://github.com/cognitedata/react-cognitechart/settings
+git clone https://github.com/cognitedata/react-cognitechart
 yarn
 yarn start
 ```

@@ -13,7 +13,7 @@ const Line = ({ data, xAccessor, yAccessor, xScale, yScale, color }) => {
       style={{
         stroke: color,
         strokeWidth: '1.5px',
-        fill: 'none',
+        fill: 'none'
       }}
       clipPath="url(#linechart-clip-path)"
     />
@@ -26,7 +26,7 @@ Line.propTypes = {
   data: PropTypes.array.isRequired,
   xAccessor: PropTypes.func.isRequired,
   yAccessor: PropTypes.func.isRequired,
-  color: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired
 };
 
 export default Line;

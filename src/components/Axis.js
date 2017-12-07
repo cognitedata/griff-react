@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 
 const tickTransformer = {
   x: v => `translate(${v}, 0)`,
-  y: v => `translate(0, ${v})`,
+  y: v => `translate(0, ${v})`
 };
 
 export default class Axis extends Component {
@@ -92,7 +92,7 @@ export default class Axis extends Component {
 
           const textProps = {
             fill: strokeColor,
-            dy: mode === 'x' ? '0.71em' : '0.32em',
+            dy: mode === 'x' ? '0.71em' : '0.32em'
           };
           textProps[y] = k * Math.max(tickSizeInner, 0) + tickPadding;
           textProps[x] = halfStrokeWidth;
