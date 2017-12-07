@@ -2,16 +2,11 @@
   "name": "cognitechart-react",
   "version": "1.0.0",
   "description": "cognitechart-react React component",
-  "main": "lib/exports.js",
-  "module": "es/exports.js",
-  "files": [
-    "css",
-    "es",
-    "lib",
-    "umd"
-  ],
+  "main": "lib/index.js",
+  "module": "es/index.js",
+  "files": ["css", "es", "lib", "umd"],
   "scripts": {
-    "build": "nwb build-react-component src/exports.js",
+    "build": "nwb build-react-component src/index.js",
     "clean": "nwb clean-module && nwb clean-demo",
     "start": "nwb serve-react-demo",
     "test": "nwb test-react",
@@ -35,7 +30,5 @@
   "homepage": "",
   "license": "MIT",
   "repository": "",
-  "keywords": [
-    "react-component"
-  ]
+  "keywords": ["react-component"]
 }
