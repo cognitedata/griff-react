@@ -15,7 +15,7 @@ class ChartContainer extends Component {
       .extent([[0, 0], [chartWidth, height]]);
     this.state = {
       transformation: {},
-      rescaleY: {},
+      rescaleY: {}
     };
   }
 
@@ -28,7 +28,7 @@ class ChartContainer extends Component {
         yAxis: { width: yAxisWidth },
         margin,
         width,
-        height,
+        height
       } = this.props;
       const nSeries = Object.keys(this.props.series).length;
       const chartWidth =
@@ -51,7 +51,7 @@ class ChartContainer extends Component {
     this.setState({
       transformation: d3.zoomIdentity
         .scale(width / (s[1] - s[0]))
-        .translate(-s[0], 0),
+        .translate(-s[0], 0)
     });
   };
 
@@ -59,17 +59,18 @@ class ChartContainer extends Component {
     this.setState({
       rescaleY: {
         ...this.state.rescaleY,
-        [key]: rescaleY,
-      },
+        [key]: rescaleY
+      }
     });
   };
 
   render() {
-    const { series, margin, width, height, domain, subDomain } = this.props;
+    const { series, margin, width, domain, subDomain } = this.props;
     const nSeries = Object.keys(series).length;
     const yAxisWidth = this.props.yAxis.width;
     const chartWidth =
       this.props.width - yAxisWidth * nSeries - margin.left - margin.right;
+    const chartHeight = this.props.height - margin.top - margin.bottom - 10;
     let heightOffset = 0;
     const xScale = d3
       .scaleTime()
@@ -80,7 +81,7 @@ class ChartContainer extends Component {
       .domain(subDomain)
       .range([0, chartWidth]);
     const children = React.Children.map(this.props.children, child => {
-      heightOffset += ((child.props.margin || {}).top || 0) * height;
+      heightOffset += ((child.props.margin || {}).top || 0) * chartHeight;
       const c = React.cloneElement(child, {
         ...this.props,
         subDomainChanged: this.subDomainChanged,
@@ -89,16 +90,17 @@ class ChartContainer extends Component {
         xScale,
         transformation: this.state.transformation,
         subXScale,
+        height: chartHeight,
         zoom: this.zoom,
         updateTransformation: this.updateTransformation,
         updateYScale: this.updateYScale,
-        rescaleY: this.state.rescaleY,
+        rescaleY: this.state.rescaleY
       });
-      heightOffset += height * c.props.heightPct;
+      heightOffset += chartHeight * c.props.heightPct;
       return c;
     });
     return (
-      <svg width={width} height={height}>
+      <svg width={width} height={this.props.height}>
         <g transform={`translate(${margin.left}, ${margin.top})`}>{children}</g>
       </svg>
     );

@@ -58,18 +58,18 @@ var ChartContainer = (_temp = _class = function (_Component) {
         series = _props2.series,
         margin = _props2.margin,
         width = _props2.width,
-        height = _props2.height,
         domain = _props2.domain,
         subDomain = _props2.subDomain;
 
     var nSeries = Object.keys(series).length;
     var yAxisWidth = this.props.yAxis.width;
     var chartWidth = this.props.width - yAxisWidth * nSeries - margin.left - margin.right;
+    var chartHeight = this.props.height - margin.top - margin.bottom - 10;
     var heightOffset = 0;
     var xScale = d3.scaleTime().domain(domain).range([0, chartWidth]);
     var subXScale = d3.scaleTime().domain(subDomain).range([0, chartWidth]);
     var children = React.Children.map(this.props.children, function (child) {
-      heightOffset += ((child.props.margin || {}).top || 0) * height;
+      heightOffset += ((child.props.margin || {}).top || 0) * chartHeight;
       var c = React.cloneElement(child, _extends({}, _this2.props, {
         subDomainChanged: _this2.subDomainChanged,
         width: chartWidth,
@@ -77,17 +77,18 @@ var ChartContainer = (_temp = _class = function (_Component) {
         xScale: xScale,
         transformation: _this2.state.transformation,
         subXScale: subXScale,
+        height: chartHeight,
         zoom: _this2.zoom,
         updateTransformation: _this2.updateTransformation,
         updateYScale: _this2.updateYScale,
         rescaleY: _this2.state.rescaleY
       }));
-      heightOffset += height * c.props.heightPct;
+      heightOffset += chartHeight * c.props.heightPct;
       return c;
     });
     return React.createElement(
       'svg',
-      { width: width, height: height },
+      { width: width, height: this.props.height },
       React.createElement(
         'g',
         { transform: 'translate(' + margin.left + ', ' + margin.top + ')' },

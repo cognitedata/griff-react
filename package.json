@@ -6,12 +6,15 @@
   "module": "es/index.js",
   "files": ["css", "es", "lib", "umd"],
   "scripts": {
-    "build": "nwb build-react-component src/index.js",
     "clean": "nwb clean-module && nwb clean-demo",
     "start": "nwb serve-react-demo",
     "test": "nwb test-react",
     "test:coverage": "nwb test-react --coverage",
-    "test:watch": "nwb test-react --server"
+    "test:watch": "nwb test-react --server",
+    "storybook": "start-storybook -p 9001 -c .storybook",
+    "storybook:build": "build-storybook -c .storybook -o .out",
+    "storybook:deploy": "surge .out griff.surge.sh",
+    "demo:build": "nwb build-react-component src/index.js"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
@@ -22,6 +25,11 @@
     "react": "16.x"
   },
   "devDependencies": {
+    "@storybook/addon-actions": "^3.2.17",
+    "@storybook/addon-info": "^3.2.17",
+    "@storybook/react": "^3.2.17",
+    "axios": "^0.17.1",
+    "moment": "^2.19.3",
     "nwb": "0.20.x",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"

@@ -52,7 +52,9 @@ export default class LineChart extends Component {
         />
         {Object.keys(series).map((key, idx) => {
           const serie = series[key];
-          const yDomain = yAxis.calculateDomain(serie.data);
+          const yDomain = yAxis.calculateDomain
+            ? yAxis.calculateDomain(serie.data)
+            : d3.extent(serie.data, serie.yAccessor || yAxis.accessor);
           let scaler = rescaleY[key];
           if (!scaler) {
             scaler = { rescaleY: d => d };

@@ -1,0 +1,6 @@
+{
+  "files.exclude": {
+    "**/lib": true,
+    "**/es": true
+  }
+}
