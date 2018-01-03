@@ -4,6 +4,11 @@ import Line from '../Line';
 import Axis from '../Axis';
 
 export default class LineChart extends Component {
+  state = {
+    linex: null,
+    liney: null
+  };
+
   componentDidMount() {
     this.selection = d3.select(this.zoomNode);
     this.selection.call(this.props.zoom.on('zoom', this.zoomed));
@@ -35,11 +40,35 @@ export default class LineChart extends Component {
       heightPct,
       offsetY,
       subXScale: xScale,
-      rescaleY
+      rescaleY,
+      colors,
+      onMouseMove
     } = this.props;
     const effectiveHeight = height * heightPct;
+    const { linex, liney } = this.state;
     return (
       <g className="line-chart" transform={`translate(0, ${offsetY})`}>
+        {linex &&
+          liney && [
+            <line
+              key={0}
+              x1={0}
+              x2={width}
+              stroke={'#ccc'}
+              strokeWidth={1}
+              y1={liney}
+              y2={liney}
+            />,
+            <line
+              key={1}
+              y1={0}
+              y2={effectiveHeight}
+              stroke="#ccc"
+              strokeWidth="1"
+              x1={linex}
+              x2={linex}
+            />
+          ]}
         <clipPath id="linechart-clip-path">
           <rect width={width} height={effectiveHeight} fill="none" />
         </clipPath>
@@ -74,7 +103,7 @@ export default class LineChart extends Component {
               offsetx={width + idx * yAxis.width}
               width={yAxis.width}
               offsety={effectiveHeight}
-              strokeColor={serie.color}
+              strokeColor={colors[key]}
               updateYScale={this.props.updateYScale}
             />,
             <Line
@@ -84,7 +113,8 @@ export default class LineChart extends Component {
               xAccessor={serie.xAccessor || xAxis.accessor}
               yAccessor={serie.yAccessor || yAxis.accessor}
               yScale={yScale}
-              color={serie.color}
+              color={colors[key]}
+              step={serie.step}
             />
           ];
         })}
@@ -94,8 +124,53 @@ export default class LineChart extends Component {
           }}
           width={width}
           height={effectiveHeight}
-          fill="none"
           pointerEvents="all"
+          fill="none"
+          onMouseMove={e => {
+            if (Object.keys(series).length === 0) {
+              return;
+            }
+            const xpos = e.nativeEvent.offsetX;
+            const ypos = e.nativeEvent.offsetY;
+            const rawTimestamp = xScale.invert(xpos).getTime();
+            const serieKeys = Object.keys(series);
+            const serie = series[serieKeys[0]];
+            const points = {};
+            serieKeys.forEach(key => {
+              const { data } = series[key];
+              const rawX = d3
+                .bisector(d => d.timestamp)
+                .left(data, rawTimestamp, 1);
+              const x0 = data[rawX - 1];
+              const x1 = data[rawX];
+              let d = null;
+              if (x0 && !x1) {
+                d = x0;
+              } else if (x1 && !x0) {
+                d = x1;
+              } else if (!x0 && !x1) {
+                d = null;
+              } else {
+                d =
+                  rawTimestamp - x0.timestamp > x1.timestamp - rawTimestamp
+                    ? x1
+                    : x0;
+              }
+              if (d) {
+                points[key] = yAxis.accessor(d);
+                this.setState({ linex: xpos, liney: ypos });
+              } else {
+                points[key] = data[data.length - 1];
+                this.setState({ linex: 0, liney: 0 });
+              }
+            });
+            if (Object.keys(points).length > 0) {
+              onMouseMove(points);
+            }
+          }}
+          onMouseOut={e => {
+            this.setState({ linex: null, liney: null });
+          }}
         />
       </g>
     );

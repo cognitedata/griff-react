@@ -8,13 +8,23 @@ var Line = function Line(_ref) {
       yAccessor = _ref.yAccessor,
       xScale = _ref.xScale,
       yScale = _ref.yScale,
-      color = _ref.color;
+      color = _ref.color,
+      step = _ref.step;
 
-  var line = d3.line().x(function (d) {
-    return xScale(xAccessor(d));
-  }).y(function (d) {
-    return yScale(yAccessor(d));
-  });
+  var line = void 0;
+  if (step) {
+    line = d3.line().curve(d3.curveStepAfter).x(function (d) {
+      return xScale(xAccessor(d));
+    }).y(function (d) {
+      return yScale(yAccessor(d));
+    });
+  } else {
+    line = d3.line().x(function (d) {
+      return xScale(xAccessor(d));
+    }).y(function (d) {
+      return yScale(yAccessor(d));
+    });
+  }
   return React.createElement('path', {
     d: line(data),
     style: {
@@ -32,7 +42,8 @@ Line.propTypes = process.env.NODE_ENV !== "production" ? {
   data: PropTypes.array.isRequired,
   xAccessor: PropTypes.func.isRequired,
   yAccessor: PropTypes.func.isRequired,
-  color: PropTypes.string.isRequired
+  color: PropTypes.string.isRequired,
+  step: PropTypes.bool.isRequired
 } : {};
 
 export default Line;

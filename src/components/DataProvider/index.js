@@ -4,9 +4,9 @@ import { uniq } from 'lodash';
 
 export default class DataProvider extends Component {
   state = {
-    domain: this.props.config.baseDomain,
-    subDomain: this.props.config.baseDomain,
-    series: this.props.config.series || {}
+    subDomain: this.props.config.baseSubdomain || this.props.config.baseDomain,
+    series: this.props.config.series || {},
+    contextSeries: {}
   };
 
   async componentDidMount() {
@@ -18,14 +18,23 @@ export default class DataProvider extends Component {
     }
   }
 
+  async componentWillUnmount() {
+    clearInterval(this.fetchInterval);
+  }
+
   shouldComponentUpdate(
-    { config, loader },
-    { domain: nextDomain, subDomain: nextSubdomain, series }
+    { config, loader, width, height },
+    { subDomain: nextSubdomain, series }
   ) {
     if (this.props.loader !== loader) {
       return true;
     }
-    const { domain, subDomain } = this.state;
+    if (width !== this.props.width || height !== this.props.height) {
+      return true;
+    }
+    const { subDomain } = this.state;
+    const { baseDomain: domain } = this.props.config;
+    const { baseDomain: nextDomain } = config;
     if (
       domain[0] !== nextDomain[0] ||
       domain[1] !== nextDomain[1] ||
@@ -78,9 +87,13 @@ export default class DataProvider extends Component {
     if (this.props.loader !== prevProps.loader) {
       return this.fetchData('NEW_LOADER');
     }
-    const { domain } = this.state;
-    const { domain: oldDomain } = prevState;
-    if (domain[0] !== oldDomain[0] || domain[1] !== oldDomain[1]) {
+    const { baseDomain: domain } = this.props.config;
+    const { baseDomain: oldDomain } = prevProps;
+    if (
+      domain &&
+      oldDomain &&
+      (domain[0] !== oldDomain[0] || domain[1] !== oldDomain[1])
+    ) {
       return this.fetchData('NEW_DOMAIN');
     }
     return 1;
@@ -91,19 +104,20 @@ export default class DataProvider extends Component {
   }
 
   fetchData = async reason => {
-    if (process.env.NODE_ENV !== 'production') {
-      console.debug(`ACTION: fetch_data, REASON: ${reason}`);
-    }
     const series = await this.props.loader(
-      this.state.domain,
+      this.props.config.baseDomain,
       this.state.subDomain,
       this.props.config,
       this.state.series,
       reason
     );
-    this.setState({
+    const update = {
       series
-    });
+    };
+    if (reason !== 'UPDATE_SUBDOMAIN') {
+      update.contextSeries = series;
+    }
+    this.setState(update);
   };
 
   subDomainChanged = async subDomain => {
@@ -120,7 +134,7 @@ export default class DataProvider extends Component {
 
   render() {
     const { width, height, margin } = this.props;
-    const { series } = this.state;
+    const { series, contextSeries } = this.state;
     const { config } = this.props;
     if (!series) {
       return null;
@@ -129,9 +143,10 @@ export default class DataProvider extends Component {
       const props = {
         yAxis: config.yAxis,
         xAxis: config.xAxis,
-        domain: this.state.domain,
+        domain: config.baseDomain,
         subDomain: this.state.subDomain,
         series: this.state.series,
+        contextSeries,
         width,
         height,
         margin,

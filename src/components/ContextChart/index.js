@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import Axis from '../Axis';
 import Line from '../Line';
+import simplify from '../../utils/simplify-points';
 
 export default class ContextChart extends Component {
   componentDidMount() {
@@ -28,8 +29,9 @@ export default class ContextChart extends Component {
       this.selection.call(this.brush);
     }
     if (prevProps.width !== this.props.width) {
-      this.brush.extent([[0, 0], [0, this.props.width]]);
-      this.selection.call(this.brush.move, [0, this.props.width]);
+      const { height, heightPct, width } = this.props;
+      this.brush.extent([[0, 0], [width, height * heightPct]]);
+      this.selection.call(this.brush.move, [0, width]);
       this.selection.call(this.brush);
     }
   }
@@ -51,11 +53,12 @@ export default class ContextChart extends Component {
     const {
       yAxis,
       xAxis,
-      series,
+      contextSeries: series,
       height,
       heightPct,
       offsetY,
       xScale,
+      colors
     } = this.props;
     const effectiveHeight = height * heightPct;
     return (
@@ -69,7 +72,9 @@ export default class ContextChart extends Component {
         />
         {Object.keys(series).map(key => {
           const serie = series[key];
-          const yDomain = yAxis.calculateDomain(serie.data);
+          const yDomain = yAxis.calculateDomain
+            ? yAxis.calculateDomain(serie.data)
+            : d3.extent(serie.data, serie.yAccessor || yAxis.accessor);
           const yScale = d3
             .scaleLinear()
             .domain(yDomain)
@@ -82,7 +87,8 @@ export default class ContextChart extends Component {
               yScale={yScale}
               xAccessor={serie.xAccessor || xAxis.accessor}
               yAccessor={serie.yAccessor || yAxis.accessor}
-              color={serie.color}
+              color={colors[key]}
+              step={serie.step}
             />
           );
         })}

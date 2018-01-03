@@ -29,30 +29,31 @@ var DataProvider = function (_Component) {
     }
 
     return _ret = (_temp = (_this = _possibleConstructorReturn(this, _Component.call.apply(_Component, [this].concat(args))), _this), _this.state = {
-      domain: _this.props.config.baseDomain,
-      subDomain: _this.props.config.baseDomain,
-      series: _this.props.config.series || {}
+      subDomain: _this.props.config.baseSubdomain || _this.props.config.baseDomain,
+      series: _this.props.config.series || {},
+      contextSeries: {}
     }, _this.fetchData = function () {
       var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee(reason) {
-        var series;
+        var series, update;
         return _regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                if (process.env.NODE_ENV !== 'production') {
-                  console.debug('ACTION: fetch_data, REASON: ' + reason);
-                }
-                _context.next = 3;
-                return _this.props.loader(_this.state.domain, _this.state.subDomain, _this.props.config, _this.state.series, reason);
+                _context.next = 2;
+                return _this.props.loader(_this.props.config.baseDomain, _this.state.subDomain, _this.props.config, _this.state.series, reason);
 
-              case 3:
+              case 2:
                 series = _context.sent;
-
-                _this.setState({
+                update = {
                   series: series
-                });
+                };
 
-              case 5:
+                if (reason !== 'UPDATE_SUBDOMAIN') {
+                  update.contextSeries = series;
+                }
+                _this.setState(update);
+
+              case 6:
               case 'end':
                 return _context.stop();
             }
@@ -145,21 +146,48 @@ var DataProvider = function (_Component) {
     return componentDidMount;
   }();
 
-  DataProvider.prototype.shouldComponentUpdate = function shouldComponentUpdate(_ref5, _ref6) {
+  DataProvider.prototype.componentWillUnmount = function () {
+    var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime.mark(function _callee5() {
+      return _regeneratorRuntime.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              clearInterval(this.fetchInterval);
+
+            case 1:
+            case 'end':
+              return _context5.stop();
+          }
+        }
+      }, _callee5, this);
+    }));
+
+    function componentWillUnmount() {
+      return _ref5.apply(this, arguments);
+    }
+
+    return componentWillUnmount;
+  }();
+
+  DataProvider.prototype.shouldComponentUpdate = function shouldComponentUpdate(_ref6, _ref7) {
     var _this4 = this;
 
-    var config = _ref5.config,
-        loader = _ref5.loader;
-    var nextDomain = _ref6.domain,
-        nextSubdomain = _ref6.subDomain,
-        series = _ref6.series;
+    var config = _ref6.config,
+        loader = _ref6.loader,
+        width = _ref6.width,
+        height = _ref6.height;
+    var nextSubdomain = _ref7.subDomain,
+        series = _ref7.series;
 
     if (this.props.loader !== loader) {
       return true;
     }
-    var _state = this.state,
-        domain = _state.domain,
-        subDomain = _state.subDomain;
+    if (width !== this.props.width || height !== this.props.height) {
+      return true;
+    }
+    var subDomain = this.state.subDomain;
+    var domain = this.props.config.baseDomain;
+    var nextDomain = config.baseDomain;
 
     if (domain[0] !== nextDomain[0] || domain[1] !== nextDomain[1] || subDomain[0] !== nextSubdomain[0] || subDomain[1] !== nextSubdomain[1]) {
       return true;
@@ -220,10 +248,10 @@ var DataProvider = function (_Component) {
     if (this.props.loader !== prevProps.loader) {
       return this.fetchData('NEW_LOADER');
     }
-    var domain = this.state.domain;
-    var oldDomain = prevState.domain;
+    var domain = this.props.config.baseDomain;
+    var oldDomain = prevProps.baseDomain;
 
-    if (domain[0] !== oldDomain[0] || domain[1] !== oldDomain[1]) {
+    if (domain && oldDomain && (domain[0] !== oldDomain[0] || domain[1] !== oldDomain[1])) {
       return this.fetchData('NEW_DOMAIN');
     }
     return 1;
@@ -240,7 +268,9 @@ var DataProvider = function (_Component) {
         width = _props.width,
         height = _props.height,
         margin = _props.margin;
-    var series = this.state.series;
+    var _state = this.state,
+        series = _state.series,
+        contextSeries = _state.contextSeries;
     var config = this.props.config;
 
     if (!series) {
@@ -250,9 +280,10 @@ var DataProvider = function (_Component) {
       var props = {
         yAxis: config.yAxis,
         xAxis: config.xAxis,
-        domain: _this5.state.domain,
+        domain: config.baseDomain,
         subDomain: _this5.state.subDomain,
         series: _this5.state.series,
+        contextSeries: contextSeries,
         width: width,
         height: height,
         margin: margin,

@@ -41,7 +41,8 @@ storiesOf('DataProvider', module)
       const loader = () => {
         const series = {
           1: { color: 'red', data: randomData(), id: 1 },
-          2: { color: 'blue', data: randomData(), id: 2 }
+          2: { color: 'blue', data: randomData().map(i => i * 2), id: 2 },
+          3: { color: 'green', data: randomData().map(i => i * 3) }
         };
         return () => series;
       };
@@ -139,9 +140,9 @@ storiesOf('DataProvider', module)
           const result = await axios.get(
             `https://www.quandl.com/api/v3/datasets/OPEC/ORB.json?start_date=${formatDate(
               subDomain[0]
-            )}&end_date=${formatDate(
-              subDomain[1]
-            )}&order=asc&collapse=${granularity}&api_key=Yztsvxixwuz_NQz-8Ze3`
+            )}&end_date=${formatDate(subDomain[1])}&order=asc&collapse=${
+              granularity
+            }&api_key=Yztsvxixwuz_NQz-8Ze3`
           );
           const { dataset } = result.data;
           let data = dataset.data.map(d => ({

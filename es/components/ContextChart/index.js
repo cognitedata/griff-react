@@ -8,6 +8,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import Axis from '../Axis';
 import Line from '../Line';
+import simplify from '../../utils/simplify-points';
 
 var ContextChart = function (_Component) {
   _inherits(ContextChart, _Component);
@@ -63,8 +64,13 @@ var ContextChart = function (_Component) {
       this.selection.call(this.brush);
     }
     if (prevProps.width !== this.props.width) {
-      this.brush.extent([[0, 0], [0, this.props.width]]);
-      this.selection.call(this.brush.move, [0, this.props.width]);
+      var _props3 = this.props,
+          _height = _props3.height,
+          _heightPct = _props3.heightPct,
+          width = _props3.width;
+
+      this.brush.extent([[0, 0], [width, _height * _heightPct]]);
+      this.selection.call(this.brush.move, [0, width]);
       this.selection.call(this.brush);
     }
   };
@@ -72,14 +78,15 @@ var ContextChart = function (_Component) {
   ContextChart.prototype.render = function render() {
     var _this2 = this;
 
-    var _props3 = this.props,
-        yAxis = _props3.yAxis,
-        xAxis = _props3.xAxis,
-        series = _props3.series,
-        height = _props3.height,
-        heightPct = _props3.heightPct,
-        offsetY = _props3.offsetY,
-        xScale = _props3.xScale;
+    var _props4 = this.props,
+        yAxis = _props4.yAxis,
+        xAxis = _props4.xAxis,
+        series = _props4.contextSeries,
+        height = _props4.height,
+        heightPct = _props4.heightPct,
+        offsetY = _props4.offsetY,
+        xScale = _props4.xScale,
+        colors = _props4.colors;
 
     var effectiveHeight = height * heightPct;
     return React.createElement(
@@ -94,7 +101,7 @@ var ContextChart = function (_Component) {
       }),
       Object.keys(series).map(function (key) {
         var serie = series[key];
-        var yDomain = yAxis.calculateDomain(serie.data);
+        var yDomain = yAxis.calculateDomain ? yAxis.calculateDomain(serie.data) : d3.extent(serie.data, serie.yAccessor || yAxis.accessor);
         var yScale = d3.scaleLinear().domain(yDomain).range([effectiveHeight, 0]);
         return React.createElement(Line, {
           key: 'line--' + key,
@@ -103,7 +110,8 @@ var ContextChart = function (_Component) {
           yScale: yScale,
           xAccessor: serie.xAccessor || xAxis.accessor,
           yAccessor: serie.yAccessor || yAxis.accessor,
-          color: serie.color
+          color: colors[key],
+          step: serie.step
         });
       }),
       React.createElement('g', {

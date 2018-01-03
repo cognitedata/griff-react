@@ -10,7 +10,7 @@ class ChartContainer extends Component {
       width - yAxisWidth * nSeries - margin.left - margin.right;
     this.zoom = d3
       .zoom()
-      .scaleExtent([1, 1000])
+      .scaleExtent([1, 10000])
       .translateExtent([[0, 0], [chartWidth, height]])
       .extent([[0, 0], [chartWidth, height]]);
     this.state = {
