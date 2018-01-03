@@ -1,7 +1,7 @@
 {
-  "name": "cognitechart-react",
-  "version": "1.0.0",
-  "description": "cognitechart-react React component",
+  "name": "griff-react",
+  "version": "0.0.1",
+  "description": "Charting library that relies on React's virtual diffing.",
   "main": "lib/index.js",
   "module": "es/index.js",
   "files": ["css", "es", "lib", "umd"],
