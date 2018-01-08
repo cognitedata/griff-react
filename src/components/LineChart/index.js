@@ -42,7 +42,8 @@ export default class LineChart extends Component {
       subXScale: xScale,
       rescaleY,
       colors,
-      onMouseMove
+      onMouseMove,
+      crosshairs
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
@@ -127,7 +128,7 @@ export default class LineChart extends Component {
           pointerEvents="all"
           fill="none"
           onMouseMove={e => {
-            if (Object.keys(series).length === 0) {
+            if (Object.keys(series).length === 0 || !crosshairs) {
               return;
             }
             const xpos = e.nativeEvent.offsetX;
