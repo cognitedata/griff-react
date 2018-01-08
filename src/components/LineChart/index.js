@@ -131,12 +131,19 @@ export default class LineChart extends Component {
             if (Object.keys(series).length === 0) {
               return;
             }
+            if (!onMouseMove) {
+              return;
+            }
             const xpos = e.nativeEvent.offsetX;
             const ypos = e.nativeEvent.offsetY;
             const rawTimestamp = xScale.invert(xpos).getTime();
             const serieKeys = Object.keys(series);
             const serie = series[serieKeys[0]];
-            const points = {};
+            const output = {
+              xpos,
+              ypos,
+              points: []
+            };
             serieKeys.forEach(key => {
               const { data } = series[key];
               const rawX = d3
@@ -158,20 +165,41 @@ export default class LineChart extends Component {
                     : x0;
               }
               if (d) {
-                points[key] = yAxis.accessor(d);
+                let scaler = rescaleY[key];
+                if (!scaler) {
+                  scaler = { rescaleY: d => d };
+                }
+                const yDomain = yAxis.calculateDomain
+                  ? yAxis.calculateDomain(serie.data)
+                  : d3.extent(serie.data, serie.yAccessor || yAxis.accessor);
+                const yScale = scaler.rescaleY(
+                  d3
+                    .scaleLinear()
+                    .domain(yDomain)
+                    .range([effectiveHeight, 0])
+                );
+                const ts = xAxis.accessor(d);
+                const value = yAxis.accessor(d);
+                output.points.push({
+                  timestamp: ts,
+                  value,
+                  x: xScale(ts),
+                  y: yScale(value)
+                });
                 if (crosshairs) {
                   this.setState({ linex: xpos, liney: ypos });
                 }
               } else {
-                points[key] = data[data.length - 1];
+                // points[key] = data[data.length - 1];
                 if (crosshairs) {
                   this.setState({ linex: 0, liney: 0 });
                 }
               }
             });
-            onMouseMove(points);
+            onMouseMove(output);
           }}
           onMouseOut={e => {
+            onMouseMove && onMouseMove([]);
             if (crosshairs) {
               this.setState({ linex: null, liney: null });
             }

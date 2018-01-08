@@ -155,7 +155,11 @@ export default class DataProvider extends Component {
       };
       return React.cloneElement(child, props);
     });
-    return children;
+    return (
+      <div width={width} height={height}>
+        {children}
+      </div>
+    );
   }
 }
 

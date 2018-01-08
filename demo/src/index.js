@@ -24,8 +24,8 @@ const randomData = () => {
 
 const loader = () => {
   const series = {
-    1: { color: 'red', data: randomData(), id: 1 },
-    2: { color: 'blue', data: randomData(), id: 2 }
+    1: { data: randomData(), id: 1 },
+    2: { data: randomData(), id: 2 }
   };
   return (domain, subDomain, config, oldSeries, reason) => {
     if (reason === 'MOUNTED') {
@@ -49,9 +49,17 @@ const config = {
   baseDomain: d3.extent(randomData(), d => d.timestamp)
 };
 
+// const Tooltip = ({ xpos, ypos, points }) => (
+
+// )
+
 class App extends Component {
   state = {
     loader: loader()
+  };
+
+  onMouseMove = points => {
+    console.log(points);
   };
 
   render() {
@@ -63,8 +71,13 @@ class App extends Component {
         config={config}
         loader={this.state.loader}
       >
-        <ChartContainer>
-          <LineChart heightPct={0.8} />
+        <ChartContainer
+          colors={{
+            1: 'steelblue',
+            2: 'maroon'
+          }}
+        >
+          <LineChart heightPct={0.8} onMouseMove={this.onMouseMove} />
           <ContextChart heightPct={0.05} margin={{ top: 0.04 }} />
         </ChartContainer>
       </DataProvider>

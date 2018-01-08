@@ -36,7 +36,11 @@ Line.propTypes = {
   xAccessor: PropTypes.func.isRequired,
   yAccessor: PropTypes.func.isRequired,
   color: PropTypes.string.isRequired,
-  step: PropTypes.bool.isRequired
+  step: PropTypes.bool
+};
+
+Line.defaultProps = {
+  step: false
 };
 
 export default Line;
