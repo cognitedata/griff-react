@@ -128,7 +128,7 @@ export default class LineChart extends Component {
           pointerEvents="all"
           fill="none"
           onMouseMove={e => {
-            if (Object.keys(series).length === 0 || !crosshairs) {
+            if (Object.keys(series).length === 0) {
               return;
             }
             const xpos = e.nativeEvent.offsetX;
@@ -159,18 +159,22 @@ export default class LineChart extends Component {
               }
               if (d) {
                 points[key] = yAxis.accessor(d);
-                this.setState({ linex: xpos, liney: ypos });
+                if (crosshairs) {
+                  this.setState({ linex: xpos, liney: ypos });
+                }
               } else {
                 points[key] = data[data.length - 1];
-                this.setState({ linex: 0, liney: 0 });
+                if (crosshairs) {
+                  this.setState({ linex: 0, liney: 0 });
+                }
               }
             });
-            if (Object.keys(points).length > 0) {
-              onMouseMove(points);
-            }
+            onMouseMove(points);
           }}
           onMouseOut={e => {
-            this.setState({ linex: null, liney: null });
+            if (crosshairs) {
+              this.setState({ linex: null, liney: null });
+            }
           }}
         />
       </g>
