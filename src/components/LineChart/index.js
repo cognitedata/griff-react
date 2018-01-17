@@ -6,7 +6,7 @@ import Axis from '../Axis';
 export default class LineChart extends Component {
   state = {
     linex: null,
-    liney: null
+    liney: null,
   };
 
   componentDidMount() {
@@ -43,7 +43,7 @@ export default class LineChart extends Component {
       rescaleY,
       colors,
       onMouseMove,
-      crosshairs
+      crosshairs,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
@@ -68,7 +68,7 @@ export default class LineChart extends Component {
               strokeWidth="1"
               x1={linex}
               x2={linex}
-            />
+            />,
           ]}
         <clipPath id="linechart-clip-path">
           <rect width={width} height={effectiveHeight} fill="none" />
@@ -116,7 +116,7 @@ export default class LineChart extends Component {
               yScale={yScale}
               color={colors[key]}
               step={serie.step}
-            />
+            />,
           ];
         })}
         <rect
@@ -142,7 +142,7 @@ export default class LineChart extends Component {
             const output = {
               xpos,
               ypos,
-              points: []
+              points: [],
             };
             serieKeys.forEach(key => {
               const { data } = series[key];
@@ -184,7 +184,7 @@ export default class LineChart extends Component {
                   timestamp: ts,
                   value,
                   x: xScale(ts),
-                  y: yScale(value)
+                  y: yScale(value),
                 });
                 if (crosshairs) {
                   this.setState({ linex: xpos, liney: ypos });

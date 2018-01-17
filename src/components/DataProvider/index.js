@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { uniq } from 'lodash';
+import { uniq, isEqual } from 'lodash';
 
 export default class DataProvider extends Component {
   state = {
     subDomain: this.props.config.baseSubdomain || this.props.config.baseDomain,
     series: this.props.config.series || {},
-    contextSeries: {}
+    contextSeries: {},
   };
 
   async componentDidMount() {
@@ -23,13 +23,16 @@ export default class DataProvider extends Component {
   }
 
   shouldComponentUpdate(
-    { config, loader, width, height },
+    { config, loader, width, height, colors },
     { subDomain: nextSubdomain, series }
   ) {
     if (this.props.loader !== loader) {
       return true;
     }
     if (width !== this.props.width || height !== this.props.height) {
+      return true;
+    }
+    if (!isEqual(colors, this.props.colors)) {
       return true;
     }
     const { subDomain } = this.state;
@@ -112,7 +115,7 @@ export default class DataProvider extends Component {
       reason
     );
     const update = {
-      series
+      series,
     };
     if (reason !== 'UPDATE_SUBDOMAIN') {
       update.contextSeries = series;
@@ -133,7 +136,7 @@ export default class DataProvider extends Component {
   };
 
   render() {
-    const { width, height, margin } = this.props;
+    const { width, height, margin, colors } = this.props;
     const { series, contextSeries } = this.state;
     const { config } = this.props;
     if (!series) {
@@ -141,6 +144,7 @@ export default class DataProvider extends Component {
     }
     const children = React.Children.map(this.props.children, (child, i) => {
       const props = {
+        colors,
         yAxis: config.yAxis,
         xAxis: config.xAxis,
         domain: config.baseDomain,
@@ -151,7 +155,7 @@ export default class DataProvider extends Component {
         height,
         margin,
         subDomainChanged: this.subDomainChanged,
-        key: i + 1
+        key: i + 1,
       };
       return React.cloneElement(child, props);
     });
@@ -168,7 +172,7 @@ DataProvider.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   margin: PropTypes.object,
-  updateInterval: PropTypes.number
+  updateInterval: PropTypes.number,
 };
 
 DataProvider.defaultProps = {
@@ -176,6 +180,6 @@ DataProvider.defaultProps = {
     top: 20,
     left: 20,
     bottom: 0,
-    right: 0
-  }
+    right: 0,
+  },
 };

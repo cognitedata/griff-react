@@ -15,7 +15,7 @@ class ChartContainer extends Component {
       .extent([[0, 0], [chartWidth, height]]);
     this.state = {
       transformation: {},
-      rescaleY: {}
+      rescaleY: {},
     };
   }
 
@@ -28,7 +28,7 @@ class ChartContainer extends Component {
         yAxis: { width: yAxisWidth },
         margin,
         width,
-        height
+        height,
       } = this.props;
       const nSeries = Object.keys(this.props.series).length;
       const chartWidth =
@@ -51,7 +51,7 @@ class ChartContainer extends Component {
     this.setState({
       transformation: d3.zoomIdentity
         .scale(width / (s[1] - s[0]))
-        .translate(-s[0], 0)
+        .translate(-s[0], 0),
     });
   };
 
@@ -59,8 +59,8 @@ class ChartContainer extends Component {
     this.setState({
       rescaleY: {
         ...this.state.rescaleY,
-        [key]: rescaleY
-      }
+        [key]: rescaleY,
+      },
     });
   };
 
@@ -94,7 +94,7 @@ class ChartContainer extends Component {
         zoom: this.zoom,
         updateTransformation: this.updateTransformation,
         updateYScale: this.updateYScale,
-        rescaleY: this.state.rescaleY
+        rescaleY: this.state.rescaleY,
       });
       heightOffset += chartHeight * c.props.heightPct;
       return c;
