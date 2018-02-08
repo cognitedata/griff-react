@@ -6,7 +6,7 @@ import {
   DataProvider,
   ChartContainer,
   LineChart,
-  ContextChart
+  ContextChart,
 } from '../../src';
 
 const randomData = () => {
@@ -16,7 +16,7 @@ const randomData = () => {
     const value = Math.random();
     data.push({
       timestamp,
-      value
+      value,
     });
   }
   return data;
@@ -25,7 +25,7 @@ const randomData = () => {
 const loader = () => {
   const series = {
     1: { data: randomData(), id: 1 },
-    2: { data: randomData(), id: 2 }
+    2: { data: randomData(), id: 2 },
   };
   return (domain, subDomain, config, oldSeries, reason) => {
     if (reason === 'MOUNTED') {
@@ -40,13 +40,13 @@ const config = {
     mode: 'every',
     width: 50,
     accessor: d => d.value,
-    calculateDomain: data => d3.extent(data, d => d.value)
+    calculateDomain: data => d3.extent(data, d => d.value),
   },
   xAxis: {
     accessor: d => d.timestamp,
-    calculateDomain: data => d3.extent(data, d => d.timestamp)
+    calculateDomain: data => d3.extent(data, d => d.timestamp),
   },
-  baseDomain: d3.extent(randomData(), d => d.timestamp)
+  baseDomain: d3.extent(randomData(), d => d.timestamp),
 };
 
 // const Tooltip = ({ xpos, ypos, points }) => (
@@ -55,12 +55,10 @@ const config = {
 
 class App extends Component {
   state = {
-    loader: loader()
+    loader: loader(),
   };
 
-  onMouseMove = points => {
-    console.log(points);
-  };
+  onMouseMove = points => {};
 
   render() {
     return (
@@ -70,13 +68,9 @@ class App extends Component {
         margin={{ top: 50, right: 50, left: 50, bottom: 50 }}
         config={config}
         loader={this.state.loader}
+        colors={{ 1: 'steelblue', 2: 'maroon' }}
       >
-        <ChartContainer
-          colors={{
-            1: 'steelblue',
-            2: 'maroon'
-          }}
-        >
+        <ChartContainer>
           <LineChart heightPct={0.8} onMouseMove={this.onMouseMove} />
           <ContextChart heightPct={0.05} margin={{ top: 0.04 }} />
         </ChartContainer>
