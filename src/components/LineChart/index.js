@@ -179,7 +179,8 @@ export default class LineChart extends Component {
                     .range([effectiveHeight, 0])
                 );
                 const ts = xAxis.accessor(d);
-                const value = yAxis.accessor(d);
+                const yAccessor = serie.yAccessor || yAxis.accessor;
+                const value = yAccessor(d);
                 output.points.push({
                   timestamp: ts,
                   value,
