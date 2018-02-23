@@ -82,9 +82,10 @@ export default class LineChart extends Component {
         />
         {Object.keys(series).map((key, idx) => {
           const serie = series[key];
+          const yAccessor = serie.yAccessor || yAxis.accessor;
           const yDomain = yAxis.calculateDomain
             ? yAxis.calculateDomain(serie.data)
-            : d3.extent(serie.data, serie.yAccessor || yAxis.accessor);
+            : d3.extent(serie.data, yAccessor);
           let scaler = rescaleY[key];
           if (!scaler) {
             scaler = { rescaleY: d => d };
@@ -146,6 +147,7 @@ export default class LineChart extends Component {
             };
             serieKeys.forEach(key => {
               const { data } = series[key];
+              const yAccessor = series[key].yAccessor || yAxis.accessor;
               const rawX = d3
                 .bisector(d => d.timestamp)
                 .left(data, rawTimestamp, 1);
@@ -170,8 +172,8 @@ export default class LineChart extends Component {
                   scaler = { rescaleY: d => d };
                 }
                 const yDomain = yAxis.calculateDomain
-                  ? yAxis.calculateDomain(serie.data)
-                  : d3.extent(serie.data, serie.yAccessor || yAxis.accessor);
+                  ? yAxis.calculateDomain(data)
+                  : d3.extent(data, yAccessor);
                 const yScale = scaler.rescaleY(
                   d3
                     .scaleLinear()
@@ -179,7 +181,6 @@ export default class LineChart extends Component {
                     .range([effectiveHeight, 0])
                 );
                 const ts = xAxis.accessor(d);
-                const yAccessor = serie.yAccessor || yAxis.accessor;
                 const value = yAccessor(d);
                 output.points.push({
                   timestamp: ts,

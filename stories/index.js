@@ -25,7 +25,6 @@ const baseConfig = {
     mode: 'every',
     accessor: d => d.value,
     width: 50,
-    calculateDomain: data => d3.extent(data, d => d.value),
   },
   xAxis: {
     accessor: d => d.timestamp,
@@ -61,6 +60,52 @@ storiesOf('DataProvider', module)
         >
           <ChartContainer>
             <LineChart heightPct={1} />
+          </ChartContainer>
+        </DataProvider>
+      );
+    })
+  )
+  .add(
+    'with static data and custom accessor functions',
+    withInfo()(() => {
+      const loader = () => {
+        const series = {
+          1: {
+            data: randomData().map(r => ({
+              timestamp: r.timestamp,
+              y: r.value,
+            })),
+            id: 1,
+            yAccessor: d => d.y,
+            step: true,
+          },
+          2: { data: randomData(), id: 2 },
+          3: { data: randomData(), id: 3 },
+        };
+        return () => series;
+      };
+      return (
+        <DataProvider
+          config={baseConfig}
+          margin={{ top: 50, bottom: 10, left: 10, right: 10 }}
+          height={500}
+          width={800}
+          loader={loader()}
+          colors={{
+            1: 'red',
+            2: 'green',
+            3: 'blue',
+          }}
+        >
+          <ChartContainer>
+            <LineChart
+              heightPct={1}
+              onMouseMove={data => {
+                if (data.points) {
+                  action(JSON.stringify(data.points, null, 2))();
+                }
+              }}
+            />
           </ChartContainer>
         </DataProvider>
       );
