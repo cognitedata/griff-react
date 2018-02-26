@@ -322,7 +322,7 @@ storiesOf('DataProvider', module)
                     });
                   }}
                 >
-                  {t.hidden ? 'show' : 'hide'} {t.id}
+                  {hiddenSeries[t.id] ? 'show' : 'hide'} {t.id}
                 </button>
               ))}
             </div>
