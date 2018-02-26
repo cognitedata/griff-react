@@ -48,7 +48,7 @@ storiesOf('DataProvider', module)
       return (
         <DataProvider
           config={baseConfig}
-          margin={{ top: 50, bottom: 10, left: 10, right: 10 }}
+          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
           height={500}
           width={800}
           loader={loader()}
@@ -59,7 +59,7 @@ storiesOf('DataProvider', module)
           }}
         >
           <ChartContainer>
-            <LineChart heightPct={1} />
+            <LineChart heightPct={1} crosshairs />
           </ChartContainer>
         </DataProvider>
       );
@@ -254,7 +254,7 @@ storiesOf('DataProvider', module)
           colors={{ 1: 'steelblue' }}
         >
           <ChartContainer>
-            <LineChart heightPct={0.8} />
+            <LineChart heightPct={0.8} crosshairs={true} />
             <ContextChart heightPct={0.1} margin={{ top: 0.1 }} />
           </ChartContainer>
         </DataProvider>

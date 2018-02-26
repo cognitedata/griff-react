@@ -44,6 +44,7 @@ export default class LineChart extends Component {
       colors,
       onMouseMove,
       crosshairs,
+      margin,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
@@ -57,8 +58,8 @@ export default class LineChart extends Component {
               x2={width}
               stroke={'#ccc'}
               strokeWidth={1}
-              y1={liney}
-              y2={liney}
+              y1={liney - margin.top}
+              y2={liney - margin.top}
             />,
             <line
               key={1}
@@ -66,8 +67,8 @@ export default class LineChart extends Component {
               y2={effectiveHeight}
               stroke="#ccc"
               strokeWidth="1"
-              x1={linex}
-              x2={linex}
+              x1={linex - margin.left}
+              x2={linex - margin.left}
             />,
           ]}
         <clipPath id="linechart-clip-path">
@@ -132,19 +133,12 @@ export default class LineChart extends Component {
             if (Object.keys(series).length === 0) {
               return;
             }
-            if (!onMouseMove) {
-              return;
-            }
             const xpos = e.nativeEvent.offsetX;
             const ypos = e.nativeEvent.offsetY;
             const rawTimestamp = xScale.invert(xpos).getTime();
             const serieKeys = Object.keys(series);
             const serie = series[serieKeys[0]];
-            const output = {
-              xpos,
-              ypos,
-              points: [],
-            };
+            const output = { xpos, ypos, points: [] };
             serieKeys.forEach(key => {
               const { data } = series[key];
               const yAccessor = series[key].yAccessor || yAxis.accessor;
@@ -198,7 +192,7 @@ export default class LineChart extends Component {
                 }
               }
             });
-            onMouseMove(output);
+            onMouseMove && onMouseMove(output);
           }}
           onMouseOut={e => {
             onMouseMove && onMouseMove([]);
