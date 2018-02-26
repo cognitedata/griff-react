@@ -104,6 +104,7 @@ export default class DataProvider extends Component {
 
   componentWillUnmount() {
     clearInterval(this.fetchInterval);
+    this.unmounted = true;
   }
 
   fetchData = async reason => {
@@ -120,7 +121,9 @@ export default class DataProvider extends Component {
     if (reason !== 'UPDATE_SUBDOMAIN') {
       update.contextSeries = series;
     }
-    this.setState(update);
+    if (!this.unmounted) {
+      this.setState(update);
+    }
   };
 
   subDomainChanged = async subDomain => {
