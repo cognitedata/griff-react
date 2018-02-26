@@ -23,7 +23,7 @@ export default class DataProvider extends Component {
   }
 
   shouldComponentUpdate(
-    { config, loader, width, height, colors },
+    { config, loader, width, height, colors, hiddenSeries },
     { subDomain: nextSubdomain, series }
   ) {
     if (this.props.loader !== loader) {
@@ -33,6 +33,9 @@ export default class DataProvider extends Component {
       return true;
     }
     if (!isEqual(colors, this.props.colors)) {
+      return true;
+    }
+    if (!isEqual(hiddenSeries, this.props.hiddenSeries)) {
       return true;
     }
     const { subDomain } = this.state;
@@ -139,7 +142,7 @@ export default class DataProvider extends Component {
   };
 
   render() {
-    const { width, height, margin, colors } = this.props;
+    const { width, height, margin, colors, hiddenSeries } = this.props;
     const { series, contextSeries } = this.state;
     const { config } = this.props;
     if (!series) {
@@ -148,6 +151,7 @@ export default class DataProvider extends Component {
     const children = React.Children.map(this.props.children, (child, i) => {
       const props = {
         colors,
+        hiddenSeries,
         yAxis: config.yAxis,
         xAxis: config.xAxis,
         domain: config.baseDomain,
@@ -176,6 +180,7 @@ DataProvider.propTypes = {
   height: PropTypes.number.isRequired,
   margin: PropTypes.object,
   updateInterval: PropTypes.number,
+  hiddenSeries: PropTypes.objectOf(PropTypes.bool),
 };
 
 DataProvider.defaultProps = {
@@ -185,4 +190,5 @@ DataProvider.defaultProps = {
     bottom: 0,
     right: 0,
   },
+  hiddenSeries: {},
 };

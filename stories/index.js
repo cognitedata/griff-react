@@ -10,7 +10,7 @@ import * as d3 from 'd3';
 const randomData = () => {
   const data = [];
   for (let i = 100; i > 0; i--) {
-    const timestamp = Date.now() - i * 1000;
+    const timestamp = Date.now() - i * 1000000;
     const value = Math.random();
     data.push({
       timestamp,
@@ -40,7 +40,7 @@ storiesOf('DataProvider', module)
       const loader = () => {
         const series = {
           1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
+          2: { data: randomData(), id: 2, hidden: true },
           3: { data: randomData(), id: 3 },
         };
         return () => series;
@@ -259,5 +259,76 @@ storiesOf('DataProvider', module)
           </ChartContainer>
         </DataProvider>
       );
+    })
+  )
+  .add(
+    'Static data, timeline, hide/unhide series.',
+    withInfo()(() => {
+      let _loader = tags => {
+        const series = {};
+        tags.forEach(t => {
+          series[t.id] = { ...t, data: randomData() };
+        });
+        return (domain, subDomain, config, oldSeries, reason) => {
+          action(reason)();
+          return series;
+        };
+      };
+      let tags = [
+        {
+          id: 1,
+        },
+        {
+          id: 2,
+        },
+      ];
+      class Wrapper extends React.Component {
+        state = {
+          loader: _loader(tags),
+          tags,
+          hiddenSeries: {},
+        };
+
+        render() {
+          const { tags, hiddenSeries, loader } = this.state;
+          return (
+            <div>
+              <DataProvider
+                config={baseConfig}
+                margin={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                height={500}
+                width={800}
+                loader={loader}
+                colors={{
+                  1: 'steelblue',
+                  2: 'maroon',
+                }}
+                hiddenSeries={hiddenSeries}
+              >
+                <ChartContainer>
+                  <LineChart heightPct={0.8} />
+                  <ContextChart heightPct={0.1} margin={{ top: 0.1 }} />
+                </ChartContainer>
+              </DataProvider>
+              {tags.map(t => (
+                <button
+                  key={t.id}
+                  onClick={e => {
+                    this.setState({
+                      hiddenSeries: {
+                        ...hiddenSeries,
+                        [t.id]: !hiddenSeries[t.id],
+                      },
+                    });
+                  }}
+                >
+                  {t.hidden ? 'show' : 'hide'} {t.id}
+                </button>
+              ))}
+            </div>
+          );
+        }
+      }
+      return <Wrapper />;
     })
   );

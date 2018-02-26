@@ -28,10 +28,19 @@ export default class ContextChart extends Component {
       this.selection.call(this.brush.move, range);
       this.selection.call(this.brush);
     }
+
+    const prevRange = prevProps.xScale.range();
+    const curRange = this.props.xScale.range();
     if (prevProps.width !== this.props.width) {
+      const range = d3.brushSelection(this.brushNode);
+      const xScale = prevProps.xScale;
+      const oldSelection = range
+        .map(xScale.invert, xScale)
+        .map(p => p.getTime());
+      const newRange = oldSelection.map(this.props.xScale);
       const { height, heightPct, width } = this.props;
       this.brush.extent([[0, 0], [width, height * heightPct]]);
-      this.selection.call(this.brush.move, [0, width]);
+      this.selection.call(this.brush.move, newRange);
       this.selection.call(this.brush);
     }
   }
@@ -43,7 +52,10 @@ export default class ContextChart extends Component {
     const s = d3.event.selection || this.props.xScale.range();
     const scale = this.props.xScale;
     const domain = s.map(scale.invert, scale).map(p => p.getTime());
-    this.props.subDomainChanged(domain);
+    const oldDomain = scale.domain().map(p => p.getTime());
+    if (domain[0] !== oldDomain[0] || domain[1] !== oldDomain[1]) {
+      this.props.subDomainChanged(domain);
+    }
     if (d3.event.type === 'end') {
       this.props.updateTransformation(s);
     }
@@ -58,7 +70,8 @@ export default class ContextChart extends Component {
       heightPct,
       offsetY,
       xScale,
-      colors
+      colors,
+      hiddenSeries,
     } = this.props;
     const effectiveHeight = height * heightPct;
     return (
@@ -83,6 +96,7 @@ export default class ContextChart extends Component {
             <Line
               key={`line--${key}`}
               data={serie.data}
+              hidden={hiddenSeries[key]}
               xScale={xScale}
               yScale={yScale}
               xAccessor={serie.xAccessor || xAxis.accessor}

@@ -45,6 +45,7 @@ export default class LineChart extends Component {
       onMouseMove,
       crosshairs,
       margin,
+      hiddenSeries,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
@@ -81,46 +82,48 @@ export default class LineChart extends Component {
           offsetx={0}
           offsety={effectiveHeight}
         />
-        {Object.keys(series).map((key, idx) => {
-          const serie = series[key];
-          const yAccessor = serie.yAccessor || yAxis.accessor;
-          const yDomain = yAxis.calculateDomain
-            ? yAxis.calculateDomain(serie.data)
-            : d3.extent(serie.data, yAccessor);
-          let scaler = rescaleY[key];
-          if (!scaler) {
-            scaler = { rescaleY: d => d };
-          }
-          const yScale = scaler.rescaleY(
-            d3
-              .scaleLinear()
-              .domain(yDomain)
-              .range([effectiveHeight, 0])
-          );
-          return [
-            <Axis
-              key={`axis--${key}`}
-              id={key}
-              scale={yScale}
-              mode="y"
-              offsetx={width + idx * yAxis.width}
-              width={yAxis.width}
-              offsety={effectiveHeight}
-              strokeColor={colors[key]}
-              updateYScale={this.props.updateYScale}
-            />,
-            <Line
-              key={`line--${key}`}
-              data={serie.data}
-              xScale={xScale}
-              xAccessor={serie.xAccessor || xAxis.accessor}
-              yAccessor={serie.yAccessor || yAxis.accessor}
-              yScale={yScale}
-              color={colors[key]}
-              step={serie.step}
-            />,
-          ];
-        })}
+        {Object.keys(series)
+          .filter(key => !hiddenSeries[key])
+          .map((key, idx) => {
+            const serie = series[key];
+            const yAccessor = serie.yAccessor || yAxis.accessor;
+            const yDomain = yAxis.calculateDomain
+              ? yAxis.calculateDomain(serie.data)
+              : d3.extent(serie.data, yAccessor);
+            let scaler = rescaleY[key];
+            if (!scaler) {
+              scaler = { rescaleY: d => d };
+            }
+            const yScale = scaler.rescaleY(
+              d3
+                .scaleLinear()
+                .domain(yDomain)
+                .range([effectiveHeight, 0])
+            );
+            return [
+              <Axis
+                key={`axis--${key}`}
+                id={key}
+                scale={yScale}
+                mode="y"
+                offsetx={width + idx * yAxis.width}
+                width={yAxis.width}
+                offsety={effectiveHeight}
+                strokeColor={colors[key]}
+                updateYScale={this.props.updateYScale}
+              />,
+              <Line
+                key={`line--${key}`}
+                data={serie.data}
+                xScale={xScale}
+                xAccessor={serie.xAccessor || xAxis.accessor}
+                yAccessor={serie.yAccessor || yAxis.accessor}
+                yScale={yScale}
+                color={colors[key]}
+                step={serie.step}
+              />,
+            ];
+          })}
         <rect
           ref={ref => {
             this.zoomNode = ref;
