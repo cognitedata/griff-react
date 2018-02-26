@@ -4,10 +4,8 @@ import * as d3 from 'd3';
 class ChartContainer extends Component {
   constructor(props) {
     super(props);
-    const { height, yAxis: { width: yAxisWidth }, margin, width } = this.props;
-    const nSeries = Object.keys(this.props.series).length;
-    const chartWidth =
-      width - yAxisWidth * nSeries - margin.left - margin.right;
+    const { height } = this.props;
+    const chartWidth = this.getChartWidth();
     this.zoom = d3
       .zoom()
       .scaleExtent([1, 10000])
@@ -24,20 +22,33 @@ class ChartContainer extends Component {
       Object.keys(prevProps.series).length !==
       Object.keys(this.props.series).length
     ) {
-      const {
-        yAxis: { width: yAxisWidth },
-        margin,
-        width,
-        height,
-      } = this.props;
-      const nSeries = Object.keys(this.props.series).length;
-      const chartWidth =
-        width - yAxisWidth * nSeries - margin.left - margin.right;
+      const { height } = this.props;
+      const chartWidth = this.getChartWidth();
       this.zoom
         .translateExtent([[0, 0], [chartWidth, height]])
         .extent([[0, 0], [chartWidth, height]]);
     }
   }
+
+  getChartWidth = () => {
+    const {
+      width,
+      yAxis: { width: yAxisWidth },
+      hiddenSeries,
+      margin,
+      series,
+    } = this.props;
+    const nSeries = Object.keys(series).length;
+    const nHiddenSeries = Object.keys(hiddenSeries).filter(
+      s => hiddenSeries[s] === true
+    ).length;
+    return (
+      width -
+      yAxisWidth * (nSeries - nHiddenSeries) -
+      margin.left -
+      margin.right
+    );
+  };
 
   subDomainChanged = domain => {
     this.props.subDomainChanged(domain);
@@ -46,8 +57,7 @@ class ChartContainer extends Component {
   updateTransformation = s => {
     const { margin, series, yAxis: { width: yAxisWidth } } = this.props;
     const nSeries = Object.keys(series).length;
-    const width =
-      this.props.width - yAxisWidth * nSeries - margin.left - margin.right;
+    const width = this.getChartWidth();
     this.setState({
       transformation: d3.zoomIdentity
         .scale(width / (s[1] - s[0]))
@@ -65,11 +75,15 @@ class ChartContainer extends Component {
   };
 
   render() {
-    const { series, margin, width, domain, subDomain } = this.props;
-    const nSeries = Object.keys(series).length;
-    const yAxisWidth = this.props.yAxis.width;
-    const chartWidth =
-      this.props.width - yAxisWidth * nSeries - margin.left - margin.right;
+    const {
+      series,
+      margin,
+      width,
+      domain,
+      subDomain,
+      hiddenSeries,
+    } = this.props;
+    const chartWidth = this.getChartWidth();
     const chartHeight = this.props.height - margin.top - margin.bottom - 10;
     let heightOffset = 0;
     const xScale = d3

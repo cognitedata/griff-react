@@ -2,7 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 
-const Line = ({ data, xAccessor, yAccessor, xScale, yScale, color, step }) => {
+const Line = ({
+  data,
+  xAccessor,
+  yAccessor,
+  xScale,
+  yScale,
+  color,
+  step,
+  hidden,
+}) => {
   let line;
   if (step) {
     line = d3
@@ -22,7 +31,8 @@ const Line = ({ data, xAccessor, yAccessor, xScale, yScale, color, step }) => {
       style={{
         stroke: color,
         strokeWidth: '1.5px',
-        fill: 'none'
+        fill: 'none',
+        display: hidden ? 'none' : 'inherit',
       }}
       clipPath="url(#linechart-clip-path)"
     />
@@ -36,11 +46,13 @@ Line.propTypes = {
   xAccessor: PropTypes.func.isRequired,
   yAccessor: PropTypes.func.isRequired,
   color: PropTypes.string.isRequired,
-  step: PropTypes.bool
+  step: PropTypes.bool,
+  hidden: PropTypes.bool,
 };
 
 Line.defaultProps = {
-  step: false
+  step: false,
+  hidden: false,
 };
 
 export default Line;
