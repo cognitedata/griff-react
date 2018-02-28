@@ -41,7 +41,7 @@ storiesOf('DataProvider', module)
       const loader = () => {
         const series = {
           1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2, hidden: true },
+          2: { data: randomData(), id: 2 },
           3: { data: randomData(), id: 3 },
         };
         return () => series;
@@ -335,16 +335,20 @@ storiesOf('DataProvider', module)
     })
   )
   .add(
-    'Line + points',
+    'Annotations',
     withInfo()(() => {
       const loader = () => {
         const series = {
           1: { data: randomData(), id: 1 },
           2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3, drawPoints: true },
+          3: { data: randomData(), id: 3 },
         };
         return () => series;
       };
+      const series = loader()()[1];
+      const annotations = [
+        { id: 1, data: [series.data[40].timestamp, series.data[60].timestamp] },
+      ];
       return (
         <DataProvider
           config={baseConfig}
@@ -352,14 +356,45 @@ storiesOf('DataProvider', module)
           height={500}
           width={800}
           loader={loader()}
-          colors={{
-            1: 'red',
-            2: 'green',
-            3: 'blue',
-          }}
+          colors={{ 1: 'red', 2: 'green', 3: 'blue' }}
+          annotations={annotations}
         >
           <ChartContainer>
-            <LineChart heightPct={1} crosshairs />
+            <LineChart heightPct={0.85} crosshairs />
+            <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
+          </ChartContainer>
+        </DataProvider>
+      );
+    })
+  )
+  .add(
+    'Line + points',
+    withInfo()(() => {
+      const loader = () => {
+        const series = {
+          1: { data: randomData(), id: 1 },
+          2: { data: randomData(), id: 2, drawPoints: true },
+          3: { data: randomData(), id: 3 },
+        };
+        return () => series;
+      };
+      const series = loader()()[1];
+      const annotations = [
+        { id: 1, data: [series.data[40].timestamp, series.data[60].timestamp] },
+      ];
+      return (
+        <DataProvider
+          config={baseConfig}
+          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
+          height={500}
+          width={800}
+          loader={loader()}
+          colors={{ 1: 'red', 2: 'green', 3: 'blue' }}
+          annotations={annotations}
+        >
+          <ChartContainer>
+            <LineChart heightPct={0.85} crosshairs />
+            <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
           </ChartContainer>
         </DataProvider>
       );

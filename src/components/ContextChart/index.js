@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import Axis from '../Axis';
 import Line from '../Line';
-import simplify from '../../utils/simplify-points';
+import Annotation from '../Annotation';
 
 export default class ContextChart extends Component {
   componentDidMount() {
@@ -78,6 +78,7 @@ export default class ContextChart extends Component {
       xScale,
       colors,
       hiddenSeries,
+      annotations,
     } = this.props;
     const effectiveHeight = height * heightPct;
     return (
@@ -89,6 +90,16 @@ export default class ContextChart extends Component {
           offsety={effectiveHeight}
           offsetx={0}
         />
+        {annotations.map(annotation => (
+          <Annotation
+            key={annotation.id}
+            data={annotation.data}
+            xScale={xScale}
+            color={annotation.color}
+            height={effectiveHeight}
+            fillOpacity={0.3}
+          />
+        ))}
         {Object.keys(series).map(key => {
           const serie = series[key];
           const yDomain = yAxis.calculateDomain

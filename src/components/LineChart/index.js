@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import Line from '../Line';
 import Axis from '../Axis';
+import Annotation from '../Annotation';
 
 export default class LineChart extends Component {
   state = {
@@ -52,6 +53,7 @@ export default class LineChart extends Component {
       crosshairs,
       margin,
       hiddenSeries,
+      annotations,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
@@ -88,6 +90,14 @@ export default class LineChart extends Component {
           offsetx={0}
           offsety={effectiveHeight}
         />
+        {annotations.map(annotation => (
+          <Annotation
+            key={annotation.id}
+            data={annotation.data}
+            xScale={xScale}
+            height={effectiveHeight}
+          />
+        ))}
         {Object.keys(series)
           .filter(key => !hiddenSeries[key])
           .map((key, idx) => {
