@@ -8,7 +8,7 @@ class ChartContainer extends Component {
     const chartWidth = this.getChartWidth();
     this.zoom = d3
       .zoom()
-      .scaleExtent([1, 10000])
+      .scaleExtent([1, Infinity])
       .translateExtent([[0, 0], [chartWidth, height]])
       .extent([[0, 0], [chartWidth, height]]);
     this.state = {

@@ -331,4 +331,35 @@ storiesOf('DataProvider', module)
       }
       return <Wrapper />;
     })
+  )
+  .add(
+    'Line + points',
+    withInfo()(() => {
+      const loader = () => {
+        const series = {
+          1: { data: randomData(), id: 1 },
+          2: { data: randomData(), id: 2 },
+          3: { data: randomData(), id: 3, drawPoints: true },
+        };
+        return () => series;
+      };
+      return (
+        <DataProvider
+          config={baseConfig}
+          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
+          height={500}
+          width={800}
+          loader={loader()}
+          colors={{
+            1: 'red',
+            2: 'green',
+            3: 'blue',
+          }}
+        >
+          <ChartContainer>
+            <LineChart heightPct={1} crosshairs />
+          </ChartContainer>
+        </DataProvider>
+      );
+    })
   );

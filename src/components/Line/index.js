@@ -11,6 +11,7 @@ const Line = ({
   color,
   step,
   hidden,
+  drawPoints,
 }) => {
   let line;
   if (step) {
@@ -26,16 +27,27 @@ const Line = ({
       .y(d => yScale(yAccessor(d)));
   }
   return (
-    <path
-      d={line(data)}
-      style={{
-        stroke: color,
-        strokeWidth: '1.5px',
-        fill: 'none',
-        display: hidden ? 'none' : 'inherit',
-      }}
-      clipPath="url(#linechart-clip-path)"
-    />
+    <g clipPath="url(#linechart-clip-path)">
+      <path
+        d={line(data)}
+        style={{
+          stroke: color,
+          strokeWidth: '1.5px',
+          fill: 'none',
+          display: hidden ? 'none' : 'inherit',
+        }}
+      />
+      {drawPoints &&
+        data.map(d => (
+          <circle
+            className="line-circle"
+            r={3}
+            cx={xScale(xAccessor(d))}
+            cy={yScale(yAccessor(d))}
+            fill={color}
+          />
+        ))}
+    </g>
   );
 };
 
@@ -48,11 +60,13 @@ Line.propTypes = {
   color: PropTypes.string.isRequired,
   step: PropTypes.bool,
   hidden: PropTypes.bool,
+  drawPoints: PropTypes.bool,
 };
 
 Line.defaultProps = {
   step: false,
   hidden: false,
+  drawPoints: false,
 };
 
 export default Line;

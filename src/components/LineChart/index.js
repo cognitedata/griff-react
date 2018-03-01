@@ -121,6 +121,7 @@ export default class LineChart extends Component {
                 yScale={yScale}
                 color={colors[key]}
                 step={serie.step}
+                drawPoints={serie.drawPoints}
               />,
             ];
           })}
