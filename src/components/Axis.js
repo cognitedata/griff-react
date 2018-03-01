@@ -6,6 +6,29 @@ const tickTransformer = {
   y: v => `translate(0, ${v})`,
 };
 
+const formatMillisecond = d3.timeFormat('.%L');
+const formatSecond = d3.timeFormat(':%S');
+const formatMinute = d3.timeFormat('%H:%M');
+const formatHour = d3.timeFormat('%H:00');
+const formatDay = d3.timeFormat('%d/%m');
+const formatWeek = d3.timeFormat('%d/%m');
+const formatMonth = d3.timeFormat('%b');
+const formatYear = d3.timeFormat('%b %Y');
+
+function multiFormat(date) {
+  return (d3.timeSecond(date) < date
+    ? formatMillisecond
+    : d3.timeMinute(date) < date
+      ? formatSecond
+      : d3.timeHour(date) < date
+        ? formatMinute
+        : d3.timeDay(date) < date
+          ? formatHour
+          : d3.timeMonth(date) < date
+            ? d3.timeWeek(date) < date ? formatDay : formatWeek
+            : d3.timeYear(date) < date ? formatMonth : formatYear)(date);
+}
+
 export default class Axis extends Component {
   componentWillMount() {
     this.zoom = d3.zoom().on('zoom', this.didZoom);
@@ -40,6 +63,13 @@ export default class Axis extends Component {
     );
   }
 
+  getTickFormat = scale => {
+    if (this.props.mode === 'x') {
+      return multiFormat;
+    }
+    return scale.tickFormat();
+  };
+
   renderAxis() {
     const { scale, mode, offsetx, offsety, strokeColor = 'black' } = this.props;
     const axis = mode === 'x' ? d3.axisBottom(scale) : d3.axisRight(scale);
@@ -53,7 +83,7 @@ export default class Axis extends Component {
     const k = 1;
     const x = mode === 'x' ? 'x' : 'y';
     const y = mode === 'x' ? 'y' : 'x';
-    const tickFormat = scale.tickFormat();
+    const tickFormat = this.getTickFormat(scale);
     const range = scale.range().map(r => r + halfStrokeWidth);
     let pathString;
     if (mode === 'x') {

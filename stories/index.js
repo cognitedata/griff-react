@@ -9,8 +9,8 @@ import * as d3 from 'd3';
 
 const randomData = () => {
   const data = [];
-  for (let i = 100; i > 0; i--) {
-    const timestamp = Date.now() - i * 1000000;
+  for (let i = 250; i > 0; i--) {
+    const timestamp = Date.now() - i * 100000000;
     const value = Math.random();
     data.push({
       timestamp,
@@ -296,8 +296,8 @@ storiesOf('DataProvider', module)
               <DataProvider
                 config={baseConfig}
                 margin={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                height={500}
-                width={800}
+                height={800}
+                width={1200}
                 loader={loader}
                 colors={{
                   1: 'steelblue',
