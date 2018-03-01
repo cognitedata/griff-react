@@ -40,6 +40,7 @@ const Line = ({
       {drawPoints &&
         data.map(d => (
           <circle
+            key={xAccessor(d)}
             className="line-circle"
             r={3}
             cx={xScale(xAccessor(d))}
