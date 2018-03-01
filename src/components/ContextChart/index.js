@@ -61,6 +61,12 @@ export default class ContextChart extends Component {
     }
   };
 
+  calculateDomainFromData = (data, yAccessor) => {
+    const extent = d3.extent(data, yAccessor);
+    const diff = extent[1] - extent[0];
+    return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
+  };
+
   render() {
     const {
       yAxis,
@@ -87,11 +93,15 @@ export default class ContextChart extends Component {
           const serie = series[key];
           const yDomain = yAxis.calculateDomain
             ? yAxis.calculateDomain(serie.data)
-            : d3.extent(serie.data, serie.yAccessor || yAxis.accessor);
+            : this.calculateDomainFromData(
+                serie.data,
+                serie.yAccessor || yAxis.accessor
+              );
           const yScale = d3
             .scaleLinear()
             .domain(yDomain)
-            .range([effectiveHeight, 0]);
+            .range([effectiveHeight, 0])
+            .nice();
           return (
             <Line
               key={`line--${key}`}
