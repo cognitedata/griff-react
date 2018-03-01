@@ -51,7 +51,7 @@ const Line = ({
         d={line(data)}
         style={{
           stroke: color,
-          strokeWidth: '1.5px',
+          strokeWidth: '1px',
           fill: 'none',
           display: hidden ? 'none' : 'inherit',
         }}
