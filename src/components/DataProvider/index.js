@@ -61,7 +61,7 @@ export default class DataProvider extends Component {
       if (!currentSeries[key] || !series[key]) {
         return true;
       }
-      if (currentSeries[key].raw !== series[key].raw) {
+      if (currentSeries[key].drawPoints !== series[key].drawPoints) {
         return true;
       }
       const oldSerie = currentSeries[key];
@@ -87,7 +87,6 @@ export default class DataProvider extends Component {
         }
         return false;
       });
-      return false;
     }
     return false;
   }
@@ -140,7 +139,7 @@ export default class DataProvider extends Component {
     clearTimeout(this.subDomainChangedTimeout);
     this.subDomainChangedTimeout = setTimeout(async () => {
       await this.fetchData('UPDATE_SUBDOMAIN');
-    }, 100);
+    }, 300);
     this.setState({ subDomain });
   };
 

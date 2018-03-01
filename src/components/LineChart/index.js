@@ -30,6 +30,12 @@ export default class LineChart extends Component {
     return this.props.subDomainChanged(dd);
   };
 
+  calculateDomainFromData = (data, yAccessor) => {
+    const extent = d3.extent(data, yAccessor);
+    const diff = extent[1] - extent[0];
+    return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
+  };
+
   render() {
     const {
       yAxis,
@@ -89,7 +95,7 @@ export default class LineChart extends Component {
             const yAccessor = serie.yAccessor || yAxis.accessor;
             const yDomain = yAxis.calculateDomain
               ? yAxis.calculateDomain(serie.data)
-              : d3.extent(serie.data, yAccessor);
+              : this.calculateDomainFromData(serie.data, yAccessor);
             let scaler = rescaleY[key];
             if (!scaler) {
               scaler = { rescaleY: d => d };
@@ -99,6 +105,7 @@ export default class LineChart extends Component {
                 .scaleLinear()
                 .domain(yDomain)
                 .range([effectiveHeight, 0])
+                .nice()
             );
             return [
               <Axis

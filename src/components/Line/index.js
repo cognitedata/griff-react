@@ -26,6 +26,25 @@ const Line = ({
       .x(d => xScale(xAccessor(d)))
       .y(d => yScale(yAccessor(d)));
   }
+  let circles = null;
+  if (drawPoints) {
+    const subDomain = xScale.domain().map(p => p.getTime());
+    circles = data
+      .filter(d => {
+        const x = xAccessor(d);
+        return x >= subDomain[0] && x <= subDomain[1];
+      })
+      .map(d => (
+        <circle
+          key={xAccessor(d)}
+          className="line-circle"
+          r={3}
+          cx={xScale(xAccessor(d))}
+          cy={yScale(yAccessor(d))}
+          fill={color}
+        />
+      ));
+  }
   return (
     <g clipPath="url(#linechart-clip-path)">
       <path
@@ -37,17 +56,7 @@ const Line = ({
           display: hidden ? 'none' : 'inherit',
         }}
       />
-      {drawPoints &&
-        data.map(d => (
-          <circle
-            key={xAccessor(d)}
-            className="line-circle"
-            r={3}
-            cx={xScale(xAccessor(d))}
-            cy={yScale(yAccessor(d))}
-            fill={color}
-          />
-        ))}
+      {circles}
     </g>
   );
 };
