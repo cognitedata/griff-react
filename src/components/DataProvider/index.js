@@ -61,6 +61,9 @@ export default class DataProvider extends Component {
       if (!currentSeries[key] || !series[key]) {
         return true;
       }
+      if (currentSeries[key].raw !== series[key].raw) {
+        return true;
+      }
       const oldSerie = currentSeries[key];
       const newSerie = series[key];
       if (oldSerie.data.length !== newSerie.data.length) {
