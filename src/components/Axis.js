@@ -12,7 +12,7 @@ const formatMinute = d3.timeFormat('%H:%M');
 const formatHour = d3.timeFormat('%H:00');
 const formatDay = d3.timeFormat('%d/%m');
 const formatWeek = d3.timeFormat('%d/%m');
-const formatMonth = d3.timeFormat('%b');
+const formatMonth = d3.timeFormat('%d/%m');
 const formatYear = d3.timeFormat('%b %Y');
 
 function multiFormat(date) {
