@@ -77,8 +77,8 @@ export default class DataProvider extends Component {
         oldSerie.yAccessor || this.props.config.yAxis.accessor;
       const newXAccessor = newSerie.xAccessor || config.xAxis.accessor;
       const newYAccessor = newSerie.yAccessor || config.yAxis.accessor;
-      oldData.some(oldPoint => {
-        const newPoint = newData[i];
+      oldData.some((oldPoint, j) => {
+        const newPoint = newData[j];
         if (oldXAccessor(oldPoint) !== newXAccessor(newPoint)) {
           return true;
         }
