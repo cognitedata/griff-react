@@ -55,6 +55,9 @@ export default class DataProvider extends Component {
     if (keys.length !== currentKeys.length) {
       return true;
     }
+    if (!isEqual(config.yAxis, this.props.config.yAxis)) {
+      return true;
+    }
     const allKeys = uniq([...keys, ...currentKeys]);
     for (let i = 0; i < allKeys.length; i += 1) {
       const key = allKeys[i];

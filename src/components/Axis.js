@@ -34,6 +34,14 @@ export default class Axis extends Component {
     this.zoom = d3.zoom().on('zoom', this.didZoom);
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.zoomable && !this.props.zoomable) {
+      this.selection.on('.zoom', null);
+    } else if (!prevProps.zoomable && this.props.zoomable) {
+      this.selection.call(this.zoom);
+    }
+  }
+
   componentDidMount() {
     this.selection = d3.select(this.zoomNode);
     this.selection.call(this.zoom);

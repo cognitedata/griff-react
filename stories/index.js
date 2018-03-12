@@ -6,6 +6,7 @@ import { DataProvider, ChartContainer, LineChart, ContextChart } from '../src';
 import moment from 'moment';
 import axios from 'axios';
 import * as d3 from 'd3';
+import StaticAxis from './StaticAxis';
 
 const randomData = () => {
   const data = [];
@@ -361,5 +362,11 @@ storiesOf('DataProvider', module)
           </ChartContainer>
         </DataProvider>
       );
+    })
+  )
+  .add(
+    'static data with static axis range',
+    withInfo()(() => {
+      return <StaticAxis />;
     })
   );
