@@ -100,18 +100,29 @@ export default class LineChart extends Component {
             if (!scaler) {
               scaler = { rescaleY: d => d };
             }
-            const yScale = scaler.rescaleY(
-              d3
+            const staticDomain = (yAxis.staticDomain || {})[key];
+            let staticScale;
+            if (staticDomain) {
+              staticScale = d3
                 .scaleLinear()
-                .domain(yDomain)
-                .range([effectiveHeight, 0])
-                .nice()
-            );
+                .domain(staticDomain)
+                .range([effectiveHeight, 0]);
+            }
+            const yScale = staticScale
+              ? staticScale
+              : scaler.rescaleY(
+                  d3
+                    .scaleLinear()
+                    .domain(yDomain)
+                    .range([effectiveHeight, 0])
+                    .nice()
+                );
             return [
               <Axis
                 key={`axis--${key}`}
                 id={key}
                 scale={yScale}
+                zoomable={!staticScale}
                 mode="y"
                 offsetx={width + idx * yAxis.width}
                 width={yAxis.width}
