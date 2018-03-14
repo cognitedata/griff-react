@@ -23,7 +23,13 @@ Will run the local demo located at `demo/src/index.js`
 
 ## Usage
 
-See example in `demo/src` and `stories/index.js`
+`yarn add @cognite/griff-react`
+
+or
+
+`npm i @cognite/griff-react`
+
+See examples in `demo/src` and `stories/index.js`
 
 ## Concepts
 
