@@ -237,6 +237,7 @@ storiesOf('DataProvider', module)
             1: {
               id: 1,
               data,
+              drawPoints: granularity === 'daily',
             },
           };
         };
@@ -245,8 +246,8 @@ storiesOf('DataProvider', module)
         <DataProvider
           config={{
             ...baseConfig,
-            pointsPerSerie: 1000,
-            baseDomain: [+moment().subtract(10, 'year'), +moment()],
+            pointsPerSerie: 100,
+            baseDomain: [+moment().subtract(15, 'year'), +moment()],
           }}
           margin={{ top: 10, bottom: 10, left: 10, right: 10 }}
           height={500}
