@@ -3,18 +3,6 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 
 const Annotation = ({ data, xScale, height, color, fillOpacity, id }) => {
-  const fixedData = [
-    [data[0], 0],
-    [data[1], 0],
-    [data[1], height],
-    [data[0], height],
-    [data[0], 0],
-  ];
-  const line = d3
-    .line()
-    .x(d => xScale(d[0]))
-    .y(d => d[1]);
-  const d = line(fixedData);
   return (
     <rect
       x={xScale(data[0])}

@@ -91,16 +91,18 @@ export default class LineChart extends Component {
           offsetx={0}
           offsety={effectiveHeight}
         />
-        {annotations.map(annotation => (
-          <Annotation
-            key={annotation.id}
-            id={annotation.id}
-            data={annotation.data}
-            xScale={xScale}
-            height={effectiveHeight}
-            color={annotation.color}
-          />
-        ))}
+        <g clipPath="url(#linechart-clip-path)">
+          {annotations.map(annotation => (
+            <Annotation
+              key={annotation.id}
+              id={annotation.id}
+              data={annotation.data}
+              xScale={xScale}
+              height={effectiveHeight}
+              color={annotation.color}
+            />
+          ))}
+        </g>
         {Object.keys(series)
           .filter(key => !hiddenSeries[key])
           .map((key, idx) => {
