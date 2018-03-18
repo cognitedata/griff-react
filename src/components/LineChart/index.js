@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import Line from '../Line';
 import Axis from '../Axis';
+import Annotation from '../Annotation';
 
 export default class LineChart extends Component {
   state = {
@@ -49,9 +50,11 @@ export default class LineChart extends Component {
       rescaleY,
       colors,
       onMouseMove,
+      onClickAnnotation,
       crosshairs,
       margin,
       hiddenSeries,
+      annotations,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
@@ -65,8 +68,8 @@ export default class LineChart extends Component {
               x2={width}
               stroke={'#ccc'}
               strokeWidth={1}
-              y1={liney - margin.top}
-              y2={liney - margin.top}
+              y1={liney}
+              y2={liney}
             />,
             <line
               key={1}
@@ -74,8 +77,8 @@ export default class LineChart extends Component {
               y2={effectiveHeight}
               stroke="#ccc"
               strokeWidth="1"
-              x1={linex - margin.left}
-              x2={linex - margin.left}
+              x1={linex}
+              x2={linex}
             />,
           ]}
         <clipPath id="linechart-clip-path">
@@ -88,6 +91,16 @@ export default class LineChart extends Component {
           offsetx={0}
           offsety={effectiveHeight}
         />
+        {annotations.map(annotation => (
+          <Annotation
+            key={annotation.id}
+            id={annotation.id}
+            data={annotation.data}
+            xScale={xScale}
+            height={effectiveHeight}
+            color={annotation.color}
+          />
+        ))}
         {Object.keys(series)
           .filter(key => !hiddenSeries[key])
           .map((key, idx) => {
@@ -151,12 +164,27 @@ export default class LineChart extends Component {
           height={effectiveHeight}
           pointerEvents="all"
           fill="none"
+          onClick={
+            onClickAnnotation
+              ? e => {
+                  const xpos = e.nativeEvent.offsetX - margin.left;
+                  const ypos = e.nativeEvent.offsetY - margin.top;
+                  const rawTimestamp = xScale.invert(xpos).getTime();
+                  annotations.forEach(a => {
+                    if (rawTimestamp > a.data[0] && rawTimestamp < a.data[1]) {
+                      // Clicked within an annotation
+                      onClickAnnotation(a, xpos, ypos);
+                    }
+                  });
+                }
+              : null
+          }
           onMouseMove={e => {
             if (Object.keys(series).length === 0) {
               return;
             }
-            const xpos = e.nativeEvent.offsetX;
-            const ypos = e.nativeEvent.offsetY;
+            const xpos = e.nativeEvent.offsetX - margin.left;
+            const ypos = e.nativeEvent.offsetY - margin.top;
             const rawTimestamp = xScale.invert(xpos).getTime();
             const serieKeys = Object.keys(series);
             const serie = series[serieKeys[0]];

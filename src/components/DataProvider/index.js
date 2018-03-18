@@ -23,9 +23,12 @@ export default class DataProvider extends Component {
   }
 
   shouldComponentUpdate(
-    { config, loader, width, height, colors, hiddenSeries },
+    { config, loader, width, height, colors, hiddenSeries, annotations },
     { subDomain: nextSubdomain, series }
   ) {
+    if (!isEqual(annotations, this.props.annotations)) {
+      return true;
+    }
     if (this.props.loader !== loader) {
       return true;
     }
@@ -147,7 +150,14 @@ export default class DataProvider extends Component {
   };
 
   render() {
-    const { width, height, margin, colors, hiddenSeries } = this.props;
+    const {
+      width,
+      height,
+      margin,
+      colors,
+      hiddenSeries,
+      annotations,
+    } = this.props;
     const { series, contextSeries } = this.state;
     const { config } = this.props;
     if (!series) {
@@ -157,6 +167,7 @@ export default class DataProvider extends Component {
       const props = {
         colors,
         hiddenSeries,
+        annotations,
         yAxis: config.yAxis,
         xAxis: config.xAxis,
         domain: config.baseDomain,
@@ -186,6 +197,7 @@ DataProvider.propTypes = {
   margin: PropTypes.object,
   updateInterval: PropTypes.number,
   hiddenSeries: PropTypes.objectOf(PropTypes.bool),
+  annotations: PropTypes.arrayOf(PropTypes.object),
 };
 
 DataProvider.defaultProps = {
@@ -196,4 +208,5 @@ DataProvider.defaultProps = {
     right: 0,
   },
   hiddenSeries: {},
+  annotations: [],
 };
