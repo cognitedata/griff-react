@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 
-const Annotation = ({ data, xScale, height, color, fillOpacity }) => {
+const Annotation = ({ data, xScale, height, color, fillOpacity, id }) => {
   const fixedData = [
     [data[0], 0],
     [data[1], 0],
@@ -16,10 +16,12 @@ const Annotation = ({ data, xScale, height, color, fillOpacity }) => {
     .y(d => d[1]);
   const d = line(fixedData);
   return (
-    <path
-      d={d}
+    <rect
+      x={xScale(data[0])}
+      y={0}
+      height={height}
+      width={xScale(data[1]) - xScale(data[0])}
       style={{ stroke: color, fill: color, fillOpacity }}
-      clipPath="url(#linechart-clip-path)"
     />
   );
 };
@@ -28,6 +30,7 @@ Annotation.propTypes = {
   data: PropTypes.arrayOf(PropTypes.number).isRequired,
   xScale: PropTypes.func.isRequired,
   height: PropTypes.number.isRequired,
+  id: PropTypes.number.isRequired,
   color: PropTypes.string,
   fillOpacity: PropTypes.number,
 };

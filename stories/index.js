@@ -347,7 +347,11 @@ storiesOf('DataProvider', module)
       };
       const series = loader()()[1];
       const annotations = [
-        { id: 1, data: [series.data[40].timestamp, series.data[60].timestamp] },
+        {
+          id: 1,
+          data: [series.data[40].timestamp, series.data[60].timestamp],
+          color: 'steelblue',
+        },
       ];
       return (
         <DataProvider

@@ -93,6 +93,7 @@ export default class ContextChart extends Component {
         {annotations.map(annotation => (
           <Annotation
             key={annotation.id}
+            id={annotation.id}
             data={annotation.data}
             xScale={xScale}
             color={annotation.color}
