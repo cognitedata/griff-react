@@ -6,3 +6,4 @@ npm-debug.log*
 es/
 lib/
 .out
+yarn-error.log
