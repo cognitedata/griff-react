@@ -447,4 +447,56 @@ storiesOf('DataProvider', module)
         </DataProvider>
       );
     })
+  )
+  .add(
+    'Toggle time line chart',
+    withInfo()(() => {
+      const loader = () => {
+        const series = {
+          1: { data: randomData(), id: 1 },
+          2: { data: randomData(), id: 2 },
+          3: { data: randomData(), id: 3 },
+        };
+        return () => series;
+      };
+      const config = {
+        ...baseConfig,
+      };
+      class Wrapper extends React.Component {
+        state = { showTimeline: true };
+
+        render() {
+          const { showTimeline } = this.state;
+          return (
+            <div>
+              <DataProvider
+                config={config}
+                margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
+                height={500}
+                width={800}
+                loader={loader()}
+                colors={{
+                  1: 'red',
+                  2: 'green',
+                  3: 'blue',
+                }}
+              >
+                <ChartContainer>
+                  <LineChart heightPct={showTimeline ? 0.85 : 1} crosshairs />
+                  {showTimeline ? (
+                    <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
+                  ) : null}
+                </ChartContainer>
+              </DataProvider>
+              <button
+                onClick={() => this.setState({ showTimeline: !showTimeline })}
+              >
+                Toggle
+              </button>
+            </div>
+          );
+        }
+      }
+      return <Wrapper />;
+    })
   );

@@ -92,8 +92,9 @@ class ChartContainer extends Component {
       .domain(subDomain)
       .range([0, chartWidth]);
     const children = React.Children.map(this.props.children, child => {
-      if (!child) {
-        return;
+      if (child === null) {
+        // Handling the conditional rendering of children, that will render false/null
+        return null;
       }
       heightOffset += ((child.props.margin || {}).top || 0) * chartHeight;
       const c = React.cloneElement(child, {
