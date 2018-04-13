@@ -33,7 +33,7 @@ class ChartContainer extends Component {
   getChartWidth = () => {
     const {
       width,
-      yAxis: { width: yAxisWidth },
+      yAxis: { width: yAxisWidth, display: yAxisDisplayMode },
       hiddenSeries,
       margin,
       series,
@@ -42,12 +42,9 @@ class ChartContainer extends Component {
     const nHiddenSeries = Object.keys(hiddenSeries).filter(
       s => hiddenSeries[s] === true
     ).length;
-    return (
-      width -
-      yAxisWidth * (nSeries - nHiddenSeries) -
-      margin.left -
-      margin.right
-    );
+    const visibleAxesCount =
+      yAxisDisplayMode === 'NONE' ? 0 : nSeries - nHiddenSeries;
+    return width - yAxisWidth * visibleAxesCount - margin.left - margin.right;
   };
 
   subDomainChanged = domain => {
@@ -95,6 +92,9 @@ class ChartContainer extends Component {
       .domain(subDomain)
       .range([0, chartWidth]);
     const children = React.Children.map(this.props.children, child => {
+      if (!child) {
+        return;
+      }
       heightOffset += ((child.props.margin || {}).top || 0) * chartHeight;
       const c = React.cloneElement(child, {
         ...this.props,

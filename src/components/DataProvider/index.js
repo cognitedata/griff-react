@@ -23,7 +23,16 @@ export default class DataProvider extends Component {
   }
 
   shouldComponentUpdate(
-    { config, loader, width, height, colors, hiddenSeries, annotations },
+    {
+      config,
+      loader,
+      width,
+      height,
+      colors,
+      hiddenSeries,
+      annotations,
+      children,
+    },
     { subDomain: nextSubdomain, series }
   ) {
     if (!isEqual(annotations, this.props.annotations)) {
@@ -39,6 +48,9 @@ export default class DataProvider extends Component {
       return true;
     }
     if (!isEqual(hiddenSeries, this.props.hiddenSeries)) {
+      return true;
+    }
+    if (!isEqual(children, this.props.children)) {
       return true;
     }
     const { subDomain } = this.state;
@@ -59,6 +71,9 @@ export default class DataProvider extends Component {
       return true;
     }
     if (!isEqual(config.yAxis, this.props.config.yAxis)) {
+      return true;
+    }
+    if (config.showContext !== this.props.config.showContext) {
       return true;
     }
     const allKeys = uniq([...keys, ...currentKeys]);
@@ -165,6 +180,7 @@ export default class DataProvider extends Component {
     }
     const children = React.Children.map(this.props.children, (child, i) => {
       const props = {
+        config,
         colors,
         hiddenSeries,
         annotations,
