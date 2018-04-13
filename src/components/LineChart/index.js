@@ -55,9 +55,15 @@ export default class LineChart extends Component {
       margin,
       hiddenSeries,
       annotations,
+      config,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
+    let yAxisDisplayMode = 'ALL';
+    if (config.yAxis && config.yAxis.display) {
+      yAxisDisplayMode = config.yAxis.display;
+    }
+    const showAxes = yAxisDisplayMode === 'ALL';
     return (
       <g className="line-chart" transform={`translate(0, ${offsetY})`}>
         {linex &&
@@ -132,19 +138,24 @@ export default class LineChart extends Component {
                     .range([effectiveHeight, 0])
                     .nice()
                 );
-            return [
-              <Axis
-                key={`axis--${key}`}
-                id={key}
-                scale={yScale}
-                zoomable={!staticScale}
-                mode="y"
-                offsetx={width + idx * yAxis.width}
-                width={yAxis.width}
-                offsety={effectiveHeight}
-                strokeColor={colors[key]}
-                updateYScale={this.props.updateYScale}
-              />,
+            var items = [];
+            if (showAxes) {
+              items.push(
+                <Axis
+                  key={`axis--${key}`}
+                  id={key}
+                  scale={yScale}
+                  zoomable={!staticScale}
+                  mode="y"
+                  offsetx={width + idx * yAxis.width}
+                  width={yAxis.width}
+                  offsety={effectiveHeight}
+                  strokeColor={colors[key]}
+                  updateYScale={this.props.updateYScale}
+                />
+              );
+            }
+            items.push(
               <Line
                 key={`line--${key}`}
                 data={serie.data}
@@ -155,8 +166,9 @@ export default class LineChart extends Component {
                 color={colors[key]}
                 step={serie.step}
                 drawPoints={serie.drawPoints}
-              />,
-            ];
+              />
+            );
+            return items;
           })}
         <rect
           ref={ref => {
