@@ -43,6 +43,6 @@
   "keywords": ["react-component"],
   "publishConfig": {
     "access": "public",
-    "registry": "https://repository.dev.cognite.ai/repository/npm/"
+    "registry": "https://registry.npmjs.org/"
   }
 }
