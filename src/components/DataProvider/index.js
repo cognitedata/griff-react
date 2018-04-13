@@ -50,7 +50,13 @@ export default class DataProvider extends Component {
     if (!isEqual(hiddenSeries, this.props.hiddenSeries)) {
       return true;
     }
-    if (!isEqual(children, this.props.children)) {
+    if (
+      React.Children.toArray(children).filter(child => child !== null)
+        .length !==
+      React.Children.toArray(this.props.children).filter(
+        child => child !== null
+      ).length
+    ) {
       return true;
     }
     const { subDomain } = this.state;
