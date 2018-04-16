@@ -10,6 +10,10 @@ export default class LineChart extends Component {
     liney: null,
   };
 
+  isZoomable() {
+    return 'zoomable' in this.props.config ? this.props.config.zoomable : true;
+  }
+
   componentDidMount() {
     this.selection = d3.select(this.zoomNode);
     this.selection.call(this.props.zoom.on('zoom', this.zoomed));
@@ -24,6 +28,9 @@ export default class LineChart extends Component {
   }
 
   zoomed = () => {
+    if (!this.isZoomable()) {
+      return null;
+    }
     const t = d3.event.transform;
     const scale = this.props.xScale;
     const newScale = t.rescaleX(scale);
@@ -145,7 +152,7 @@ export default class LineChart extends Component {
                   key={`axis--${key}`}
                   id={key}
                   scale={yScale}
-                  zoomable={!staticScale}
+                  zoomable={this.isZoomable() && !staticScale}
                   mode="y"
                   offsetx={width + idx * yAxis.width}
                   width={yAxis.width}
