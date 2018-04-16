@@ -25,11 +25,19 @@ function multiFormat(date) {
         : d3.timeDay(date) < date
           ? formatHour
           : d3.timeMonth(date) < date
-            ? d3.timeWeek(date) < date ? formatDay : formatWeek
-            : d3.timeYear(date) < date ? formatMonth : formatYear)(date);
+            ? d3.timeWeek(date) < date
+              ? formatDay
+              : formatWeek
+            : d3.timeYear(date) < date
+              ? formatMonth
+              : formatYear)(date);
 }
 
 export default class Axis extends Component {
+  static defaultProps = {
+    zoomable: true,
+  };
+
   componentWillMount() {
     this.zoom = d3.zoom().on('zoom', this.didZoom);
   }
@@ -54,6 +62,9 @@ export default class Axis extends Component {
 
   renderZoomRect() {
     if (this.props.mode === 'x') {
+      return null;
+    }
+    if (!this.props.zoomable) {
       return null;
     }
     const { offsetx, offsety, width } = this.props;
