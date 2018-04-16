@@ -43,17 +43,26 @@ export default class Axis extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.zoomable && !this.props.zoomable) {
-      this.selection.on('.zoom', null);
-    } else if (!prevProps.zoomable && this.props.zoomable) {
-      this.selection.call(this.zoom);
+    if (prevProps.zoomable != this.props.zoomable) {
+      this.syncZoomingState();
     }
   }
 
   componentDidMount() {
     this.selection = d3.select(this.zoomNode);
-    this.selection.call(this.zoom);
+    this.syncZoomingState();
   }
+
+  syncZoomingState = () => {
+    if (this.props.mode === 'x') {
+      return null;
+    }
+    if (this.props.zoomable) {
+      this.selection.call(this.zoom);
+    } else {
+      this.selection.on('.zoom', null);
+    }
+  };
 
   didZoom = () => {
     const t = d3.event.transform;
@@ -62,9 +71,6 @@ export default class Axis extends Component {
 
   renderZoomRect() {
     if (this.props.mode === 'x') {
-      return null;
-    }
-    if (!this.props.zoomable) {
       return null;
     }
     const { offsetx, offsety, width } = this.props;
