@@ -484,6 +484,57 @@ storiesOf('DataProvider', module)
     })
   )
   .add(
+    'toggleable zooming',
+    withInfo()(() => {
+      const loader = () => {
+        const series = {
+          1: { data: randomData(), id: 1 },
+          2: { data: randomData(), id: 2 },
+          3: { data: randomData(), id: 3 },
+        };
+        return () => series;
+      };
+      const config = {
+        ...baseConfig,
+        zoomable: false,
+      };
+      class Wrapper extends React.Component {
+        state = { zoomable: false };
+        render() {
+          const { zoomable } = this.state;
+          const configCopy = {
+            ...config,
+            zoomable: zoomable,
+          };
+          return (
+            <div>
+              <DataProvider
+                config={configCopy}
+                margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
+                height={500}
+                width={800}
+                loader={loader()}
+                colors={{
+                  1: 'red',
+                  2: 'green',
+                  3: 'blue',
+                }}
+              >
+                <ChartContainer>
+                  <LineChart heightPct={1} crosshairs />
+                </ChartContainer>
+              </DataProvider>
+              <button onClick={() => this.setState({ zoomable: !zoomable })}>
+                Toggle
+              </button>
+            </div>
+          );
+        }
+      }
+      return <Wrapper />;
+    })
+  )
+  .add(
     'Toggle time line chart',
     withInfo()(() => {
       const loader = () => {

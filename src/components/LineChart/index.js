@@ -16,7 +16,7 @@ export default class LineChart extends Component {
 
   componentDidMount() {
     this.selection = d3.select(this.zoomNode);
-    this.selection.call(this.props.zoom.on('zoom', this.zoomed));
+    this.syncZoomingState();
   }
 
   componentDidUpdate(prevProps) {
@@ -25,12 +25,21 @@ export default class LineChart extends Component {
     if (!(x === prevx && k === prevk)) {
       this.selection.call(this.props.zoom.transform, this.props.transformation);
     }
+
+    if (prevProps.config.zoomable != this.props.config.zoomable) {
+      this.syncZoomingState();
+    }
   }
 
-  zoomed = () => {
-    if (!this.isZoomable()) {
-      return null;
+  syncZoomingState = () => {
+    if (this.isZoomable()) {
+      this.selection.call(this.props.zoom.on('zoom', this.zoomed));
+    } else {
+      this.selection.on('.zoom', null);
     }
+  };
+
+  zoomed = () => {
     const t = d3.event.transform;
     const scale = this.props.xScale;
     const newScale = t.rescaleX(scale);
