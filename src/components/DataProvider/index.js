@@ -123,7 +123,7 @@ export default class DataProvider extends Component {
       return this.fetchData('NEW_LOADER');
     }
     const { baseDomain: domain } = this.props.config;
-    const { baseDomain: oldDomain } = prevProps;
+    const { baseDomain: oldDomain } = prevProps.config;
     if (
       domain &&
       oldDomain &&
