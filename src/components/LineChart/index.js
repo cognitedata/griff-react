@@ -282,6 +282,7 @@ export default class LineChart extends Component {
             if (crosshairs) {
               this.setState({ linex: null, liney: null });
             }
+            this.props.onMouseOut && this.props.onMouseOut(e);
           }}
         />
       </g>
