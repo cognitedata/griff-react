@@ -593,6 +593,9 @@ storiesOf('DataProvider', module)
           data: randomData().map(r => ({ timestamp: r.timestamp, value: 15 })),
           step: true,
         },
+        2: {
+          data: randomData(),
+        },
       };
       return () => series;
     };
@@ -603,7 +606,7 @@ storiesOf('DataProvider', module)
         margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
         height={500}
         width={800}
-        colors={{ 1: 'steelblue' }}
+        colors={{ 1: 'steelblue', 2: 'red' }}
         loader={loader}
       >
         <ChartContainer>
