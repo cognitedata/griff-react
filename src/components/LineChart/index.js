@@ -50,6 +50,9 @@ export default class LineChart extends Component {
   calculateDomainFromData = (data, yAccessor) => {
     const extent = d3.extent(data, yAccessor);
     const diff = extent[1] - extent[0];
+    if (Math.abs(diff) < 1e-3) {
+      return [1 / 2 * extent[0], 3 / 2 * extent[0]];
+    }
     return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
   };
 
