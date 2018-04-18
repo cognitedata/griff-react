@@ -260,21 +260,19 @@ export default class LineChart extends Component {
                 const ts = xAxis.accessor(d);
                 const value = yAccessor(d);
                 output.points.push({
+                  key: key,
                   timestamp: ts,
                   value,
                   x: xScale(ts),
                   y: yScale(value),
                 });
-                if (crosshairs) {
-                  this.setState({ linex: xpos, liney: ypos });
-                }
               } else {
-                // points[key] = data[data.length - 1];
-                if (crosshairs) {
-                  this.setState({ linex: 0, liney: 0 });
-                }
+                output.points.push({ key: key });
               }
             });
+            if (crosshairs) {
+              this.setState({ linex: xpos, liney: ypos });
+            }
             onMouseMove && onMouseMove(output);
           }}
           onMouseOut={e => {
