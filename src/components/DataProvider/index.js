@@ -32,6 +32,7 @@ export default class DataProvider extends Component {
       hiddenSeries,
       annotations,
       children,
+      strokeWidths,
     },
     { subDomain: nextSubdomain, series }
   ) {
@@ -48,6 +49,9 @@ export default class DataProvider extends Component {
       return true;
     }
     if (!isEqual(hiddenSeries, this.props.hiddenSeries)) {
+      return true;
+    }
+    if (!isEqual(this.props.strokeWidths, strokeWidths)) {
       return true;
     }
     if (
@@ -178,6 +182,7 @@ export default class DataProvider extends Component {
       colors,
       hiddenSeries,
       annotations,
+      strokeWidths,
     } = this.props;
     const { series, contextSeries } = this.state;
     const { config } = this.props;
@@ -199,6 +204,7 @@ export default class DataProvider extends Component {
         width,
         height,
         margin,
+        strokeWidths,
         subDomainChanged: this.subDomainChanged,
         key: i + 1,
       };
@@ -220,6 +226,7 @@ DataProvider.propTypes = {
   updateInterval: PropTypes.number,
   hiddenSeries: PropTypes.objectOf(PropTypes.bool),
   annotations: PropTypes.arrayOf(PropTypes.object),
+  strokeWidths: PropTypes.arrayOf(PropTypes.number),
 };
 
 DataProvider.defaultProps = {
@@ -231,4 +238,5 @@ DataProvider.defaultProps = {
   },
   hiddenSeries: {},
   annotations: [],
+  strokeWidths: [],
 };

@@ -6,7 +6,9 @@ import { DataProvider, ChartContainer, LineChart, ContextChart } from '../src';
 import moment from 'moment';
 import axios from 'axios';
 import * as d3 from 'd3';
+import { Slider } from 'antd';
 import StaticAxis from './StaticAxis';
+import 'antd/dist/antd.css';
 
 const randomData = () => {
   const data = [];
@@ -579,6 +581,71 @@ storiesOf('DataProvider', module)
               >
                 Toggle
               </button>
+            </div>
+          );
+        }
+      }
+      return <Wrapper />;
+    })
+  )
+  .add(
+    'Adjustable line thickness',
+    withInfo()(() => {
+      class Wrapper extends React.Component {
+        series = {
+          1: { data: randomData(), id: 1 },
+          2: { data: randomData(), id: 2 },
+          3: { data: randomData(), id: 3 },
+        };
+        _loader = () => {
+          return () => this.series;
+        };
+        loader = this._loader();
+        config = {
+          ...baseConfig,
+        };
+
+        state = { showTimeline: true, strokeWidths: [] };
+
+        render() {
+          const { showTimeline, strokeWidths } = this.state;
+          return (
+            <div>
+              <DataProvider
+                config={this.config}
+                margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
+                height={500}
+                width={800}
+                loader={this.loader}
+                colors={{
+                  1: 'red',
+                  2: 'green',
+                  3: 'blue',
+                }}
+                strokeWidths={strokeWidths}
+              >
+                <ChartContainer>
+                  <LineChart heightPct={showTimeline ? 0.85 : 1} crosshairs />
+                  <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
+                </ChartContainer>
+              </DataProvider>
+              {Object.keys(this.series).map((key, index) => (
+                <Slider
+                  key={`slider-${key}`}
+                  value={1}
+                  min={1}
+                  max={10}
+                  step={1}
+                  onChange={value => {
+                    const copy = [...strokeWidths];
+                    copy[index] = value;
+                    this.setState({
+                      strokeWidths: copy,
+                    });
+                  }}
+                  value={strokeWidths[index]}
+                />
+              ))}
             </div>
           );
         }
