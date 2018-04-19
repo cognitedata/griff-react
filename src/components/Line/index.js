@@ -12,6 +12,7 @@ const Line = ({
   step,
   hidden,
   drawPoints,
+  strokeWidth,
 }) => {
   let line;
   if (step) {
@@ -51,7 +52,7 @@ const Line = ({
         d={line(data)}
         style={{
           stroke: color,
-          strokeWidth: '1px',
+          strokeWidth: `${strokeWidth}px`,
           fill: 'none',
           display: hidden ? 'none' : 'inherit',
         }}
@@ -71,12 +72,14 @@ Line.propTypes = {
   step: PropTypes.bool,
   hidden: PropTypes.bool,
   drawPoints: PropTypes.bool,
+  strokeWidth: PropTypes.number,
 };
 
 Line.defaultProps = {
   step: false,
   hidden: false,
   drawPoints: false,
+  strokeWidth: 1,
 };
 
 export default Line;

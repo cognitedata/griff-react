@@ -3,8 +3,17 @@ import * as d3 from 'd3';
 import Line from '../Line';
 import Axis from '../Axis';
 import Annotation from '../Annotation';
+import PropTypes from 'prop-types';
 
 export default class LineChart extends Component {
+  static propTypes = {
+    strokeWidths: PropTypes.arrayOf(PropTypes.number),
+  };
+
+  static defaultProps = {
+    strokeWidths: [],
+  };
+
   state = {
     linex: null,
     liney: null,
@@ -75,6 +84,7 @@ export default class LineChart extends Component {
       hiddenSeries,
       annotations,
       config,
+      strokeWidths,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
@@ -185,6 +195,7 @@ export default class LineChart extends Component {
                 color={colors[key]}
                 step={serie.step}
                 drawPoints={serie.drawPoints}
+                strokeWidth={strokeWidths[idx]}
               />
             );
             return items;
@@ -281,6 +292,9 @@ export default class LineChart extends Component {
               this.setState({ linex: null, liney: null });
             }
             this.props.onMouseOut && this.props.onMouseOut(e);
+          }}
+          onClick={e => {
+            this.props.onClick && this.props.onClick(e);
           }}
         />
       </g>
