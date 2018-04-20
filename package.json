@@ -20,7 +20,8 @@
     "storybook": "start-storybook -p 9001 -c .storybook",
     "storybook:build": "build-storybook -c .storybook -o .out",
     "storybook:deploy": "surge .out griff.surge.sh",
-    "demo:build": "nwb build-react-component src/index.js"
+    "demo:build": "nwb build-react-component src/index.js",
+    "package:deploy": "yarn build && np"
   },
   "dependencies": {
     "antd": "^3.4.1",
