@@ -638,12 +638,12 @@ storiesOf('DataProvider', module)
                   step={1}
                   onChange={value => {
                     const copy = [...strokeWidths];
-                    copy[index] = value;
+                    copy[key] = value;
                     this.setState({
                       strokeWidths: copy,
                     });
                   }}
-                  value={strokeWidths[index]}
+                  value={strokeWidths[key]}
                 />
               ))}
             </div>
