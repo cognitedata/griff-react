@@ -7,11 +7,11 @@ import PropTypes from 'prop-types';
 
 export default class LineChart extends Component {
   static propTypes = {
-    strokeWidths: PropTypes.arrayOf(PropTypes.number),
+    strokeWidths: PropTypes.objectOf(PropTypes.number),
   };
 
   static defaultProps = {
-    strokeWidths: [],
+    strokeWidths: {},
   };
 
   state = {
@@ -195,7 +195,7 @@ export default class LineChart extends Component {
                 color={colors[key]}
                 step={serie.step}
                 drawPoints={serie.drawPoints}
-                strokeWidth={strokeWidths[idx]}
+                strokeWidth={strokeWidths[key]}
               />
             );
             return items;

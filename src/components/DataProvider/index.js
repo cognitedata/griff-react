@@ -226,7 +226,7 @@ DataProvider.propTypes = {
   updateInterval: PropTypes.number,
   hiddenSeries: PropTypes.objectOf(PropTypes.bool),
   annotations: PropTypes.arrayOf(PropTypes.object),
-  strokeWidths: PropTypes.arrayOf(PropTypes.number),
+  strokeWidths: PropTypes.objectOf(PropTypes.number),
 };
 
 DataProvider.defaultProps = {
@@ -238,5 +238,5 @@ DataProvider.defaultProps = {
   },
   hiddenSeries: {},
   annotations: [],
-  strokeWidths: [],
+  strokeWidths: {},
 };
