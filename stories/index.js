@@ -605,7 +605,7 @@ storiesOf('DataProvider', module)
           ...baseConfig,
         };
 
-        state = { showTimeline: true, strokeWidths: [] };
+        state = { showTimeline: true, strokeWidths: {} };
 
         render() {
           const { showTimeline, strokeWidths } = this.state;
@@ -635,9 +635,9 @@ storiesOf('DataProvider', module)
                   value={1}
                   min={1}
                   max={10}
-                  step={1}
+                  step={0.25}
                   onChange={value => {
-                    const copy = [...strokeWidths];
+                    const copy = { ...strokeWidths };
                     copy[key] = value;
                     this.setState({
                       strokeWidths: copy,
