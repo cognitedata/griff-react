@@ -52,7 +52,11 @@ class ChartContainer extends Component {
   };
 
   updateTransformation = s => {
-    const { margin, series, yAxis: { width: yAxisWidth } } = this.props;
+    const {
+      margin,
+      series,
+      yAxis: { width: yAxisWidth },
+    } = this.props;
     const nSeries = Object.keys(series).length;
     const width = this.getChartWidth();
     this.setState({
