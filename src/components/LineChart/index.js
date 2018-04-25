@@ -7,11 +7,37 @@ import PropTypes from 'prop-types';
 
 export default class LineChart extends Component {
   static propTypes = {
+    annotations: PropTypes.array,
+    colors: PropTypes.objectOf(PropTypes.string),
+    config: PropTypes.object,
+    crosshairs: PropTypes.bool,
+    height: PropTypes.number,
+    heightPct: PropTypes.number.isRequired,
+    hiddenSeries: PropTypes.objectOf(PropTypes.string),
+    margin: PropTypes.objectOf(PropTypes.number),
+    offsetY: PropTypes.number,
+    onClickAnnotation: PropTypes.func,
+    onMouseMove: PropTypes.func,
+    onMouseOut: PropTypes.func,
+    rescaleX: PropTypes.func,
+    rescaleY: PropTypes.objectOf(PropTypes.object),
+    series: PropTypes.object,
     strokeWidths: PropTypes.objectOf(PropTypes.number),
+    subXScale: PropTypes.func,
+    width: PropTypes.number,
+    xAxis: PropTypes.object,
+    yAxis: PropTypes.object,
+    transformation: PropTypes.objectOf(PropTypes.number),
+    zoom: PropTypes.func,
   };
 
   static defaultProps = {
-    strokeWidths: {},
+    margin: {
+      bottom: 0,
+      left: 0,
+      right: 0,
+      top: 0,
+    },
   };
 
   state = {
@@ -65,26 +91,131 @@ export default class LineChart extends Component {
     return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
   };
 
+  onClick = e => {
+    const {
+      annotations,
+      margin,
+      onClick,
+      onClickAnnotation,
+      xScale,
+    } = this.props;
+    return onClickAnnotation
+      ? e => {
+          const xpos = e.nativeEvent.offsetX - margin.left;
+          const ypos = e.nativeEvent.offsetY - margin.top;
+          const rawTimestamp = xScale.invert(xpos).getTime();
+          annotations.forEach(a => {
+            if (rawTimestamp > a.data[0] && rawTimestamp < a.data[1]) {
+              // Clicked within an annotation
+              onClickAnnotation(a, xpos, ypos);
+            }
+          });
+        }
+      : onClick
+        ? onClick(e)
+        : null;
+  };
+
+  onMouseMove = e => {
+    const {
+      crosshairs,
+      effectiveHeight,
+      margin,
+      offsetX,
+      onMouseMove,
+      rescaleY,
+      series,
+      xAxis,
+      xScale,
+      yAxis,
+    } = this.props;
+    if (Object.keys(series).length === 0) {
+      return;
+    }
+    const xpos = e.nativeEvent.offsetX - margin.left;
+    const ypos = e.nativeEvent.offsetY - margin.top;
+    const rawTimestamp = xScale.invert(xpos).getTime();
+    const serieKeys = Object.keys(series);
+    const serie = series[serieKeys[0]];
+    const output = { xpos, ypos, points: [] };
+    serieKeys.forEach(key => {
+      const { data } = series[key];
+      const yAccessor = series[key].yAccessor || yAxis.accessor;
+      const rawX = d3.bisector(d => d.timestamp).left(data, rawTimestamp, 1);
+      const x0 = data[rawX - 1];
+      const x1 = data[rawX];
+      let d = null;
+      if (x0 && !x1) {
+        d = x0;
+      } else if (x1 && !x0) {
+        d = x1;
+      } else if (!x0 && !x1) {
+        d = null;
+      } else {
+        d = rawTimestamp - x0.timestamp > x1.timestamp - rawTimestamp ? x1 : x0;
+      }
+      if (d) {
+        let scaler = rescaleY[key];
+        if (!scaler) {
+          scaler = { rescaleY: d => d };
+        }
+        const yDomain = yAxis.calculateDomain
+          ? yAxis.calculateDomain(data)
+          : d3.extent(data, yAccessor);
+        const yScale = scaler.rescaleY(
+          d3
+            .scaleLinear()
+            .domain(yDomain)
+            .range([effectiveHeight, 0])
+        );
+        const ts = xAxis.accessor(d);
+        const value = yAccessor(d);
+        output.points.push({
+          key: key,
+          timestamp: ts,
+          value,
+          x: xScale(ts),
+          y: yScale(value),
+        });
+      } else {
+        output.points.push({ key: key });
+      }
+    });
+    if (crosshairs) {
+      this.setState({ linex: xpos, liney: ypos });
+    }
+    onMouseMove && onMouseMove(output);
+  };
+
+  onMouseOut = e => {
+    const { onMouseMove, onMouseOut, crosshairs } = this.props;
+    onMouseMove && onMouseMove([]);
+    if (crosshairs) {
+      this.setState({ linex: null, liney: null });
+    }
+    onMouseOut && onMouseOut(e);
+  };
+
   render() {
     const {
-      yAxis,
-      xAxis,
-      series,
-      height,
-      width,
-      heightPct,
-      offsetY,
-      subXScale: xScale,
-      rescaleY,
-      colors,
-      onMouseMove,
-      onClickAnnotation,
-      crosshairs,
-      margin,
-      hiddenSeries,
       annotations,
+      colors,
       config,
+      crosshairs,
+      height,
+      heightPct,
+      hiddenSeries,
+      margin,
+      offsetY,
+      onClickAnnotation,
+      onMouseMove,
+      rescaleY,
+      series,
       strokeWidths,
+      subXScale: xScale,
+      width,
+      xAxis,
+      yAxis,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
@@ -208,93 +339,9 @@ export default class LineChart extends Component {
           height={effectiveHeight}
           pointerEvents="all"
           fill="none"
-          onClick={
-            onClickAnnotation
-              ? e => {
-                  const xpos = e.nativeEvent.offsetX - margin.left;
-                  const ypos = e.nativeEvent.offsetY - margin.top;
-                  const rawTimestamp = xScale.invert(xpos).getTime();
-                  annotations.forEach(a => {
-                    if (rawTimestamp > a.data[0] && rawTimestamp < a.data[1]) {
-                      // Clicked within an annotation
-                      onClickAnnotation(a, xpos, ypos);
-                    }
-                  });
-                }
-              : this.props.onClick
-                ? this.props.onClick(e)
-                : null
-          }
-          onMouseMove={e => {
-            if (Object.keys(series).length === 0) {
-              return;
-            }
-            const xpos = e.nativeEvent.offsetX - margin.left;
-            const ypos = e.nativeEvent.offsetY - margin.top;
-            const rawTimestamp = xScale.invert(xpos).getTime();
-            const serieKeys = Object.keys(series);
-            const serie = series[serieKeys[0]];
-            const output = { xpos, ypos, points: [] };
-            serieKeys.forEach(key => {
-              const { data } = series[key];
-              const yAccessor = series[key].yAccessor || yAxis.accessor;
-              const rawX = d3
-                .bisector(d => d.timestamp)
-                .left(data, rawTimestamp, 1);
-              const x0 = data[rawX - 1];
-              const x1 = data[rawX];
-              let d = null;
-              if (x0 && !x1) {
-                d = x0;
-              } else if (x1 && !x0) {
-                d = x1;
-              } else if (!x0 && !x1) {
-                d = null;
-              } else {
-                d =
-                  rawTimestamp - x0.timestamp > x1.timestamp - rawTimestamp
-                    ? x1
-                    : x0;
-              }
-              if (d) {
-                let scaler = rescaleY[key];
-                if (!scaler) {
-                  scaler = { rescaleY: d => d };
-                }
-                const yDomain = yAxis.calculateDomain
-                  ? yAxis.calculateDomain(data)
-                  : d3.extent(data, yAccessor);
-                const yScale = scaler.rescaleY(
-                  d3
-                    .scaleLinear()
-                    .domain(yDomain)
-                    .range([effectiveHeight, 0])
-                );
-                const ts = xAxis.accessor(d);
-                const value = yAccessor(d);
-                output.points.push({
-                  key: key,
-                  timestamp: ts,
-                  value,
-                  x: xScale(ts),
-                  y: yScale(value),
-                });
-              } else {
-                output.points.push({ key: key });
-              }
-            });
-            if (crosshairs) {
-              this.setState({ linex: xpos, liney: ypos });
-            }
-            onMouseMove && onMouseMove(output);
-          }}
-          onMouseOut={e => {
-            onMouseMove && onMouseMove([]);
-            if (crosshairs) {
-              this.setState({ linex: null, liney: null });
-            }
-            this.props.onMouseOut && this.props.onMouseOut(e);
-          }}
+          onClick={this.onClick}
+          onMouseMove={this.onMouseMove}
+          onMouseOut={this.onMouseOut}
         />
       </g>
     );
