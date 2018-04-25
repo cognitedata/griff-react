@@ -366,7 +366,11 @@ storiesOf('DataProvider', module)
           annotations={annotations}
         >
           <ChartContainer>
-            <LineChart heightPct={0.85} crosshairs />
+            <LineChart
+              heightPct={0.85}
+              crosshairs
+              onClickAnnotation={action('Clicked annotation')}
+            />
             <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
           </ChartContainer>
         </DataProvider>
