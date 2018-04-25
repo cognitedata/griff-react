@@ -221,7 +221,9 @@ export default class LineChart extends Component {
                     }
                   });
                 }
-              : null
+              : this.props.onClick
+                ? this.props.onClick(e)
+                : null
           }
           onMouseMove={e => {
             if (Object.keys(series).length === 0) {
@@ -292,9 +294,6 @@ export default class LineChart extends Component {
               this.setState({ linex: null, liney: null });
             }
             this.props.onMouseOut && this.props.onMouseOut(e);
-          }}
-          onClick={e => {
-            this.props.onClick && this.props.onClick(e);
           }}
         />
       </g>
