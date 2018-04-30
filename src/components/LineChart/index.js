@@ -221,9 +221,7 @@ export default class LineChart extends Component {
                     }
                   });
                 }
-              : this.props.onClick
-                ? this.props.onClick(e)
-                : null
+              : e => (this.props.onClick ? this.props.onClick(e) : null)
           }
           onMouseMove={e => {
             if (Object.keys(series).length === 0) {
