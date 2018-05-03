@@ -61,23 +61,13 @@ export default class ContextChart extends Component {
     }
   };
 
-  calculateDomainFromData = (data, yAccessor) => {
-    const extent = d3.extent(data, yAccessor);
-    const diff = extent[1] - extent[0];
-    return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
-  };
-
   render() {
     const {
-      yAxis,
-      xAxis,
       contextSeries: series,
       height,
       heightPct,
       offsetY,
       xScale,
-      colors,
-      hiddenSeries,
       annotations,
     } = this.props;
     const effectiveHeight = height * heightPct;
@@ -103,27 +93,17 @@ export default class ContextChart extends Component {
         ))}
         {Object.keys(series).map(key => {
           const serie = series[key];
-          const yDomain = yAxis.calculateDomain
-            ? yAxis.calculateDomain(serie.data)
-            : this.calculateDomainFromData(
-                serie.data,
-                serie.yAccessor || yAxis.accessor
-              );
-          const yScale = d3
-            .scaleLinear()
-            .domain(yDomain)
-            .range([effectiveHeight, 0])
-            .nice();
+          const yScale = serie.scale([effectiveHeight, 0]);
           return (
             <Line
               key={`line--${key}`}
               data={serie.data}
-              hidden={hiddenSeries[key]}
+              hidden={serie.hidden}
               xScale={xScale}
               yScale={yScale}
-              xAccessor={serie.xAccessor || xAxis.accessor}
-              yAccessor={serie.yAccessor || yAxis.accessor}
-              color={colors[key]}
+              xAccessor={serie.xAccessor}
+              yAccessor={serie.yAccessor}
+              color={serie.color}
               step={serie.step}
             />
           );

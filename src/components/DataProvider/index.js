@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { uniq, isEqual } from 'lodash';
+import Series from '../../data';
 
 export default class DataProvider extends Component {
   state = {
@@ -144,18 +145,57 @@ export default class DataProvider extends Component {
   }
 
   fetchData = async reason => {
-    const series = await this.props.loader(
-      this.props.config.baseDomain,
+    const { hiddenSeries, config, colors, strokeWidths } = this.props;
+    const rawSeries = await this.props.loader(
+      config.baseDomain,
       this.state.subDomain,
-      this.props.config,
+      config,
       this.state.series,
       reason
     );
+    const processedSeries = {};
+
+    // Convert all of the existing random arrays into properties on the Series
+    // object. This allows it to be passed around as one piece without needing
+    // to refer to disconnected arrays or objects.
+    Object.keys(rawSeries).forEach((key, idx) => {
+      const series = new Series(rawSeries[key]);
+      if (!series.color && colors && colors[key]) {
+        series.color = colors[key];
+      }
+      if (series.hidden === undefined && hiddenSeries) {
+        series.hidden = !!hiddenSeries[key];
+      }
+      const { yAxis, xAxis } = config;
+      if (yAxis) {
+        if (yAxis.staticDomain) {
+          series.staticDomain = yAxis.staticDomain[key];
+        }
+        if (!series.calculateDomain && yAxis.calculateDomain) {
+          series.calculateDomain = yAxis.calculateDomain;
+        }
+        if (!series.xAccessor && xAxis.accessor) {
+          series.xAccessor = xAxis.accessor;
+        }
+        if (!series.yAccessor && yAxis.accessor) {
+          series.yAccessor = yAxis.accessor;
+        }
+        if (!series.width && yAxis.width) {
+          series.width = yAxis.width;
+        }
+      }
+      series.width = series.width || 50;
+      if (!series.strokeWidth && strokeWidths) {
+        series.strokeWidth = strokeWidths[key] || 1;
+      }
+      processedSeries[key] = series;
+    });
+
     const update = {
-      series,
+      series: processedSeries,
     };
     if (reason !== 'UPDATE_SUBDOMAIN') {
-      update.contextSeries = series;
+      update.contextSeries = processedSeries;
     }
     if (!this.unmounted) {
       this.setState(update);
