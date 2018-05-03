@@ -9,21 +9,17 @@ import PropTypes from 'prop-types';
 export default class LineChart extends Component {
   static propTypes = {
     annotations: PropTypes.array,
-    colors: PropTypes.objectOf(PropTypes.string),
     config: PropTypes.object,
     crosshairs: PropTypes.bool,
     height: PropTypes.number,
     heightPct: PropTypes.number.isRequired,
-    hiddenSeries: PropTypes.objectOf(PropTypes.string),
     margin: PropTypes.objectOf(PropTypes.number),
     offsetY: PropTypes.number,
     onClickAnnotation: PropTypes.func,
     onMouseMove: PropTypes.func,
     onMouseOut: PropTypes.func,
-    rescaleX: PropTypes.func,
     rescaleY: PropTypes.objectOf(PropTypes.object),
     series: PropTypes.object,
-    strokeWidths: PropTypes.objectOf(PropTypes.number),
     subXScale: PropTypes.func,
     width: PropTypes.number,
     xAxis: PropTypes.object,
@@ -270,13 +266,15 @@ export default class LineChart extends Component {
             />
           ))}
         </g>
-        <AxisCollection
-          heightPct={1}
-          series={series}
-          height={effectiveHeight}
-          offsetx={width}
-          updateYScale={this.props.updateYScale}
-        />
+        {showAxes && (
+          <AxisCollection
+            heightPct={1}
+            series={series}
+            height={effectiveHeight}
+            offsetx={width}
+            updateYScale={this.props.updateYScale}
+          />
+        )}
         {Object.keys(series)
           .filter(key => !series[key].hidden)
           .map((key, idx) => {
