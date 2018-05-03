@@ -23,10 +23,7 @@ export default class Series {
 
   scale = range => {
     if (this.staticDomain) {
-      return d3
-        .scaleLinear()
-        .domain(this.staticDomain)
-        .range(range);
+      return this.staticScale(range);
     }
     const scaler = this.scaler || Series.defaultScaler;
     const yDomain = this.calculateDomain
@@ -39,5 +36,16 @@ export default class Series {
         .range(range)
         .nice()
     );
+  };
+
+  staticScale = range => {
+    const domain = this.staticDomain
+      ? this.staticDomain
+      : this.calculateDomainFromData();
+    return d3
+      .scaleLinear()
+      .domain(domain)
+      .range(range)
+      .nice();
   };
 }
