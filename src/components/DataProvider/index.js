@@ -48,9 +48,10 @@ export default class DataProvider extends Component {
     const { series: rawSeries } = prevState;
     const { hiddenSeries, config, colors, strokeWidths } = nextProps;
     if (!rawSeries) {
-      return;
+      return null;
     }
-    const series = Object.keys(rawSeries).map(key => {
+    const processedSeries = {};
+    Object.keys(rawSeries).forEach(key => {
       // The series config gets full precedence.
       const series = rawSeries[key];
       series.hidden = !!hiddenSeries[key];
@@ -65,7 +66,6 @@ export default class DataProvider extends Component {
         if (yAxis.staticDomain) {
           series.staticDomain = yAxis.staticDomain[key];
         }
-        //
         if (yAxis.calculateDomain && !series.calculateDomain) {
           series.calculateDomain = yAxis.calculateDomain;
         }
@@ -80,9 +80,9 @@ export default class DataProvider extends Component {
         }
       }
       series.width = series.width || 50;
-      return series;
+      processedSeries[key] = series;
     });
-    return { series };
+    return { series: processedSeries };
   };
 
   fetchData = async reason => {
