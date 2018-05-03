@@ -36,25 +36,26 @@ const baseConfig = {
   baseDomain: d3.extent(randomData(), d => d.timestamp),
 };
 
-storiesOf('DataProvider', module)
+const defaultLoader = (() => {
+  const series = {
+    1: { data: randomData(), id: 1 },
+    2: { data: randomData(), id: 2 },
+    3: { data: randomData(), id: 3 },
+  };
+  return () => series;
+})();
+
+storiesOf('griff-react', module)
   .add(
     'with static data',
     withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
       return (
         <DataProvider
           config={baseConfig}
           margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
           height={500}
           width={800}
-          loader={loader()}
+          loader={defaultLoader}
           colors={{
             1: 'red',
             2: 'green',
@@ -69,9 +70,36 @@ storiesOf('DataProvider', module)
     })
   )
   .add(
+    'with static data and onClick',
+    withInfo()(() => {
+      return (
+        <DataProvider
+          config={baseConfig}
+          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
+          height={500}
+          width={800}
+          loader={defaultLoader}
+          colors={{
+            1: 'red',
+            2: 'green',
+            3: 'blue',
+          }}
+        >
+          <ChartContainer>
+            <LineChart
+              heightPct={1}
+              crosshairs
+              onClick={() => action('Clicked')()}
+            />
+          </ChartContainer>
+        </DataProvider>
+      );
+    })
+  )
+  .add(
     'with static data and custom accessor functions',
     withInfo()(() => {
-      const loader = () => {
+      const loader = (() => {
         const series = {
           1: {
             data: randomData().map(r => ({
@@ -86,14 +114,15 @@ storiesOf('DataProvider', module)
           3: { data: randomData(), id: 3 },
         };
         return () => series;
-      };
+      })();
+
       return (
         <DataProvider
           config={baseConfig}
           margin={{ top: 50, bottom: 10, left: 10, right: 10 }}
           height={500}
           width={800}
-          loader={loader()}
+          loader={loader}
           colors={{
             1: 'red',
             2: 'green',
@@ -101,14 +130,7 @@ storiesOf('DataProvider', module)
           }}
         >
           <ChartContainer>
-            <LineChart
-              heightPct={1}
-              onMouseMove={data => {
-                if (data.points) {
-                  action(JSON.stringify(data.points, null, 2))();
-                }
-              }}
-            />
+            <LineChart heightPct={1} />
           </ChartContainer>
         </DataProvider>
       );
@@ -117,7 +139,7 @@ storiesOf('DataProvider', module)
   .add(
     'with metadata contained in series object',
     withInfo()(() => {
-      const loader = () => {
+      const loader = (() => {
         const series = {
           1: {
             data: randomData().map(r => ({
@@ -134,14 +156,15 @@ storiesOf('DataProvider', module)
           4: { data: randomData(), id: 4, color: 'orange', hidden: true },
         };
         return () => series;
-      };
+      })();
+
       return (
         <DataProvider
           config={baseConfig}
           margin={{ top: 50, bottom: 10, left: 10, right: 10 }}
           height={500}
           width={800}
-          loader={loader()}
+          loader={loader}
         >
           <ChartContainer>
             <LineChart heightPct={1} crosshairs />
@@ -153,23 +176,17 @@ storiesOf('DataProvider', module)
   .add(
     'with static data and timeline',
     withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-        };
-        return () => series;
-      };
       return (
         <DataProvider
           config={baseConfig}
           margin={{ top: 10, bottom: 10, left: 10, right: 10 }}
           height={500}
           width={800}
-          loader={loader()}
+          loader={defaultLoader}
           colors={{
             1: 'steelblue',
             2: 'maroon',
+            3: 'orange',
           }}
         >
           <ChartContainer>
@@ -183,7 +200,7 @@ storiesOf('DataProvider', module)
   .add(
     'Dynamic data, aggregating oil prices last 10 years.',
     withInfo()(() => {
-      const loader = () => {
+      const loader = (() => {
         const formatDate = date => moment(date).format('YYYY-MM-DD');
 
         const calculateGranularity = (domain, pps) => {
@@ -279,7 +296,7 @@ storiesOf('DataProvider', module)
             },
           };
         };
-      };
+      })();
       return (
         <DataProvider
           config={{
@@ -290,7 +307,7 @@ storiesOf('DataProvider', module)
           margin={{ top: 10, bottom: 10, left: 10, right: 10 }}
           height={500}
           width={800}
-          loader={loader()}
+          loader={loader}
           colors={{ 1: 'steelblue' }}
         >
           <ChartContainer>
@@ -375,15 +392,7 @@ storiesOf('DataProvider', module)
   .add(
     'Annotations',
     withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
-      const series = loader()()[1];
+      const series = defaultLoader()[1];
       const annotations = [
         {
           id: 1,
@@ -397,7 +406,7 @@ storiesOf('DataProvider', module)
           margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
           height={500}
           width={800}
-          loader={loader()}
+          loader={defaultLoader}
           colors={{ 1: 'red', 2: 'green', 3: 'blue' }}
           annotations={annotations}
         >
@@ -416,27 +425,22 @@ storiesOf('DataProvider', module)
   .add(
     'Line + points',
     withInfo()(() => {
-      const loader = () => {
+      const loader = (() => {
         const series = {
           1: { data: randomData(), id: 1 },
           2: { data: randomData(), id: 2, drawPoints: true },
           3: { data: randomData(), id: 3 },
         };
         return () => series;
-      };
-      const series = loader()()[1];
-      const annotations = [
-        { id: 1, data: [series.data[40].timestamp, series.data[60].timestamp] },
-      ];
+      })();
       return (
         <DataProvider
           config={baseConfig}
           margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
           height={500}
           width={800}
-          loader={loader()}
+          loader={loader}
           colors={{ 1: 'red', 2: 'green', 3: 'blue' }}
-          annotations={annotations}
         >
           <ChartContainer>
             <LineChart heightPct={0.85} crosshairs />
@@ -455,14 +459,6 @@ storiesOf('DataProvider', module)
   .add(
     'without y-axes',
     withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
       const config = {
         ...baseConfig,
         yAxis: {
@@ -476,7 +472,7 @@ storiesOf('DataProvider', module)
           margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
           height={500}
           width={800}
-          loader={loader()}
+          loader={defaultLoader}
           colors={{
             1: 'red',
             2: 'green',
@@ -493,14 +489,6 @@ storiesOf('DataProvider', module)
   .add(
     'without zooming',
     withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
       const config = {
         ...baseConfig,
         zoomable: false,
@@ -511,7 +499,7 @@ storiesOf('DataProvider', module)
           margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
           height={500}
           width={800}
-          loader={loader()}
+          loader={defaultLoader}
           colors={{
             1: 'red',
             2: 'green',
@@ -528,19 +516,10 @@ storiesOf('DataProvider', module)
   .add(
     'toggleable zooming',
     withInfo()(() => {
-      const _loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
       const config = {
         ...baseConfig,
         zoomable: false,
       };
-      const loader = _loader();
       class Wrapper extends React.Component {
         state = { zoomable: false };
         render() {
@@ -556,7 +535,7 @@ storiesOf('DataProvider', module)
                 margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
                 height={500}
                 width={800}
-                loader={loader}
+                loader={defaultLoader}
                 colors={{
                   1: 'red',
                   2: 'green',
@@ -580,15 +559,6 @@ storiesOf('DataProvider', module)
   .add(
     'Toggle time line chart',
     withInfo()(() => {
-      const _loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
-      const loader = _loader();
       const config = {
         ...baseConfig,
       };
@@ -604,7 +574,7 @@ storiesOf('DataProvider', module)
                 margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
                 height={500}
                 width={800}
-                loader={loader}
+                loader={defaultLoader}
                 colors={{
                   1: 'red',
                   2: 'green',
@@ -634,20 +604,13 @@ storiesOf('DataProvider', module)
     'Adjustable line thickness',
     withInfo()(() => {
       class Wrapper extends React.Component {
-        series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        _loader = () => {
-          return () => this.series;
-        };
-        loader = this._loader();
         config = {
           ...baseConfig,
         };
 
         state = { showTimeline: true, strokeWidths: {} };
+
+        series = defaultLoader();
 
         render() {
           const { showTimeline, strokeWidths } = this.state;
@@ -658,7 +621,7 @@ storiesOf('DataProvider', module)
                 margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
                 height={500}
                 width={800}
-                loader={this.loader}
+                loader={defaultLoader}
                 colors={{
                   1: 'red',
                   2: 'green',
@@ -752,39 +715,4 @@ storiesOf('DataProvider', module)
         </ChartContainer>
       </DataProvider>
     );
-  })
-  .add(
-    'with static data and onClick',
-    withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
-      return (
-        <DataProvider
-          config={baseConfig}
-          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-          height={500}
-          width={800}
-          loader={loader()}
-          colors={{
-            1: 'red',
-            2: 'green',
-            3: 'blue',
-          }}
-        >
-          <ChartContainer>
-            <LineChart
-              heightPct={1}
-              crosshairs
-              onClick={() => action('Clicked')()}
-            />
-          </ChartContainer>
-        </DataProvider>
-      );
-    })
-  );
+  });
