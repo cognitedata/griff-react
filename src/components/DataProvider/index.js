@@ -44,6 +44,46 @@ export default class DataProvider extends Component {
     this.unmounted = true;
   }
 
+  static getDerivedStateFromProps = (nextProps, prevState) => {
+    const { series: rawSeries } = prevState;
+    const { hiddenSeries, config, colors, strokeWidths } = nextProps;
+    if (!rawSeries) {
+      return;
+    }
+    return Object.keys(rawSeries).map(key => {
+      // The series config gets full precedence.
+      const series = rawSeries[key];
+      series.hidden = !!hiddenSeries[key];
+      if (colors[key]) {
+        series.color = colors[key];
+      }
+      if (strokeWidths[key]) {
+        series.strokeWidth = strokeWidths[key];
+      }
+      const { yAxis, xAxis } = config;
+      if (yAxis) {
+        if (yAxis.staticDomain) {
+          series.staticDomain = yAxis.staticDomain[key];
+        }
+        //
+        if (yAxis.calculateDomain && !series.calculateDomain) {
+          series.calculateDomain = yAxis.calculateDomain;
+        }
+        if (!series.xAccessor && xAxis.accessor) {
+          series.xAccessor = xAxis.accessor;
+        }
+        if (!series.yAccessor && yAxis.accessor) {
+          series.yAccessor = yAxis.accessor;
+        }
+        if (!series.width && yAxis.width) {
+          series.width = yAxis.width;
+        }
+      }
+      series.width = series.width || 50;
+      return series;
+    });
+  };
+
   fetchData = async reason => {
     const { hiddenSeries, config, colors, strokeWidths } = this.props;
     const rawSeries = await this.props.loader(
@@ -63,9 +103,7 @@ export default class DataProvider extends Component {
       if (!series.color && colors && colors[key]) {
         series.color = colors[key];
       }
-      if (series.hidden === undefined && hiddenSeries) {
-        series.hidden = !!hiddenSeries[key];
-      }
+      series.hidden = !!hiddenSeries[key];
       const { yAxis, xAxis } = config;
       if (yAxis) {
         if (yAxis.staticDomain) {
@@ -91,9 +129,7 @@ export default class DataProvider extends Component {
       processedSeries[key] = series;
     });
 
-    const update = {
-      series: processedSeries,
-    };
+    const update = { series: processedSeries };
     if (reason !== 'UPDATE_SUBDOMAIN') {
       update.contextSeries = processedSeries;
     }
