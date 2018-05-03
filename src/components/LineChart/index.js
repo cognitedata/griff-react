@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import Line from '../Line';
 import Axis from '../Axis';
+import AxisCollection from '../AxisCollection';
 import Annotation from '../Annotation';
 import PropTypes from 'prop-types';
 
@@ -138,67 +139,31 @@ export default class LineChart extends Component {
             />
           ))}
         </g>
+        <AxisCollection
+          heightPct={1}
+          series={series}
+          height={effectiveHeight}
+          offsetx={width}
+          updateYScale={this.props.updateYScale}
+        />
         {Object.keys(series)
-          .filter(key => !hiddenSeries[key])
+          .filter(key => !series[key].hidden)
           .map((key, idx) => {
             const serie = series[key];
-            const yAccessor = serie.yAccessor || yAxis.accessor;
-            const yDomain = yAxis.calculateDomain
-              ? yAxis.calculateDomain(serie.data)
-              : this.calculateDomainFromData(serie.data, yAccessor);
-            let scaler = rescaleY[key];
-            if (!scaler) {
-              scaler = { rescaleY: d => d };
-            }
-            const staticDomain = (yAxis.staticDomain || {})[key];
-            let staticScale;
-            if (staticDomain) {
-              staticScale = d3
-                .scaleLinear()
-                .domain(staticDomain)
-                .range([effectiveHeight, 0]);
-            }
-            const yScale = staticScale
-              ? staticScale
-              : scaler.rescaleY(
-                  d3
-                    .scaleLinear()
-                    .domain(yDomain)
-                    .range([effectiveHeight, 0])
-                    .nice()
-                );
-            var items = [];
-            if (showAxes) {
-              items.push(
-                <Axis
-                  key={`axis--${key}`}
-                  id={key}
-                  scale={yScale}
-                  zoomable={this.isZoomable() && !staticScale}
-                  mode="y"
-                  offsetx={width + idx * yAxis.width}
-                  width={yAxis.width}
-                  offsety={effectiveHeight}
-                  strokeColor={colors[key]}
-                  updateYScale={this.props.updateYScale}
-                />
-              );
-            }
-            items.push(
+            return (
               <Line
                 key={`line--${key}`}
                 data={serie.data}
                 xScale={xScale}
-                xAccessor={serie.xAccessor || xAxis.accessor}
-                yAccessor={serie.yAccessor || yAxis.accessor}
-                yScale={yScale}
-                color={colors[key]}
+                xAccessor={serie.xAccessor}
+                yAccessor={serie.yAccessor}
+                yScale={serie.scale([effectiveHeight, 0])}
+                color={serie.color}
                 step={serie.step}
                 drawPoints={serie.drawPoints}
-                strokeWidth={strokeWidths[key]}
+                strokeWidth={serie.strokeWidth}
               />
             );
-            return items;
           })}
         <rect
           ref={ref => {

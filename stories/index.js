@@ -115,6 +115,42 @@ storiesOf('DataProvider', module)
     })
   )
   .add(
+    'with metadata contained in series object',
+    withInfo()(() => {
+      const loader = () => {
+        const series = {
+          1: {
+            data: randomData().map(r => ({
+              timestamp: r.timestamp,
+              y: r.value,
+            })),
+            id: 1,
+            yAccessor: d => d.y,
+            step: true,
+            color: 'red',
+          },
+          2: { data: randomData(), id: 2, color: 'green', strokeWidth: 3 },
+          3: { data: randomData(), id: 3, color: 'blue' },
+          4: { data: randomData(), id: 4, color: 'orange', hidden: true },
+        };
+        return () => series;
+      };
+      return (
+        <DataProvider
+          config={baseConfig}
+          margin={{ top: 50, bottom: 10, left: 10, right: 10 }}
+          height={500}
+          width={800}
+          loader={loader()}
+        >
+          <ChartContainer>
+            <LineChart heightPct={1} crosshairs />
+          </ChartContainer>
+        </DataProvider>
+      );
+    })
+  )
+  .add(
     'with static data and timeline',
     withInfo()(() => {
       const loader = () => {
