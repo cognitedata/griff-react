@@ -50,7 +50,7 @@ export default class DataProvider extends Component {
     if (!rawSeries) {
       return;
     }
-    return Object.keys(rawSeries).map(key => {
+    const series = Object.keys(rawSeries).map(key => {
       // The series config gets full precedence.
       const series = rawSeries[key];
       series.hidden = !!hiddenSeries[key];
@@ -82,6 +82,7 @@ export default class DataProvider extends Component {
       series.width = series.width || 50;
       return series;
     });
+    return { series };
   };
 
   fetchData = async reason => {
