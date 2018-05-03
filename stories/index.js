@@ -528,7 +528,7 @@ storiesOf('DataProvider', module)
   .add(
     'toggleable zooming',
     withInfo()(() => {
-      const loader = () => {
+      const _loader = () => {
         const series = {
           1: { data: randomData(), id: 1 },
           2: { data: randomData(), id: 2 },
@@ -540,6 +540,7 @@ storiesOf('DataProvider', module)
         ...baseConfig,
         zoomable: false,
       };
+      const loader = _loader();
       class Wrapper extends React.Component {
         state = { zoomable: false };
         render() {
@@ -555,7 +556,7 @@ storiesOf('DataProvider', module)
                 margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
                 height={500}
                 width={800}
-                loader={loader()}
+                loader={loader}
                 colors={{
                   1: 'red',
                   2: 'green',
@@ -579,7 +580,7 @@ storiesOf('DataProvider', module)
   .add(
     'Toggle time line chart',
     withInfo()(() => {
-      const loader = () => {
+      const _loader = () => {
         const series = {
           1: { data: randomData(), id: 1 },
           2: { data: randomData(), id: 2 },
@@ -587,6 +588,7 @@ storiesOf('DataProvider', module)
         };
         return () => series;
       };
+      const loader = _loader();
       const config = {
         ...baseConfig,
       };
@@ -602,7 +604,7 @@ storiesOf('DataProvider', module)
                 margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
                 height={500}
                 width={800}
-                loader={loader()}
+                loader={loader}
                 colors={{
                   1: 'red',
                   2: 'green',
@@ -750,4 +752,39 @@ storiesOf('DataProvider', module)
         </ChartContainer>
       </DataProvider>
     );
-  });
+  })
+  .add(
+    'with static data and onClick',
+    withInfo()(() => {
+      const loader = () => {
+        const series = {
+          1: { data: randomData(), id: 1 },
+          2: { data: randomData(), id: 2 },
+          3: { data: randomData(), id: 3 },
+        };
+        return () => series;
+      };
+      return (
+        <DataProvider
+          config={baseConfig}
+          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
+          height={500}
+          width={800}
+          loader={loader()}
+          colors={{
+            1: 'red',
+            2: 'green',
+            3: 'blue',
+          }}
+        >
+          <ChartContainer>
+            <LineChart
+              heightPct={1}
+              crosshairs
+              onClick={() => action('Clicked')()}
+            />
+          </ChartContainer>
+        </DataProvider>
+      );
+    })
+  );
