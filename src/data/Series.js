@@ -27,7 +27,7 @@ export default class Series {
     }
     const scaler = this.scaler || Series.defaultScaler;
     const yDomain = this.calculateDomain
-      ? this.calculateDomain(data)
+      ? this.calculateDomain(this.data)
       : this.calculateDomainFromData();
     return scaler.rescaleY(
       d3
