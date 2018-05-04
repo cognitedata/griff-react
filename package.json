@@ -4,12 +4,7 @@
   "description": "Charting library that relies on React's virtual diffing.",
   "main": "lib/index.js",
   "module": "es/index.js",
-  "files": [
-    "css",
-    "es",
-    "lib",
-    "umd"
-  ],
+  "files": ["css", "es", "lib", "umd"],
   "scripts": {
     "clean": "nwb clean-module && nwb clean-demo",
     "start": "nwb serve-react-demo",
@@ -18,8 +13,8 @@
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server",
     "storybook": "start-storybook -p 9001 -c .storybook",
-    "storybook:build": "build-storybook -c .storybook -o .out",
-    "storybook:deploy": "surge .out griff.surge.sh",
+    "storybook:build": "build-storybook -c .storybook -o storybook_build",
+    "storybook:deploy": "surge storybook_build griff.surge.sh",
     "demo:build": "nwb build-react-component src/index.js",
     "package:deploy": "yarn build && np"
   },
@@ -47,9 +42,7 @@
   "homepage": "",
   "license": "MIT",
   "repository": "",
-  "keywords": [
-    "react-component"
-  ],
+  "keywords": ["react-component"],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
