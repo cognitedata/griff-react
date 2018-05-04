@@ -45,24 +45,31 @@ export default class DataProvider extends Component {
   }
 
   static getDerivedStateFromProps = (nextProps, prevState) => {
-    const { series: rawSeries } = prevState;
+    const { series: rawSeries, contextSeries: rawContextSeries } = prevState;
     const { hiddenSeries, config, colors, strokeWidths } = nextProps;
     if (!rawSeries) {
       return null;
     }
     const processedSeries = {};
+    const processedContextSeries = { ...rawContextSeries };
     Object.keys(rawSeries).forEach(key => {
       // The series config gets full precedence.
       const series = new Series(rawSeries[key]);
-      if (series.id != key) {
+      if (series.id === undefined) {
+        series.id = key;
+      } else if (series.id !== undefined && series.id != key) {
         console.warn(
           `Replacing existing series.id (${series.id}) with object key ${key}`
         );
         series.id = key;
       }
       series.hidden = !!hiddenSeries[key];
+      // Also update the hidden property on the contextSeries
+      processedContextSeries[key].hidden = series.hidden;
+
       if (colors[key]) {
         series.color = colors[key];
+        processedContextSeries[key].color = series.color;
       }
       if (strokeWidths[key]) {
         series.strokeWidth = strokeWidths[key];
@@ -88,7 +95,7 @@ export default class DataProvider extends Component {
       series.width = series.width || 50;
       processedSeries[key] = series;
     });
-    return { series: processedSeries };
+    return { series: processedSeries, contextSeries: processedContextSeries };
   };
 
   fetchData = async reason => {
@@ -107,7 +114,9 @@ export default class DataProvider extends Component {
     // to refer to disconnected arrays or objects.
     Object.keys(rawSeries).forEach((key, idx) => {
       const series = new Series(rawSeries[key]);
-      if (series.id != key) {
+      if (series.id === undefined) {
+        series.id = key;
+      } else if (series.id !== undefined && series.id != key) {
         console.warn(
           `Replacing existing series.id (${series.id}) with object key ${key}`
         );
