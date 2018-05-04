@@ -53,7 +53,13 @@ export default class DataProvider extends Component {
     const processedSeries = {};
     Object.keys(rawSeries).forEach(key => {
       // The series config gets full precedence.
-      const series = rawSeries[key];
+      const series = new Series(rawSeries[key]);
+      if (series.id != key) {
+        console.warn(
+          `Replacing existing series.id (${series.id}) with object key ${key}`
+        );
+        series.id = key;
+      }
       series.hidden = !!hiddenSeries[key];
       if (colors[key]) {
         series.color = colors[key];
@@ -101,6 +107,12 @@ export default class DataProvider extends Component {
     // to refer to disconnected arrays or objects.
     Object.keys(rawSeries).forEach((key, idx) => {
       const series = new Series(rawSeries[key]);
+      if (series.id != key) {
+        console.warn(
+          `Replacing existing series.id (${series.id}) with object key ${key}`
+        );
+        series.id = key;
+      }
       if (!series.color && colors && colors[key]) {
         series.color = colors[key];
       }

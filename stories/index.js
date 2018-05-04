@@ -38,9 +38,9 @@ const baseConfig = {
 
 const defaultLoader = (() => {
   const series = {
-    1: { data: randomData(), id: 1 },
-    2: { data: randomData(), id: 2 },
-    3: { data: randomData(), id: 3 },
+    1: { data: randomData() },
+    2: { data: randomData() },
+    3: { data: randomData() },
   };
   return () => series;
 })();
