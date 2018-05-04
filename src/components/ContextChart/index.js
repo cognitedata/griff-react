@@ -91,23 +91,25 @@ export default class ContextChart extends Component {
             fillOpacity={0.3}
           />
         ))}
-        {Object.keys(series).map(key => {
-          const serie = series[key];
-          const yScale = serie.staticScale([effectiveHeight, 0]);
-          return (
-            <Line
-              key={`line--${key}`}
-              data={serie.data}
-              hidden={serie.hidden}
-              xScale={xScale}
-              yScale={yScale}
-              xAccessor={serie.xAccessor}
-              yAccessor={serie.yAccessor}
-              color={serie.color}
-              step={serie.step}
-            />
-          );
-        })}
+        {Object.keys(series)
+          .filter(key => !series[key].hidden)
+          .map(key => {
+            const serie = series[key];
+            const yScale = serie.staticScale([effectiveHeight, 0]);
+            return (
+              <Line
+                key={`line--${key}`}
+                data={serie.data}
+                hidden={serie.hidden}
+                xScale={xScale}
+                yScale={yScale}
+                xAccessor={serie.xAccessor}
+                yAccessor={serie.yAccessor}
+                color={serie.color}
+                step={serie.step}
+              />
+            );
+          })}
         <g
           className="context-brush"
           ref={ref => {
