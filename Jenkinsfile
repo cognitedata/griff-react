@@ -15,6 +15,11 @@ podTemplate(
                                     secretName: 'pr-server-api-tokens',
                                     secretKey: 'client_secret'
                                   ),
+                                  secretEnvVar(
+                                    key: 'SURGE_TOKEN',
+                                    secretName: 'griff-react-surge-token',
+                                    secretKey: 'token'
+                                  ),
                                 ],
                                 resourceRequestCpu: '2000m',
                                 resourceRequestMemory: '2500Mi',

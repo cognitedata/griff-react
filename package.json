@@ -41,7 +41,8 @@
     "moment": "^2.19.3",
     "nwb": "0.20.x",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-dom": "^16.2.0",
+    "surge": "^0.20.1"
   },
   "author": "",
   "homepage": "",
