@@ -5,11 +5,8 @@ import PropTypes from 'prop-types';
 export default class YAxis extends Component {
   static defaultProps = {
     zoomable: true,
-    series: PropTypes.object,
     height: PropTypes.number.isRequired,
   };
-
-  static defaultScaler = { rescaleY: d => d };
 
   componentWillMount() {
     this.zoom = d3.zoom().on('zoom', this.didZoom);

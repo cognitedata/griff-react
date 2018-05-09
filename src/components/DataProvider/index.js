@@ -54,7 +54,7 @@ export default class DataProvider extends Component {
     const processedContextSeries = { ...rawContextSeries };
     Object.keys(rawSeries).forEach(key => {
       // The series config gets full precedence.
-      const series = new Series(rawSeries[key]);
+      const series = rawSeries[key];
       if (series.id === undefined) {
         series.id = key;
       } else if (series.id !== undefined && series.id != key) {
@@ -76,9 +76,6 @@ export default class DataProvider extends Component {
       }
       const { yAxis, xAxis } = config;
       if (yAxis) {
-        if (yAxis.staticDomain) {
-          series.staticDomain = yAxis.staticDomain[key];
-        }
         if (yAxis.calculateDomain && !series.calculateDomain) {
           series.calculateDomain = yAxis.calculateDomain;
         }
@@ -91,8 +88,13 @@ export default class DataProvider extends Component {
         if (!series.width && yAxis.width) {
           series.width = yAxis.width;
         }
+        series.staticDomain = yAxis.staticDomain
+          ? yAxis.staticDomain[key]
+          : null;
       }
       series.width = series.width || 50;
+      series.baseYDomain =
+        series.baseYDomain || series.calculateDomainFromData();
       processedSeries[key] = series;
     });
     return { series: processedSeries, contextSeries: processedContextSeries };
@@ -150,6 +152,12 @@ export default class DataProvider extends Component {
       if (!series.strokeWidth && strokeWidths) {
         series.strokeWidth = strokeWidths[key] || 1;
       }
+      const previousSerie = this.state.series[key];
+      if (previousSerie) {
+        series.baseYDomain = previousSerie.baseYDomain;
+      } else {
+        series.baseYDomain = series.calculateDomainFromData();
+      }
       processedSeries[key] = series;
     });
 
@@ -199,7 +207,7 @@ export default class DataProvider extends Component {
         xAxis: config.xAxis,
         domain: config.baseDomain,
         subDomain: this.state.subDomain,
-        series: this.state.series,
+        series,
         contextSeries,
         width,
         height,

@@ -95,7 +95,7 @@ export default class ContextChart extends Component {
           .filter(key => !series[key].hidden)
           .map(key => {
             const serie = series[key];
-            const yScale = serie.staticScale([effectiveHeight, 0]);
+            const yScale = serie.scale([effectiveHeight, 0]);
             return (
               <Line
                 key={`line--${key}`}

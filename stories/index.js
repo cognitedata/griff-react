@@ -2,7 +2,13 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
-import { DataProvider, ChartContainer, LineChart, ContextChart } from '../src';
+import {
+  DataProvider,
+  LayoutManager,
+  Scaler,
+  LineChart,
+  ContextChart,
+} from '../src';
 import moment from 'moment';
 import axios from 'axios';
 import * as d3 from 'd3';
@@ -62,9 +68,9 @@ storiesOf('griff-react', module)
             3: 'blue',
           }}
         >
-          <ChartContainer>
+          <LayoutManager>
             <LineChart heightPct={1} crosshairs />
-          </ChartContainer>
+          </LayoutManager>
         </DataProvider>
       );
     })
@@ -85,13 +91,13 @@ storiesOf('griff-react', module)
             3: 'blue',
           }}
         >
-          <ChartContainer>
+          <LayoutManager>
             <LineChart
               heightPct={1}
               crosshairs
               onClick={() => action('Clicked')()}
             />
-          </ChartContainer>
+          </LayoutManager>
         </DataProvider>
       );
     })
@@ -129,9 +135,9 @@ storiesOf('griff-react', module)
             3: 'blue',
           }}
         >
-          <ChartContainer>
+          <LayoutManager>
             <LineChart heightPct={1} />
-          </ChartContainer>
+          </LayoutManager>
         </DataProvider>
       );
     })
@@ -166,9 +172,9 @@ storiesOf('griff-react', module)
           width={800}
           loader={loader}
         >
-          <ChartContainer>
+          <LayoutManager>
             <LineChart heightPct={1} crosshairs />
-          </ChartContainer>
+          </LayoutManager>
         </DataProvider>
       );
     })
@@ -189,10 +195,10 @@ storiesOf('griff-react', module)
             3: 'orange',
           }}
         >
-          <ChartContainer>
+          <LayoutManager>
             <LineChart heightPct={0.8} />
             <ContextChart heightPct={0.1} margin={{ top: 0.1 }} />
-          </ChartContainer>
+          </LayoutManager>
         </DataProvider>
       );
     })
@@ -310,10 +316,10 @@ storiesOf('griff-react', module)
           loader={loader}
           colors={{ 1: 'steelblue' }}
         >
-          <ChartContainer>
+          <LayoutManager>
             <LineChart heightPct={0.8} crosshairs={true} />
             <ContextChart heightPct={0.1} margin={{ top: 0.1 }} />
-          </ChartContainer>
+          </LayoutManager>
         </DataProvider>
       );
     })
@@ -362,10 +368,10 @@ storiesOf('griff-react', module)
                 }}
                 hiddenSeries={hiddenSeries}
               >
-                <ChartContainer>
+                <LayoutManager>
                   <LineChart heightPct={0.8} />
                   <ContextChart heightPct={0.1} margin={{ top: 0.1 }} />
-                </ChartContainer>
+                </LayoutManager>
               </DataProvider>
               {tags.map(t => (
                 <button
@@ -410,14 +416,14 @@ storiesOf('griff-react', module)
           colors={{ 1: 'red', 2: 'green', 3: 'blue' }}
           annotations={annotations}
         >
-          <ChartContainer>
+          <LayoutManager>
             <LineChart
               heightPct={0.85}
               crosshairs
               onClickAnnotation={action('Clicked annotation')}
             />
             <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
-          </ChartContainer>
+          </LayoutManager>
         </DataProvider>
       );
     })
@@ -442,10 +448,10 @@ storiesOf('griff-react', module)
           loader={loader}
           colors={{ 1: 'red', 2: 'green', 3: 'blue' }}
         >
-          <ChartContainer>
+          <LayoutManager>
             <LineChart heightPct={0.85} crosshairs />
             <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
-          </ChartContainer>
+          </LayoutManager>
         </DataProvider>
       );
     })
@@ -479,9 +485,9 @@ storiesOf('griff-react', module)
             3: 'blue',
           }}
         >
-          <ChartContainer>
+          <LayoutManager>
             <LineChart heightPct={1} crosshairs />
-          </ChartContainer>
+          </LayoutManager>
         </DataProvider>
       );
     })
@@ -506,9 +512,9 @@ storiesOf('griff-react', module)
             3: 'blue',
           }}
         >
-          <ChartContainer>
+          <LayoutManager>
             <LineChart heightPct={1} crosshairs />
-          </ChartContainer>
+          </LayoutManager>
         </DataProvider>
       );
     })
@@ -542,9 +548,9 @@ storiesOf('griff-react', module)
                   3: 'blue',
                 }}
               >
-                <ChartContainer>
+                <LayoutManager>
                   <LineChart heightPct={1} crosshairs />
-                </ChartContainer>
+                </LayoutManager>
               </DataProvider>
               <button onClick={() => this.setState({ zoomable: !zoomable })}>
                 Toggle
@@ -581,12 +587,12 @@ storiesOf('griff-react', module)
                   3: 'blue',
                 }}
               >
-                <ChartContainer>
+                <LayoutManager>
                   <LineChart heightPct={showTimeline ? 0.85 : 1} crosshairs />
                   {showTimeline ? (
                     <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
                   ) : null}
-                </ChartContainer>
+                </LayoutManager>
               </DataProvider>
               <button
                 onClick={() => this.setState({ showTimeline: !showTimeline })}
@@ -629,10 +635,10 @@ storiesOf('griff-react', module)
                 }}
                 strokeWidths={strokeWidths}
               >
-                <ChartContainer>
+                <LayoutManager>
                   <LineChart heightPct={showTimeline ? 0.85 : 1} crosshairs />
                   <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
-                </ChartContainer>
+                </LayoutManager>
               </DataProvider>
               {Object.keys(this.series).map((key, index) => (
                 <Slider
@@ -681,9 +687,9 @@ storiesOf('griff-react', module)
         colors={{ 1: 'steelblue', 2: 'red' }}
         loader={loader}
       >
-        <ChartContainer>
+        <LayoutManager>
           <LineChart heightPct={1} crosshairs />
-        </ChartContainer>
+        </LayoutManager>
       </DataProvider>
     );
   })
@@ -710,9 +716,9 @@ storiesOf('griff-react', module)
         colors={{ 1: 'steelblue', 2: 'red' }}
         loader={loader}
       >
-        <ChartContainer>
+        <LayoutManager>
           <LineChart heightPct={1} crosshairs onClick={action('Clicked')} />
-        </ChartContainer>
+        </LayoutManager>
       </DataProvider>
     );
   });

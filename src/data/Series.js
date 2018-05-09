@@ -26,25 +26,19 @@ export default class Series {
       return this.staticScale(range);
     }
     const scaler = this.scaler || Series.defaultScaler;
-    const yDomain = this.calculateDomain
-      ? this.calculateDomain(this.data)
-      : this.calculateDomainFromData();
     return scaler.rescaleY(
       d3
         .scaleLinear()
-        .domain(yDomain)
+        .domain(this.baseYDomain)
         .range(range)
         .nice()
     );
   };
 
   staticScale = range => {
-    const domain = this.staticDomain
-      ? this.staticDomain
-      : this.calculateDomainFromData();
     return d3
       .scaleLinear()
-      .domain(domain)
+      .domain(this.staticDomain)
       .range(range)
       .nice();
   };

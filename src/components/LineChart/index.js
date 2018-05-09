@@ -20,12 +20,12 @@ export default class LineChart extends Component {
     onMouseOut: PropTypes.func,
     rescaleY: PropTypes.objectOf(PropTypes.object),
     series: PropTypes.object,
-    subXScale: PropTypes.func,
+    subDomainScale: PropTypes.func,
     width: PropTypes.number,
     xAxis: PropTypes.object,
+    xScale: PropTypes.func,
     yAxis: PropTypes.object,
-    transformation: PropTypes.objectOf(PropTypes.number),
-    zoom: PropTypes.func,
+    xTransformation: PropTypes.objectOf(PropTypes.number),
   };
 
   static defaultProps = {
@@ -52,10 +52,13 @@ export default class LineChart extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { x, k } = this.props.transformation;
-    const { x: prevx, k: prevk } = prevProps.transformation;
+    const { x, k } = this.props.xTransformation;
+    const { x: prevx, k: prevk } = prevProps.xTransformation;
     if (!(x === prevx && k === prevk)) {
-      this.selection.call(this.props.zoom.transform, this.props.transformation);
+      this.selection.call(
+        this.props.zoom.transform,
+        this.props.xTransformation
+      );
     }
 
     if (prevProps.config.zoomable != this.props.config.zoomable) {
@@ -94,23 +97,21 @@ export default class LineChart extends Component {
       margin,
       onClick,
       onClickAnnotation,
-      xScale,
+      subDomainScale,
     } = this.props;
-    return onClickAnnotation
-      ? e => {
-          const xpos = e.nativeEvent.offsetX - margin.left;
-          const ypos = e.nativeEvent.offsetY - margin.top;
-          const rawTimestamp = xScale.invert(xpos).getTime();
-          annotations.forEach(a => {
-            if (rawTimestamp > a.data[0] && rawTimestamp < a.data[1]) {
-              // Clicked within an annotation
-              onClickAnnotation(a, xpos, ypos);
-            }
-          });
+    if (onClickAnnotation) {
+      const xpos = e.nativeEvent.offsetX - margin.left;
+      const ypos = e.nativeEvent.offsetY - margin.top;
+      const rawTimestamp = subDomainScale.invert(xpos).getTime();
+      annotations.forEach(a => {
+        if (rawTimestamp > a.data[0] && rawTimestamp < a.data[1]) {
+          // Clicked within an annotation
+          onClickAnnotation(a, xpos, ypos);
         }
-      : onClick
-        ? onClick(e)
-        : null;
+      });
+    } else if (onClick) {
+      return onClick(e);
+    }
   };
 
   onMouseMove = e => {
@@ -122,8 +123,9 @@ export default class LineChart extends Component {
       onMouseMove,
       rescaleY,
       series,
+      height,
       xAxis,
-      xScale,
+      subDomainScale,
       yAxis,
     } = this.props;
     if (Object.keys(series).length === 0) {
@@ -131,13 +133,14 @@ export default class LineChart extends Component {
     }
     const xpos = e.nativeEvent.offsetX - margin.left;
     const ypos = e.nativeEvent.offsetY - margin.top;
-    const rawTimestamp = xScale.invert(xpos).getTime();
+    const rawTimestamp = subDomainScale.invert(xpos).getTime();
     const serieKeys = Object.keys(series);
     const serie = series[serieKeys[0]];
     const output = { xpos, ypos, points: [] };
     serieKeys.forEach(key => {
-      const { data } = series[key];
-      const yAccessor = series[key].yAccessor || yAxis.accessor;
+      const serie = series[key];
+      const data = serie.data;
+      const yAccessor = serie.yAccessor || yAxis.accessor;
       const rawX = d3.bisector(d => d.timestamp).left(data, rawTimestamp, 1);
       const x0 = data[rawX - 1];
       const x1 = data[rawX];
@@ -152,26 +155,14 @@ export default class LineChart extends Component {
         d = rawTimestamp - x0.timestamp > x1.timestamp - rawTimestamp ? x1 : x0;
       }
       if (d) {
-        let scaler = rescaleY[key];
-        if (!scaler) {
-          scaler = { rescaleY: d => d };
-        }
-        const yDomain = yAxis.calculateDomain
-          ? yAxis.calculateDomain(data)
-          : d3.extent(data, yAccessor);
-        const yScale = scaler.rescaleY(
-          d3
-            .scaleLinear()
-            .domain(yDomain)
-            .range([effectiveHeight, 0])
-        );
+        const yScale = serie.scale([0, height]);
         const ts = xAxis.accessor(d);
         const value = yAccessor(d);
         output.points.push({
           key: key,
           timestamp: ts,
           value,
-          x: xScale(ts),
+          x: subDomainScale(ts),
           y: yScale(value),
         });
       } else {
@@ -209,10 +200,12 @@ export default class LineChart extends Component {
       rescaleY,
       series,
       strokeWidths,
-      subXScale: xScale,
+      subDomainScale,
+      subDomain,
       width,
       xAxis,
       yAxis,
+      xTransformation,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
@@ -249,7 +242,7 @@ export default class LineChart extends Component {
         </clipPath>
         <Axis
           key="axis--x"
-          scale={xScale}
+          scale={subDomainScale}
           mode="x"
           offsetx={0}
           offsety={effectiveHeight}
@@ -260,7 +253,7 @@ export default class LineChart extends Component {
               key={annotation.id}
               id={annotation.id}
               data={annotation.data}
-              xScale={xScale}
+              xScale={subDomainScale}
               height={effectiveHeight}
               color={annotation.color}
             />
@@ -283,7 +276,7 @@ export default class LineChart extends Component {
               <Line
                 key={`line--${key}`}
                 data={serie.data}
-                xScale={xScale}
+                xScale={subDomainScale}
                 xAccessor={serie.xAccessor}
                 yAccessor={serie.yAccessor}
                 yScale={serie.scale([effectiveHeight, 0])}

@@ -4,7 +4,7 @@ import Promise from 'bluebird';
 import { render } from 'react-dom';
 import {
   DataProvider,
-  ChartContainer,
+  LayoutManager,
   LineChart,
   ContextChart,
 } from '../../src';
@@ -70,10 +70,10 @@ class App extends Component {
         loader={this.state.loader}
         colors={{ 1: 'steelblue', 2: 'maroon' }}
       >
-        <ChartContainer>
+        <LayoutManager>
           <LineChart heightPct={0.8} onMouseMove={this.onMouseMove} />
           <ContextChart heightPct={0.05} margin={{ top: 0.04 }} />
-        </ChartContainer>
+        </LayoutManager>
       </DataProvider>
     );
   }

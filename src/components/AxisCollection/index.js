@@ -13,7 +13,7 @@ class AxisCollection extends React.Component {
     rescaleY: PropTypes.func,
   };
 
-  static defaultProps: {
+  static defaultProps = {
     series: [],
     zoomable: true,
     updateYScale: () => {},

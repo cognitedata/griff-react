@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
-import { DataProvider, ChartContainer, LineChart, ContextChart } from '../src';
+import { DataProvider, LayoutManager, LineChart, ContextChart } from '../src';
 import { Map } from 'immutable';
 
 const randomData = () => {
@@ -64,9 +64,9 @@ class StaticAxis extends Component {
           loader={theLoader}
           colors={{ 1: 'red', 2: 'green', 3: 'blue' }}
         >
-          <ChartContainer>
+          <LayoutManager>
             <LineChart heightPct={1} crosshairs />
-          </ChartContainer>
+          </LayoutManager>
         </DataProvider>
         {[1, 2, 3].map(i => (
           <button
