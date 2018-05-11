@@ -1,7 +1,34 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
+import PropTypes from 'prop-types';
+import Validators from '../../Validators';
 
 class ChartContainer extends Component {
+  static propTypes = {
+    height: PropTypes.number,
+    series: Validators.series,
+    width: PropTypes.number,
+    yAxis: Validators.axisConfig,
+    hiddenSeries: Validators.hiddenSeries,
+    margin: Validators.margin,
+    subDomainChanged: PropTypes.func,
+    domain: PropTypes.arrayOf(PropTypes.number),
+    subDomain: PropTypes.arrayOf(PropTypes.number),
+    children: PropTypes.node.isRequired,
+  };
+
+  static defaultProps = {
+    height: 0,
+    hiddenSeries: {},
+    yAxis: { width: 50, display: 'ALL' },
+    margin: { top: 0, left: 0, bottom: 0, right: 0 },
+    width: 0,
+    series: {},
+    subDomainChanged: null,
+    domain: [0, 1],
+    subDomain: [0, 1],
+  };
+
   constructor(props) {
     super(props);
     const { height } = this.props;
@@ -52,8 +79,6 @@ class ChartContainer extends Component {
   };
 
   updateTransformation = s => {
-    const { margin, series, yAxis: { width: yAxisWidth } } = this.props;
-    const nSeries = Object.keys(series).length;
     const width = this.getChartWidth();
     this.setState({
       transformation: d3.zoomIdentity
@@ -72,14 +97,7 @@ class ChartContainer extends Component {
   };
 
   render() {
-    const {
-      series,
-      margin,
-      width,
-      domain,
-      subDomain,
-      hiddenSeries,
-    } = this.props;
+    const { margin, width, domain, subDomain } = this.props;
     const chartWidth = this.getChartWidth();
     const chartHeight = this.props.height - margin.top - margin.bottom - 10;
     let heightOffset = 0;

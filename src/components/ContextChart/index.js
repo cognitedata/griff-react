@@ -1,10 +1,46 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
+import PropTypes from 'prop-types';
+import Validators from '../../Validators';
 import Axis from '../Axis';
 import Line from '../Line';
 import Annotation from '../Annotation';
 
 export default class ContextChart extends Component {
+  static propTypes = {
+    width: PropTypes.number,
+    height: PropTypes.number,
+    heightPct: PropTypes.number,
+    subDomain: PropTypes.arrayOf(PropTypes.number),
+    xScale: PropTypes.func,
+    subDomainChanged: PropTypes.func,
+    updateTransformation: PropTypes.func,
+    xAxis: Validators.axisConfig,
+    yAxis: Validators.axisConfig,
+    contextSeries: Validators.series,
+    offsetY: PropTypes.number,
+    hiddenSeries: Validators.hiddenSeries,
+    colors: Validators.colors,
+    annotations: PropTypes.arrayOf(PropTypes.object),
+  };
+
+  static defaultProps = {
+    hiddenSeries: {},
+    colors: {},
+    width: 0,
+    height: 0,
+    heightPct: 1,
+    subDomain: [0, 1],
+    subDomainChanged: null,
+    xScale: null,
+    updateTransformation: null,
+    xAxis: {},
+    yAxis: {},
+    contextSeries: {},
+    offsetY: 0,
+    annotations: [],
+  };
+
   componentDidMount() {
     const { width, height, heightPct } = this.props;
     this.brush = d3
@@ -29,11 +65,9 @@ export default class ContextChart extends Component {
       this.selection.call(this.brush);
     }
 
-    const prevRange = prevProps.xScale.range();
-    const curRange = this.props.xScale.range();
     if (prevProps.width !== this.props.width) {
       const range = d3.brushSelection(this.brushNode);
-      const xScale = prevProps.xScale;
+      const { xScale } = prevProps;
       const oldSelection = range
         .map(xScale.invert, xScale)
         .map(p => p.getTime());

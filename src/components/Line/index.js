@@ -65,7 +65,7 @@ const Line = ({
 Line.propTypes = {
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
-  data: PropTypes.array.isRequired,
+  data: PropTypes.arrayOf(PropTypes.object).isRequired,
   xAccessor: PropTypes.func.isRequired,
   yAccessor: PropTypes.func.isRequired,
   color: PropTypes.string.isRequired,
