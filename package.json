@@ -15,6 +15,7 @@
     "start": "nwb serve-react-demo",
     "test": "nwb test-react",
     "build": "nwb build",
+    "build:watch": "nodemon -w src -x 'rm .babelrc &> /dev/null; nwb build-react-component --no-demo'",
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server",
     "storybook": "start-storybook -p 9001 -c .storybook",
@@ -34,11 +35,13 @@
     "react": "16.x"
   },
   "devDependencies": {
+    "@cognite/react-scripts": "^2.1.0",
     "@storybook/addon-actions": "^3.2.17",
     "@storybook/addon-info": "^3.2.17",
     "@storybook/react": "^3.2.17",
     "axios": "^0.17.1",
     "moment": "^2.19.3",
+    "nodemon": "^1.17.4",
     "nwb": "0.20.x",
     "react": "^16.2.0",
     "react-dom": "^16.2.0"
