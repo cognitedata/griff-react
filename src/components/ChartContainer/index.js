@@ -39,9 +39,15 @@ class ChartContainer extends Component {
       series,
     } = this.props;
     const nSeries = Object.keys(series).length;
-    const nHiddenSeries = Object.keys(hiddenSeries).filter(
-      s => hiddenSeries[s] === true
-    ).length;
+    const nHiddenSeries = Object.keys(series).reduce((total, key) => {
+      let hidden;
+      if (series[key].hidden !== undefined) {
+        hidden = series[key].hidden;
+      } else {
+        hidden = hiddenSeries[key] || false;
+      }
+      return total + hidden ? 1 : 0;
+    }, 0);
     const visibleAxesCount =
       yAxisDisplayMode === 'NONE' ? 0 : nSeries - nHiddenSeries;
     return width - yAxisWidth * visibleAxesCount - margin.left - margin.right;
@@ -52,7 +58,11 @@ class ChartContainer extends Component {
   };
 
   updateTransformation = s => {
-    const { margin, series, yAxis: { width: yAxisWidth } } = this.props;
+    const {
+      margin,
+      series,
+      yAxis: { width: yAxisWidth },
+    } = this.props;
     const nSeries = Object.keys(series).length;
     const width = this.getChartWidth();
     this.setState({
@@ -91,14 +101,22 @@ class ChartContainer extends Component {
       .scaleTime()
       .domain(subDomain)
       .range([0, chartWidth]);
+
+    const scaledSeries = { ...series };
+    Object.keys(this.state.rescaleY).forEach(key => {
+      scaledSeries[key].scaler = this.state.rescaleY[key];
+    });
+
     const children = React.Children.map(this.props.children, child => {
       if (child === null) {
-        // Handling the conditional rendering of children, that will render false/null
+        // Handling the conditional rendering of children, that will render
+        // false/null
         return null;
       }
       heightOffset += ((child.props.margin || {}).top || 0) * chartHeight;
       const c = React.cloneElement(child, {
         ...this.props,
+        series: scaledSeries,
         subDomainChanged: this.subDomainChanged,
         width: chartWidth,
         offsetY: heightOffset,

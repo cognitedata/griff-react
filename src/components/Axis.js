@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 
 const tickTransformer = {
@@ -34,8 +35,24 @@ function multiFormat(date) {
 }
 
 export default class Axis extends Component {
+  static propTypes = {
+    id: PropTypes.string,
+    mode: PropTypes.string.isRequired,
+    offsetx: PropTypes.number.isRequired,
+    offsety: PropTypes.number.isRequired,
+    scale: PropTypes.func.isRequired,
+    strokeColor: PropTypes.string,
+    updateYScale: PropTypes.func,
+    width: PropTypes.number,
+    zoomable: PropTypes.bool,
+  };
+
   static defaultProps = {
+    id: '',
+    strokeColor: 'black',
+    updateYScale: null,
     zoomable: true,
+    width: 0,
   };
 
   componentWillMount() {
@@ -96,7 +113,7 @@ export default class Axis extends Component {
   };
 
   renderAxis() {
-    const { scale, mode, offsetx, offsety, strokeColor = 'black' } = this.props;
+    const { scale, mode, offsetx, offsety, strokeColor } = this.props;
     const axis = mode === 'x' ? d3.axisBottom(scale) : d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { uniq, isEqual } from 'lodash';
+import Series from '../../data';
 
 export default class DataProvider extends Component {
   state = {
@@ -20,106 +21,6 @@ export default class DataProvider extends Component {
 
   async componentWillUnmount() {
     clearInterval(this.fetchInterval);
-  }
-
-  shouldComponentUpdate(
-    {
-      config,
-      loader,
-      width,
-      height,
-      colors,
-      hiddenSeries,
-      annotations,
-      children,
-      strokeWidths,
-    },
-    { subDomain: nextSubdomain, series }
-  ) {
-    if (!isEqual(annotations, this.props.annotations)) {
-      return true;
-    }
-    if (this.props.loader !== loader) {
-      return true;
-    }
-    if (width !== this.props.width || height !== this.props.height) {
-      return true;
-    }
-    if (!isEqual(colors, this.props.colors)) {
-      return true;
-    }
-    if (!isEqual(hiddenSeries, this.props.hiddenSeries)) {
-      return true;
-    }
-    if (!isEqual(this.props.strokeWidths, strokeWidths)) {
-      return true;
-    }
-    if (
-      React.Children.toArray(children).filter(child => child !== null)
-        .length !==
-      React.Children.toArray(this.props.children).filter(
-        child => child !== null
-      ).length
-    ) {
-      return true;
-    }
-    const { subDomain } = this.state;
-    const { baseDomain: domain } = this.props.config;
-    const { baseDomain: nextDomain } = config;
-    if (
-      domain[0] !== nextDomain[0] ||
-      domain[1] !== nextDomain[1] ||
-      subDomain[0] !== nextSubdomain[0] ||
-      subDomain[1] !== nextSubdomain[1]
-    ) {
-      return true;
-    }
-    const { series: currentSeries } = this.state;
-    const keys = Object.keys(series);
-    const currentKeys = Object.keys(currentSeries);
-    if (keys.length !== currentKeys.length) {
-      return true;
-    }
-    if (!isEqual(config.yAxis, this.props.config.yAxis)) {
-      return true;
-    }
-    if (config.showContext !== this.props.config.showContext) {
-      return true;
-    }
-    const allKeys = uniq([...keys, ...currentKeys]);
-    for (let i = 0; i < allKeys.length; i += 1) {
-      const key = allKeys[i];
-      if (!currentSeries[key] || !series[key]) {
-        return true;
-      }
-      if (currentSeries[key].drawPoints !== series[key].drawPoints) {
-        return true;
-      }
-      const oldSerie = currentSeries[key];
-      const newSerie = series[key];
-      if (oldSerie.data.length !== newSerie.data.length) {
-        return true;
-      }
-      const oldData = oldSerie.data;
-      const newData = newSerie.data;
-      const oldXAccessor =
-        oldSerie.xAccessor || this.props.config.xAxis.accessor;
-      const oldYAccessor =
-        oldSerie.yAccessor || this.props.config.yAxis.accessor;
-      const newXAccessor = newSerie.xAccessor || config.xAxis.accessor;
-      const newYAccessor = newSerie.yAccessor || config.yAxis.accessor;
-      oldData.some((oldPoint, j) => {
-        const newPoint = newData[j];
-        if (oldXAccessor(oldPoint) !== newXAccessor(newPoint)) {
-          return true;
-        }
-        if (oldYAccessor(oldPoint) !== newYAccessor(newPoint)) {
-          return true;
-        }
-        return false;
-      });
-    }
-    return false;
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -143,19 +44,118 @@ export default class DataProvider extends Component {
     this.unmounted = true;
   }
 
+  static getDerivedStateFromProps = (nextProps, prevState) => {
+    const { series: rawSeries, contextSeries: rawContextSeries } = prevState;
+    const { hiddenSeries, config, colors, strokeWidths } = nextProps;
+    if (!rawSeries) {
+      return null;
+    }
+    const processedSeries = {};
+    const processedContextSeries = { ...rawContextSeries };
+    Object.keys(rawSeries).forEach(key => {
+      // The series config gets full precedence.
+      const series = new Series(rawSeries[key]);
+      if (series.id === undefined) {
+        series.id = key;
+      } else if (series.id !== undefined && series.id != key) {
+        console.warn(
+          `Replacing existing series.id (${series.id}) with object key ${key}`
+        );
+        series.id = key;
+      }
+      series.hidden = !!hiddenSeries[key];
+      // Also update the hidden property on the contextSeries
+      processedContextSeries[key].hidden = series.hidden;
+
+      if (colors[key]) {
+        series.color = colors[key];
+        processedContextSeries[key].color = series.color;
+      }
+      if (strokeWidths[key]) {
+        series.strokeWidth = strokeWidths[key];
+      }
+      const { yAxis, xAxis } = config;
+      if (yAxis) {
+        if (yAxis.staticDomain) {
+          series.staticDomain = yAxis.staticDomain[key];
+        }
+        if (yAxis.calculateDomain && !series.calculateDomain) {
+          series.calculateDomain = yAxis.calculateDomain;
+        }
+        if (!series.xAccessor && xAxis.accessor) {
+          series.xAccessor = xAxis.accessor;
+        }
+        if (!series.yAccessor && yAxis.accessor) {
+          series.yAccessor = yAxis.accessor;
+        }
+        if (!series.width && yAxis.width) {
+          series.width = yAxis.width;
+        }
+      }
+      series.width = series.width || 50;
+      processedSeries[key] = series;
+    });
+    return { series: processedSeries, contextSeries: processedContextSeries };
+  };
+
   fetchData = async reason => {
-    const series = await this.props.loader(
-      this.props.config.baseDomain,
+    const { hiddenSeries, config, colors, strokeWidths } = this.props;
+    const rawSeries = await this.props.loader(
+      config.baseDomain,
       this.state.subDomain,
-      this.props.config,
+      config,
       this.state.series,
       reason
     );
-    const update = {
-      series,
-    };
+    const processedSeries = {};
+
+    // Convert all of the existing random arrays into properties on the Series
+    // object. This allows it to be passed around as one piece without needing
+    // to refer to disconnected arrays or objects.
+    Object.keys(rawSeries).forEach((key, idx) => {
+      const series = new Series(rawSeries[key]);
+      if (series.id === undefined) {
+        series.id = key;
+      } else if (series.id !== undefined && series.id != key) {
+        console.warn(
+          `Replacing existing series.id (${series.id}) with object key ${key}`
+        );
+        series.id = key;
+      }
+      if (!series.color && colors && colors[key]) {
+        series.color = colors[key];
+      }
+      if (series.hidden === undefined && hiddenSeries) {
+        series.hidden = !!hiddenSeries[key];
+      }
+      const { yAxis, xAxis } = config;
+      if (yAxis) {
+        if (yAxis.staticDomain) {
+          series.staticDomain = yAxis.staticDomain[key];
+        }
+        if (!series.calculateDomain && yAxis.calculateDomain) {
+          series.calculateDomain = yAxis.calculateDomain;
+        }
+        if (!series.xAccessor && xAxis.accessor) {
+          series.xAccessor = xAxis.accessor;
+        }
+        if (!series.yAccessor && yAxis.accessor) {
+          series.yAccessor = yAxis.accessor;
+        }
+        if (!series.width && yAxis.width) {
+          series.width = yAxis.width;
+        }
+      }
+      series.width = series.width || 50;
+      if (!series.strokeWidth && strokeWidths) {
+        series.strokeWidth = strokeWidths[key] || 1;
+      }
+      processedSeries[key] = series;
+    });
+
+    const update = { series: processedSeries };
     if (reason !== 'UPDATE_SUBDOMAIN') {
-      update.contextSeries = series;
+      update.contextSeries = processedSeries;
     }
     if (!this.unmounted) {
       this.setState(update);
