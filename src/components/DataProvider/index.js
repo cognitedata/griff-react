@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { uniq, isEqual } from 'lodash';
+import Validators from '../../Validators';
 
 export default class DataProvider extends Component {
   state = {
@@ -18,20 +19,16 @@ export default class DataProvider extends Component {
     }
   }
 
-  async componentWillUnmount() {
-    clearInterval(this.fetchInterval);
-  }
-
   shouldComponentUpdate(
     {
-      config,
       loader,
+      colors,
+      config,
+      children,
       width,
       height,
-      colors,
       hiddenSeries,
       annotations,
-      children,
       strokeWidths,
     },
     { subDomain: nextSubdomain, series }
@@ -86,6 +83,9 @@ export default class DataProvider extends Component {
     if (config.showContext !== this.props.config.showContext) {
       return true;
     }
+    if (config.zoomable !== this.props.config.zoomable) {
+      return true;
+    }
     const allKeys = uniq([...keys, ...currentKeys]);
     for (let i = 0; i < allKeys.length; i += 1) {
       const key = allKeys[i];
@@ -122,7 +122,7 @@ export default class DataProvider extends Component {
     return false;
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (this.props.loader !== prevProps.loader) {
       return this.fetchData('NEW_LOADER');
     }
@@ -180,12 +180,12 @@ export default class DataProvider extends Component {
       height,
       margin,
       colors,
+      config,
       hiddenSeries,
       annotations,
       strokeWidths,
     } = this.props;
     const { series, contextSeries } = this.state;
-    const { config } = this.props;
     if (!series) {
       return null;
     }
@@ -219,17 +219,21 @@ export default class DataProvider extends Component {
 }
 
 DataProvider.propTypes = {
-  config: PropTypes.object.isRequired,
+  config: Validators.config,
+  colors: PropTypes.objectOf(PropTypes.string).isRequired,
+  children: PropTypes.node.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  margin: PropTypes.object,
-  updateInterval: PropTypes.number,
+  margin: Validators.margin,
+  loader: PropTypes.func.isRequired,
   hiddenSeries: PropTypes.objectOf(PropTypes.bool),
   annotations: PropTypes.arrayOf(PropTypes.object),
   strokeWidths: PropTypes.objectOf(PropTypes.number),
+  updateInterval: PropTypes.number,
 };
 
 DataProvider.defaultProps = {
+  config: {},
   margin: {
     top: 20,
     left: 20,
@@ -239,4 +243,5 @@ DataProvider.defaultProps = {
   hiddenSeries: {},
   annotations: [],
   strokeWidths: {},
+  updateInterval: 0,
 };

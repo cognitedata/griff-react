@@ -1,27 +1,76 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
+import PropTypes from 'prop-types';
 import Line from '../Line';
 import Axis from '../Axis';
 import Annotation from '../Annotation';
-import PropTypes from 'prop-types';
+import Validators from '../../Validators';
 
 export default class LineChart extends Component {
   static propTypes = {
+    annotations: PropTypes.arrayOf(PropTypes.object),
+    colors: Validators.colors,
+    config: Validators.config,
+    crosshairs: PropTypes.bool,
+    height: PropTypes.number,
+    heightPct: PropTypes.number,
+    hiddenSeries: Validators.hiddenSeries,
+    margin: Validators.margin,
+    offsetY: PropTypes.number,
+    onClick: PropTypes.func,
+    onClickAnnotation: PropTypes.func,
+    onMouseMove: PropTypes.func,
+    onMouseOut: PropTypes.func,
+    rescaleY: Validators.rescaler,
+    series: Validators.series,
     strokeWidths: PropTypes.objectOf(PropTypes.number),
+    subXScale: PropTypes.func,
+    subDomainChanged: PropTypes.func,
+    transformation: PropTypes.shape({
+      k: PropTypes.number,
+      x: PropTypes.number,
+      y: PropTypes.number,
+    }),
+    updateYScale: PropTypes.func,
+    width: PropTypes.number,
+    xAxis: Validators.axisConfig,
+    xScale: PropTypes.func,
+    yAxis: Validators.axisConfig,
+    zoom: PropTypes.func,
   };
 
   static defaultProps = {
+    annotations: [],
+    colors: {},
+    config: {},
+    crosshairs: false,
+    height: 0,
+    heightPct: 1,
+    hiddenSeries: {},
+    margin: {},
+    offsetY: 0,
+    onClick: null,
+    onClickAnnotation: null,
+    onMouseMove: null,
+    onMouseOut: null,
+    rescaleY: {},
+    series: {},
     strokeWidths: {},
+    subDomainChanged: null,
+    subXScale: null,
+    transformation: {},
+    updateYScale: null,
+    width: 0,
+    xAxis: {},
+    xScale: null,
+    yAxis: {},
+    zoom: null,
   };
 
   state = {
     linex: null,
     liney: null,
   };
-
-  isZoomable() {
-    return 'zoomable' in this.props.config ? this.props.config.zoomable : true;
-  }
 
   componentDidMount() {
     this.selection = d3.select(this.zoomNode);
@@ -35,9 +84,26 @@ export default class LineChart extends Component {
       this.selection.call(this.props.zoom.transform, this.props.transformation);
     }
 
-    if (prevProps.config.zoomable != this.props.config.zoomable) {
+    if (prevProps.config.zoomable !== this.props.config.zoomable) {
       this.syncZoomingState();
     }
+  }
+
+  onMouseOut = e => {
+    const { crosshairs, onMouseMove, onMouseOut } = this.props;
+    if (onMouseMove) {
+      onMouseMove([]);
+    }
+    if (crosshairs) {
+      this.setState({ linex: null, liney: null });
+    }
+    if (onMouseOut) {
+      onMouseOut(e);
+    }
+  };
+
+  isZoomable() {
+    return 'zoomable' in this.props.config ? this.props.config.zoomable : true;
   }
 
   syncZoomingState = () => {
@@ -85,6 +151,7 @@ export default class LineChart extends Component {
       annotations,
       config,
       strokeWidths,
+      updateYScale,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
@@ -101,7 +168,7 @@ export default class LineChart extends Component {
               key={0}
               x1={0}
               x2={width}
-              stroke={'#ccc'}
+              stroke="#ccc"
               strokeWidth={1}
               y1={liney}
               y2={liney}
@@ -158,16 +225,16 @@ export default class LineChart extends Component {
                 .domain(staticDomain)
                 .range([effectiveHeight, 0]);
             }
-            const yScale = staticScale
-              ? staticScale
-              : scaler.rescaleY(
-                  d3
-                    .scaleLinear()
-                    .domain(yDomain)
-                    .range([effectiveHeight, 0])
-                    .nice()
-                );
-            var items = [];
+            const yScale =
+              staticScale ||
+              scaler.rescaleY(
+                d3
+                  .scaleLinear()
+                  .domain(yDomain)
+                  .range([effectiveHeight, 0])
+                  .nice()
+              );
+            const items = [];
             if (showAxes) {
               items.push(
                 <Axis
@@ -180,7 +247,7 @@ export default class LineChart extends Component {
                   width={yAxis.width}
                   offsety={effectiveHeight}
                   strokeColor={colors[key]}
-                  updateYScale={this.props.updateYScale}
+                  updateYScale={updateYScale}
                 />
               );
             }
@@ -231,7 +298,6 @@ export default class LineChart extends Component {
             const ypos = e.nativeEvent.offsetY - margin.top;
             const rawTimestamp = xScale.invert(xpos).getTime();
             const serieKeys = Object.keys(series);
-            const serie = series[serieKeys[0]];
             const output = { xpos, ypos, points: [] };
             serieKeys.forEach(key => {
               const { data } = series[key];
@@ -257,7 +323,7 @@ export default class LineChart extends Component {
               if (d) {
                 let scaler = rescaleY[key];
                 if (!scaler) {
-                  scaler = { rescaleY: d => d };
+                  scaler = { rescaleY: d1 => d1 };
                 }
                 const yDomain = yAxis.calculateDomain
                   ? yAxis.calculateDomain(data)
@@ -271,28 +337,25 @@ export default class LineChart extends Component {
                 const ts = xAxis.accessor(d);
                 const value = yAccessor(d);
                 output.points.push({
-                  key: key,
+                  key,
                   timestamp: ts,
                   value,
                   x: xScale(ts),
                   y: yScale(value),
                 });
               } else {
-                output.points.push({ key: key });
+                output.points.push({ key });
               }
             });
             if (crosshairs) {
               this.setState({ linex: xpos, liney: ypos });
             }
-            onMouseMove && onMouseMove(output);
-          }}
-          onMouseOut={e => {
-            onMouseMove && onMouseMove([]);
-            if (crosshairs) {
-              this.setState({ linex: null, liney: null });
+            if (onMouseMove) {
+              onMouseMove(output);
             }
-            this.props.onMouseOut && this.props.onMouseOut(e);
           }}
+          onMouseOut={this.onMouseOut}
+          onBlur={this.onMouseOut}
         />
       </g>
     );

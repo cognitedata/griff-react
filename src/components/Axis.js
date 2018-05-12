@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
+import PropTypes from 'prop-types';
 
 const tickTransformer = {
   x: v => `translate(${v}, 0)`,
@@ -15,37 +16,57 @@ const formatWeek = d3.timeFormat('%d/%m');
 const formatMonth = d3.timeFormat('%d/%m');
 const formatYear = d3.timeFormat('%b %Y');
 
+function getFormat(date) {
+  if (d3.timeSecond(date) < date) {
+    return formatMillisecond;
+  }
+  if (d3.timeMinute(date) < date) {
+    return formatSecond;
+  }
+  if (d3.timeHour(date) < date) {
+    return formatMinute;
+  }
+  if (d3.timeDay(date) < date) {
+    return formatHour;
+  }
+  if (d3.timeMonth(date) < date) {
+    if (d3.timeWeek(date) < date) {
+      return formatDay;
+    }
+    return formatWeek;
+  }
+  if (d3.timeYear(date) < date) {
+    return formatMonth;
+  }
+  return formatYear;
+}
+
 function multiFormat(date) {
-  return (d3.timeSecond(date) < date
-    ? formatMillisecond
-    : d3.timeMinute(date) < date
-      ? formatSecond
-      : d3.timeHour(date) < date
-        ? formatMinute
-        : d3.timeDay(date) < date
-          ? formatHour
-          : d3.timeMonth(date) < date
-            ? d3.timeWeek(date) < date
-              ? formatDay
-              : formatWeek
-            : d3.timeYear(date) < date
-              ? formatMonth
-              : formatYear)(date);
+  return getFormat(date)(date);
 }
 
 export default class Axis extends Component {
+  static propTypes = {
+    scale: PropTypes.func.isRequired,
+    zoomable: PropTypes.bool,
+    mode: PropTypes.oneOf(['x', 'y']).isRequired,
+    id: PropTypes.string,
+    updateYScale: PropTypes.func,
+    offsetx: PropTypes.number.isRequired,
+    offsety: PropTypes.number.isRequired,
+    width: PropTypes.number,
+    strokeColor: PropTypes.string,
+  };
   static defaultProps = {
     zoomable: true,
+    id: undefined,
+    strokeColor: 'black',
+    updateYScale: undefined,
+    width: 0,
   };
 
   componentWillMount() {
     this.zoom = d3.zoom().on('zoom', this.didZoom);
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevProps.zoomable != this.props.zoomable) {
-      this.syncZoomingState();
-    }
   }
 
   componentDidMount() {
@@ -53,20 +74,33 @@ export default class Axis extends Component {
     this.syncZoomingState();
   }
 
+  componentDidUpdate(prevProps) {
+    if (!!prevProps.zoomable !== !!this.props.zoomable) {
+      this.syncZoomingState();
+    }
+  }
+
+  getTickFormat = scale => {
+    if (this.props.mode === 'x') {
+      return multiFormat;
+    }
+    return scale.tickFormat();
+  };
+
+  didZoom = () => {
+    const t = d3.event.transform;
+    this.props.updateYScale(t, this.props.id);
+  };
+
   syncZoomingState = () => {
     if (this.props.mode === 'x') {
-      return null;
+      return;
     }
     if (this.props.zoomable) {
       this.selection.call(this.zoom);
     } else {
       this.selection.on('.zoom', null);
     }
-  };
-
-  didZoom = () => {
-    const t = d3.event.transform;
-    this.props.updateYScale(t, this.props.id);
   };
 
   renderZoomRect() {
@@ -88,15 +122,8 @@ export default class Axis extends Component {
     );
   }
 
-  getTickFormat = scale => {
-    if (this.props.mode === 'x') {
-      return multiFormat;
-    }
-    return scale.tickFormat();
-  };
-
   renderAxis() {
-    const { scale, mode, offsetx, offsety, strokeColor = 'black' } = this.props;
+    const { scale, mode, offsetx, offsety, strokeColor } = this.props;
     const axis = mode === 'x' ? d3.axisBottom(scale) : d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;
