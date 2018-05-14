@@ -87,7 +87,9 @@ const Line = ({
 Line.propTypes = {
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
+  // eslint-disable-next-line
   data: PropTypes.array.isRequired,
+  // Data can take any form as long as the xAccessor and yAccessors are set.
   xAccessor: PropTypes.func.isRequired,
   yAccessor: PropTypes.func.isRequired,
   y0Accessor: PropTypes.func.isRequired,

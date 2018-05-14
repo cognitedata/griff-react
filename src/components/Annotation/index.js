@@ -1,27 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import * as d3 from 'd3';
+import { annotationPropType } from '../../utils/proptypes';
 
-const Annotation = ({ data, xScale, height, color, fillOpacity, id }) => {
-  return (
-    <rect
-      x={xScale(data[0])}
-      y={0}
-      height={height}
-      width={xScale(data[1]) - xScale(data[0])}
-      style={{ stroke: color, fill: color, fillOpacity }}
-    />
-  );
-};
+const Annotation = ({ data, xScale, height, color, fillOpacity, id }) => (
+  <rect
+    key={id}
+    x={xScale(data[0])}
+    y={0}
+    height={height}
+    width={xScale(data[1]) - xScale(data[0])}
+    style={{ stroke: color, fill: color, fillOpacity }}
+  />
+);
 
-Annotation.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.number).isRequired,
-  xScale: PropTypes.func.isRequired,
-  height: PropTypes.number.isRequired,
-  id: PropTypes.number.isRequired,
-  color: PropTypes.string,
-  fillOpacity: PropTypes.number,
-};
+Annotation.propTypes = annotationPropType;
 
 Annotation.defaultProps = {
   color: '#e8336d',

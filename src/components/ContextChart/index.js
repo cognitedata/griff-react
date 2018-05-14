@@ -1,47 +1,81 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import * as d3 from 'd3';
-import Axis from '../Axis';
-import Line from '../Line';
+import isEqual from 'lodash.isequal';
+import ScalerContext from '../../context/Scaler';
+import LineCollection from '../LineCollection';
+import XAxis from '../XAxis';
 import Annotation from '../Annotation';
+import { createXScale } from '../../utils/scale-helpers';
+import { seriesPropType, annotationPropType } from '../../utils/proptypes';
 
 export default class ContextChart extends Component {
+  static propTypes = {
+    width: PropTypes.number.isRequired,
+    annotations: PropTypes.arrayOf(PropTypes.shape(annotationPropType)),
+    height: PropTypes.number.isRequired,
+    contextSeries: seriesPropType,
+    baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    updateXTransformation: PropTypes.func.isRequired,
+    zoomable: PropTypes.bool,
+  };
+
+  static defaultProps = {
+    contextSeries: [],
+    zoomable: true,
+    annotations: [],
+  };
+
   componentDidMount() {
-    const { width, height, heightPct } = this.props;
+    const { width, height } = this.props;
     this.brush = d3
       .brushX()
-      .extent([[0, 0], [width, height * heightPct]])
+      .extent([[0, 0], [width, height]])
       .on('brush end', this.didBrush);
     this.selection = d3.select(this.brushNode);
     this.selection.call(this.brush);
     this.selection.call(this.brush.move, [0, width]);
+    this.syncZoomingState();
   }
 
   componentDidUpdate(prevProps) {
-    if (
-      prevProps.subDomain[0] !== this.props.subDomain[0] ||
-      prevProps.subDomain[1] !== this.props.subDomain[1]
-    ) {
-      const { subDomain, height, heightPct } = this.props;
-      const scale = this.props.xScale;
-      const range = subDomain.map(scale);
-      this.brush.extent([[0, 0], [this.props.width, height * heightPct]]);
-      this.selection.call(this.brush.move, range);
-      this.selection.call(this.brush);
+    const { baseDomain, subDomain, width } = this.props;
+    this.brush.extent([[0, 0], [this.props.width, this.props.height]]);
+    const xScale = createXScale(baseDomain, width);
+    const selection = subDomain.map(xScale);
+    if (this.brushNode) {
+      if (!this.props.zoomable) {
+        this.selection.call(this.brush);
+        this.selection.call(this.brush.move, selection);
+        this.selection.on('.brush', null);
+      } else {
+        this.selection.call(this.brush.move, selection);
+      }
     }
+    if (!this.props.zoomable === prevProps.zoomable) {
+      this.syncZoomingState();
+    }
+  }
 
-    const prevRange = prevProps.xScale.range();
-    const curRange = this.props.xScale.range();
-    if (prevProps.width !== this.props.width) {
-      const range = d3.brushSelection(this.brushNode);
-      const xScale = prevProps.xScale;
-      const oldSelection = range
-        .map(xScale.invert, xScale)
-        .map(p => p.getTime());
-      const newRange = oldSelection.map(this.props.xScale);
-      const { height, heightPct, width } = this.props;
-      this.brush.extent([[0, 0], [width, height * heightPct]]);
-      this.selection.call(this.brush.move, newRange);
+  syncZoomingState() {
+    if (this.props.zoomable) {
       this.selection.call(this.brush);
+    } else {
+      this.selection.on('.brush', null);
+    }
+  }
+
+  updateXTransformation() {
+    const { width, subDomain, baseDomain } = this.props;
+    const selection = d3.event.selection || [0, width];
+    const transform = d3.zoomIdentity
+      .scale(width / (selection[1] - selection[0]))
+      .translate(-selection[0], 0);
+    const scale = createXScale(baseDomain, width);
+    const currentSelection = subDomain.map(scale);
+    if (!isEqual(selection, currentSelection)) {
+      this.props.updateXTransformation(transform, width);
     }
   }
 
@@ -49,92 +83,52 @@ export default class ContextChart extends Component {
     if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'zoom') {
       return;
     }
-    const s = d3.event.selection || this.props.xScale.range();
-    const scale = this.props.xScale;
-    const domain = s.map(scale.invert, scale).map(p => p.getTime());
-    const oldDomain = scale.domain().map(p => p.getTime());
-    if (domain[0] !== oldDomain[0] || domain[1] !== oldDomain[1]) {
-      this.props.subDomainChanged(domain);
+    if (!d3.event.sourceEvent) {
+      return;
     }
-    if (d3.event.type === 'end') {
-      this.props.updateTransformation(s);
+    if (this.props.zoomable) {
+      this.updateXTransformation();
     }
-  };
-
-  calculateDomainFromData = (data, yAccessor) => {
-    const extent = d3.extent(data, yAccessor);
-    const diff = extent[1] - extent[0];
-    return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
   };
 
   render() {
-    const {
-      yAxis,
-      xAxis,
-      contextSeries: series,
-      height,
-      heightPct,
-      offsetY,
-      xScale,
-      colors,
-      hiddenSeries,
-      annotations,
-    } = this.props;
-    const effectiveHeight = height * heightPct;
+    const { height, width, baseDomain, contextSeries } = this.props;
+    const xScale = createXScale(baseDomain, width);
+    const annotations = this.props.annotations.map(a => (
+      <Annotation key={a.id} {...a} height={height} xScale={xScale} />
+    ));
     return (
-      <g className="context-chart" transform={`translate(0, ${offsetY})`}>
-        <Axis
-          key="axis--x"
-          scale={xScale}
-          mode="x"
-          offsety={effectiveHeight}
-          offsetx={0}
-        />
-        {annotations.map(annotation => (
-          <Annotation
-            key={annotation.id}
-            id={annotation.id}
-            data={annotation.data}
-            xScale={xScale}
-            color={annotation.color}
-            height={effectiveHeight}
-            fillOpacity={0.3}
+      <React.Fragment>
+        <svg height={height} width={width}>
+          {annotations}
+          <LineCollection
+            series={contextSeries}
+            width={width}
+            height={height}
+            domain={baseDomain}
           />
-        ))}
-        {Object.keys(series).map(key => {
-          const serie = series[key];
-          const yDomain = yAxis.calculateDomain
-            ? yAxis.calculateDomain(serie.data)
-            : this.calculateDomainFromData(
-                serie.data,
-                serie.yAccessor || yAxis.accessor
-              );
-          const yScale = d3
-            .scaleLinear()
-            .domain(yDomain)
-            .range([effectiveHeight, 0])
-            .nice();
-          return (
-            <Line
-              key={`line--${key}`}
-              data={serie.data}
-              hidden={hiddenSeries[key]}
-              xScale={xScale}
-              yScale={yScale}
-              xAccessor={serie.xAccessor || xAxis.accessor}
-              yAccessor={serie.yAccessor || yAxis.accessor}
-              color={colors[key]}
-              step={serie.step}
-            />
-          );
-        })}
-        <g
-          className="context-brush"
-          ref={ref => {
-            this.brushNode = ref;
-          }}
-        />
-      </g>
+          <g
+            ref={r => {
+              this.brushNode = r;
+            }}
+          />
+        </svg>
+        <XAxis width={width} height={50} domain={baseDomain} />
+      </React.Fragment>
     );
   }
 }
+
+export const ScaledContextChart = props => (
+  <ScalerContext.Consumer>
+    {({ subDomain, baseDomain, updateXTransformation, contextSeries }) => (
+      <ContextChart
+        {...props}
+        baseDomain={baseDomain}
+        subDomain={subDomain}
+        updateXTransformation={updateXTransformation}
+        contextSeries={contextSeries}
+      />
+    )}
+  </ScalerContext.Consumer>
+);
