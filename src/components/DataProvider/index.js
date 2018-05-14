@@ -4,6 +4,7 @@ import { uniq, isEqual } from 'lodash';
 
 export default class DataProvider extends Component {
   state = {
+    domain: this.props.config.baseDomain,
     subDomain: this.props.config.baseSubdomain || this.props.config.baseDomain,
     series: this.props.config.series || {},
     contextSeries: {},
@@ -16,10 +17,6 @@ export default class DataProvider extends Component {
         this.fetchData('INTERVAL');
       }, this.props.updateInterval);
     }
-  }
-
-  async componentWillUnmount() {
-    clearInterval(this.fetchInterval);
   }
 
   shouldComponentUpdate(
@@ -108,7 +105,7 @@ export default class DataProvider extends Component {
         oldSerie.yAccessor || this.props.config.yAxis.accessor;
       const newXAccessor = newSerie.xAccessor || config.xAxis.accessor;
       const newYAccessor = newSerie.yAccessor || config.yAxis.accessor;
-      oldData.some((oldPoint, j) => {
+      return oldData.some((oldPoint, j) => {
         const newPoint = newData[j];
         if (oldXAccessor(oldPoint) !== newXAccessor(newPoint)) {
           return true;
@@ -122,7 +119,7 @@ export default class DataProvider extends Component {
     return false;
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     if (this.props.loader !== prevProps.loader) {
       return this.fetchData('NEW_LOADER');
     }
@@ -145,7 +142,7 @@ export default class DataProvider extends Component {
 
   fetchData = async reason => {
     const series = await this.props.loader(
-      this.props.config.baseDomain,
+      this.state.domain,
       this.state.subDomain,
       this.props.config,
       this.state.series,
@@ -156,6 +153,37 @@ export default class DataProvider extends Component {
     };
     if (reason !== 'UPDATE_SUBDOMAIN') {
       update.contextSeries = series;
+    }
+    if (reason === 'INTERVAL') {
+      let domainMax = this.state.domain[1];
+      Object.keys(series).forEach(key => {
+        const { data, xAccessor } = series[key];
+        const serieXMax = xAccessor(data[data.length - 1]);
+        if (serieXMax > domainMax) {
+          domainMax = serieXMax;
+        }
+      });
+
+      update.domain = [this.state.domain[0], domainMax];
+
+      // follow most right subdomain
+      if (this.state.subDomain[1] === this.state.domain[1]) {
+        update.subDomain = [this.state.subDomain[0], domainMax];
+      }
+
+      // shift serie data array if a new item has been added to the end
+      if (this.props.shift) {
+        Object.keys(series).forEach(key => {
+          const newSerieLength = series[key].data.length;
+          const oldSerieLength = this.state.series[key].data.length;
+          if (newSerieLength > oldSerieLength) {
+            const lengthDiff = newSerieLength - oldSerieLength;
+            for (let i = 0; i < lengthDiff; i += 1) {
+              series[key].data.shift();
+            }
+          }
+        });
+      }
     }
     if (!this.unmounted) {
       this.setState(update);
@@ -197,7 +225,7 @@ export default class DataProvider extends Component {
         annotations,
         yAxis: config.yAxis,
         xAxis: config.xAxis,
-        domain: config.baseDomain,
+        domain: this.state.domain,
         subDomain: this.state.subDomain,
         series: this.state.series,
         contextSeries,
@@ -219,14 +247,20 @@ export default class DataProvider extends Component {
 }
 
 DataProvider.propTypes = {
-  config: PropTypes.object.isRequired,
+  loader: PropTypes.func.isRequired,
+  colors: PropTypes.objectOf(PropTypes.string),
+  config: PropTypes.objectOf(
+    PropTypes.oneOfType([PropTypes.object, PropTypes.array])
+  ).isRequired,
+  children: PropTypes.element.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  margin: PropTypes.object,
+  margin: PropTypes.objectOf(PropTypes.number),
   updateInterval: PropTypes.number,
   hiddenSeries: PropTypes.objectOf(PropTypes.bool),
   annotations: PropTypes.arrayOf(PropTypes.object),
   strokeWidths: PropTypes.objectOf(PropTypes.number),
+  shift: PropTypes.bool,
 };
 
 DataProvider.defaultProps = {
@@ -239,4 +273,7 @@ DataProvider.defaultProps = {
   hiddenSeries: {},
   annotations: [],
   strokeWidths: {},
+  colors: [],
+  updateInterval: 0,
+  shift: true,
 };

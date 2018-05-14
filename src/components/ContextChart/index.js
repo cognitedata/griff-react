@@ -61,9 +61,22 @@ export default class ContextChart extends Component {
     }
   };
 
-  calculateDomainFromData = (data, yAccessor) => {
-    const extent = d3.extent(data, yAccessor);
+  calculateDomainFromData = (
+    data,
+    yAccessor,
+    y0Accessor = null,
+    y1Accessor = null
+  ) => {
+    let extent;
+    if (y0Accessor && y1Accessor) {
+      extent = [d3.min(data, y0Accessor), d3.max(data, y1Accessor)];
+    } else {
+      extent = d3.extent(data, yAccessor);
+    }
     const diff = extent[1] - extent[0];
+    if (Math.abs(diff) < 1e-3) {
+      return [1 / 2 * extent[0], 3 / 2 * extent[0]];
+    }
     return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
   };
 
@@ -107,7 +120,9 @@ export default class ContextChart extends Component {
             ? yAxis.calculateDomain(serie.data)
             : this.calculateDomainFromData(
                 serie.data,
-                serie.yAccessor || yAxis.accessor
+                serie.yAccessor || yAxis.accessor,
+                serie.y0Accessor || yAxis.y0Accessor,
+                serie.y1Accessor || yAxis.y1Accessor
               );
           const yScale = d3
             .scaleLinear()
