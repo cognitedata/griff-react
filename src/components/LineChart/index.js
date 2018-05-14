@@ -60,15 +60,6 @@ export default class LineChart extends Component {
     return this.props.subDomainChanged(dd);
   };
 
-  calculateDomainFromData = (data, yAccessor) => {
-    const extent = d3.extent(data, yAccessor);
-    const diff = extent[1] - extent[0];
-    if (Math.abs(diff) < 1e-3) {
-      return [1 / 2 * extent[0], 3 / 2 * extent[0]];
-    }
-    return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
-  };
-
   processMouseMove = (xpos, ypos, props) => {
     const effectiveHeight = props.height * props.heightPct;
     const rawTimestamp = props.subXScale.invert(xpos).getTime();
@@ -97,7 +88,7 @@ export default class LineChart extends Component {
         }
         const yDomain = props.yAxis.calculateDomain
           ? props.yAxis.calculateDomain(data)
-          : this.calculateDomainFromData(data, yAccessor);
+          : this.props.calculateDomainFromData(data, yAccessor);
         const yScale = scaler.rescaleY(
           d3
             .scaleLinear()
@@ -148,6 +139,7 @@ export default class LineChart extends Component {
       annotations,
       config,
       strokeWidths,
+      calculateDomainFromData,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney, points } = this.state;
@@ -212,7 +204,7 @@ export default class LineChart extends Component {
             const yAccessor = serie.yAccessor || yAxis.accessor;
             const yDomain = yAxis.calculateDomain
               ? yAxis.calculateDomain(serie.data)
-              : this.calculateDomainFromData(serie.data, yAccessor);
+              : calculateDomainFromData(serie.data, yAccessor);
             let scaler = rescaleY[key];
             if (!scaler) {
               scaler = { rescaleY: d => d };
