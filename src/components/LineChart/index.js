@@ -191,6 +191,8 @@ export default class LineChart extends Component {
                 xScale={xScale}
                 xAccessor={serie.xAccessor || xAxis.accessor}
                 yAccessor={serie.yAccessor || yAxis.accessor}
+                y0Accessor={serie.y0Accessor || yAxis.y0Accessor}
+                y1Accessor={serie.y1Accessor || yAxis.y1Accessor}
                 yScale={yScale}
                 color={colors[key]}
                 step={serie.step}

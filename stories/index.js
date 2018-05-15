@@ -686,6 +686,41 @@ storiesOf('DataProvider', module)
       </DataProvider>
     );
   })
+  .add('min/max', () => {
+    const min = d => d.value * ((75 + d.timestamp % 10) / 100);
+    const max = d => d.value * ((110 + d.timestamp % 10) / 100);
+    const myloader = () => {
+      const series = {
+        1: {
+          data: randomData().map(r => ({ timestamp: r.timestamp, value: 15 })),
+          step: true,
+          y0Accessor: min,
+          y1Accessor: max,
+        },
+        2: {
+          data: randomData(),
+          y0Accessor: min,
+          y1Accessor: max,
+        },
+      };
+      return () => series;
+    };
+    const loader = myloader();
+    return (
+      <DataProvider
+        config={{ ...baseConfig }}
+        margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
+        height={500}
+        width={800}
+        colors={{ 1: 'steelblue', 2: 'red' }}
+        loader={loader}
+      >
+        <ChartContainer>
+          <LineChart heightPct={1} crosshairs />
+        </ChartContainer>
+      </DataProvider>
+    );
+  })
   .add('Onclick', () => {
     const _loader = () => {
       const series = {
