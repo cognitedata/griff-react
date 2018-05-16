@@ -31,7 +31,7 @@ const baseConfig = {
   },
   xAxis: {
     accessor: d => d.timestamp,
-    calculateDomain: data => d3.extent(d => d.timestamp),
+    calculateDomain: data => d3.extent(data, d => d.timestamp),
   },
   baseDomain: d3.extent(randomData(), d => d.timestamp),
 };
