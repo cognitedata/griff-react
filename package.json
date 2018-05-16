@@ -1,17 +1,21 @@
 {
   "name": "@cognite/griff-react",
-  "version": "0.1.29",
+  "version": "0.1.30",
   "description": "Charting library that relies on React's virtual diffing.",
   "main": "lib/index.js",
   "module": "es/index.js",
-  "files": ["css", "es", "lib", "umd"],
+  "files": [
+    "css",
+    "es",
+    "lib",
+    "umd"
+  ],
   "scripts": {
     "clean": "nwb clean-module && nwb clean-demo",
     "start": "nwb serve-react-demo",
     "test": "nwb test-react",
     "build": "nwb build",
-    "build:watch":
-      "nodemon -w src -x 'rm .babelrc &> /dev/null; nwb build-react-component --no-demo'",
+    "build:watch": "nodemon -w src -x 'rm .babelrc &> /dev/null; nwb build-react-component --no-demo'",
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server",
     "storybook": "start-storybook -p 9001 -c .storybook",
@@ -47,7 +51,9 @@
   "homepage": "",
   "license": "MIT",
   "repository": "",
-  "keywords": ["react-component"],
+  "keywords": [
+    "react-component"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
