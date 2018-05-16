@@ -177,8 +177,7 @@ export default class DataProvider extends Component {
           const newSerieLength = series[key].data.length;
           const oldSerieLength = this.state.series[key].data.length;
           if (newSerieLength > oldSerieLength) {
-            const lengthDiff = newSerieLength - oldSerieLength;
-            for (let i = 0; i < lengthDiff; i += 1) {
+            for (let i = oldSerieLength; i < newSerieLength; i += 1) {
               series[key].data.shift();
             }
           }
