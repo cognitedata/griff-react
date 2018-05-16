@@ -56,15 +56,6 @@ export default class LineChart extends Component {
     return this.props.subDomainChanged(dd);
   };
 
-  calculateDomainFromData = (data, yAccessor) => {
-    const extent = d3.extent(data, yAccessor);
-    const diff = extent[1] - extent[0];
-    if (Math.abs(diff) < 1e-3) {
-      return [1 / 2 * extent[0], 3 / 2 * extent[0]];
-    }
-    return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
-  };
-
   render() {
     const {
       yAxis,
@@ -85,6 +76,7 @@ export default class LineChart extends Component {
       annotations,
       config,
       strokeWidths,
+      calculateDomainFromData,
     } = this.props;
     const effectiveHeight = height * heightPct;
     const { linex, liney } = this.state;
@@ -101,7 +93,7 @@ export default class LineChart extends Component {
               key={0}
               x1={0}
               x2={width}
-              stroke={'#ccc'}
+              stroke="#ccc"
               strokeWidth={1}
               y1={liney}
               y2={liney}
@@ -145,7 +137,7 @@ export default class LineChart extends Component {
             const yAccessor = serie.yAccessor || yAxis.accessor;
             const yDomain = yAxis.calculateDomain
               ? yAxis.calculateDomain(serie.data)
-              : this.calculateDomainFromData(serie.data, yAccessor);
+              : calculateDomainFromData(serie.data, yAccessor);
             let scaler = rescaleY[key];
             if (!scaler) {
               scaler = { rescaleY: d => d };
@@ -158,16 +150,16 @@ export default class LineChart extends Component {
                 .domain(staticDomain)
                 .range([effectiveHeight, 0]);
             }
-            const yScale = staticScale
-              ? staticScale
-              : scaler.rescaleY(
-                  d3
-                    .scaleLinear()
-                    .domain(yDomain)
-                    .range([effectiveHeight, 0])
-                    .nice()
-                );
-            var items = [];
+            const yScale =
+              staticScale ||
+              scaler.rescaleY(
+                d3
+                  .scaleLinear()
+                  .domain(yDomain)
+                  .range([effectiveHeight, 0])
+                  .nice()
+              );
+            const items = [];
             if (showAxes) {
               items.push(
                 <Axis
@@ -271,14 +263,14 @@ export default class LineChart extends Component {
                 const ts = xAxis.accessor(d);
                 const value = yAccessor(d);
                 output.points.push({
-                  key: key,
+                  key,
                   timestamp: ts,
                   value,
                   x: xScale(ts),
                   y: yScale(value),
                 });
               } else {
-                output.points.push({ key: key });
+                output.points.push({ key });
               }
             });
             if (crosshairs) {
