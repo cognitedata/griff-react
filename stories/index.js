@@ -31,7 +31,7 @@ const baseConfig = {
   },
   xAxis: {
     accessor: d => d.timestamp,
-    calculateDomain: data => d3.extent(d => d.timestamp),
+    calculateDomain: data => d3.extent(data, d => d.timestamp),
   },
   baseDomain: d3.extent(randomData(), d => d.timestamp),
 };
@@ -671,6 +671,41 @@ storiesOf('DataProvider', module)
       return () => series;
     };
     const loader = _loader();
+    return (
+      <DataProvider
+        config={{ ...baseConfig }}
+        margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
+        height={500}
+        width={800}
+        colors={{ 1: 'steelblue', 2: 'red' }}
+        loader={loader}
+      >
+        <ChartContainer>
+          <LineChart heightPct={1} crosshairs />
+        </ChartContainer>
+      </DataProvider>
+    );
+  })
+  .add('min/max', () => {
+    const min = d => d.value * ((75 + d.timestamp % 10) / 100);
+    const max = d => d.value * ((110 + d.timestamp % 10) / 100);
+    const myloader = () => {
+      const series = {
+        1: {
+          data: randomData().map(r => ({ timestamp: r.timestamp, value: 15 })),
+          step: true,
+          y0Accessor: min,
+          y1Accessor: max,
+        },
+        2: {
+          data: randomData(),
+          y0Accessor: min,
+          y1Accessor: max,
+        },
+      };
+      return () => series;
+    };
+    const loader = myloader();
     return (
       <DataProvider
         config={{ ...baseConfig }}

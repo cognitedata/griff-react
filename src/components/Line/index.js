@@ -6,6 +6,8 @@ const Line = ({
   data,
   xAccessor,
   yAccessor,
+  y0Accessor,
+  y1Accessor,
   xScale,
   yScale,
   color,
@@ -26,6 +28,14 @@ const Line = ({
       .line()
       .x(d => xScale(xAccessor(d)))
       .y(d => yScale(yAccessor(d)));
+  }
+  let area = null;
+  if (y0Accessor && y1Accessor) {
+    area = d3
+      .area()
+      .x(d => xScale(xAccessor(d)))
+      .y0(d => yScale(y0Accessor(d)))
+      .y1(d => yScale(y1Accessor(d)));
   }
   let circles = null;
   if (drawPoints) {
@@ -48,6 +58,18 @@ const Line = ({
   }
   return (
     <g clipPath="url(#linechart-clip-path)">
+      {area && (
+        <path
+          d={area(data)}
+          style={{
+            stroke: 'none',
+            strokeWidth: `${strokeWidth}px`,
+            fill: `${color}`,
+            opacity: 0.25,
+            display: hidden ? 'none' : 'inherit',
+          }}
+        />
+      )}
       <path
         d={line(data)}
         style={{
@@ -68,6 +90,8 @@ Line.propTypes = {
   data: PropTypes.array.isRequired,
   xAccessor: PropTypes.func.isRequired,
   yAccessor: PropTypes.func.isRequired,
+  y0Accessor: PropTypes.func.isRequired,
+  y1Accessor: PropTypes.func.isRequired,
   color: PropTypes.string.isRequired,
   step: PropTypes.bool,
   hidden: PropTypes.bool,
