@@ -17,6 +17,7 @@ export default class LineChart extends Component {
   state = {
     linex: null,
     liney: null,
+    points: [],
   };
 
   isZoomable() {
@@ -49,6 +50,7 @@ export default class LineChart extends Component {
   };
 
   zoomed = () => {
+    this.setState({ points: [] });
     const t = d3.event.transform;
     const scale = this.props.xScale;
     const newScale = t.rescaleX(scale);
@@ -80,6 +82,7 @@ export default class LineChart extends Component {
       onMouseMove,
       onClickAnnotation,
       crosshairs,
+      ruler,
       margin,
       hiddenSeries,
       annotations,
@@ -87,12 +90,15 @@ export default class LineChart extends Component {
       strokeWidths,
     } = this.props;
     const effectiveHeight = height * heightPct;
-    const { linex, liney } = this.state;
+    const { linex, liney, points } = this.state;
     let yAxisDisplayMode = 'ALL';
     if (config.yAxis && config.yAxis.display) {
       yAxisDisplayMode = config.yAxis.display;
     }
     const showAxes = yAxisDisplayMode === 'ALL';
+    const firstPoint = points.length ? points[0] : null;
+    const labelHeight = 24;
+
     return (
       <g className="line-chart" transform={`translate(0, ${offsetY})`}>
         {linex &&
@@ -101,7 +107,7 @@ export default class LineChart extends Component {
               key={0}
               x1={0}
               x2={width}
-              stroke={'#ccc'}
+              stroke="#ccc"
               strokeWidth={1}
               y1={liney}
               y2={liney}
@@ -116,6 +122,7 @@ export default class LineChart extends Component {
               x2={linex}
             />,
           ]}
+
         <clipPath id="linechart-clip-path">
           <rect width={width} height={effectiveHeight} fill="none" />
         </clipPath>
@@ -158,16 +165,16 @@ export default class LineChart extends Component {
                 .domain(staticDomain)
                 .range([effectiveHeight, 0]);
             }
-            const yScale = staticScale
-              ? staticScale
-              : scaler.rescaleY(
-                  d3
-                    .scaleLinear()
-                    .domain(yDomain)
-                    .range([effectiveHeight, 0])
-                    .nice()
-                );
-            var items = [];
+            const yScale =
+              staticScale ||
+              scaler.rescaleY(
+                d3
+                  .scaleLinear()
+                  .domain(yDomain)
+                  .range([effectiveHeight, 0])
+                  .nice()
+              );
+            const items = [];
             if (showAxes) {
               items.push(
                 <Axis
@@ -200,6 +207,100 @@ export default class LineChart extends Component {
             );
             return items;
           })}
+
+        {ruler &&
+          points.map(point => [
+            <g
+              key={`gX${point.key}`}
+              transform={`translate(${point.x + 10}, ${point.y -
+                labelHeight / 2})`}
+              style={{ cursor: 'default' }}
+            >
+              <rect
+                key={`rectX${point.key}`}
+                fill="white"
+                width={200}
+                height={labelHeight}
+                stroke={colors[point.key]}
+                strokeWidth="1"
+                strokeOpacity="0.5"
+                rx={3}
+                ry={3}
+              />
+              <text
+                key={`textX${point.key}`}
+                textAnchor="middle"
+                alignmentBaseline="central"
+                x={200 / 2}
+                y={labelHeight / 2}
+                style={{
+                  fontSize: '14px',
+                  color: '#333333',
+                  fill: '#333333',
+                }}
+              >
+                {ruler.xLabel(point)}
+              </text>
+            </g>,
+            <circle
+              key={`circle${point.key}`}
+              className="line-circle"
+              r={3}
+              cx={point.x}
+              cy={point.y}
+              fill={colors[point.key]}
+              stroke={colors[point.key]}
+              strokeWidth="3"
+              strokeOpacity="0.5"
+            />,
+          ])}
+
+        {ruler &&
+          firstPoint && [
+            <line
+              key={`lineY${firstPoint.key}`}
+              y1={0}
+              y2={effectiveHeight}
+              stroke="#ccc"
+              strokeWidth="1"
+              x1={firstPoint.x}
+              x2={firstPoint.x}
+            />,
+            <g
+              key={`gY${firstPoint.key}`}
+              transform={`translate(${firstPoint.x + 10}, ${effectiveHeight -
+                labelHeight -
+                5})`}
+              style={{ cursor: 'default' }}
+            >
+              <rect
+                key={`rectY${firstPoint.key}`}
+                fill="white"
+                width={200}
+                height={labelHeight}
+                stroke="#aaa"
+                strokeWidth="1"
+                strokeOpacity="0.5"
+                rx={3}
+                ry={3}
+              />
+              <text
+                key={`textY${firstPoint.key}`}
+                textAnchor="middle"
+                alignmentBaseline="central"
+                x={200 / 2}
+                y={labelHeight / 2}
+                style={{
+                  fontSize: '14px',
+                  color: '#333333',
+                  fill: '#333333',
+                }}
+              >
+                {ruler.yLabel(firstPoint)}
+              </text>,
+            </g>,
+          ]}
+
         <rect
           ref={ref => {
             this.zoomNode = ref;
@@ -231,8 +332,7 @@ export default class LineChart extends Component {
             const ypos = e.nativeEvent.offsetY - margin.top;
             const rawTimestamp = xScale.invert(xpos).getTime();
             const serieKeys = Object.keys(series);
-            const serie = series[serieKeys[0]];
-            const output = { xpos, ypos, points: [] };
+            const newPoints = [];
             serieKeys.forEach(key => {
               const { data } = series[key];
               const yAccessor = series[key].yAccessor || yAxis.accessor;
@@ -261,35 +361,42 @@ export default class LineChart extends Component {
                 }
                 const yDomain = yAxis.calculateDomain
                   ? yAxis.calculateDomain(data)
-                  : d3.extent(data, yAccessor);
+                  : this.calculateDomainFromData(data, yAccessor);
                 const yScale = scaler.rescaleY(
                   d3
                     .scaleLinear()
                     .domain(yDomain)
                     .range([effectiveHeight, 0])
+                    .nice()
                 );
                 const ts = xAxis.accessor(d);
                 const value = yAccessor(d);
-                output.points.push({
-                  key: key,
+                newPoints.push({
+                  key,
                   timestamp: ts,
                   value,
                   x: xScale(ts),
                   y: yScale(value),
                 });
               } else {
-                output.points.push({ key: key });
+                newPoints.push({ key });
               }
             });
+            if (ruler) {
+              this.setState({ points: newPoints });
+            }
             if (crosshairs) {
               this.setState({ linex: xpos, liney: ypos });
             }
-            onMouseMove && onMouseMove(output);
+            onMouseMove && onMouseMove({ points: newPoints, xpos, ypos });
           }}
           onMouseOut={e => {
             onMouseMove && onMouseMove([]);
             if (crosshairs) {
               this.setState({ linex: null, liney: null });
+            }
+            if (ruler) {
+              this.setState({ points: [] });
             }
             this.props.onMouseOut && this.props.onMouseOut(e);
           }}
