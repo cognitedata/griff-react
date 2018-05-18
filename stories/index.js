@@ -735,9 +735,9 @@ storiesOf('DataProvider', module)
             <LineChart
               heightPct={0.8}
               ruler={{
-                xLabel: point =>
-                  `${point.key}: ${Number.parseFloat(point.value).toFixed(2)}`,
                 yLabel: point =>
+                  `${point.key}: ${Number.parseFloat(point.value).toFixed(2)}`,
+                xLabel: point =>
                   moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
               }}
             />

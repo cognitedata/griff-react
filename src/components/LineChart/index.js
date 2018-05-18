@@ -299,7 +299,7 @@ export default class LineChart extends Component {
                   fill: '#333333',
                 }}
               >
-                {ruler.xLabel(point)}
+                {ruler.yLabel(point)}
               </text>
             </g>,
             <circle
@@ -356,7 +356,7 @@ export default class LineChart extends Component {
                   fill: '#333333',
                 }}
               >
-                {ruler.yLabel(firstPoint)}
+                {ruler.xLabel(firstPoint)}
               </text>,
             </g>,
           ]}
