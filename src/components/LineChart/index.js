@@ -18,6 +18,8 @@ export default class LineChart extends Component {
     linex: null,
     liney: null,
     points: [],
+    rulerX: null,
+    rulerY: null,
   };
 
   isZoomable() {
@@ -50,7 +52,7 @@ export default class LineChart extends Component {
   };
 
   zoomed = () => {
-    this.setState({ points: [] });
+    this.processMouseMove(this.state.rulerX, this.state.rulerY, this.props);
     const t = d3.event.transform;
     const scale = this.props.xScale;
     const newScale = t.rescaleX(scale);
@@ -65,6 +67,64 @@ export default class LineChart extends Component {
       return [1 / 2 * extent[0], 3 / 2 * extent[0]];
     }
     return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
+  };
+
+  processMouseMove = (xpos, ypos, props) => {
+    const effectiveHeight = props.height * props.heightPct;
+    const rawTimestamp = props.subXScale.invert(xpos).getTime();
+    const serieKeys = Object.keys(props.series);
+    const newPoints = [];
+    serieKeys.forEach(key => {
+      const { data } = props.series[key];
+      const yAccessor = props.series[key].yAccessor || props.yAxis.accessor;
+      const rawX = d3.bisector(d => d.timestamp).left(data, rawTimestamp, 1);
+      const x0 = data[rawX - 1];
+      const x1 = data[rawX];
+      let d = null;
+      if (x0 && !x1) {
+        d = x0;
+      } else if (x1 && !x0) {
+        d = x1;
+      } else if (!x0 && !x1) {
+        d = null;
+      } else {
+        d = rawTimestamp - x0.timestamp > x1.timestamp - rawTimestamp ? x1 : x0;
+      }
+      if (d) {
+        let scaler = props.rescaleY[key];
+        if (!scaler) {
+          scaler = { rescaleY: d => d };
+        }
+        const yDomain = props.yAxis.calculateDomain
+          ? props.yAxis.calculateDomain(data)
+          : this.calculateDomainFromData(data, yAccessor);
+        const yScale = scaler.rescaleY(
+          d3
+            .scaleLinear()
+            .domain(yDomain)
+            .range([effectiveHeight, 0])
+            .nice()
+        );
+        const ts = props.xAxis.accessor(d);
+        const value = yAccessor(d);
+        newPoints.push({
+          key,
+          timestamp: ts,
+          value,
+          x: props.subXScale(ts),
+          y: yScale(value),
+        });
+      } else {
+        newPoints.push({ key });
+      }
+    });
+    if (props.ruler) {
+      this.setState({ points: newPoints });
+    }
+    if (props.crosshairs) {
+      this.setState({ linex: xpos, liney: ypos });
+    }
+    props.onMouseMove && props.onMouseMove({ points: newPoints, xpos, ypos });
   };
 
   render() {
@@ -330,72 +390,23 @@ export default class LineChart extends Component {
             }
             const xpos = e.nativeEvent.offsetX - margin.left;
             const ypos = e.nativeEvent.offsetY - margin.top;
-            const rawTimestamp = xScale.invert(xpos).getTime();
-            const serieKeys = Object.keys(series);
-            const newPoints = [];
-            serieKeys.forEach(key => {
-              const { data } = series[key];
-              const yAccessor = series[key].yAccessor || yAxis.accessor;
-              const rawX = d3
-                .bisector(d => d.timestamp)
-                .left(data, rawTimestamp, 1);
-              const x0 = data[rawX - 1];
-              const x1 = data[rawX];
-              let d = null;
-              if (x0 && !x1) {
-                d = x0;
-              } else if (x1 && !x0) {
-                d = x1;
-              } else if (!x0 && !x1) {
-                d = null;
-              } else {
-                d =
-                  rawTimestamp - x0.timestamp > x1.timestamp - rawTimestamp
-                    ? x1
-                    : x0;
-              }
-              if (d) {
-                let scaler = rescaleY[key];
-                if (!scaler) {
-                  scaler = { rescaleY: d => d };
-                }
-                const yDomain = yAxis.calculateDomain
-                  ? yAxis.calculateDomain(data)
-                  : this.calculateDomainFromData(data, yAccessor);
-                const yScale = scaler.rescaleY(
-                  d3
-                    .scaleLinear()
-                    .domain(yDomain)
-                    .range([effectiveHeight, 0])
-                    .nice()
-                );
-                const ts = xAxis.accessor(d);
-                const value = yAccessor(d);
-                newPoints.push({
-                  key,
-                  timestamp: ts,
-                  value,
-                  x: xScale(ts),
-                  y: yScale(value),
-                });
-              } else {
-                newPoints.push({ key });
-              }
+            this.processMouseMove(xpos, ypos, this.props);
+
+            this.setState({
+              rulerX: xpos,
+              rulerY: ypos,
             });
-            if (ruler) {
-              this.setState({ points: newPoints });
-            }
-            if (crosshairs) {
-              this.setState({ linex: xpos, liney: ypos });
-            }
-            onMouseMove && onMouseMove({ points: newPoints, xpos, ypos });
           }}
           onMouseOut={e => {
             onMouseMove && onMouseMove([]);
             if (crosshairs) {
               this.setState({ linex: null, liney: null });
             }
-            if (ruler) {
+            this.setState({
+              rulerX: null,
+              rulerY: null,
+            });
+            if (this.props.ruler) {
               this.setState({ points: [] });
             }
             this.props.onMouseOut && this.props.onMouseOut(e);

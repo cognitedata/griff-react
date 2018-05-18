@@ -258,7 +258,7 @@ storiesOf('DataProvider', module)
           colors={{ 1: 'steelblue' }}
         >
           <ChartContainer>
-            <LineChart heightPct={0.8} crosshairs={true} />
+            <LineChart heightPct={0.8} crosshairs />
             <ContextChart heightPct={0.1} margin={{ top: 0.1 }} />
           </ChartContainer>
         </DataProvider>
@@ -268,7 +268,7 @@ storiesOf('DataProvider', module)
   .add(
     'Static data, timeline, hide/unhide series.',
     withInfo()(() => {
-      let _loader = tags => {
+      const _loader = tags => {
         const series = {};
         tags.forEach(t => {
           series[t.id] = { ...t, data: randomData() };
@@ -278,7 +278,7 @@ storiesOf('DataProvider', module)
           return series;
         };
       };
-      let tags = [
+      const tags = [
         {
           id: 1,
         },
@@ -410,12 +410,7 @@ storiesOf('DataProvider', module)
       );
     })
   )
-  .add(
-    'static data with static axis range',
-    withInfo()(() => {
-      return <StaticAxis />;
-    })
-  )
+  .add('static data with static axis range', withInfo()(() => <StaticAxis />))
   .add(
     'without y-axes',
     withInfo()(() => {
@@ -510,7 +505,7 @@ storiesOf('DataProvider', module)
           const { zoomable } = this.state;
           const configCopy = {
             ...config,
-            zoomable: zoomable,
+            zoomable,
           };
           return (
             <div>
@@ -601,9 +596,7 @@ storiesOf('DataProvider', module)
           2: { data: randomData(), id: 2 },
           3: { data: randomData(), id: 3 },
         };
-        _loader = () => {
-          return () => this.series;
-        };
+        _loader = () => () => this.series;
         loader = this._loader();
         config = {
           ...baseConfig,
@@ -714,4 +707,43 @@ storiesOf('DataProvider', module)
         </ChartContainer>
       </DataProvider>
     );
-  });
+  })
+  .add(
+    'Ruler',
+    withInfo()(() => {
+      const loader = () => {
+        const series = {
+          1: { data: randomData(), id: 1 },
+          2: { data: randomData(), id: 2 },
+        };
+        return () => series;
+      };
+      return (
+        <DataProvider
+          config={baseConfig}
+          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
+          height={500}
+          width={800}
+          loader={loader()}
+          colors={{
+            1: 'red',
+            2: 'green',
+            3: 'blue',
+          }}
+        >
+          <ChartContainer>
+            <LineChart
+              heightPct={0.8}
+              ruler={{
+                xLabel: point =>
+                  `${point.key}: ${Number.parseFloat(point.value).toFixed(2)}`,
+                yLabel: point =>
+                  moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+              }}
+            />
+            <ContextChart heightPct={0.1} margin={{ top: 0.1 }} />
+          </ChartContainer>
+        </DataProvider>
+      );
+    })
+  );
