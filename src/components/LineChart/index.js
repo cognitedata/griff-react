@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import Line from '../Line';
 import Axis from '../Axis';
 import Annotation from '../Annotation';
+import Ruler from '../Ruler';
 import PropTypes from 'prop-types';
 
 export default class LineChart extends Component {
@@ -148,8 +149,6 @@ export default class LineChart extends Component {
       yAxisDisplayMode = config.yAxis.display;
     }
     const showAxes = yAxisDisplayMode === 'ALL';
-    const firstPoint = points.length ? points[0] : null;
-    const labelHeight = 24;
 
     return (
       <g className="line-chart" transform={`translate(0, ${offsetY})`}>
@@ -269,98 +268,15 @@ export default class LineChart extends Component {
             return items;
           })}
 
-        {ruler &&
-          points.map(point => [
-            <g
-              key={`gX${point.key}`}
-              transform={`translate(${point.x + 10}, ${point.y -
-                labelHeight / 2})`}
-              style={{ cursor: 'default' }}
-            >
-              <rect
-                key={`rectX${point.key}`}
-                fill="white"
-                width={200}
-                height={labelHeight}
-                stroke={colors[point.key]}
-                strokeWidth="1"
-                strokeOpacity="0.5"
-                rx={3}
-                ry={3}
-              />
-              <text
-                key={`textX${point.key}`}
-                textAnchor="middle"
-                alignmentBaseline="central"
-                x={200 / 2}
-                y={labelHeight / 2}
-                style={{
-                  fontSize: '14px',
-                  color: '#333333',
-                  fill: '#333333',
-                }}
-              >
-                {ruler.xLabel(point)}
-              </text>
-            </g>,
-            <circle
-              key={`circle${point.key}`}
-              className="line-circle"
-              r={3}
-              cx={point.x}
-              cy={point.y}
-              fill={colors[point.key]}
-              stroke={colors[point.key]}
-              strokeWidth="3"
-              strokeOpacity="0.5"
-            />,
-          ])}
-
-        {ruler &&
-          firstPoint && [
-            <line
-              key={`lineY${firstPoint.key}`}
-              y1={0}
-              y2={effectiveHeight}
-              stroke="#ccc"
-              strokeWidth="1"
-              x1={firstPoint.x}
-              x2={firstPoint.x}
-            />,
-            <g
-              key={`gY${firstPoint.key}`}
-              transform={`translate(${firstPoint.x + 10}, ${effectiveHeight -
-                labelHeight -
-                5})`}
-              style={{ cursor: 'default' }}
-            >
-              <rect
-                key={`rectY${firstPoint.key}`}
-                fill="white"
-                width={200}
-                height={labelHeight}
-                stroke="#aaa"
-                strokeWidth="1"
-                strokeOpacity="0.5"
-                rx={3}
-                ry={3}
-              />
-              <text
-                key={`textY${firstPoint.key}`}
-                textAnchor="middle"
-                alignmentBaseline="central"
-                x={200 / 2}
-                y={labelHeight / 2}
-                style={{
-                  fontSize: '14px',
-                  color: '#333333',
-                  fill: '#333333',
-                }}
-              >
-                {ruler.yLabel(firstPoint)}
-              </text>,
-            </g>,
-          ]}
+        {ruler && (
+          <Ruler
+            ruler={ruler}
+            points={points}
+            colors={colors}
+            effectiveHeight={effectiveHeight}
+            contextWidth={width}
+          />
+        )}
 
         <rect
           ref={ref => {
