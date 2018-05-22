@@ -55,3 +55,16 @@ export const axisDisplayModeType = PropTypes.shape({
   // (axisWidth, numAxes) => (width of all of the axes)
   width: PropTypes.func.isRequired,
 });
+
+export const coordinatePropType = PropTypes.shape({
+  xpos: PropTypes.number.isRequired,
+  ypos: PropTypes.number.isRequired,
+  points: PropTypes.arrayOf(pointPropType),
+});
+
+export const areaPropType = PropTypes.shape({
+  id: PropTypes.number,
+  color: PropTypes.string,
+  start: coordinatePropType.isRequired,
+  end: coordinatePropType.isRequired,
+});
