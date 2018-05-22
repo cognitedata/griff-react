@@ -1,21 +1,21 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-export default class RulerTooltip extends Component {
-  static propTypes = {
-    padding: PropTypes.number,
-    labelHeight: PropTypes.number.isRequired,
-    color: PropTypes.string.isRequired,
-    label: PropTypes.string.isRequired,
-    x: PropTypes.number.isRequired,
-    y: PropTypes.number.isRequired,
-    contextWidth: PropTypes.number.isRequired,
-  };
+const propTypes = {
+  padding: PropTypes.number,
+  labelHeight: PropTypes.number.isRequired,
+  color: PropTypes.string.isRequired,
+  label: PropTypes.string.isRequired,
+  x: PropTypes.number.isRequired,
+  y: PropTypes.number.isRequired,
+  contextWidth: PropTypes.number.isRequired,
+};
 
-  static defaultProps = {
-    padding: 10,
-  };
+const defaultProps = {
+  padding: 10,
+};
 
+class RulerTooltip extends Component {
   state = {
     textWidth: 0,
   };
@@ -54,6 +54,7 @@ export default class RulerTooltip extends Component {
           stroke={color}
           strokeWidth="1"
           strokeOpacity="0.5"
+          opacity="0.9"
           rx={3}
           ry={3}
         />
@@ -77,3 +78,8 @@ export default class RulerTooltip extends Component {
     );
   }
 }
+
+RulerTooltip.propTypes = propTypes;
+RulerTooltip.defaultProps = defaultProps;
+
+export default RulerTooltip;

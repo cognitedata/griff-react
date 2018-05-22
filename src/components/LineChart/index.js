@@ -267,15 +267,16 @@ export default class LineChart extends Component {
             return items;
           })}
 
-        {ruler && (
-          <Ruler
-            ruler={ruler}
-            points={points}
-            colors={colors}
-            effectiveHeight={effectiveHeight}
-            contextWidth={width}
-          />
-        )}
+        {ruler &&
+          points.length && (
+            <Ruler
+              ruler={ruler}
+              points={points}
+              colors={colors}
+              effectiveHeight={effectiveHeight}
+              contextWidth={width}
+            />
+          )}
 
         <rect
           ref={ref => {
