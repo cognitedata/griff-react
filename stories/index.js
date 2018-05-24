@@ -430,4 +430,31 @@ storiesOf('LineChart', module)
       }
       return <DynamicBaseDomain />;
     })
+  )
+  .add(
+    'Ruler',
+    withInfo()(() => (
+      <DataProvider
+        baseDomain={staticBaseDomain}
+        defaultLoader={staticLoader}
+        xAccessor={d => d.timestamp}
+        yAccessor={d => d.value}
+        series={[
+          { id: 1, color: 'steelblue', name: 'name1' },
+          { id: 2, color: 'maroon', name: 'name2' },
+        ]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          crosshair={false}
+          ruler={{
+            visible: true,
+            yLabel: point =>
+              `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+            xLabel: point =>
+              moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+          }}
+        />
+      </DataProvider>
+    ))
   );

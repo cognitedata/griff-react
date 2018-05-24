@@ -9,7 +9,11 @@ import InteractionLayer from '../InteractionLayer';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import { ScaledContextChart } from '../ContextChart';
-import { seriesPropType, annotationPropType } from '../../utils/proptypes';
+import {
+  seriesPropType,
+  annotationPropType,
+  rulerPropType,
+} from '../../utils/proptypes';
 
 const Wrapper = styled.div`
   display: grid;
@@ -32,12 +36,14 @@ class LineChartComponent extends Component {
     height: PropTypes.number.isRequired,
     series: seriesPropType,
     crosshair: PropTypes.bool,
+    onMouseMove: PropTypes.func,
     subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     yAxisWidth: PropTypes.number.isRequired,
     contextChart: PropTypes.shape({
       visible: PropTypes.bool.isRequired,
     }),
     annotations: PropTypes.arrayOf(PropTypes.shape(annotationPropType)),
+    ruler: rulerPropType,
   };
 
   static defaultProps = {
@@ -46,8 +52,14 @@ class LineChartComponent extends Component {
       visible: true,
     },
     crosshair: true,
+    onMouseMove: null,
     series: [],
     annotations: [],
+    ruler: {
+      visible: false,
+      xLabel: () => {},
+      yLabel: () => {},
+    },
   };
 
   state = {};
@@ -60,9 +72,11 @@ class LineChartComponent extends Component {
       yAxisWidth,
       subDomain,
       crosshair,
+      onMouseMove,
       zoomable,
       contextChart,
       annotations,
+      ruler,
       contextChart: { visible },
     } = this.props;
     const visibleSeries = series.filter(s => !s.hidden);
@@ -84,7 +98,9 @@ class LineChartComponent extends Component {
               height={lineCollectionHeight}
               width={lineCollectionWidth}
               crosshair={crosshair}
+              onMouseMove={onMouseMove}
               zoomable={zoomable}
+              ruler={ruler}
               annotations={annotations}
             />
           </svg>
