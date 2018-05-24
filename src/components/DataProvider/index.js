@@ -44,22 +44,29 @@ export default class DataProvider extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    const { series: newSeries } = this.props;
-    const { series: oldSeries } = prevProps;
+    const { series: newSeries, baseDomain: newDomain } = this.props;
+    const { series: oldSeries, baseDomain: oldDomain } = prevProps;
 
     for (let i = 0; i < newSeries.length; i += 1) {
       if (!oldSeries.find(s => s.id === newSeries[i].id)) {
-        this.fetchData('SERIES_UPDATED');
-        break;
+        return this.fetchData('SERIES_UPDATED');
       }
     }
 
     for (let j = 0; j < oldSeries.length; j += 1) {
       if (!newSeries.find(s => s.id === oldSeries[j].id)) {
-        this.fetchData('SERIES_UPDATED');
-        break;
+        return this.fetchData('SERIES_UPDATED');
       }
     }
+
+    if (
+      newDomain &&
+      oldDomain &&
+      (newDomain[0] !== oldDomain[0] || newDomain[1] !== oldDomain[1])
+    ) {
+      return this.fetchData('NEW_DOMAIN');
+    }
+    return 1;
   }
 
   componentWillUnmount() {
@@ -84,7 +91,8 @@ export default class DataProvider extends Component {
 
   fetchData = async reason => {
     const { baseDomain, pointsPerSeries, defaultLoader } = this.props;
-    const { subDomain } = this.state;
+    const subDomain =
+      reason === 'NEW_DOMAIN' ? baseDomain : this.state.subDomain;
     const newLoaderConfig = {};
     const seriesObjects = this.getSeriesObjects();
     const enhancedSeries = await Promise.map(seriesObjects, async s => {
