@@ -6,10 +6,12 @@ import ScalerContext from '../../context/Scaler';
 import { createXScale, createYScale } from '../../utils/scale-helpers';
 import { seriesPropType, annotationPropType } from '../../utils/proptypes';
 import Annotation from '../Annotation';
+import Ruler from '../Ruler';
 
 class InteractionLayer extends React.Component {
   static propTypes = {
     crosshair: PropTypes.bool,
+    ruler: PropTypes.objectOf(PropTypes.func).isRequired,
     height: PropTypes.number.isRequired,
     onClick: PropTypes.func,
     onClickAnnotation: PropTypes.func,
@@ -41,6 +43,9 @@ class InteractionLayer extends React.Component {
       x: null,
       y: null,
     },
+    points: [],
+    touchX: null,
+    touchY: null,
   };
 
   componentDidMount() {
@@ -85,14 +90,7 @@ class InteractionLayer extends React.Component {
   }
 
   onMouseMove = e => {
-    const {
-      series,
-      height,
-      width,
-      subDomain,
-      onMouseMove,
-      crosshair,
-    } = this.props;
+    const { series, onMouseMove, crosshair, ruler } = this.props;
     if (series.length === 0) {
       return;
     }
@@ -106,50 +104,17 @@ class InteractionLayer extends React.Component {
         },
       });
     }
-    if (onMouseMove) {
-      const xScale = createXScale(subDomain, width);
-      const rawTimestamp = xScale.invert(xpos).getTime();
-      const output = { xpos, ypos, points: [] };
-      series.forEach(s => {
-        const { data, xAccessor, yAccessor, yDomain } = s;
-        const rawX = d3.bisector(xAccessor).left(data, rawTimestamp, 1);
-        const x0 = data[rawX - 1];
-        const x1 = data[rawX];
-        let d = null;
-        if (x0 && !x1) {
-          d = x0;
-        } else if (x1 && !x0) {
-          d = x1;
-        } else if (!x0 && !x1) {
-          d = null;
-        } else {
-          d =
-            rawTimestamp - xAccessor(x0) > xAccessor(x1) - rawTimestamp
-              ? x1
-              : x0;
-        }
-        if (d) {
-          const yScale = createYScale(yDomain, height);
-          const ts = xAccessor(d);
-          const value = yAccessor(d);
-          output.points.push({
-            id: s.id,
-            timestamp: ts,
-            value,
-            x: xScale(ts),
-            y: yScale(value),
-          });
-        } else {
-          output.points.push({ id: s.id });
-        }
+    if (onMouseMove || ruler) {
+      this.processMouseMove(xpos, ypos, this.props);
+      this.setState({
+        touchX: xpos,
+        touchY: ypos,
       });
-
-      onMouseMove(output);
     }
   };
 
   onMouseOut = e => {
-    const { onMouseMove, crosshair, onMouseOut } = this.props;
+    const { onMouseMove, crosshair, onMouseOut, ruler } = this.props;
     if (crosshair) {
       this.setState({
         crosshair: {
@@ -158,8 +123,11 @@ class InteractionLayer extends React.Component {
         },
       });
     }
+    if (ruler) {
+      this.setState({ points: [] });
+    }
     if (onMouseMove) {
-      onMouseMove([]);
+      onMouseMove({ points: [] });
     }
     if (onMouseOut) {
       onMouseOut(e);
@@ -199,15 +167,70 @@ class InteractionLayer extends React.Component {
     }
   };
 
+  processMouseMove = (
+    xpos,
+    ypos,
+    { series, height, width, subDomain, onMouseMove, ruler }
+  ) => {
+    const xScale = createXScale(subDomain, width);
+    const rawTimestamp = xScale.invert(xpos).getTime();
+    const newPoints = [];
+    series.forEach(s => {
+      const { data, xAccessor, yAccessor, yDomain } = s;
+      const rawX = d3.bisector(xAccessor).left(data, rawTimestamp, 1);
+      const x0 = data[rawX - 1];
+      const x1 = data[rawX];
+      let d = null;
+      if (x0 && !x1) {
+        d = x0;
+      } else if (x1 && !x0) {
+        d = x1;
+      } else if (!x0 && !x1) {
+        d = null;
+      } else {
+        d =
+          rawTimestamp - xAccessor(x0) > xAccessor(x1) - rawTimestamp ? x1 : x0;
+      }
+      if (d) {
+        const yScale = createYScale(yDomain, height);
+        const ts = xAccessor(d);
+        const value = yAccessor(d);
+        newPoints.push({
+          id: s.id,
+          name: s.name,
+          color: s.color,
+          timestamp: ts,
+          value,
+          x: xScale(ts),
+          y: yScale(value),
+        });
+      } else {
+        newPoints.push({ id: s.id });
+      }
+    });
+
+    if (ruler) {
+      this.setState({ points: newPoints });
+    }
+
+    if (onMouseMove) {
+      onMouseMove({ points: newPoints, xpos, ypos });
+    }
+  };
+
   zoomed = () => {
+    if (this.props.ruler) {
+      this.processMouseMove(this.state.touchX, this.state.touchY, this.props);
+    }
     const t = d3.event.transform;
     this.props.updateXTransformation(t, this.props.width);
   };
 
   render() {
-    const { width, height, crosshair, subDomain } = this.props;
+    const { width, height, crosshair, ruler, subDomain } = this.props;
     const {
       crosshair: { x, y },
+      points,
     } = this.state;
     const xScale = createXScale(subDomain, width);
     let lines = null;
@@ -242,6 +265,15 @@ class InteractionLayer extends React.Component {
       <React.Fragment>
         {lines}
         {annotations}
+        {ruler &&
+          points.length && (
+            <Ruler
+              ruler={ruler}
+              points={points}
+              width={width}
+              height={height}
+            />
+          )}
         <rect
           ref={ref => {
             this.zoomNode = ref;
