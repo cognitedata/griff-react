@@ -30,9 +30,8 @@ const deleteUndefinedFromObject = obj => {
 export default class DataProvider extends Component {
   state = {
     subDomain: this.props.baseDomain,
-    loaderConfig: {},
     contextSeries: {},
-    yDomains: {},
+    enhancedSeries: [],
   };
 
   async componentDidMount() {
@@ -44,6 +43,25 @@ export default class DataProvider extends Component {
     }
   }
 
+  componentDidUpdate(prevProps) {
+    const { series: newSeries } = this.props;
+    const { series: oldSeries } = prevProps;
+
+    for (let i = 0; i < newSeries.length; i += 1) {
+      if (!oldSeries.find(s => s.id === newSeries[i].id)) {
+        this.fetchData('SERIES_UPDATED');
+        break;
+      }
+    }
+
+    for (let j = 0; j < oldSeries.length; j += 1) {
+      if (!newSeries.find(s => s.id === oldSeries[j].id)) {
+        this.fetchData('SERIES_UPDATED');
+        break;
+      }
+    }
+  }
+
   componentWillUnmount() {
     clearInterval(this.fetchInterval);
     this.unmounted = true;
@@ -51,15 +69,16 @@ export default class DataProvider extends Component {
 
   getSeriesObjects() {
     const { series, yAccessor, xAccessor } = this.props;
-    const { loaderConfig, yDomains } = this.state;
+    const { enhancedSeries } = this.state;
 
     return series.map(s => ({
       data: [],
       ...deleteUndefinedFromObject(s),
-      ...deleteUndefinedFromObject(loaderConfig[s.id]),
+      ...deleteUndefinedFromObject(
+        enhancedSeries.find(enhancedSerie => enhancedSerie.id === s.id)
+      ),
       yAccessor: s.yAccessor || yAccessor,
       xAccessor: s.xAccessor || xAccessor,
-      yDomain: s.yDomain ? s.yDomain : yDomains[s.id],
     }));
   }
 
@@ -68,7 +87,7 @@ export default class DataProvider extends Component {
     const { subDomain } = this.state;
     const newLoaderConfig = {};
     const seriesObjects = this.getSeriesObjects();
-    const series = await Promise.map(seriesObjects, async s => {
+    const enhancedSeries = await Promise.map(seriesObjects, async s => {
       const loader = s.loader || defaultLoader;
       if (!loader) {
         throw new Error(`Series ${s.id} does not have a loader.`);
@@ -78,33 +97,32 @@ export default class DataProvider extends Component {
         baseDomain,
         subDomain,
         pointsPerSeries,
-        oldSeries: s,
+        oldSerie: s,
         reason,
       });
+      const data =
+        Array.isArray(loaderReturn.data) && loaderReturn.data.length
+          ? loaderReturn.data
+          : [];
       return {
-        data: [],
+        ...s,
         ...loaderReturn,
+        data,
         id: s.id,
         reason,
+        yDomain:
+          s.yDomain || data.length
+            ? calculateDomainFromData(data, s.yAccessor)
+            : [0, 0],
       };
     });
     const stateUpdates = {};
-    if (reason === 'MOUNTED') {
-      const yDomains = {};
-      series.forEach(s => {
-        yDomains[s.id] = calculateDomainFromData(
-          s.data,
-          s.yAccessor || this.props.yAccessor
-        );
-      });
-      stateUpdates.yDomains = yDomains;
-    }
-    series.forEach(s => {
+    stateUpdates.enhancedSeries = enhancedSeries;
+    enhancedSeries.forEach(s => {
       newLoaderConfig[s.id] = {
         ...s,
       };
     });
-    stateUpdates.loaderConfig = newLoaderConfig;
     if (reason !== 'UPDATE_SUBDOMAIN') {
       stateUpdates.contextSeries = { ...newLoaderConfig };
     }
@@ -125,20 +143,19 @@ export default class DataProvider extends Component {
   };
 
   render() {
-    const { loaderConfig, contextSeries, subDomain } = this.state;
+    const { contextSeries, subDomain, enhancedSeries } = this.state;
     const { baseDomain, yAxisWidth, children } = this.props;
-    if (Object.keys(loaderConfig).length === 0) {
+    if (enhancedSeries.length === 0) {
       // Do not bother, loader hasn't given any data yet.
       return null;
     }
-    const seriesObjects = this.getSeriesObjects();
     const context = {
-      series: seriesObjects,
+      series: enhancedSeries,
       baseDomain,
       subDomain: subDomain || baseDomain,
       yAxisWidth,
       subDomainChanged: this.subDomainChanged,
-      contextSeries: seriesObjects.map(s => ({
+      contextSeries: enhancedSeries.map(s => ({
         ...contextSeries[s.id],
         ...s,
         drawPoints: false,
