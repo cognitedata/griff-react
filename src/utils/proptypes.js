@@ -23,3 +23,18 @@ export const annotationPropType = {
   color: PropTypes.string,
   fillOpacity: PropTypes.number,
 };
+
+export const pointPropType = PropTypes.shape({
+  id: PropTypes.number,
+  name: PropTypes.string,
+  color: PropTypes.string,
+  timestamp: PropTypes.number,
+  value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  x: PropTypes.number,
+  y: PropTypes.number,
+});
+
+export const rulerPropType = PropTypes.shape({
+  xLabel: PropTypes.func.isRequired,
+  yLabel: PropTypes.func.isRequired,
+});
