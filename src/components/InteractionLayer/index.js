@@ -105,7 +105,7 @@ class InteractionLayer extends React.Component {
       });
     }
     if (onMouseMove || ruler) {
-      this.processMouseMove(xpos, ypos, this.props);
+      this.processMouseMove(xpos, ypos);
       this.setState({
         touchX: xpos,
         touchY: ypos,
@@ -167,11 +167,8 @@ class InteractionLayer extends React.Component {
     }
   };
 
-  processMouseMove = (
-    xpos,
-    ypos,
-    { series, height, width, subDomain, onMouseMove, ruler }
-  ) => {
+  processMouseMove = (xpos, ypos) => {
+    const { series, height, width, subDomain, onMouseMove, ruler } = this.props;
     const xScale = createXScale(subDomain, width);
     const rawTimestamp = xScale.invert(xpos).getTime();
     const newPoints = [];
@@ -220,7 +217,7 @@ class InteractionLayer extends React.Component {
 
   zoomed = () => {
     if (this.props.ruler) {
-      this.processMouseMove(this.state.touchX, this.state.touchY, this.props);
+      this.processMouseMove(this.state.touchX, this.state.touchY);
     }
     const t = d3.event.transform;
     this.props.updateXTransformation(t, this.props.width);

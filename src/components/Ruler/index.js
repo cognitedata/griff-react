@@ -12,23 +12,19 @@ const propTypes = {
 
 const labelHeight = 24;
 
-const calculateY = (points, y) => {
+const calculateY = (points, yTooltipPosition) => {
   const pointsObject = {};
 
-  const pointsSorted = [...points].sort((a, b) => {
-    if (a.y < b.y) return -1;
-    if (a.y > b.y) return 1;
-    return 0;
-  });
+  const pointsSorted = [...points].sort((a, b) => a.y - b.y);
 
   let prevPoint;
   for (let i = 0; i < pointsSorted.length; i += 1) {
-    const realSpace = y - pointsSorted[i].y;
+    const realSpace = yTooltipPosition - pointsSorted[i].y;
     const neededSpace = (pointsSorted.length - i) * labelHeight;
 
     // move point upper if no space until the limit available
     if (realSpace < neededSpace) {
-      const pointPos = y - neededSpace;
+      const pointPos = yTooltipPosition - neededSpace;
       // if no upper room available stick it to 0
       prevPoint = pointPos >= 0 ? pointPos : 0;
       // move point lower if it overlaps the previous one
@@ -44,8 +40,9 @@ const calculateY = (points, y) => {
 };
 
 const Ruler = ({ ruler, points, height, width }) => {
-  const yLabelHeight = height - labelHeight - 5;
-  const pointsObject = calculateY(points, yLabelHeight);
+  const xTooltipMargin = 5;
+  const xTooltipPosition = height - labelHeight - xTooltipMargin;
+  const pointsObject = calculateY(points, xTooltipPosition);
   const firstPoint = points[0];
 
   return (
@@ -63,7 +60,7 @@ const Ruler = ({ ruler, points, height, width }) => {
         color={firstPoint.color}
         label={ruler.xLabel(firstPoint)}
         x={firstPoint.x}
-        y={yLabelHeight}
+        y={xTooltipPosition}
         width={width}
       />
       {points.map(point => [
