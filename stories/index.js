@@ -1,10 +1,12 @@
 import React from 'react';
+import * as d3 from 'd3';
+import moment from 'moment';
+import axios from 'axios';
+import Select from 'react-select';
+import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
-import moment from 'moment';
-import * as d3 from 'd3';
-import axios from 'axios';
 import { DataProvider, LineChart } from '../src';
 import isEqual from 'lodash.isequal';
 
@@ -479,4 +481,44 @@ storiesOf('LineChart', module)
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     ))
+  )
+  .add(
+    'Enable/disable series',
+    withInfo()(() => {
+      const options = [
+        { value: '1', label: 'steelblue' },
+        { value: '2', label: 'maroon' },
+        { value: '3', label: 'red' },
+      ];
+      // eslint-disable-next-line
+      class EnableDisableSeries extends React.Component {
+        state = {
+          series: options,
+        };
+
+        onChangeSeries = series => this.setState({ series });
+
+        render() {
+          const { series } = this.state;
+          return (
+            <React.Fragment>
+              <Select
+                multi
+                value={series}
+                options={options}
+                onChange={this.onChangeSeries}
+              />
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={series.map(s => ({ id: s.value, color: s.label }))}
+              >
+                <LineChart height={CHART_HEIGHT} />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <EnableDisableSeries />;
+    })
   );
