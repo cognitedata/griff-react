@@ -25,26 +25,26 @@ class Scaler extends Component {
     yTransformations: {},
   };
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const {
-      dataContext: { baseDomain: nextPropsDomain },
-    } = nextProps;
-    const { baseDomain: prevStateDomain } = prevState;
-    if (
-      nextPropsDomain[0] !== prevStateDomain[0] ||
-      nextPropsDomain[1] !== prevStateDomain[1]
-    ) {
-      // TODO: Implement functionality when switching the baseDomain
-      // We can try to keep the same subDomain if it exists, clip it etc
-      // Currently we snap subDomain back to baseDomain and resets the yDomains
-      return {
-        baseDomain: nextPropsDomain,
-        subDomain: nextPropsDomain,
-        yDomains: {},
-      };
-    }
-    return null;
-  }
+  // static getDerivedStateFromProps(nextProps, prevState) {
+  //   const {
+  //     dataContext: { baseDomain: nextPropsDomain },
+  //   } = nextProps;
+  //   const { baseDomain: prevStateDomain } = prevState;
+  //   if (
+  //     nextPropsDomain[0] !== prevStateDomain[0] ||
+  //     nextPropsDomain[1] !== prevStateDomain[1]
+  //   ) {
+  //     // TODO: Implement functionality when switching the baseDomain
+  //     // We can try to keep the same subDomain if it exists, clip it etc
+  //     // Currently we snap subDomain back to baseDomain and resets the yDomains
+  //     return {
+  //       baseDomain: nextPropsDomain,
+  //       subDomain: nextPropsDomain,
+  //       yDomains: {},
+  //     };
+  //   }
+  //   return null;
+  // }
 
   componentDidUpdate(prevProps) {
     // Can we get away from this double update?
@@ -85,9 +85,10 @@ class Scaler extends Component {
     // Calculate new domain, map to timestamps (not dates)
     const newDomain = newScale.domain().map(Number);
     // Update dataproviders subdomains changed
-    this.setState({
-      subDomain: newDomain,
-    });
+    // this.setState({
+    //   subDomain: newDomain,
+    // });
+    console.log(newDomain);
     this.props.dataContext.subDomainChanged(newDomain);
   };
 
