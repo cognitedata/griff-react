@@ -29,6 +29,7 @@ const deleteUndefinedFromObject = obj => {
 
 export default class DataProvider extends Component {
   state = {
+    domain: this.props.baseDomain,
     subDomain: this.props.baseDomain,
     contextSeries: {},
     enhancedSeries: [],
@@ -90,9 +91,8 @@ export default class DataProvider extends Component {
   }
 
   fetchData = async reason => {
-    const { baseDomain, pointsPerSeries, defaultLoader } = this.props;
-    const subDomain =
-      reason === 'NEW_DOMAIN' ? baseDomain : this.state.subDomain;
+    const { pointsPerSeries, defaultLoader } = this.props;
+    const { domain, subDomain } = this.state;
     const newLoaderConfig = {};
     const seriesObjects = this.getSeriesObjects();
     const enhancedSeries = await Promise.map(seriesObjects, async s => {
@@ -102,7 +102,7 @@ export default class DataProvider extends Component {
       }
       const loaderReturn = await loader({
         id: s.id,
-        baseDomain,
+        domain,
         subDomain,
         pointsPerSeries,
         oldSerie: s,
@@ -134,6 +134,70 @@ export default class DataProvider extends Component {
     if (reason !== 'UPDATE_SUBDOMAIN') {
       stateUpdates.contextSeries = { ...newLoaderConfig };
     }
+    if (reason === 'INTERVAL') {
+      // // shift serie data array if a new item has been added to the end
+      let shiftCounter = 0;
+      enhancedSeries.forEach(serie => {
+        const oldSerie = this.state.enhancedSeries.find(s => s.id === serie.id);
+        if (oldSerie) {
+          const newSerieLength = serie.data.length;
+          const oldSerieLength = oldSerie.data.length;
+          if (newSerieLength > oldSerieLength) {
+            for (let i = oldSerieLength; i < newSerieLength; i += 1) {
+              shiftCounter += 1;
+              serie.data.shift();
+            }
+          }
+        }
+      });
+
+      let domainMax = this.state.domain[1];
+      let domainMin = this.state.domain[0];
+      enhancedSeries.forEach(serie => {
+        const { data, xAccessor } = serie;
+        const serieXMax = xAccessor(data[data.length - 1]);
+        const serieXMin = xAccessor(data[0]);
+        domainMax = Math.max(domainMax, serieXMax);
+        domainMin = Math.max(domainMin, serieXMin);
+      });
+
+      stateUpdates.domain = [domainMin, domainMax];
+
+      // follow most right or left subdomains
+      if (
+        this.state.subDomain[1] === this.state.domain[1] ||
+        this.state.subDomain[0] === this.state.domain[0]
+      ) {
+        let max = Number.MIN_SAFE_INTEGER;
+        let min = Number.MAX_SAFE_INTEGER;
+        enhancedSeries.forEach(serie => {
+          const { xAccessor } = serie;
+          const data = serie.data.filter(d => {
+            const value = xAccessor(d);
+            return (
+              this.state.subDomain[0] < value &&
+              value <= this.state.subDomain[1]
+            );
+          });
+          if (data.length) {
+            const lastValue = serie.data.findIndex(
+              d => xAccessor(d) === xAccessor(data[data.length - 1])
+            );
+            min = Math.min(min, xAccessor(data[0]));
+            max = Math.max(
+              max,
+              xAccessor(serie.data[lastValue + shiftCounter])
+            );
+          }
+        });
+        stateUpdates.subDomain =
+          min === Number.MAX_SAFE_INTEGER || max === Number.MIN_SAFE_INTEGER
+            ? subDomain
+            : [min, max];
+      } else {
+        stateUpdates.subDomain = this.state.subDomain;
+      }
+    }
     this.setState(stateUpdates);
   };
 
@@ -151,16 +215,16 @@ export default class DataProvider extends Component {
   };
 
   render() {
-    const { contextSeries, subDomain, enhancedSeries } = this.state;
-    const { baseDomain, yAxisWidth, children } = this.props;
+    const { contextSeries, domain, subDomain, enhancedSeries } = this.state;
+    const { yAxisWidth, children } = this.props;
     if (enhancedSeries.length === 0) {
       // Do not bother, loader hasn't given any data yet.
       return null;
     }
     const context = {
       series: enhancedSeries,
-      baseDomain,
-      subDomain: subDomain || baseDomain,
+      baseDomain: domain,
+      subDomain,
       yAxisWidth,
       subDomainChanged: this.subDomainChanged,
       contextSeries: enhancedSeries.map(s => ({
@@ -196,4 +260,5 @@ DataProvider.defaultProps = {
   pointsPerSeries: 250,
   yAxisWidth: 50,
   defaultLoader: null,
+  shift: true,
 };
