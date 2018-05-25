@@ -9657,7 +9657,7 @@ react-select@^1.2.1:
     prop-types "^15.5.8"
     react-input-autosize "^2.1.2"
 
-react-sizeme@^2.4.3:
+react-sizeme@2.4.3:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/react-sizeme/-/react-sizeme-2.4.3.tgz#0ae872d936646e90415e29b83d8547403265ee53"
   dependencies:
