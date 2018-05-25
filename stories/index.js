@@ -6,6 +6,7 @@ import moment from 'moment';
 import * as d3 from 'd3';
 import axios from 'axios';
 import { DataProvider, LineChart } from '../src';
+import isEqual from 'lodash.isequal';
 
 const randomData = () => {
   const data = [];
@@ -382,5 +383,51 @@ storiesOf('LineChart', module)
         }
       }
       return <ZoomToggle />;
+    })
+  )
+  .add(
+    'Dynamic base domain',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class DynamicBaseDomain extends React.Component {
+        state = {
+          baseDomain: staticBaseDomain,
+        };
+
+        toggleBaseDomain = () => {
+          const { baseDomain } = this.state;
+          const newDomain = isEqual(baseDomain, staticBaseDomain)
+            ? [
+                staticBaseDomain[0] + 100000000 * 50,
+                staticBaseDomain[1] - 100000000 * 50,
+              ]
+            : staticBaseDomain;
+          this.setState({ baseDomain: newDomain });
+        };
+
+        render() {
+          const { baseDomain } = this.state;
+          return (
+            <div>
+              <button onClick={this.toggleBaseDomain}>
+                {isEqual(baseDomain, staticBaseDomain)
+                  ? 'Shrink baseDomain'
+                  : 'Reset base domain'}
+              </button>
+              <DataProvider
+                defaultLoader={staticLoader}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+                baseDomain={baseDomain}
+              >
+                <LineChart height={CHART_HEIGHT} />
+              </DataProvider>
+            </div>
+          );
+        }
+      }
+      return <DynamicBaseDomain />;
     })
   );
