@@ -36,6 +36,39 @@ export default class DataProvider extends Component {
     yDomains: {},
   };
 
+  static getDerivedStateFromProps(nextProps, prevState) {
+    // Check if one of the series got removed from props
+    // If so, delete the respective keys in contextSeries and loaderconfig
+    // This is important so we don't cache the vales if it gets readded later
+    const { loaderConfig, contextSeries, yDomains } = prevState;
+    const { series } = nextProps;
+    const seriesKeys = {};
+    series.forEach(s => {
+      seriesKeys[s.id] = true;
+    });
+    const newContextSeries = { ...contextSeries };
+    const newLoaderConfig = { ...loaderConfig };
+    const newYDomains = { ...yDomains };
+    let shouldUpdate = false;
+    Object.keys(loaderConfig).forEach(key => {
+      if (!seriesKeys[key]) {
+        // Clean up
+        delete newContextSeries[key];
+        delete newLoaderConfig[key];
+        delete newYDomains[key];
+        shouldUpdate = true;
+      }
+    });
+    if (shouldUpdate) {
+      return {
+        loaderConfig: newLoaderConfig,
+        contextSeries: newContextSeries,
+        yDomains: newYDomains,
+      };
+    }
+    return null;
+  }
+
   async componentDidMount() {
     await Promise.map(this.props.series, s => this.fetchData(s.id, 'MOUNTED'));
     if (this.props.updateInterval) {
@@ -45,18 +78,25 @@ export default class DataProvider extends Component {
     }
   }
 
-  async componentDidUpdate(prevProps, prevState) {
-    const { series: prevSeries } = prevState;
+  async componentDidUpdate(prevProps) {
+    // If new series are present in prop,
+    // run the fetchData lifecycle for those series
+    const { series: prevSeries } = prevProps;
     if (!prevSeries) {
       return;
     }
     const { series, baseDomain } = this.props;
     const { subDomain } = this.state;
+
+    const currentSeriesKeys = {};
+    series.forEach(s => {
+      currentSeriesKeys[s.id] = true;
+    });
     const prevSeriesKeys = {};
     prevSeries.forEach(p => {
       prevSeriesKeys[p.id] = true;
     });
-    const newSeries = series.filter(s => prevSeries[s.id] === true);
+    const newSeries = series.filter(s => prevSeriesKeys[s.id] !== true);
     await Promise.map(newSeries, async ({ id }) => {
       await this.fetchData(id, 'MOUNTED');
       if (!isEqual(subDomain, baseDomain)) {
@@ -80,7 +120,7 @@ export default class DataProvider extends Component {
       ...deleteUndefinedFromObject(loaderConfig[s.id]),
       yAccessor: s.yAccessor || yAccessor,
       xAccessor: s.xAccessor || xAccessor,
-      yDomain: s.yDomain ? s.yDomain : yDomains[s.id],
+      yDomain: s.yDomain || yDomains[s.id] || [0, 0],
     }));
   };
 
@@ -99,7 +139,7 @@ export default class DataProvider extends Component {
       ...deleteUndefinedFromObject(loaderConfig[id]),
       xAccessor: series.xAccessor || xAccessor,
       yAccessor: series.yAccessor || yAccessor,
-      yDomain: series.yDomain || yDomains[id],
+      yDomain: series.yDomain || yDomains[id] || [0, 0],
     };
   };
 
@@ -176,7 +216,7 @@ export default class DataProvider extends Component {
     const context = {
       series: seriesObjects,
       baseDomain,
-      subDomain: subDomain || baseDomain,
+      subDomain,
       yAxisWidth,
       subDomainChanged: this.subDomainChanged,
       contextSeries: seriesObjects.map(s => ({
@@ -186,7 +226,6 @@ export default class DataProvider extends Component {
         data: (contextSeries[s.id] || { data: [] }).data,
       })),
     };
-
     return (
       <DataContext.Provider value={context}>{children}</DataContext.Provider>
     );
