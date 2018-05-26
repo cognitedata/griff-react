@@ -28,6 +28,14 @@ const staticLoader = ({ oldSeries, reason }) => {
       data: randomData(),
     };
   }
+  if (reason === 'INTERVAL') {
+    const datapoints = [
+      { timestamp: moment(new Date()).valueOf(), value: Math.random() },
+    ];
+    return {
+      data: [...oldSeries.data, ...datapoints],
+    };
+  }
   // Otherwise, return the existing dataset.
   return {
     data: oldSeries.data,
@@ -455,6 +463,20 @@ storiesOf('LineChart', module)
               moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
           }}
         />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Live loading',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        updateInterval={2000}
+        yAxisWidth={50}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     ))
   );
