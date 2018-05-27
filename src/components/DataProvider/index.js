@@ -100,6 +100,8 @@ export default class DataProvider extends Component {
     await Promise.map(newSeries, async ({ id }) => {
       await this.fetchData(id, 'MOUNTED');
       if (!isEqual(subDomain, baseDomain)) {
+        // The series got added when zoomed in,
+        // Need to also fetch a higher-granularity version on mount
         await this.fetchData(id, 'UPDATE_SUBDOMAIN');
       }
     });
@@ -110,36 +112,28 @@ export default class DataProvider extends Component {
     this.unmounted = true;
   }
 
-  getSeriesObjects = () => {
-    const { series, yAccessor, xAccessor } = this.props;
-    const { loaderConfig, yDomains } = this.state;
-
-    return series.map(s => ({
-      data: [],
-      ...deleteUndefinedFromObject(s),
-      ...deleteUndefinedFromObject(loaderConfig[s.id]),
-      yAccessor: s.yAccessor || yAccessor,
-      xAccessor: s.xAccessor || xAccessor,
-      yDomain: s.yDomain || yDomains[s.id] || [0, 0],
-    }));
-  };
+  getSeriesObjects = () => this.props.series.map(this.enrichSeries);
 
   getSingleSeriesObject = id => {
-    const { yAccessor, xAccessor } = this.props;
-    const { loaderConfig, yDomains } = this.state;
     const series = this.props.series.find(s => id === s.id);
     if (!series) {
       throw new Error(
         `Trying to get single series object for id ${id} which is not defined in props.`
       );
     }
+    return this.enrichSeries(series);
+  };
+
+  enrichSeries = series => {
+    const { yAccessor, xAccessor } = this.props;
+    const { loaderConfig, yDomains } = this.state;
     return {
       data: [],
       ...deleteUndefinedFromObject(series),
-      ...deleteUndefinedFromObject(loaderConfig[id]),
+      ...deleteUndefinedFromObject(loaderConfig[series.id]),
       xAccessor: series.xAccessor || xAccessor,
       yAccessor: series.yAccessor || yAccessor,
-      yDomain: series.yDomain || yDomains[id] || [0, 0],
+      yDomain: series.yDomain || yDomains[series.id] || [0, 0],
     };
   };
 
@@ -159,22 +153,14 @@ export default class DataProvider extends Component {
       oldSeries: seriesObject,
       reason,
     });
-    const loaderConfig = {
-      data: [],
-      id,
-      ...loaderResult,
-      reason,
-    };
+    const loaderConfig = { data: [], id, ...loaderResult, reason };
     const stateUpdates = {};
     if (reason === 'MOUNTED') {
       const yDomain = calculateDomainFromData(
         loaderConfig.data,
         loaderConfig.yAccessor || this.props.yAccessor
       );
-      stateUpdates.yDomains = {
-        ...this.state.yDomains,
-        [id]: yDomain,
-      };
+      stateUpdates.yDomains = { ...this.state.yDomains, [id]: yDomain };
     }
     stateUpdates.loaderConfig = {
       ...this.state.loaderConfig,
