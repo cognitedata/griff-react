@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import Promise from 'bluebird';
 import * as d3 from 'd3';
+import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import { seriesPropType } from '../../utils/proptypes';
 
@@ -35,13 +36,75 @@ export default class DataProvider extends Component {
     yDomains: {},
   };
 
+  static getDerivedStateFromProps(nextProps, prevState) {
+    // Check if one of the series got removed from props
+    // If so, delete the respective keys in contextSeries and loaderconfig
+    // This is important so we don't cache the vales if it gets readded later
+    const { loaderConfig, contextSeries, yDomains } = prevState;
+    const { series } = nextProps;
+    const seriesKeys = {};
+    series.forEach(s => {
+      seriesKeys[s.id] = true;
+    });
+    const newContextSeries = { ...contextSeries };
+    const newLoaderConfig = { ...loaderConfig };
+    const newYDomains = { ...yDomains };
+    let shouldUpdate = false;
+    Object.keys(loaderConfig).forEach(key => {
+      if (!seriesKeys[key]) {
+        // Clean up
+        delete newContextSeries[key];
+        delete newLoaderConfig[key];
+        delete newYDomains[key];
+        shouldUpdate = true;
+      }
+    });
+    if (shouldUpdate) {
+      return {
+        loaderConfig: newLoaderConfig,
+        contextSeries: newContextSeries,
+        yDomains: newYDomains,
+      };
+    }
+    return null;
+  }
+
   async componentDidMount() {
-    await this.fetchData('MOUNTED');
+    await Promise.map(this.props.series, s => this.fetchData(s.id, 'MOUNTED'));
     if (this.props.updateInterval) {
       this.fetchInterval = setInterval(() => {
-        this.fetchData('INTERVAL');
+        Promise.map(this.props.series, s => this.fetchData(s.id, 'INTERVAL'));
       }, this.props.updateInterval);
     }
+  }
+
+  async componentDidUpdate(prevProps) {
+    // If new series are present in prop,
+    // run the fetchData lifecycle for those series
+    const { series: prevSeries } = prevProps;
+    if (!prevSeries) {
+      return;
+    }
+    const { series, baseDomain } = this.props;
+    const { subDomain } = this.state;
+
+    const currentSeriesKeys = {};
+    series.forEach(s => {
+      currentSeriesKeys[s.id] = true;
+    });
+    const prevSeriesKeys = {};
+    prevSeries.forEach(p => {
+      prevSeriesKeys[p.id] = true;
+    });
+    const newSeries = series.filter(s => prevSeriesKeys[s.id] !== true);
+    await Promise.map(newSeries, async ({ id }) => {
+      await this.fetchData(id, 'MOUNTED');
+      if (!isEqual(subDomain, baseDomain)) {
+        // The series got added when zoomed in,
+        // Need to also fetch a higher-granularity version on mount
+        await this.fetchData(id, 'UPDATE_SUBDOMAIN');
+      }
+    });
   }
 
   componentWillUnmount() {
@@ -49,64 +112,65 @@ export default class DataProvider extends Component {
     this.unmounted = true;
   }
 
-  getSeriesObjects() {
-    const { series, yAccessor, xAccessor } = this.props;
+  getSeriesObjects = () => this.props.series.map(this.enrichSeries);
+
+  getSingleSeriesObject = id => {
+    const series = this.props.series.find(s => id === s.id);
+    if (!series) {
+      throw new Error(
+        `Trying to get single series object for id ${id} which is not defined in props.`
+      );
+    }
+    return this.enrichSeries(series);
+  };
+
+  enrichSeries = series => {
+    const { yAccessor, xAccessor } = this.props;
     const { loaderConfig, yDomains } = this.state;
-
-    return series.map(s => ({
+    return {
       data: [],
-      ...deleteUndefinedFromObject(s),
-      ...deleteUndefinedFromObject(loaderConfig[s.id]),
-      yAccessor: s.yAccessor || yAccessor,
-      xAccessor: s.xAccessor || xAccessor,
-      yDomain: s.yDomain ? s.yDomain : yDomains[s.id],
-    }));
-  }
+      ...deleteUndefinedFromObject(series),
+      ...deleteUndefinedFromObject(loaderConfig[series.id]),
+      xAccessor: series.xAccessor || xAccessor,
+      yAccessor: series.yAccessor || yAccessor,
+      yDomain: series.yDomain || yDomains[series.id] || [0, 0],
+    };
+  };
 
-  fetchData = async reason => {
+  fetchData = async (id, reason) => {
     const { baseDomain, pointsPerSeries, defaultLoader } = this.props;
     const { subDomain } = this.state;
-    const newLoaderConfig = {};
-    const seriesObjects = this.getSeriesObjects();
-    const series = await Promise.map(seriesObjects, async s => {
-      const loader = s.loader || defaultLoader;
-      if (!loader) {
-        throw new Error(`Series ${s.id} does not have a loader.`);
-      }
-      const loaderReturn = await loader({
-        id: s.id,
-        baseDomain,
-        subDomain,
-        pointsPerSeries,
-        oldSeries: s,
-        reason,
-      });
-      return {
-        data: [],
-        ...loaderReturn,
-        id: s.id,
-        reason,
-      };
+    const seriesObject = this.getSingleSeriesObject(id);
+    const loader = seriesObject.loader || defaultLoader;
+    if (!loader) {
+      throw new Error(`Series ${id} does not have a loader.`);
+    }
+    const loaderResult = await loader({
+      id,
+      baseDomain,
+      subDomain,
+      pointsPerSeries,
+      oldSeries: seriesObject,
+      reason,
     });
+    const loaderConfig = { data: [], id, ...loaderResult, reason };
     const stateUpdates = {};
     if (reason === 'MOUNTED') {
-      const yDomains = {};
-      series.forEach(s => {
-        yDomains[s.id] = calculateDomainFromData(
-          s.data,
-          s.yAccessor || this.props.yAccessor
-        );
-      });
-      stateUpdates.yDomains = yDomains;
+      const yDomain = calculateDomainFromData(
+        loaderConfig.data,
+        loaderConfig.yAccessor || this.props.yAccessor
+      );
+      stateUpdates.yDomains = { ...this.state.yDomains, [id]: yDomain };
     }
-    series.forEach(s => {
-      newLoaderConfig[s.id] = {
-        ...s,
-      };
-    });
-    stateUpdates.loaderConfig = newLoaderConfig;
+    stateUpdates.loaderConfig = {
+      ...this.state.loaderConfig,
+      [id]: { ...loaderConfig },
+    };
     if (reason !== 'UPDATE_SUBDOMAIN') {
-      stateUpdates.contextSeries = { ...newLoaderConfig };
+      stateUpdates.contextSeries = {
+        ...this.state.contextSeries,
+        [id]: { ...loaderConfig },
+      };
     }
     this.setState(stateUpdates);
   };
@@ -118,7 +182,10 @@ export default class DataProvider extends Component {
     }
     clearTimeout(this.subDomainChangedTimeout);
     this.subDomainChangedTimeout = setTimeout(
-      () => this.fetchData('UPDATE_SUBDOMAIN'),
+      () =>
+        Promise.map(this.props.series, s =>
+          this.fetchData(s.id, 'UPDATE_SUBDOMAIN')
+        ),
       250
     );
     this.setState({ subDomain });
@@ -135,7 +202,7 @@ export default class DataProvider extends Component {
     const context = {
       series: seriesObjects,
       baseDomain,
-      subDomain: subDomain || baseDomain,
+      subDomain,
       yAxisWidth,
       subDomainChanged: this.subDomainChanged,
       contextSeries: seriesObjects.map(s => ({
@@ -145,7 +212,6 @@ export default class DataProvider extends Component {
         data: (contextSeries[s.id] || { data: [] }).data,
       })),
     };
-
     return (
       <DataContext.Provider value={context}>{children}</DataContext.Provider>
     );

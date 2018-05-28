@@ -92,8 +92,8 @@ Line.propTypes = {
   // Data can take any form as long as the xAccessor and yAccessors are set.
   xAccessor: PropTypes.func.isRequired,
   yAccessor: PropTypes.func.isRequired,
-  y0Accessor: PropTypes.func.isRequired,
-  y1Accessor: PropTypes.func.isRequired,
+  y0Accessor: PropTypes.func,
+  y1Accessor: PropTypes.func,
   color: PropTypes.string.isRequired,
   step: PropTypes.bool,
   hidden: PropTypes.bool,
@@ -106,6 +106,8 @@ Line.defaultProps = {
   hidden: false,
   drawPoints: false,
   strokeWidth: 1,
+  y0Accessor: null,
+  y1Accessor: null,
 };
 
 export default Line;

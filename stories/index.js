@@ -1,12 +1,14 @@
 import React from 'react';
+import * as d3 from 'd3';
+import moment from 'moment';
+import Select from 'react-select';
+import isEqual from 'lodash.isequal';
+import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
-import moment from 'moment';
-import * as d3 from 'd3';
-import axios from 'axios';
 import { DataProvider, LineChart } from '../src';
-import isEqual from 'lodash.isequal';
+import quandlLoader from './quandlLoader';
 
 const randomData = () => {
   const data = [];
@@ -90,93 +92,25 @@ storiesOf('LineChart', module)
   )
   .add(
     'Loading data from api',
-    withInfo()(() => {
-      const calculateGranularity = (domain, pps) => {
-        const diff = domain[1] - domain[0];
-
-        if (diff / (1000 * 60 * 60 * 24) < pps) {
-          // Can we show daily
-          return 'daily';
-        } else if (diff / (1000 * 60 * 60 * 24 * 7) < pps) {
-          // Can we show weekly
-          return 'weekly';
-        } else if (diff / (1000 * 60 * 60 * 24 * 30) < pps) {
-          // Can we show monthly
-          return 'monthly';
-        } else if (diff / (1000 * 60 * 60 * 24 * 30 * 3) < pps) {
-          return 'quarterly';
-        }
-        return 'annualy';
-      };
-      const formatDate = date => moment(date).format('YYYY-MM-DD');
-      const loader = async ({
-        id,
-        baseDomain,
-        subDomain,
-        pointsPerSeries,
-        oldSeries,
-        reason,
-      }) => {
-        const granularity = calculateGranularity(subDomain, pointsPerSeries);
-        action(`Loader requested data. Reason: ${reason}`)(
-          reason,
-          baseDomain,
-          subDomain,
-          granularity
-        );
-        const result = await axios.get(
-          `https://www.quandl.com/api/v3/${id}?start_date=${formatDate(
-            subDomain[0]
-          )}&end_date=${formatDate(
-            subDomain[1]
-          )}&order=asc&collapse=${granularity}&api_key=Yztsvxixwuz_NQz-8Ze3`
-        );
-        const { dataset } = result.data;
-        let data = dataset.data.map(d => ({
-          timestamp: +moment(d[0]),
-          value: d[1],
-        }));
-        if (reason === 'UPDATE_SUBDOMAIN') {
-          const oldData = [...oldSeries.data];
-          if (oldData.length > 0) {
-            const { xAccessor } = oldSeries;
-            const firstPoint = xAccessor(data[0]);
-            const lastPoint = xAccessor(data[data.length - 1]);
-            let insertionStart = 0;
-            let insertionEnd = oldData.length - 1;
-
-            for (let idx = 1; idx < oldData.length; idx += 1) {
-              if (xAccessor(oldData[idx]) > firstPoint) {
-                insertionStart = idx - 1;
-                break;
-              }
-            }
-            for (let idx = oldData.length - 2; idx > 0; idx -= 1) {
-              if (xAccessor(oldData[idx]) <= lastPoint) {
-                insertionEnd = idx + 1;
-                break;
-              }
-            }
-            data = [
-              ...oldData.slice(0, insertionStart),
-              ...data,
-              ...oldData.slice(insertionEnd),
-            ];
-          }
-        }
-        return { data, drawPoints: granularity === 'daily' };
-      };
-      return (
-        <DataProvider
-          defaultLoader={loader}
-          baseDomain={[+moment().subtract(15, 'year'), +moment()]}
-          series={[{ id: 'datasets/OPEC/ORB.json', color: 'steelblue' }]}
-          pointsPerSeries={250}
-        >
-          <LineChart height={CHART_HEIGHT} />
-        </DataProvider>
-      );
-    })
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={quandlLoader}
+        baseDomain={[+moment().subtract(10, 'year'), +moment()]}
+        series={[
+          {
+            id: 'COM/COFFEE_BRZL',
+            color: 'steelblue',
+          },
+          {
+            id: 'COM/COFFEE_CLMB',
+            color: 'red',
+          },
+        ]}
+        pointsPerSeries={100}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+    ))
   )
   .add(
     'Hide series',
@@ -479,4 +413,55 @@ storiesOf('LineChart', module)
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     ))
+  )
+  .add(
+    'Enable/disable series',
+    withInfo()(() => {
+      const colors = {
+        'COM/COFFEE_BRZL': 'steelblue',
+        'COM/COFFEE_CLMB': 'maroon',
+      };
+      const options = [
+        { value: 'COM/COFFEE_BRZL', label: 'Brazil coffe price' },
+        { value: 'COM/COFFEE_CLMB', label: 'Columbia coffe price' },
+      ];
+
+      const baseDomain = [+moment().subtract(10, 'year'), +moment()];
+
+      // eslint-disable-next-line
+      class EnableDisableSeries extends React.Component {
+        state = {
+          series: options,
+        };
+
+        onChangeSeries = series => this.setState({ series });
+
+        render() {
+          const { series } = this.state;
+          return (
+            <React.Fragment>
+              <Select
+                multi
+                value={series}
+                options={options}
+                onChange={this.onChangeSeries}
+                style={{ marginBottom: '15px' }}
+              />
+              <DataProvider
+                defaultLoader={quandlLoader}
+                pointsPerSeries={100}
+                baseDomain={baseDomain}
+                series={series.map(s => ({
+                  id: s.value,
+                  color: colors[s.value],
+                }))}
+              >
+                <LineChart height={CHART_HEIGHT} />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <EnableDisableSeries />;
+    })
   );
