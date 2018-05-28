@@ -10,13 +10,13 @@ import Brush from '../Brush';
 
 export default class ContextChart extends Component {
   static propTypes = {
-    annotations: PropTypes.arrayOf(PropTypes.shape(annotationPropType)),
-    baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-    contextSeries: seriesPropType,
+    width: PropTypes.number.isRequired,
+    annotations: PropTypes.arrayOf(annotationPropType),
     height: PropTypes.number.isRequired,
+    contextSeries: seriesPropType,
+    baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     updateSubDomain: PropTypes.func.isRequired,
-    width: PropTypes.number.isRequired,
     zoomable: PropTypes.bool,
   };
 

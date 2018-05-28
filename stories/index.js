@@ -9,6 +9,7 @@ import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
 import { DataProvider, LineChart, Brush } from '../src';
 import quandlLoader from './quandlLoader';
+import AxisDisplayMode from '../src/components/LineChart/AxisDisplayMode';
 
 const randomData = (dt = 100000000, n = 250) => {
   const data = [];
@@ -37,7 +38,7 @@ const staticLoader = ({ id, oldSeries, reason }) => {
   };
 };
 
-const liveLoader = ({ id, oldSeries, baseDomain, reason }) => {
+const liveLoader = ({ id, oldSeries, reason }) => {
   action('LOADER_REQUEST_DATA')(id, reason);
   if (reason === 'MOUNTED') {
     // Create dataset on mount
@@ -414,19 +415,6 @@ storiesOf('LineChart', module)
     ))
   )
   .add(
-    'Without y axis',
-    withInfo()(() => (
-      <DataProvider
-        defaultLoader={staticLoader}
-        baseDomain={staticBaseDomain}
-        yAxisWidth={0}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
-        <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
-    ))
-  )
-  .add(
     'Non-Zoomable',
     withInfo()(() => {
       class ZoomToggle extends React.Component {
@@ -654,5 +642,332 @@ storiesOf('LineChart', module)
         }
       }
       return <BrushComponent />;
+    })
+  );
+
+storiesOf('Y-Axis Modes', module)
+  .addDecorator(story => (
+    <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
+      {story()}
+    </div>
+  ))
+  .add(
+    'Without y axis',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          yAxisDisplayMode={AxisDisplayMode.NONE}
+        />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Collapsed y axis',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+        />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Some hidden',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class SomeCollapsed extends React.Component {
+        state = {
+          yAxisDisplayMode: AxisDisplayMode.ALL,
+        };
+
+        render() {
+          const { yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  {
+                    id: 1,
+                    color: 'steelblue',
+                    yAxisDisplayMode: AxisDisplayMode.NONE,
+                  },
+                  {
+                    id: 2,
+                    color: 'maroon',
+                  },
+                  {
+                    id: 3,
+                    color: 'orange',
+                    yAxisDisplayMode: AxisDisplayMode.NONE,
+                  },
+                  { id: 4, color: 'green' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                />
+              </DataProvider>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.ALL,
+                  })
+                }
+              >
+                ALL
+              </button>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.NONE,
+                  })
+                }
+              >
+                NONE
+              </button>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+                  })
+                }
+              >
+                COLLAPSED
+              </button>
+            </React.Fragment>
+          );
+        }
+      }
+      return <SomeCollapsed />;
+    })
+  )
+  .add(
+    'Some collapsed',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class SomeCollapsed extends React.Component {
+        state = {
+          yAxisDisplayMode: AxisDisplayMode.ALL,
+        };
+
+        render() {
+          const { yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  {
+                    id: 1,
+                    color: 'steelblue',
+                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+                  },
+                  {
+                    id: 2,
+                    color: 'maroon',
+                  },
+                  {
+                    id: 3,
+                    color: 'orange',
+                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+                  },
+                  { id: 4, color: 'green' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <SomeCollapsed />;
+    })
+  )
+  .add(
+    'Some collapsed (until hover)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class SomeCollapsed extends React.Component {
+        state = {
+          yAxisDisplayMode: AxisDisplayMode.ALL,
+          series: [
+            {
+              id: 1,
+              color: 'steelblue',
+              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+            },
+            {
+              id: 2,
+              color: 'maroon',
+            },
+            {
+              id: 3,
+              color: 'orange',
+              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+            },
+            { id: 4, color: 'green' },
+          ],
+        };
+
+        toggleAxisMode = () => {
+          const series = this.state.series.map(s => {
+            let yAxisDisplayMode;
+            if (s.id === 1 || s.id === 3) {
+              if (!s.yAxisDisplayMode) {
+                yAxisDisplayMode = AxisDisplayMode.COLLAPSED;
+              }
+            }
+            return {
+              ...s,
+              yAxisDisplayMode,
+            };
+          });
+          this.setState({
+            series,
+          });
+        };
+
+        render() {
+          const { series, yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={series}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                  onAxisMouseEnter={this.toggleAxisMode}
+                  onAxisMouseLeave={this.toggleAxisMode}
+                />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <SomeCollapsed />;
+    })
+  )
+  .add(
+    'AxisCollection modes (button)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class ExpandCollapse extends React.Component {
+        state = {
+          yAxisDisplayMode: AxisDisplayMode.ALL,
+        };
+
+        render() {
+          const { yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                />
+              </DataProvider>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.ALL,
+                  })
+                }
+              >
+                ALL
+              </button>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.NONE,
+                  })
+                }
+              >
+                NONE
+              </button>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+                  })
+                }
+              >
+                COLLAPSED
+              </button>
+            </React.Fragment>
+          );
+        }
+      }
+      return <ExpandCollapse />;
+    })
+  )
+  .add(
+    'AxisCollection modes (hover)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class ExpandCollapse extends React.Component {
+        state = {
+          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+        };
+
+        toggleAxisMode = () => {
+          this.setState({
+            yAxisDisplayMode:
+              this.state.yAxisDisplayMode === AxisDisplayMode.ALL
+                ? AxisDisplayMode.COLLAPSED
+                : AxisDisplayMode.ALL,
+          });
+        };
+
+        render() {
+          const { yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                  onAxisMouseEnter={this.toggleAxisMode}
+                  onAxisMouseLeave={this.toggleAxisMode}
+                />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <ExpandCollapse />;
     })
   );

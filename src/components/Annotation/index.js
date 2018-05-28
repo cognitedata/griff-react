@@ -1,5 +1,5 @@
 import React from 'react';
-import { annotationPropType } from '../../utils/proptypes';
+import { annotationShape } from '../../utils/proptypes';
 
 const Annotation = ({ data, xScale, height, color, fillOpacity, id }) => (
   <rect
@@ -12,7 +12,7 @@ const Annotation = ({ data, xScale, height, color, fillOpacity, id }) => (
   />
 );
 
-Annotation.propTypes = annotationPropType;
+Annotation.propTypes = annotationShape;
 
 Annotation.defaultProps = {
   color: '#e8336d',
