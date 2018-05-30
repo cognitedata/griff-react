@@ -6,8 +6,18 @@ import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import { seriesPropType } from '../../utils/proptypes';
 
-const calculateDomainFromData = (data, accessor) => {
-  const extent = d3.extent(data, accessor);
+const calculateDomainFromData = (
+  data,
+  accessor,
+  y0Accessor = null,
+  y1Accessor = null
+) => {
+  let extent;
+  if (y0Accessor && y1Accessor) {
+    extent = [d3.min(data, y0Accessor), d3.max(data, y1Accessor)];
+  } else {
+    extent = d3.extent(data, accessor);
+  }
   const diff = extent[1] - extent[0];
   if (Math.abs(diff) < 1e-3) {
     return [1 / 2 * extent[0], 3 / 2 * extent[0]];
@@ -160,7 +170,7 @@ export default class DataProvider extends Component {
   };
 
   enrichSeries = series => {
-    const { yAccessor, xAccessor } = this.props;
+    const { yAccessor, y0Accessor, y1Accessor, xAccessor } = this.props;
     const { loaderConfig, yDomains } = this.state;
     return {
       data: [],
@@ -168,6 +178,8 @@ export default class DataProvider extends Component {
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
       xAccessor: series.xAccessor || xAccessor,
       yAccessor: series.yAccessor || yAccessor,
+      y0Accessor: series.y0Accessor || y0Accessor,
+      y1Accessor: series.y1Accessor || y1Accessor,
       yDomain: series.yDomain || yDomains[series.id] || [0, 0],
     };
   };
@@ -187,13 +199,18 @@ export default class DataProvider extends Component {
       pointsPerSeries,
       oldSeries: seriesObject,
       reason,
+      yAccessor: seriesObject.yAccessor,
+      y0Accessor: seriesObject.y0Accessor,
+      y1Accessor: seriesObject.y1Accessor,
     });
     const loaderConfig = { data: [], id, ...loaderResult, reason };
     const stateUpdates = {};
     if (reason === 'MOUNTED') {
       const yDomain = calculateDomainFromData(
         loaderConfig.data,
-        loaderConfig.yAccessor || this.props.yAccessor
+        loaderConfig.yAccessor || this.props.yAccessor,
+        loaderConfig.y0Accessor || this.props.y0Accessor,
+        loaderConfig.y1Accessor || this.props.y1Accessor
       );
       stateUpdates.yDomains = { ...this.state.yDomains, [id]: yDomain };
     }
@@ -257,6 +274,8 @@ DataProvider.propTypes = {
   baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
   updateInterval: PropTypes.number,
   yAccessor: PropTypes.func,
+  y0Accessor: PropTypes.func,
+  y1Accessor: PropTypes.func,
   xAccessor: PropTypes.func,
   yAxisWidth: PropTypes.number,
   pointsPerSeries: PropTypes.number,
@@ -269,6 +288,8 @@ DataProvider.defaultProps = {
   updateInterval: 0,
   xAccessor: d => d.timestamp,
   yAccessor: d => d.value,
+  y0Accessor: null,
+  y1Accessor: null,
   pointsPerSeries: 250,
   yAxisWidth: 50,
   defaultLoader: null,

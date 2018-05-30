@@ -10,6 +10,8 @@ export const singleSeriePropType = PropTypes.shape({
   step: PropTypes.bool,
   xAccessor: PropTypes.func,
   yAccessor: PropTypes.func,
+  y0Accessor: PropTypes.func,
+  y1Accessor: PropTypes.func,
   yDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
 });
 
@@ -38,4 +40,9 @@ export const rulerPropType = PropTypes.shape({
   visible: PropTypes.bool,
   xLabel: PropTypes.func.isRequired,
   yLabel: PropTypes.func.isRequired,
+});
+
+export const contextChartPropType = PropTypes.shape({
+  visible: PropTypes.bool,
+  height: PropTypes.number,
 });

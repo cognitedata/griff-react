@@ -6,8 +6,8 @@ import { seriesPropType } from '../../utils/proptypes';
 
 class AxisCollection extends React.Component {
   static propTypes = {
-    height: PropTypes.number.isRequired,
     width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
     series: seriesPropType,
     zoomable: PropTypes.bool,
     updateYTransformation: PropTypes.func,
@@ -35,11 +35,11 @@ class AxisCollection extends React.Component {
 
   render() {
     const {
+      width,
+      height,
       series,
       zoomable,
       yAxisWidth,
-      height,
-      width,
       updateYTransformation,
       yTransformations,
     } = this.props;
