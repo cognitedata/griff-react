@@ -1,6 +1,3 @@
-// Not implemented yet. Should write our own brush component,
-// that's the last thing we're not handling ourselves - will mess up rendering cycle (i think)
-
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -23,6 +20,9 @@ class Brush extends React.Component {
   }
 
   onMouseDownOverlay = e => {
+    if (!this.props.zoomable) {
+      return;
+    }
     this.setState({
       isDraggingOverlay: true,
       dragStartOverlay: e.nativeEvent.offsetX,
@@ -30,18 +30,27 @@ class Brush extends React.Component {
   };
 
   onMouseDownHandleEast = () => {
+    if (!this.props.zoomable) {
+      return;
+    }
     this.setState({
       isDraggingHandleEast: true,
     });
   };
 
   onMouseDownHandleWest = () => {
+    if (!this.props.zoomable) {
+      return;
+    }
     this.setState({
       isDraggingHandleWest: true,
     });
   };
 
   onMouseDownSelection = e => {
+    if (!this.props.zoomable) {
+      return;
+    }
     this.setState({
       isDraggingSelection: true,
       dragStartSelection: e.nativeEvent.offsetX,
@@ -49,12 +58,18 @@ class Brush extends React.Component {
   };
 
   onMouseUpSelection = () => {
+    if (!this.props.zoomable) {
+      return;
+    }
     this.setState({
       isDraggingSelection: false,
     });
   };
 
   onMouseUp = () => {
+    if (!this.props.zoomable) {
+      return;
+    }
     this.setState({
       isDraggingHandleEast: false,
       isDraggingHandleWest: false,
@@ -66,6 +81,9 @@ class Brush extends React.Component {
   };
 
   onMouseMove = e => {
+    if (!this.props.zoomable) {
+      return;
+    }
     if (this.state.isDraggingHandleEast) {
       const position = e.nativeEvent.offsetX;
       const { selection } = this.props;
@@ -116,15 +134,16 @@ class Brush extends React.Component {
   };
 
   render() {
-    const { width, height, selectionColor, handleColor } = this.props;
+    const { width, height, selectionColor, handleColor, zoomable } = this.props;
     const { selection } = this.props;
     const selectionWidth = selection[1] - selection[0];
+    const disabledCursor = zoomable ? null : 'inherit';
     return (
       <g fill="none" stoke="#777" onMouseMove={this.onMouseMove}>
         <rect
           className="overlay"
           pointerEvents="all"
-          cursor="crosshair"
+          cursor={disabledCursor || 'crosshair'}
           x={0}
           y={0}
           width={width}
@@ -133,7 +152,7 @@ class Brush extends React.Component {
         />
         <rect
           className="selection"
-          cursor="move"
+          cursor={disabledCursor || 'move'}
           fill={selectionColor}
           fillOpacity={0.3}
           stroke="#fff"
@@ -146,7 +165,7 @@ class Brush extends React.Component {
         />
         <rect
           className="handle handle--west"
-          cursor="ew-resize"
+          cursor={disabledCursor || 'ew-resize'}
           x={selection[0] - 3}
           y={0}
           width={6}
@@ -156,7 +175,7 @@ class Brush extends React.Component {
         />
         <rect
           className="handle handle-east"
-          cursor="ew-resize"
+          cursor={disabledCursor || 'ew-resize'}
           x={selection[1] - 3}
           y={0}
           width={6}
@@ -176,11 +195,13 @@ Brush.propTypes = {
   selectionColor: PropTypes.string,
   handleColor: PropTypes.string,
   onUpdateSelection: PropTypes.func.isRequired,
+  zoomable: PropTypes.bool,
 };
 
 Brush.defaultProps = {
   selectionColor: '#777',
   handleColor: 'blue',
+  zoomable: true,
 };
 
 export default Brush;

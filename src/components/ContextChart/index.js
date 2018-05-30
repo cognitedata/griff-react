@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import * as d3 from 'd3';
-import isEqual from 'lodash.isequal';
 import ScalerContext from '../../context/Scaler';
 import LineCollection from '../LineCollection';
 import XAxis from '../XAxis';
@@ -37,7 +35,14 @@ export default class ContextChart extends Component {
   };
 
   render() {
-    const { height, width, baseDomain, subDomain, contextSeries } = this.props;
+    const {
+      height,
+      width,
+      baseDomain,
+      subDomain,
+      contextSeries,
+      zoomable,
+    } = this.props;
     const xScale = createXScale(baseDomain, width);
     const selection = subDomain.map(xScale);
     const annotations = this.props.annotations.map(a => (
@@ -58,6 +63,7 @@ export default class ContextChart extends Component {
             height={height}
             selection={selection}
             onUpdateSelection={this.onUpdateSelection}
+            zoomable={zoomable}
           />
         </svg>
         <XAxis width={width} height={50} domain={baseDomain} />
