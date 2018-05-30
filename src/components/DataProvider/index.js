@@ -109,6 +109,10 @@ export default class DataProvider extends Component {
       this.setState({
         baseDomain: this.props.baseDomain,
       });
+      if (this.fetchInterval) {
+        clearInterval(this.fetchInterval);
+      }
+      this.startUpdateInterval();
     }
   }
 
@@ -129,9 +133,6 @@ export default class DataProvider extends Component {
   };
 
   startUpdateInterval = () => {
-    if (this.fetchInterval) {
-      clearInterval(this.fetchInterval);
-    }
     const { updateInterval } = this.props;
     if (updateInterval) {
       this.fetchInterval = setInterval(() => {
