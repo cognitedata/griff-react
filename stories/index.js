@@ -473,7 +473,6 @@ storiesOf('LineChart', module)
       // eslint-disable-next-line
       class BrushComponent extends React.Component {
         state = {
-          baseDomain: [0, width],
           selection: [0, width],
         };
 
@@ -484,17 +483,22 @@ storiesOf('LineChart', module)
         };
 
         render() {
-          const { baseDomain, selection } = this.state;
+          const { selection } = this.state;
           return (
-            <svg width={width} height={height}>
-              <Brush
-                height={height}
-                width={width}
-                baseDomain={baseDomain}
-                selection={selection}
-                onUpdateSelection={this.onUpdateSelection}
-              />
-            </svg>
+            <div>
+              <svg width={width} height={height} stroke="#777">
+                <Brush
+                  height={height}
+                  width={width}
+                  selection={selection}
+                  onUpdateSelection={this.onUpdateSelection}
+                />
+              </svg>
+              <p>width: {width}</p>
+              <p>
+                selection: [{selection[0]}, {selection[1]}]
+              </p>
+            </div>
           );
         }
       }
