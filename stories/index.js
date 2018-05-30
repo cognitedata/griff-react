@@ -10,10 +10,10 @@ import { withInfo } from '@storybook/addon-info';
 import { DataProvider, LineChart } from '../src';
 import quandlLoader from './quandlLoader';
 
-const randomData = () => {
+const randomData = (dt = 100000000, n = 250) => {
   const data = [];
-  for (let i = 250; i > 0; i -= 1) {
-    const timestamp = Date.now() - i * 100000000;
+  for (let i = n; i > 0; i -= 1) {
+    const timestamp = Date.now() - i * dt;
     const value = Math.random();
     data.push({
       timestamp,
@@ -23,19 +23,34 @@ const randomData = () => {
   return data;
 };
 
-const staticLoader = ({ oldSeries, reason }) => {
+const staticLoader = ({ id, oldSeries, reason }) => {
+  action('LOADER_REQUEST_DATA')(id, reason);
   if (reason === 'MOUNTED') {
     // Create dataset on mount
     return {
       data: randomData(),
     };
   }
-  if (reason === 'INTERVAL') {
-    const datapoints = [
-      { timestamp: moment(new Date()).valueOf(), value: Math.random() },
-    ];
+  // Otherwise, return the existing dataset.
+  return {
+    data: oldSeries.data,
+  };
+};
+
+const liveLoader = ({ id, oldSeries, baseDomain, reason }) => {
+  action('LOADER_REQUEST_DATA')(id, reason);
+  if (reason === 'MOUNTED') {
+    // Create dataset on mount
     return {
-      data: [...oldSeries.data, ...datapoints],
+      data: randomData(5000, 50),
+    };
+  }
+  if (reason === 'INTERVAL') {
+    return {
+      data: [
+        ...oldSeries.data,
+        { timestamp: Date.now(), value: Math.random() },
+      ],
     };
   }
   // Otherwise, return the existing dataset.
@@ -56,6 +71,7 @@ const customAccessorLoader = ({ oldSeries, reason }) => {
 };
 
 const staticBaseDomain = d3.extent(randomData(), d => d.timestamp);
+const liveBaseDomain = d3.extent(randomData(5000, 50), d => d.timestamp);
 const CHART_HEIGHT = 500;
 
 storiesOf('LineChart', module)
@@ -404,9 +420,9 @@ storiesOf('LineChart', module)
     'Live loading',
     withInfo()(() => (
       <DataProvider
-        defaultLoader={staticLoader}
-        baseDomain={staticBaseDomain}
-        updateInterval={2000}
+        defaultLoader={liveLoader}
+        baseDomain={liveBaseDomain}
+        updateInterval={5000}
         yAxisWidth={50}
         series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
       >

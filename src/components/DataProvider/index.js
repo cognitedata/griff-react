@@ -31,6 +31,7 @@ const deleteUndefinedFromObject = obj => {
 export default class DataProvider extends Component {
   state = {
     subDomain: this.props.baseDomain,
+    baseDomain: this.props.baseDomain,
     loaderConfig: {},
     contextSeries: {},
     yDomains: {},
@@ -71,10 +72,19 @@ export default class DataProvider extends Component {
 
   async componentDidMount() {
     await Promise.map(this.props.series, s => this.fetchData(s.id, 'MOUNTED'));
-    if (this.props.updateInterval) {
+    const { updateInterval } = this.props;
+    if (updateInterval) {
       this.fetchInterval = setInterval(() => {
-        Promise.map(this.props.series, s => this.fetchData(s.id, 'INTERVAL'));
-      }, this.props.updateInterval);
+        const { baseDomain } = this.state;
+        this.setState(
+          { baseDomain: baseDomain.map(d => d + updateInterval) },
+          () => {
+            Promise.map(this.props.series, s =>
+              this.fetchData(s.id, 'INTERVAL')
+            );
+          }
+        );
+      }, updateInterval);
     }
   }
 
@@ -85,8 +95,8 @@ export default class DataProvider extends Component {
     if (!prevSeries) {
       return;
     }
-    const { series, baseDomain } = this.props;
-    const { subDomain } = this.state;
+    const { series } = this.props;
+    const { subDomain, baseDomain } = this.state;
 
     const currentSeriesKeys = {};
     series.forEach(s => {
@@ -105,6 +115,14 @@ export default class DataProvider extends Component {
         await this.fetchData(id, 'UPDATE_SUBDOMAIN');
       }
     });
+
+    // Check if basedomain changed in props -- if so reset state.
+    if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
+      // eslint-disable-next-line
+      this.setState({
+        baseDomain: this.props.baseDomain,
+      });
+    }
   }
 
   componentWillUnmount() {
@@ -138,8 +156,8 @@ export default class DataProvider extends Component {
   };
 
   fetchData = async (id, reason) => {
-    const { baseDomain, pointsPerSeries, defaultLoader } = this.props;
-    const { subDomain } = this.state;
+    const { pointsPerSeries, defaultLoader } = this.props;
+    const { subDomain, baseDomain } = this.state;
     const seriesObject = this.getSingleSeriesObject(id);
     const loader = seriesObject.loader || defaultLoader;
     if (!loader) {
@@ -192,8 +210,8 @@ export default class DataProvider extends Component {
   };
 
   render() {
-    const { loaderConfig, contextSeries, subDomain } = this.state;
-    const { baseDomain, yAxisWidth, children } = this.props;
+    const { loaderConfig, contextSeries, baseDomain, subDomain } = this.state;
+    const { yAxisWidth, children } = this.props;
     if (Object.keys(loaderConfig).length === 0) {
       // Do not bother, loader hasn't given any data yet.
       return null;
