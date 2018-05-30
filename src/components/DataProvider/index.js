@@ -72,20 +72,7 @@ export default class DataProvider extends Component {
 
   async componentDidMount() {
     await Promise.map(this.props.series, s => this.fetchData(s.id, 'MOUNTED'));
-    const { updateInterval } = this.props;
-    if (updateInterval) {
-      this.fetchInterval = setInterval(() => {
-        const { baseDomain } = this.state;
-        this.setState(
-          { baseDomain: baseDomain.map(d => d + updateInterval) },
-          () => {
-            Promise.map(this.props.series, s =>
-              this.fetchData(s.id, 'INTERVAL')
-            );
-          }
-        );
-      }, updateInterval);
-    }
+    this.startUpdateInterval();
   }
 
   async componentDidUpdate(prevProps) {
@@ -127,7 +114,6 @@ export default class DataProvider extends Component {
 
   componentWillUnmount() {
     clearInterval(this.fetchInterval);
-    this.unmounted = true;
   }
 
   getSeriesObjects = () => this.props.series.map(this.enrichSeries);
@@ -140,6 +126,28 @@ export default class DataProvider extends Component {
       );
     }
     return this.enrichSeries(series);
+  };
+
+  startUpdateInterval = () => {
+    if (this.fetchInterval) {
+      clearInterval(this.fetchInterval);
+    }
+    const { updateInterval } = this.props;
+    if (updateInterval) {
+      this.fetchInterval = setInterval(() => {
+        const { baseDomain } = this.state;
+        this.setState(
+          {
+            baseDomain: baseDomain.map(d => d + updateInterval),
+          },
+          () => {
+            Promise.map(this.props.series, s =>
+              this.fetchData(s.id, 'INTERVAL')
+            );
+          }
+        );
+      }, updateInterval);
+    }
   };
 
   enrichSeries = series => {
