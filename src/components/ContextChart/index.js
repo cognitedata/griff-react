@@ -8,7 +8,6 @@ import { createXScale } from '../../utils/scale-helpers';
 import { seriesPropType, annotationPropType } from '../../utils/proptypes';
 import Brush from '../Brush';
 
-// eslint-disable-next-line
 export default class ContextChart extends Component {
   static propTypes = {
     width: PropTypes.number.isRequired,
