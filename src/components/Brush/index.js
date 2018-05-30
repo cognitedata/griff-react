@@ -11,6 +11,7 @@ class Brush extends React.Component {
     isDraggingHandleEast: false,
     isDraggingSelection: false,
     dragStartOverlay: null,
+    dragStartSelection: null,
   };
 
   componentDidMount() {
@@ -40,9 +41,10 @@ class Brush extends React.Component {
     });
   };
 
-  onMouseDownSelection = () => {
+  onMouseDownSelection = e => {
     this.setState({
       isDraggingSelection: true,
+      dragStartSelection: e.nativeEvent.offsetX,
     });
   };
 
@@ -59,6 +61,7 @@ class Brush extends React.Component {
       isDraggingOverlay: false,
       isDraggingSelection: false,
       dragStartOverlay: null,
+      dragStartSelection: null,
     });
   };
 
@@ -88,11 +91,15 @@ class Brush extends React.Component {
       const newSelection = [position, selection[1]];
       this.onUpdateSelection(newSelection);
     } else if (this.state.isDraggingSelection) {
-      const { selection } = this.props;
-      const { width } = this.props;
-      const dx = e.nativeEvent.movementX;
+      const { selection, width } = this.props;
+      const { dragStartSelection } = this.state;
+      const position = e.nativeEvent.offsetX;
+      const dx = position - dragStartSelection;
       const newSelection = selection.map(d => d + dx);
-      if (newSelection[0] > 0 && newSelection[1] < width) {
+      if (newSelection[0] >= 0 && newSelection[1] <= width) {
+        this.setState({
+          dragStartSelection: position,
+        });
         this.props.onUpdateSelection(newSelection);
       }
     } else if (this.state.isDraggingOverlay) {
@@ -118,7 +125,6 @@ class Brush extends React.Component {
           className="overlay"
           pointerEvents="all"
           cursor="crosshair"
-          stroke="#777"
           x={0}
           y={0}
           width={width}
