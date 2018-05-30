@@ -10,20 +10,20 @@ import Brush from '../Brush';
 
 export default class ContextChart extends Component {
   static propTypes = {
-    width: PropTypes.number.isRequired,
     annotations: PropTypes.arrayOf(PropTypes.shape(annotationPropType)),
-    height: PropTypes.number.isRequired,
-    contextSeries: seriesPropType,
     baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    contextSeries: seriesPropType,
+    height: PropTypes.number.isRequired,
     subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     updateSubDomain: PropTypes.func.isRequired,
+    width: PropTypes.number.isRequired,
     zoomable: PropTypes.bool,
   };
 
   static defaultProps = {
+    annotations: [],
     contextSeries: [],
     zoomable: true,
-    annotations: [],
   };
 
   onUpdateSelection = selection => {
@@ -77,9 +77,9 @@ export const ScaledContextChart = props => (
       <ContextChart
         {...props}
         baseDomain={baseDomain}
+        contextSeries={contextSeries}
         subDomain={subDomain}
         updateSubDomain={updateSubDomain}
-        contextSeries={contextSeries}
       />
     )}
   </ScalerContext.Consumer>

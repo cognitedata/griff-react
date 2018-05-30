@@ -3,12 +3,12 @@ import PropTypes from 'prop-types';
 
 class Brush extends React.Component {
   state = {
-    isDraggingOverlay: false,
-    isDraggingHandleWest: false,
-    isDraggingHandleEast: false,
-    isDraggingSelection: false,
     dragStartOverlay: null,
     dragStartSelection: null,
+    isDraggingHandleEast: false,
+    isDraggingHandleWest: false,
+    isDraggingOverlay: false,
+    isDraggingSelection: false,
   };
 
   componentDidMount() {
@@ -189,18 +189,18 @@ class Brush extends React.Component {
 }
 
 Brush.propTypes = {
-  width: PropTypes.number.isRequired,
+  handleColor: PropTypes.string,
   height: PropTypes.number.isRequired,
+  onUpdateSelection: PropTypes.func.isRequired,
   selection: PropTypes.arrayOf(PropTypes.number).isRequired,
   selectionColor: PropTypes.string,
-  handleColor: PropTypes.string,
-  onUpdateSelection: PropTypes.func.isRequired,
+  width: PropTypes.number.isRequired,
   zoomable: PropTypes.bool,
 };
 
 Brush.defaultProps = {
-  selectionColor: '#777',
   handleColor: 'blue',
+  selectionColor: '#777',
   zoomable: true,
 };
 
