@@ -125,9 +125,14 @@ export default class YAxis extends Component {
   }
 
   render() {
-    const { offsetx } = this.props;
+    const { offsetx, zoomable } = this.props;
+    const cursor = zoomable ? 'move' : 'inherit';
     return (
-      <g className="axis-y" transform={`translate(${offsetx}, 0)`}>
+      <g
+        className="axis-y"
+        transform={`translate(${offsetx}, 0)`}
+        cursor={cursor}
+      >
         {this.renderAxis()}
         {this.renderZoomRect()}
       </g>
