@@ -174,7 +174,7 @@ class Brush extends React.Component {
           onMouseDown={this.onMouseDownHandleWest}
         />
         <rect
-          className="handle handle-east"
+          className="handle handle--east"
           cursor={disabledCursor || 'ew-resize'}
           x={selection[1] - 3}
           y={0}
