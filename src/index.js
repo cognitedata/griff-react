@@ -3,3 +3,4 @@ export { default as ContextChart } from './components/ContextChart';
 export { default as LineChart } from './components/LineChart';
 export { default as Line } from './components/Line';
 export { default as XAxis } from './components/XAxis';
+export { default as Brush } from './components/Brush';

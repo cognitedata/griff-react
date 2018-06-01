@@ -7,7 +7,7 @@ import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
-import { DataProvider, LineChart } from '../src';
+import { DataProvider, LineChart, Brush } from '../src';
 import quandlLoader from './quandlLoader';
 
 const randomData = () => {
@@ -463,5 +463,45 @@ storiesOf('LineChart', module)
         }
       }
       return <EnableDisableSeries />;
+    })
+  )
+  .add(
+    'Custom context brush',
+    withInfo()(() => {
+      const width = 600;
+      const height = 50;
+      // eslint-disable-next-line
+      class BrushComponent extends React.Component {
+        state = {
+          selection: [0, width],
+        };
+
+        onUpdateSelection = selection => {
+          this.setState({
+            selection,
+          });
+        };
+
+        render() {
+          const { selection } = this.state;
+          return (
+            <div>
+              <svg width={width} height={height} stroke="#777">
+                <Brush
+                  height={height}
+                  width={width}
+                  selection={selection}
+                  onUpdateSelection={this.onUpdateSelection}
+                />
+              </svg>
+              <p>width: {width}</p>
+              <p>
+                selection: [{selection[0]}, {selection[1]}]
+              </p>
+            </div>
+          );
+        }
+      }
+      return <BrushComponent />;
     })
   );
