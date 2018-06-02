@@ -1,6 +1,6 @@
 static final String REPO = "griff-react"
 static final String PR_COMMENT_MARKER = "[pr-server]\n"
-static final String BASE_PR_URL="griff-react-pr-"
+static final String BASE_URL_PR="griff-react-pr-"
 static final String DEPLOY_URL="griff.surge.sh"
 
 def label = "${REPO}-${UUID.randomUUID().toString().substring(0, 5)}"
@@ -14,12 +14,12 @@ podTemplate(
                                   secretEnvVar(
                                     key: 'SURGE_LOGIN',
                                     secretName: 'griff-react-surge-token',
-                                    secretKey: 'login'
+                                    secretKey: 'SURGE_LOGIN'
                                   ),
                                   secretEnvVar(
                                     key: 'SURGE_TOKEN',
                                     secretName: 'griff-react-surge-token',
-                                    secretKey: 'token'
+                                    secretKey: 'SURGE_TOKEN'
                                   ),
                                 ],
                                 resourceRequestCpu: '2000m',
