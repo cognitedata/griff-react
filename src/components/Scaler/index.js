@@ -46,7 +46,11 @@ class Scaler extends Component {
         const dt = subDomain[1] - subDomain[0];
         updates.subDomain = [nextPropsDomain[1] - dt, nextPropsDomain[1]];
       }
-      if (subDomain && subDomain[0] === prevStateDomain[0]) {
+      if (
+        subDomain &&
+        (subDomain[0] === prevStateDomain[0] ||
+          subDomain[0] <= nextPropsDomain[0])
+      ) {
         // You are looking at the front of the window
         // and the base domain is updated.
         // Lock the sub domain to the start of the window
