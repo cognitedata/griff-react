@@ -62,6 +62,7 @@ podTemplate(
         }
 
         stage('Deploy PR') {
+          sh('yarn global add surge')
           sh("surge .out ${BASE_URL_PR}${env.CHANGE_ID}.surge.sh")
         }
 
@@ -71,6 +72,7 @@ podTemplate(
       
       } else if (env.BRANCH_NAME == 'master') {
         stage('Deploy storybook') {
+          sh('yarn global add surge')
           sh("surge .out ${DEPLOY_URL}")
         }
       }
