@@ -48,7 +48,7 @@ podTemplate(
       }
 
       stage('Build storybook') {
-        sh('yarn build:storybook')
+        sh('yarn storybook:build')
       }
       if (env.CHANGE_ID) {
         // This needs to follow the delete-pr.sh step because we don't want to
