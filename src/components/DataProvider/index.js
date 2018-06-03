@@ -199,11 +199,16 @@ export default class DataProvider extends Component {
       pointsPerSeries,
       oldSeries: seriesObject,
       reason,
+    });
+    const loaderConfig = {
+      data: [],
+      id,
+      ...loaderResult,
+      reason,
       yAccessor: seriesObject.yAccessor,
       y0Accessor: seriesObject.y0Accessor,
       y1Accessor: seriesObject.y1Accessor,
-    });
-    const loaderConfig = { data: [], id, ...loaderResult, reason };
+    };
     const stateUpdates = {};
     if (reason === 'MOUNTED') {
       const yDomain = calculateDomainFromData(
