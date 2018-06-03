@@ -352,6 +352,40 @@ storiesOf('LineChart', module)
     })
   )
   .add(
+    'Click events',
+    withInfo()(() => {
+      const series = staticLoader({
+        id: 1,
+        reason: 'MOUNTED',
+      }).data;
+      const exampleAnnotations = [
+        {
+          id: 1,
+          data: [series[40].timestamp, series[60].timestamp],
+          color: 'black',
+        },
+      ];
+      return (
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        >
+          <LineChart
+            height={CHART_HEIGHT}
+            annotations={exampleAnnotations}
+            onClickAnnotation={annotation => {
+              action('annotation click')(annotation);
+            }}
+            onClick={e => {
+              action('chart click')(e);
+            }}
+          />
+        </DataProvider>
+      );
+    })
+  )
+  .add(
     'Draw points',
     withInfo()(() => (
       <DataProvider
