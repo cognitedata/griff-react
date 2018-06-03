@@ -20,7 +20,7 @@ class Scaler extends Component {
 
   state = {
     yDomains: {},
-    subDomain: undefined,
+    subDomain: this.props.dataContext.baseDomain,
     baseDomain: [0, 0],
     yTransformations: {},
   };
@@ -34,14 +34,30 @@ class Scaler extends Component {
       nextPropsDomain[0] !== prevStateDomain[0] ||
       nextPropsDomain[1] !== prevStateDomain[1]
     ) {
-      // TODO: Implement functionality when switching the baseDomain
-      // We can try to keep the same subDomain if it exists, clip it etc
-      // Currently we snap subDomain back to baseDomain and resets the yDomains
-      return {
+      // Keep existing subdomain, calculate new x transformation
+      const updates = {
         baseDomain: nextPropsDomain,
-        subDomain: nextPropsDomain,
-        yDomains: {},
       };
+      const { subDomain } = prevState;
+      if (subDomain && subDomain[1] === prevStateDomain[1]) {
+        // You are looking at the end of the window
+        // and the baseDomain is updated
+        // Lock the subDomain to the end of the window
+        const dt = subDomain[1] - subDomain[0];
+        updates.subDomain = [nextPropsDomain[1] - dt, nextPropsDomain[1]];
+      }
+      if (
+        subDomain &&
+        (subDomain[0] === prevStateDomain[0] ||
+          subDomain[0] <= nextPropsDomain[0])
+      ) {
+        // You are looking at the front of the window
+        // and the base domain is updated.
+        // Lock the sub domain to the start of the window
+        const dt = subDomain[1] - subDomain[0];
+        updates.subDomain = [nextPropsDomain[0], nextPropsDomain[0] + dt];
+      }
+      return updates;
     }
     return null;
   }

@@ -31,6 +31,7 @@ const deleteUndefinedFromObject = obj => {
 export default class DataProvider extends Component {
   state = {
     subDomain: this.props.baseDomain,
+    baseDomain: this.props.baseDomain,
     loaderConfig: {},
     contextSeries: {},
     yDomains: {},
@@ -71,22 +72,26 @@ export default class DataProvider extends Component {
 
   async componentDidMount() {
     await Promise.map(this.props.series, s => this.fetchData(s.id, 'MOUNTED'));
-    if (this.props.updateInterval) {
-      this.fetchInterval = setInterval(() => {
-        Promise.map(this.props.series, s => this.fetchData(s.id, 'INTERVAL'));
-      }, this.props.updateInterval);
-    }
+    this.startUpdateInterval();
   }
 
   async componentDidUpdate(prevProps) {
     // If new series are present in prop,
     // run the fetchData lifecycle for those series
+    const { updateInterval } = this.props;
+    const { updateInterval: prevUpdateInterval } = prevProps;
+    if (prevUpdateInterval && updateInterval !== prevUpdateInterval) {
+      clearInterval(this.fetchInterval);
+      if (updateInterval) {
+        this.startUpdateInterval();
+      }
+    }
     const { series: prevSeries } = prevProps;
     if (!prevSeries) {
       return;
     }
-    const { series, baseDomain } = this.props;
-    const { subDomain } = this.state;
+    const { series } = this.props;
+    const { subDomain, baseDomain } = this.state;
 
     const currentSeriesKeys = {};
     series.forEach(s => {
@@ -105,11 +110,22 @@ export default class DataProvider extends Component {
         await this.fetchData(id, 'UPDATE_SUBDOMAIN');
       }
     });
+
+    // Check if basedomain changed in props -- if so reset state.
+    if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
+      // eslint-disable-next-line
+      this.setState({
+        baseDomain: this.props.baseDomain,
+      });
+      if (this.fetchInterval) {
+        clearInterval(this.fetchInterval);
+      }
+      this.startUpdateInterval();
+    }
   }
 
   componentWillUnmount() {
     clearInterval(this.fetchInterval);
-    this.unmounted = true;
   }
 
   getSeriesObjects = () => this.props.series.map(this.enrichSeries);
@@ -122,6 +138,25 @@ export default class DataProvider extends Component {
       );
     }
     return this.enrichSeries(series);
+  };
+
+  startUpdateInterval = () => {
+    const { updateInterval } = this.props;
+    if (updateInterval) {
+      this.fetchInterval = setInterval(() => {
+        const { baseDomain } = this.state;
+        this.setState(
+          {
+            baseDomain: baseDomain.map(d => d + updateInterval),
+          },
+          () => {
+            Promise.map(this.props.series, s =>
+              this.fetchData(s.id, 'INTERVAL')
+            );
+          }
+        );
+      }, updateInterval);
+    }
   };
 
   enrichSeries = series => {
@@ -138,8 +173,8 @@ export default class DataProvider extends Component {
   };
 
   fetchData = async (id, reason) => {
-    const { baseDomain, pointsPerSeries, defaultLoader } = this.props;
-    const { subDomain } = this.state;
+    const { pointsPerSeries, defaultLoader } = this.props;
+    const { subDomain, baseDomain } = this.state;
     const seriesObject = this.getSingleSeriesObject(id);
     const loader = seriesObject.loader || defaultLoader;
     if (!loader) {
@@ -192,8 +227,8 @@ export default class DataProvider extends Component {
   };
 
   render() {
-    const { loaderConfig, contextSeries, subDomain } = this.state;
-    const { baseDomain, yAxisWidth, children } = this.props;
+    const { loaderConfig, contextSeries, baseDomain, subDomain } = this.state;
+    const { yAxisWidth, children } = this.props;
     if (Object.keys(loaderConfig).length === 0) {
       // Do not bother, loader hasn't given any data yet.
       return null;

@@ -74,12 +74,13 @@ class InteractionLayer extends React.Component {
     if (this.props.zoomable !== prevProps.zoomable) {
       this.syncZoomingState();
     }
-    const { subDomain: p } = prevProps;
-    const { subDomain: c } = this.props;
+    const { subDomain: p, baseDomain: prevBaseDomain } = prevProps;
+    const { subDomain: c, baseDomain: curBaseDomain } = this.props;
     if (this.rectSelection.property('__zoom')) {
       // Checking if the existing selection has a current zoom state.
       const { width, subDomain, baseDomain } = this.props;
-      if (!isEqual(p, c) || width !== prevProps.width) {
+      const newBaseDomain = !isEqual(prevBaseDomain, curBaseDomain);
+      if (!isEqual(p, c) || width !== prevProps.width || newBaseDomain) {
         const scale = createXScale(baseDomain, width);
         const selection = subDomain.map(scale);
         const transform = d3.zoomIdentity
@@ -88,9 +89,11 @@ class InteractionLayer extends React.Component {
         const prev = this.rectSelection.property('__zoom');
         // Checking if the difference in x transform is significant
         // This means that something else has zoomed (brush) and we need to update the internals
+        // TODO: This should be optimized
         if (
           Math.abs(prev.k - transform.k) > 0.5 ||
-          Math.abs(prev.x - transform.x) > 50
+          Math.abs(prev.x - transform.x) > 50 ||
+          newBaseDomain
         ) {
           this.rectSelection.property('__zoom', transform);
         }
