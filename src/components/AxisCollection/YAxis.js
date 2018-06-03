@@ -99,7 +99,7 @@ export default class YAxis extends Component {
       `H${halfStrokeWidth}`,
       // Draw a vertical line from bottom to top
       `V${range[1]}`,
-      // Finish wwith another horizontal line
+      // Finish with another horizontal line
       `H${k * tickSizeOuter}`,
     ].join('');
     return (
