@@ -1,5 +1,6 @@
 static final String REPO = "griff-react"
 static final String PR_COMMENT_MARKER = "[pr-server]\n"
+static final String BASE_URL_BRANCH="griff-"
 static final String BASE_URL_PR="griff-react-pr-"
 static final String DEPLOY_URL="griff.surge.sh"
 
@@ -69,11 +70,10 @@ podTemplate(
         stage('Comment on GitHub') {
           pullRequest.comment("${PR_COMMENT_MARKER}The storybook for this PR is hosted on https://${BASE_URL_PR}${env.CHANGE_ID}.surge.sh")
         }
-      
-      } else if (env.BRANCH_NAME == 'master') {
+      } else {
         stage('Deploy storybook') {
           sh('yarn global add surge')
-          sh("surge .out ${DEPLOY_URL}")
+          sh("surge .out ${BASE_URL_BRANCH}${BRANCH_NAME.replaceAll('\\.', '-')}.surge.sh")
         }
       }
     }
