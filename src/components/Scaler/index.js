@@ -71,7 +71,7 @@ class Scaler extends Component {
     } = prevProps;
     if (!isEqual(prevExternalBaseDomain, nextExternalBaseDomain)) {
       // External base domain changed (props on DataProvider)
-      // Reset state effectively.
+      // Reset state
 
       // eslint-disable-next-line
       this.setState({
