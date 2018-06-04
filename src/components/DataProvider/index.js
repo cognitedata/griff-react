@@ -51,8 +51,13 @@ export default class DataProvider extends Component {
     // Check if one of the series got removed from props
     // If so, delete the respective keys in contextSeries and loaderconfig
     // This is important so we don't cache the vales if it gets readded later
-    const { loaderConfig, contextSeries, yDomains } = prevState;
-    const { series } = nextProps;
+    const {
+      loaderConfig,
+      contextSeries,
+      yDomains,
+      baseDomain: oldDomain,
+    } = prevState;
+    const { series, baseDomain: newDomain } = nextProps;
     const seriesKeys = {};
     series.forEach(s => {
       seriesKeys[s.id] = true;
@@ -77,6 +82,17 @@ export default class DataProvider extends Component {
         yDomains: newYDomains,
       };
     }
+    // if baseDomain was updated clean up
+    // cached contextSeries and loaderconfig values
+    if (!isEqual(oldDomain, newDomain)) {
+      return {
+        subDomain: newDomain,
+        baseDomain: newDomain,
+        loaderConfig: {},
+        contextSeries: {},
+        yDomains: {},
+      };
+    }
     return null;
   }
 
@@ -88,8 +104,11 @@ export default class DataProvider extends Component {
   async componentDidUpdate(prevProps) {
     // If new series are present in prop,
     // run the fetchData lifecycle for those series
-    const { updateInterval } = this.props;
-    const { updateInterval: prevUpdateInterval } = prevProps;
+    const { baseDomain: newDomain, updateInterval } = this.props;
+    const {
+      baseDomain: oldDomain,
+      updateInterval: prevUpdateInterval,
+    } = prevProps;
     if (prevUpdateInterval && updateInterval !== prevUpdateInterval) {
       clearInterval(this.fetchInterval);
       if (updateInterval) {
@@ -120,6 +139,13 @@ export default class DataProvider extends Component {
         await this.fetchData(id, 'UPDATE_SUBDOMAIN');
       }
     });
+
+    // if baseDomain was updated reload
+    if (!isEqual(oldDomain, newDomain)) {
+      await Promise.map(series, async ({ id }) => {
+        await this.fetchData(id, 'MOUNTED');
+      });
+    }
 
     // Check if basedomain changed in props -- if so reset state.
     if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
