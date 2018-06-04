@@ -84,7 +84,7 @@ class AxisCollection extends React.Component {
   }
 
   renderPlaceholderAxis() {
-    const { axisDisplayMode, height, yAxisWidth, series } = this.props;
+    const { height, yAxisWidth } = this.props;
     // The most-specific setting wins.
     const numCollapsed = this.showCollapsedAxis();
     // TODO: Should we only do this if there's more than 1?
