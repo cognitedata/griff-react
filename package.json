@@ -4,20 +4,26 @@
   "description": "Charting library that relies on React's virtual diffing.",
   "main": "lib/index.js",
   "module": "es/index.js",
-  "files": ["css", "es", "lib", "umd"],
+  "files": [
+    "css",
+    "es",
+    "lib",
+    "umd"
+  ],
   "scripts": {
     "clean": "nwb clean-module && nwb clean-demo",
     "start": "nwb serve-react-demo",
     "test": "nwb test-react",
     "build": "nwb build",
-    "build:watch":
-      "nodemon -w src -x 'rm .babelrc &> /dev/null; nwb build-react-component --no-demo'",
+    "build:watch": "nodemon -w src -x 'rm .babelrc &> /dev/null; nwb build-react-component --no-demo'",
     "test:coverage": "nwb test-react --coverage",
     "test:watch": "nwb test-react --server",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "storybook:build": "build-storybook -c .storybook -o .out",
     "demo:build": "nwb build-react-component src/index.js",
-    "package:deploy": "yarn build && np"
+    "package:deploy": "yarn build && np",
+    "lint": "eslint src",
+    "prepush": "yarn lint"
   },
   "dependencies": {
     "antd": "^3.4.1",
@@ -33,11 +39,13 @@
     "react": "16.x"
   },
   "devDependencies": {
+    "@cognite/eslint-config": "^1.0.6",
     "@cognite/react-scripts": "^2.1.0",
     "@storybook/addon-actions": "^3.2.17",
     "@storybook/addon-info": "^3.2.17",
     "@storybook/react": "^3.2.17",
     "axios": "^0.17.1",
+    "husky": "^0.14.3",
     "moment": "^2.19.3",
     "nodemon": "^1.17.4",
     "nwb": "^0.21.0",
@@ -45,10 +53,12 @@
     "react-dom": "^16.2.0"
   },
   "author": "",
-  "homepage": "",
+  "homepage": "https://griff.surge.sh/",
   "license": "MIT",
   "repository": "",
-  "keywords": ["react-component"],
+  "keywords": [
+    "react-component"
+  ],
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
