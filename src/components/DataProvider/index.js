@@ -124,10 +124,20 @@ export default class DataProvider extends Component {
     // Check if basedomain changed in props -- if so reset state.
     if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
       // eslint-disable-next-line
-      this.setState({
-        baseDomain: this.props.baseDomain,
-        subDomain: this.props.baseDomain,
-      });
+      this.setState(
+        {
+          baseDomain: this.props.baseDomain,
+          subDomain: this.props.baseDomain,
+          loaderConfig: {},
+          contextSeries: {},
+          yDomains: {},
+        },
+        async () => {
+          await Promise.map(this.props.series, s =>
+            this.fetchData(s.id, 'MOUNTED')
+          );
+        }
+      );
       if (this.fetchInterval) {
         clearInterval(this.fetchInterval);
       }
