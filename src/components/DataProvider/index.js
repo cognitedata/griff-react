@@ -124,9 +124,20 @@ export default class DataProvider extends Component {
     // Check if basedomain changed in props -- if so reset state.
     if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
       // eslint-disable-next-line
-      this.setState({
-        baseDomain: this.props.baseDomain,
-      });
+      this.setState(
+        {
+          baseDomain: this.props.baseDomain,
+          subDomain: this.props.baseDomain,
+          loaderConfig: {},
+          contextSeries: {},
+          yDomains: {},
+        },
+        async () => {
+          await Promise.map(this.props.series, s =>
+            this.fetchData(s.id, 'MOUNTED')
+          );
+        }
+      );
       if (this.fetchInterval) {
         clearInterval(this.fetchInterval);
       }
@@ -250,7 +261,7 @@ export default class DataProvider extends Component {
 
   render() {
     const { loaderConfig, contextSeries, baseDomain, subDomain } = this.state;
-    const { yAxisWidth, children } = this.props;
+    const { yAxisWidth, children, baseDomain: externalBaseDomain } = this.props;
     if (Object.keys(loaderConfig).length === 0) {
       // Do not bother, loader hasn't given any data yet.
       return null;
@@ -259,6 +270,8 @@ export default class DataProvider extends Component {
     const context = {
       series: seriesObjects,
       baseDomain,
+      // This is used to signal external changes vs internal changes
+      externalBaseDomain,
       subDomain,
       yAxisWidth,
       subDomainChanged: this.subDomainChanged,

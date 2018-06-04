@@ -11,25 +11,31 @@ import { DataProvider, LineChart, Brush } from '../src';
 import quandlLoader from './quandlLoader';
 import AxisDisplayMode from '../src/components/LineChart/AxisDisplayMode';
 
-const randomData = (dt = 100000000, n = 250) => {
+const randomData = (baseDomain, n = 250) => {
   const data = [];
-  for (let i = n; i > 0; i -= 1) {
-    const timestamp = Date.now() - i * dt;
+  const dt = (baseDomain[1] - baseDomain[0]) / n;
+  for (let i = baseDomain[0]; i <= baseDomain[1]; i += dt) {
     const value = Math.random();
     data.push({
-      timestamp,
+      timestamp: i,
       value,
     });
   }
   return data;
 };
 
-const staticLoader = ({ id, oldSeries, reason }) => {
+const staticLoader = ({
+  id,
+  baseDomain,
+  pointsPerSeries,
+  oldSeries,
+  reason,
+}) => {
   action('LOADER_REQUEST_DATA')(id, reason);
   if (reason === 'MOUNTED') {
     // Create dataset on mount
     return {
-      data: randomData(),
+      data: randomData(baseDomain, pointsPerSeries || 250),
     };
   }
   // Otherwise, return the existing dataset.
@@ -38,21 +44,30 @@ const staticLoader = ({ id, oldSeries, reason }) => {
   };
 };
 
-const liveLoader = ({ id, oldSeries, reason }) => {
-  action('LOADER_REQUEST_DATA')(id, reason);
+const liveLoader = ({ oldSeries, baseDomain, reason }) => {
+  // action('LOADER_REQUEST_DATA')(id, reason);
   if (reason === 'MOUNTED') {
     // Create dataset on mount
     return {
-      data: randomData(5000, 50),
+      data: randomData(baseDomain, 25),
     };
   }
   if (reason === 'INTERVAL') {
-    return {
-      data: [
-        ...oldSeries.data,
-        { timestamp: Date.now(), value: Math.random() },
-      ],
-    };
+    let splicingIndex = 0;
+    for (let i = 0; i < oldSeries.data; i += 1) {
+      if (oldSeries.data[i] >= baseDomain[0]) {
+        splicingIndex = i - 1;
+        break;
+      }
+    }
+    return Math.random() < 0.05
+      ? {
+          data: [
+            ...oldSeries.data.slice(splicingIndex),
+            { timestamp: Date.now(), value: Math.random() },
+          ],
+        }
+      : oldSeries;
   }
   // Otherwise, return the existing dataset.
   return {
@@ -60,10 +75,10 @@ const liveLoader = ({ id, oldSeries, reason }) => {
   };
 };
 
-const customAccessorLoader = ({ oldSeries, reason }) => {
+const customAccessorLoader = ({ baseDomain, oldSeries, reason }) => {
   if (reason === 'MOUNTED') {
     return {
-      data: randomData().map(d => [d.timestamp, d.value]),
+      data: randomData(baseDomain).map(d => [d.timestamp, d.value]),
     };
   }
   return {
@@ -71,8 +86,8 @@ const customAccessorLoader = ({ oldSeries, reason }) => {
   };
 };
 
-const staticBaseDomain = d3.extent(randomData(), d => d.timestamp);
-const liveBaseDomain = d3.extent(randomData(5000, 50), d => d.timestamp);
+const staticBaseDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
+const liveBaseDomain = [Date.now() - 1000 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
 /* eslint-disable react/no-multi-comp */
@@ -479,8 +494,8 @@ storiesOf('LineChart', module)
           const { baseDomain } = this.state;
           const newDomain = isEqual(baseDomain, staticBaseDomain)
             ? [
-                staticBaseDomain[0] + 100000000 * 50,
-                staticBaseDomain[1] - 100000000 * 50,
+                staticBaseDomain[0] - 100000000 * 50,
+                staticBaseDomain[1] + 100000000 * 50,
               ]
             : staticBaseDomain;
           this.setState({ baseDomain: newDomain });
@@ -545,7 +560,7 @@ storiesOf('LineChart', module)
       <DataProvider
         defaultLoader={liveLoader}
         baseDomain={liveBaseDomain}
-        updateInterval={5000}
+        updateInterval={33}
         yAxisWidth={50}
         series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
       >
