@@ -21,49 +21,12 @@ class Scaler extends Component {
   state = {
     yDomains: {},
     subDomain: this.props.dataContext.baseDomain,
-    baseDomain: [0, 0],
     yTransformations: {},
   };
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const {
-      dataContext: { baseDomain: nextPropsDomain },
-    } = nextProps;
-    const { baseDomain: prevStateDomain } = prevState;
-    if (
-      nextPropsDomain[0] !== prevStateDomain[0] ||
-      nextPropsDomain[1] !== prevStateDomain[1]
-    ) {
-      // Keep existing subdomain, calculate new x transformation
-      const updates = {
-        baseDomain: nextPropsDomain,
-      };
-      const { subDomain } = prevState;
-      if (subDomain && subDomain[1] === prevStateDomain[1]) {
-        // You are looking at the end of the window
-        // and the baseDomain is updated
-        // Lock the subDomain to the end of the window
-        const dt = subDomain[1] - subDomain[0];
-        updates.subDomain = [nextPropsDomain[1] - dt, nextPropsDomain[1]];
-      }
-      if (
-        subDomain &&
-        (subDomain[0] === prevStateDomain[0] ||
-          subDomain[0] <= nextPropsDomain[0])
-      ) {
-        // You are looking at the front of the window
-        // and the base domain is updated.
-        // Lock the sub domain to the start of the window
-        const dt = subDomain[1] - subDomain[0];
-        updates.subDomain = [nextPropsDomain[0], nextPropsDomain[0] + dt];
-      }
-      return updates;
-    }
-    return null;
-  }
-
-  componentDidUpdate(prevProps) {
-    // Can we get away from this double update?
+  componentDidUpdate(prevProps, prevState) {
+    // Check every serie if its yDomain changed
+    // If so -- update the state
     const yDomains = {};
     this.props.dataContext.series.forEach(s => {
       yDomains[s.id] = s.yDomain;
@@ -91,6 +54,64 @@ class Scaler extends Component {
           ...domainUpdate,
         },
       });
+    }
+
+    // Handle changes in the base domain of the DataProvider
+    const {
+      dataContext: {
+        baseDomain: nextPropsDomain,
+        externalBaseDomain: nextExternalBaseDomain,
+      },
+    } = this.props;
+    const {
+      dataContext: {
+        baseDomain: prevBaseDomain,
+        externalBaseDomain: prevExternalBaseDomain,
+      },
+    } = prevProps;
+    if (!isEqual(prevExternalBaseDomain, nextExternalBaseDomain)) {
+      // External base domain changed (props on DataProvider)
+      // Reset state effectively.
+
+      // eslint-disable-next-line
+      this.setState({
+        subDomain: nextExternalBaseDomain,
+        yDomains: {},
+        yTransformations: {},
+      });
+      return;
+    }
+    if (
+      nextPropsDomain[0] !== prevBaseDomain[0] ||
+      nextPropsDomain[1] !== prevBaseDomain[1]
+    ) {
+      // The internal baseDomain changed
+      // Keep existing subdomain
+      const { subDomain } = prevState;
+      if (subDomain && subDomain[1] === prevBaseDomain[1]) {
+        // You are looking at the end of the window
+        // and the baseDomain is updated
+        // Lock the subDomain to the end of the window
+        const dt = subDomain[1] - subDomain[0];
+        // eslint-disable-next-line
+        this.setState({
+          subDomain: [nextPropsDomain[1] - dt, nextPropsDomain[1]],
+        });
+      }
+      if (
+        subDomain &&
+        (subDomain[0] === prevBaseDomain[0] ||
+          subDomain[0] <= nextPropsDomain[0])
+      ) {
+        // You are looking at the front of the window
+        // and the base domain is updated.
+        // Lock the sub domain to the start of the window
+        const dt = subDomain[1] - subDomain[0];
+        // eslint-disable-next-line
+        this.setState({
+          subDomain: [nextPropsDomain[0], nextPropsDomain[0] + dt],
+        });
+      }
     }
   }
 
