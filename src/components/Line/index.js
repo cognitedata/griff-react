@@ -17,25 +17,33 @@ const Line = ({
   strokeWidth,
 }) => {
   let line;
+  let area;
   if (step) {
     line = d3
       .line()
       .curve(d3.curveStepAfter)
       .x(d => xScale(xAccessor(d)))
       .y(d => yScale(yAccessor(d)));
+    if (y0Accessor && y1Accessor) {
+      area = d3
+        .area()
+        .curve(d3.curveStepAfter)
+        .x(d => xScale(xAccessor(d)))
+        .y0(d => yScale(y0Accessor(d)))
+        .y1(d => yScale(y1Accessor(d)));
+    }
   } else {
     line = d3
       .line()
       .x(d => xScale(xAccessor(d)))
       .y(d => yScale(yAccessor(d)));
-  }
-  let area = null;
-  if (y0Accessor && y1Accessor) {
-    area = d3
-      .area()
-      .x(d => xScale(xAccessor(d)))
-      .y0(d => yScale(y0Accessor(d)))
-      .y1(d => yScale(y1Accessor(d)));
+    if (y0Accessor && y1Accessor) {
+      area = d3
+        .area()
+        .x(d => xScale(xAccessor(d)))
+        .y0(d => yScale(y0Accessor(d)))
+        .y1(d => yScale(y1Accessor(d)));
+    }
   }
   let circles = null;
   if (drawPoints) {

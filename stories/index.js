@@ -206,7 +206,7 @@ storiesOf('LineChart', module)
     ))
   )
   .add(
-    'min/max (on DataProvider)',
+    'min/max',
     withInfo()(() => {
       const y0Accessor = d => d[1] - 0.5;
       const y1Accessor = d => d[1] + 0.5;
@@ -219,6 +219,27 @@ storiesOf('LineChart', module)
           series={[
             { id: 10, color: 'steelblue', y0Accessor, y1Accessor },
             { id: 2, color: 'maroon' },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      );
+    })
+  )
+  .add(
+    'min/max (step series)',
+    withInfo()(() => {
+      const y0Accessor = d => d[1] - 0.5;
+      const y1Accessor = d => d[1] + 0.5;
+      return (
+        <DataProvider
+          defaultLoader={customAccessorLoader}
+          baseDomain={staticBaseDomain}
+          xAccessor={d => d[0]}
+          yAccessor={d => d[1]}
+          series={[
+            { id: 10, color: 'steelblue', y0Accessor, y1Accessor, step: true },
+            { id: 2, color: 'maroon', step: true },
           ]}
         >
           <LineChart height={CHART_HEIGHT} />
