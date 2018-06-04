@@ -14,7 +14,7 @@ export const singleSeriePropType = PropTypes.shape({
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,
   yDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
-  yAxisDisplayMode: AxisDisplayMode,
+  yAxisDisplayMode: PropTypes.shape(AxisDisplayMode),
 });
 
 export const seriesPropType = PropTypes.arrayOf(singleSeriePropType);
