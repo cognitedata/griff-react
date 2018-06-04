@@ -74,6 +74,7 @@ const staticBaseDomain = d3.extent(randomData(), d => d.timestamp);
 const liveBaseDomain = d3.extent(randomData(5000, 50), d => d.timestamp);
 const CHART_HEIGHT = 500;
 
+/* eslint-disable react/no-multi-comp */
 storiesOf('LineChart', module)
   .addDecorator(story => (
     <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
@@ -93,6 +94,88 @@ storiesOf('LineChart', module)
     ))
   )
   .add(
+    'Sized',
+    withInfo()(() => (
+      <div>
+        <p>All of the components should be entirely contained in the red box</p>
+        <div
+          style={{
+            width: `${CHART_HEIGHT}px`,
+            height: `${CHART_HEIGHT}px`,
+            border: '2px solid red',
+          }}
+        >
+          <DataProvider
+            defaultLoader={staticLoader}
+            baseDomain={staticBaseDomain}
+            series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+          >
+            <LineChart height={CHART_HEIGHT} width={CHART_HEIGHT} />
+          </DataProvider>
+        </div>
+      </div>
+    ))
+  )
+  .add(
+    'Resizing',
+    withInfo()(() => {
+      class ResizingChart extends React.Component {
+        state = { width: CHART_HEIGHT, height: CHART_HEIGHT };
+
+        toggleHide = key => {
+          const { hiddenSeries } = this.state;
+          this.setState({
+            hiddenSeries: {
+              ...hiddenSeries,
+              [key]: !hiddenSeries[key],
+            },
+          });
+        };
+
+        render() {
+          const { width, height } = this.state;
+          const nextWidth =
+            width === CHART_HEIGHT ? CHART_HEIGHT * 2 : CHART_HEIGHT;
+          const nextHeight =
+            height === CHART_HEIGHT ? CHART_HEIGHT * 2 : CHART_HEIGHT;
+          return (
+            <React.Fragment>
+              <p>
+                All of the components should be entirely contained in the red
+                box
+              </p>
+              <button onClick={() => this.setState({ width: nextWidth })}>
+                change to {nextWidth} pixels wide
+              </button>
+              <button onClick={() => this.setState({ height: nextHeight })}>
+                change to {nextHeight} pixels high
+              </button>
+              <div
+                style={{
+                  width: `${width}px`,
+                  height: `${height}px`,
+                  border: '2px solid red',
+                }}
+              >
+                <DataProvider
+                  defaultLoader={staticLoader}
+                  baseDomain={staticBaseDomain}
+                  series={[
+                    { id: 1, color: 'steelblue' },
+                    { id: 2, color: 'maroon' },
+                  ]}
+                >
+                  <LineChart height={height} width={width} />
+                </DataProvider>
+              </div>
+            </React.Fragment>
+          );
+        }
+      }
+      return <ResizingChart />;
+    })
+  )
+  .add(
     'Custom default accessors',
     withInfo()(() => (
       <DataProvider
@@ -105,6 +188,27 @@ storiesOf('LineChart', module)
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     ))
+  )
+  .add(
+    'min/max (on DataProvider)',
+    withInfo()(() => {
+      const y0Accessor = d => d[1] - 0.5;
+      const y1Accessor = d => d[1] + 0.5;
+      return (
+        <DataProvider
+          defaultLoader={customAccessorLoader}
+          xAccessor={d => d[0]}
+          yAccessor={d => d[1]}
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 10, color: 'steelblue', y0Accessor, y1Accessor },
+            { id: 2, color: 'maroon' },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      );
+    })
   )
   .add(
     'Loading data from api',
@@ -179,7 +283,6 @@ storiesOf('LineChart', module)
     'Specify y domain',
     withInfo()(() => {
       const staticDomain = [-2, 2];
-      // eslint-disable-next-line
       class SpecifyDomain extends React.Component {
         state = { yDomains: {} };
 
@@ -249,6 +352,40 @@ storiesOf('LineChart', module)
     })
   )
   .add(
+    'Click events',
+    withInfo()(() => {
+      const series = staticLoader({
+        id: 1,
+        reason: 'MOUNTED',
+      }).data;
+      const exampleAnnotations = [
+        {
+          id: 1,
+          data: [series[40].timestamp, series[60].timestamp],
+          color: 'black',
+        },
+      ];
+      return (
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        >
+          <LineChart
+            height={CHART_HEIGHT}
+            annotations={exampleAnnotations}
+            onClickAnnotation={annotation => {
+              action('annotation click')(annotation);
+            }}
+            onClick={e => {
+              action('chart click')(e);
+            }}
+          />
+        </DataProvider>
+      );
+    })
+  )
+  .add(
     'Draw points',
     withInfo()(() => (
       <DataProvider
@@ -292,7 +429,6 @@ storiesOf('LineChart', module)
   .add(
     'Non-Zoomable',
     withInfo()(() => {
-      // eslint-disable-next-line
       class ZoomToggle extends React.Component {
         state = {
           zoomable: true,
@@ -346,7 +482,6 @@ storiesOf('LineChart', module)
   .add(
     'Dynamic base domain',
     withInfo()(() => {
-      // eslint-disable-next-line
       class DynamicBaseDomain extends React.Component {
         state = {
           baseDomain: staticBaseDomain,

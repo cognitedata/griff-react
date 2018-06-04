@@ -92,9 +92,16 @@ export default class YAxis extends Component {
     const k = 1;
     const tickFormat = scale.tickFormat();
     const range = scale.range().map(r => r + halfStrokeWidth);
-    const pathString = `M${k * tickSizeOuter},${range[0]}H${halfStrokeWidth}V${
-      range[1]
-    }H${k * tickSizeOuter}`;
+    const pathString = [
+      // Move to this (x,y); start drawing
+      `M${k * tickSizeOuter},${range[0] - strokeWidth}`,
+      // Draw a horizontal line halfStrokeWidth long
+      `H${halfStrokeWidth}`,
+      // Draw a vertical line from bottom to top
+      `V${range[1]}`,
+      // Finish with another horizontal line
+      `H${k * tickSizeOuter}`,
+    ].join('');
     return (
       <g
         className="axis"

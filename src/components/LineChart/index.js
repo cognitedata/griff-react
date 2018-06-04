@@ -1,135 +1,179 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
-import styled from 'styled-components';
 import AxisCollection from '../AxisCollection';
-import XAxis from '../XAxis';
-import { ScaledLineCollection } from '../LineCollection';
-import InteractionLayer from '../InteractionLayer';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import { ScaledContextChart } from '../ContextChart';
 import {
+  contextChartPropType,
   seriesPropType,
   annotationPropType,
   rulerPropType,
 } from '../../utils/proptypes';
+import { ScaledLineCollection } from '../LineCollection';
+import InteractionLayer from '../InteractionLayer';
+import XAxis from '../XAxis';
 
-const Wrapper = styled.div`
-  display: grid;
-  grid-template-columns: 1fr auto;
+const propTypes = {
+  // eslint-disable-next-line react/require-default-props
+  size: PropTypes.shape({ width: PropTypes.number.isRequired }),
+  width: PropTypes.number,
+  height: PropTypes.number.isRequired,
+  zoomable: PropTypes.bool,
+  series: seriesPropType,
+  crosshair: PropTypes.bool,
+  onMouseMove: PropTypes.func,
+  onClick: PropTypes.func,
+  // (annotation, x, y) => null
+  onClickAnnotation: PropTypes.func,
+  subDomain: PropTypes.arrayOf(PropTypes.number),
+  yAxisWidth: PropTypes.number,
+  contextChart: contextChartPropType,
+  annotations: PropTypes.arrayOf(PropTypes.shape(annotationPropType)),
+  ruler: rulerPropType,
+};
 
-  .handle {
-    width: 6px;
-    fill: rgb(0, 72, 125);
-  }
-`;
-
-const CONTEXTCHART_HEIGHT_PCT = 0.1;
+const defaultProps = {
+  zoomable: true,
+  contextChart: {
+    visible: true,
+    height: 100,
+  },
+  crosshair: true,
+  onMouseMove: null,
+  onClick: null,
+  onClickAnnotation: null,
+  series: [],
+  annotations: [],
+  ruler: {
+    visible: false,
+    xLabel: () => {},
+    yLabel: () => {},
+  },
+  yAxisWidth: 50,
+  width: 0,
+  subDomain: [],
+};
 
 class LineChartComponent extends Component {
-  static propTypes = {
-    zoomable: PropTypes.bool,
-    size: PropTypes.shape({
-      width: PropTypes.number.isRequired,
-    }).isRequired,
-    height: PropTypes.number.isRequired,
-    series: seriesPropType,
-    crosshair: PropTypes.bool,
-    onMouseMove: PropTypes.func,
-    subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-    yAxisWidth: PropTypes.number.isRequired,
-    contextChart: PropTypes.shape({
-      visible: PropTypes.bool.isRequired,
-    }),
-    annotations: PropTypes.arrayOf(PropTypes.shape(annotationPropType)),
-    ruler: rulerPropType,
-  };
-
-  static defaultProps = {
-    zoomable: true,
-    contextChart: {
-      visible: true,
-    },
-    crosshair: true,
-    onMouseMove: null,
-    series: [],
-    annotations: [],
-    ruler: {
-      visible: false,
-      xLabel: () => {},
-      yLabel: () => {},
-    },
-  };
-
   state = {};
+
+  getContextChartHeight = ({ xAxisHeight, height }) => {
+    const { contextChart } = this.props;
+    if (!contextChart || contextChart.visible === false) {
+      // No context chart to show.
+      return 0;
+    }
+
+    if (contextChart.heightPct) {
+      return xAxisHeight + contextChart.heightPct * (height - xAxisHeight);
+    }
+
+    return xAxisHeight + (contextChart.height || 100);
+  };
 
   render() {
     const {
-      size: { width },
+      size: { width: sizeWidth },
+      width: propWidth,
       height,
       series,
       yAxisWidth,
       subDomain,
       crosshair,
       onMouseMove,
+      onClick,
+      onClickAnnotation,
       zoomable,
-      contextChart,
       annotations,
       ruler,
-      contextChart: { visible },
+      contextChart,
     } = this.props;
     const visibleSeries = series.filter(s => !s.hidden);
-    const axisCollectionWidth = yAxisWidth * visibleSeries.length;
-    const contextHeight = contextChart.visible
-      ? CONTEXTCHART_HEIGHT_PCT * height
-      : 0;
-    const lineCollectionHeight = height - contextHeight;
-    const lineCollectionWidth = width - axisCollectionWidth;
+
+    const width = propWidth || sizeWidth;
+    const xAxisHeight = 50;
+    const axisCollectionSize = {
+      width: yAxisWidth * visibleSeries.length,
+    };
+    const contextChartSpace = this.getContextChartHeight({
+      xAxisHeight,
+      height,
+    });
+    const chartSize = {
+      width: width - axisCollectionSize.width,
+      height: height - xAxisHeight - contextChartSpace,
+    };
+
+    axisCollectionSize.height = chartSize.height;
+
     return (
-      <Wrapper>
-        <div className="lines-container">
-          <svg width={lineCollectionWidth} height={lineCollectionHeight}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: `${chartSize.width}px auto`,
+          gridTemplateRows: '1fr auto',
+          height: `${height}px`,
+        }}
+      >
+        <div className="lines-container" style={{ height: '100%' }}>
+          <svg width={chartSize.width} height={chartSize.height}>
             <ScaledLineCollection
-              height={lineCollectionHeight}
-              width={lineCollectionWidth}
+              height={chartSize.height}
+              width={chartSize.width}
             />
             <InteractionLayer
-              height={lineCollectionHeight}
-              width={lineCollectionWidth}
+              height={chartSize.height}
+              width={chartSize.width}
               crosshair={crosshair}
               onMouseMove={onMouseMove}
+              onClickAnnotation={onClickAnnotation}
               zoomable={zoomable}
               ruler={ruler}
               annotations={annotations}
+              onClick={onClick}
             />
           </svg>
         </div>
-        <div className="y-axis-container">
+        <div
+          className="y-axis-container"
+          style={{
+            width: `${axisCollectionSize.width}px`,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
           <AxisCollection
-            height={lineCollectionHeight}
-            width={axisCollectionWidth}
             zoomable={zoomable}
+            width={axisCollectionSize.width}
+            height={axisCollectionSize.height}
           />
         </div>
-        <div className="x-axis-container">
-          <XAxis width={lineCollectionWidth} domain={subDomain} />
+        <div className="x-axis-container" style={{ width: '100%' }}>
+          <XAxis domain={subDomain} width={chartSize.width} />
         </div>
         <div />
-        {visible && (
-          <div className="context-container">
+        {contextChart.visible && (
+          <div
+            className="context-container"
+            style={{ display: 'flex', flexDirection: 'column' }}
+          >
             <ScaledContextChart
-              height={contextHeight}
-              width={lineCollectionWidth}
+              height={contextChart.height || 100}
+              width={chartSize.width}
               zoomable={zoomable}
               annotations={annotations}
             />
           </div>
         )}
-      </Wrapper>
+      </div>
     );
   }
 }
+
+LineChartComponent.propTypes = propTypes;
+LineChartComponent.defaultProps = defaultProps;
 
 const SizedLineChartComponent = sizeMe()(LineChartComponent);
 
@@ -147,5 +191,8 @@ const LineChart = props => (
     </ScalerContext.Consumer>
   </Scaler>
 );
+
+LineChart.propTypes = propTypes;
+LineChart.defaultProps = defaultProps;
 
 export default LineChart;

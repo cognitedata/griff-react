@@ -159,12 +159,17 @@ class InteractionLayer extends React.Component {
       const xpos = e.nativeEvent.offsetX;
       const ypos = e.nativeEvent.offsetY;
       const rawTimestamp = xScale.invert(xpos).getTime();
+      let notified = false;
       annotations.forEach(a => {
         if (rawTimestamp > a.data[0] && rawTimestamp < a.data[1]) {
           // Clicked within an annotation
           onClickAnnotation(a, xpos, ypos);
+          notified = true;
         }
       });
+      if (notified) {
+        return;
+      }
     }
     if (onClick) {
       onClick(e);

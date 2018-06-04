@@ -45,7 +45,7 @@ function multiFormat(date) {
               : formatYear)(date);
 }
 
-export default class Axis extends Component {
+class Axis extends Component {
   renderAxis() {
     const { domain, width, strokeColor } = this.props;
     const scale = createXScale(domain, width);
@@ -60,9 +60,12 @@ export default class Axis extends Component {
     const k = 1;
     const tickFormat = multiFormat;
     const range = scale.range().map(r => r + halfStrokeWidth);
-    const pathString = `M${range[0]},${k * tickSizeOuter}V${halfStrokeWidth}H${
-      range[1]
-    }V${k * tickSizeOuter}`;
+    const pathString = [
+      `M${range[0]},${k * tickSizeOuter}`,
+      `V${halfStrokeWidth}`,
+      `H${range[1] - strokeWidth}`,
+      `V${k * tickSizeOuter}`,
+    ].join('');
     return (
       <g
         className="x-axis"
@@ -107,3 +110,5 @@ export default class Axis extends Component {
 
 Axis.propTypes = propTypes;
 Axis.defaultProps = defaultProps;
+
+export default Axis;
