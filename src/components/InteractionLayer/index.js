@@ -23,7 +23,7 @@ class InteractionLayer extends React.Component {
     onMouseOut: PropTypes.func,
     updateXTransformation: PropTypes.func,
     series: seriesPropType,
-    annotations: PropTypes.arrayOf(PropTypes.shape(annotationPropType)),
+    annotations: PropTypes.arrayOf(annotationPropType),
     width: PropTypes.number.isRequired,
     subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,

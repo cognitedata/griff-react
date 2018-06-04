@@ -10,10 +10,12 @@ import {
   seriesPropType,
   annotationPropType,
   rulerPropType,
+  axisDisplayModeType,
 } from '../../utils/proptypes';
 import { ScaledLineCollection } from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
 import XAxis from '../XAxis';
+import AxisDisplayMode from './AxisDisplayMode';
 
 const propTypes = {
   // eslint-disable-next-line react/require-default-props
@@ -30,8 +32,11 @@ const propTypes = {
   subDomain: PropTypes.arrayOf(PropTypes.number),
   yAxisWidth: PropTypes.number,
   contextChart: contextChartPropType,
-  annotations: PropTypes.arrayOf(PropTypes.shape(annotationPropType)),
   ruler: rulerPropType,
+  annotations: PropTypes.arrayOf(annotationPropType),
+  yAxisDisplayMode: axisDisplayModeType,
+  onAxisMouseEnter: PropTypes.func,
+  onAxisMouseLeave: PropTypes.func,
 };
 
 const defaultProps = {
@@ -54,6 +59,9 @@ const defaultProps = {
   yAxisWidth: 50,
   width: 0,
   subDomain: [],
+  yAxisDisplayMode: AxisDisplayMode.ALL,
+  onAxisMouseEnter: null,
+  onAxisMouseLeave: null,
 };
 
 class LineChartComponent extends Component {
@@ -73,29 +81,51 @@ class LineChartComponent extends Component {
     return xAxisHeight + (contextChart.height || 100);
   };
 
+  getYAxisCollectionWidth = () => {
+    const { yAxisDisplayMode, series, yAxisWidth } = this.props;
+    const counts = {};
+    series.forEach(s => {
+      if (s.hidden) {
+        return;
+      }
+      const mode = (s.yAxisDisplayMode || yAxisDisplayMode).id;
+      counts[mode] = (counts[mode] || 0) + 1;
+    });
+    const w1 = AxisDisplayMode.ALL.width(
+      yAxisWidth,
+      counts[AxisDisplayMode.ALL.id] || 0
+    );
+    const w2 = AxisDisplayMode.COLLAPSED.width(
+      yAxisWidth,
+      counts[AxisDisplayMode.COLLAPSED.id] || 0
+    );
+    const width = w1 + w2;
+    return width;
+  };
+
   render() {
     const {
       size: { width: sizeWidth },
       width: propWidth,
       height,
-      series,
-      yAxisWidth,
       subDomain,
       crosshair,
       onMouseMove,
       onClick,
       onClickAnnotation,
       zoomable,
+      yAxisDisplayMode,
+      onAxisMouseEnter,
+      onAxisMouseLeave,
+      contextChart,
       annotations,
       ruler,
-      contextChart,
     } = this.props;
-    const visibleSeries = series.filter(s => !s.hidden);
 
     const width = propWidth || sizeWidth;
     const xAxisHeight = 50;
     const axisCollectionSize = {
-      width: yAxisWidth * visibleSeries.length,
+      width: this.getYAxisCollectionWidth(),
     };
     const contextChartSpace = this.getContextChartHeight({
       xAxisHeight,
@@ -146,8 +176,11 @@ class LineChartComponent extends Component {
         >
           <AxisCollection
             zoomable={zoomable}
-            width={axisCollectionSize.width}
+            axisDisplayMode={yAxisDisplayMode}
+            onMouseEnter={onAxisMouseEnter}
+            onMouseLeave={onAxisMouseLeave}
             height={axisCollectionSize.height}
+            width={axisCollectionSize.width}
           />
         </div>
         <div className="x-axis-container" style={{ width: '100%' }}>
@@ -171,6 +204,8 @@ class LineChartComponent extends Component {
     );
   }
 }
+LineChartComponent.propTypes = propTypes;
+LineChartComponent.defaultProps = defaultProps;
 
 LineChartComponent.propTypes = propTypes;
 LineChartComponent.defaultProps = defaultProps;
