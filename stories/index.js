@@ -7,9 +7,8 @@ import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
-import { DataProvider, LineChart, Brush } from '../src';
+import { DataProvider, LineChart, Brush, AxisDisplayMode } from '../src';
 import quandlLoader from './quandlLoader';
-import AxisDisplayMode from '../src/components/LineChart/AxisDisplayMode';
 
 const randomData = (baseDomain, n = 250) => {
   const data = [];
