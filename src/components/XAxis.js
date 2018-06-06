@@ -56,7 +56,12 @@ class Axis extends Component {
     const tickSizeOuter = axis.tickSizeOuter();
     const tickSizeInner = axis.tickSizeInner();
     const tickPadding = axis.tickPadding();
-    const values = scale.ticks();
+    // In order to reduce label overlapping for smaller devices
+    // we want to adjust amount of ticks depending on width.
+    // Default amount of ticks is 10 which is sutable for a
+    // regular 1280 display. So by dividing width by ~100
+    // we can achieve appropriate amount of ticks for any width.
+    const values = scale.ticks(Math.floor(width / 100) || 1);
     const k = 1;
     const tickFormat = multiFormat;
     const range = scale.range().map(r => r + halfStrokeWidth);
