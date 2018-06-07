@@ -7,7 +7,13 @@ import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
-import { DataProvider, LineChart, Brush, AxisDisplayMode } from '../src';
+import {
+  DataProvider,
+  LineChart,
+  Brush,
+  AxisDisplayMode,
+  Scatterplot,
+} from '../src';
 import quandlLoader from './quandlLoader';
 
 const randomData = (baseDomain, n = 250) => {
@@ -1116,4 +1122,75 @@ storiesOf('Y-Axis Modes', module)
       }
       return <ExpandCollapse />;
     })
+  );
+
+const mapping = {
+  '1 2': { x: 1, y: 2 },
+  '3 4': { x: 3, y: 4 },
+};
+
+const scatterplotloader = ({ id, ...params }) => {
+  const pair = mapping[id];
+  const { x, y } = {
+    x: staticLoader({ id: pair.x, pointsPerSeries: 2, ...params }),
+    y: staticLoader({ id: pair.y, pointsPerSeries: 2, ...params }),
+  };
+
+  const data = [];
+  const lastKnown = { x: undefined, y: undefined, z: undefined };
+  while ((x.data.length || y.data.length) && data.length < 10) {
+    const points = {
+      x: x.data.length ? x.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
+      y: y.data.length ? y.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
+    };
+    if (points.x.timestamp < points.y.timestamp) {
+      const point = x.data.shift();
+      lastKnown.x = point.value;
+      lastKnown.z = point.timestamp;
+    } else {
+      const point = y.data.shift();
+      lastKnown.y = point.value;
+      lastKnown.z = point.timestamp;
+    }
+    if (
+      lastKnown.x !== undefined &&
+      lastKnown.y !== undefined &&
+      lastKnown.z !== undefined
+    ) {
+      data.push({
+        ...lastKnown,
+      });
+    }
+  }
+
+  return { data };
+};
+
+storiesOf('Scatterplot', module)
+  .addDecorator(story => (
+    <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
+      {story()}
+    </div>
+  ))
+  .add(
+    'Scatterplot',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        baseDomain={[0, 1]}
+        series={[
+          { id: '1 2', color: 'steelblue' },
+          { id: '3 4', color: 'maroon' },
+        ]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot
+          height={500}
+          width={500}
+          yAxisDisplayMode={AxisDisplayMode.NONE}
+          contextChart={{ visible: false }}
+        />
+      </DataProvider>
+    ))
   );

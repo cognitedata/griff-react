@@ -7,3 +7,4 @@ export {
 export { default as Line } from './components/Line';
 export { default as XAxis } from './components/XAxis';
 export { default as Brush } from './components/Brush';
+export { default as Scatterplot } from './components/Scatterplot';
