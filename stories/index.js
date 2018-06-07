@@ -180,7 +180,7 @@ storiesOf('LineChart', module)
                     { id: 2, color: 'maroon' },
                   ]}
                 >
-                  <LineChart height={height} width={width} />
+                  <LineChart />
                 </DataProvider>
               </div>
             </React.Fragment>

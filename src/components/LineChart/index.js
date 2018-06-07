@@ -122,6 +122,8 @@ class LineChartComponent extends Component {
       ruler,
     } = this.props;
 
+    const { refWidth = 0, refHeight = 0 } = this.state;
+
     const width = propWidth || sizeWidth;
     const xAxisHeight = 50;
     const axisCollectionSize = {
@@ -142,20 +144,35 @@ class LineChartComponent extends Component {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: `${chartSize.width}px auto`,
+          gridTemplateColumns: `1fr auto`,
           gridTemplateRows: '1fr auto',
-          height: `${height}px`,
+          height: `100%`,
         }}
       >
-        <div className="lines-container" style={{ height: '100%' }}>
-          <svg width={chartSize.width} height={chartSize.height}>
-            <ScaledLineCollection
-              height={chartSize.height}
-              width={chartSize.width}
-            />
+        <div
+          className="lines-container"
+          style={{
+            height: '100%',
+          }}
+          ref={r => {
+            if (r) {
+              if (
+                this.state.refWidth !== r.clientWidth ||
+                this.state.refHeight !== r.clientHeight
+              ) {
+                this.setState({
+                  refWidth: r.clientWidth,
+                  refHeight: r.clientHeight,
+                });
+              }
+            }
+          }}
+        >
+          <svg width="100%" height="100%" style={{ display: 'block' }}>
+            <ScaledLineCollection width={refWidth} height={refHeight} />
             <InteractionLayer
-              height={chartSize.height}
-              width={chartSize.width}
+              width={refWidth}
+              height={refHeight}
               crosshair={crosshair}
               onMouseMove={onMouseMove}
               onClickAnnotation={onClickAnnotation}
@@ -169,7 +186,6 @@ class LineChartComponent extends Component {
         <div
           className="y-axis-container"
           style={{
-            width: `${axisCollectionSize.width}px`,
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -179,7 +195,7 @@ class LineChartComponent extends Component {
             axisDisplayMode={yAxisDisplayMode}
             onMouseEnter={onAxisMouseEnter}
             onMouseLeave={onAxisMouseLeave}
-            height={axisCollectionSize.height}
+            height={refHeight}
             width={axisCollectionSize.width}
           />
         </div>
