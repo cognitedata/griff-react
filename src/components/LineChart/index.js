@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import sizeMe from 'react-sizeme';
 import AxisCollection from '../AxisCollection';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
@@ -18,8 +17,7 @@ import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
 
 const propTypes = {
-  // eslint-disable-next-line react/require-default-props
-  size: PropTypes.shape({ width: PropTypes.number.isRequired }),
+  // eslint-disable-next-line react/require-default-props }),
   width: PropTypes.number,
   height: PropTypes.number.isRequired,
   zoomable: PropTypes.bool,
@@ -67,6 +65,19 @@ const defaultProps = {
 class LineChartComponent extends Component {
   state = {};
 
+  componentWillMount = () => {
+    this.updateDimensions();
+  };
+
+
+  componentDidMount = () => {
+    window.addEventListener('resize', this.updateDimensions);
+  };
+
+  componentWillUnmount = () => {
+    window.removeEventListener('resize', this.updateDimensions);
+  };
+
   getContextChartHeight = ({ xAxisHeight, height }) => {
     const { contextChart } = this.props;
     if (!contextChart || contextChart.visible === false) {
@@ -103,9 +114,16 @@ class LineChartComponent extends Component {
     return width;
   };
 
+  updateDimensions = () => {
+    this.setState({
+      width:
+        document.getElementById('chart-container') &&
+        document.getElementById('chart-container').clientWidth,
+    });
+  };
+
   render() {
     const {
-      size: { width: sizeWidth },
       width: propWidth,
       height,
       subDomain,
@@ -124,7 +142,9 @@ class LineChartComponent extends Component {
 
     const { refWidth = 0, refHeight = 0 } = this.state;
 
-    const width = propWidth || sizeWidth;
+    const renderedWidth = this.state.width || (document.getElementById('chart-container') && document.getElementById('chart-container').clientWidth); //get rendered width on initial render otherwise use state value
+
+    const width = propWidth || renderedWidth;
     const xAxisHeight = 50;
     const axisCollectionSize = {
       width: this.getYAxisCollectionWidth(),
@@ -144,10 +164,11 @@ class LineChartComponent extends Component {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: `1fr auto`,
+          gridTemplateColumns: '1fr auto',
           gridTemplateRows: '1fr auto',
-          height: `100%`,
+          height: '100%',
         }}
+        id="chart-container"
       >
         <div
           className="lines-container"
@@ -226,13 +247,11 @@ LineChartComponent.defaultProps = defaultProps;
 LineChartComponent.propTypes = propTypes;
 LineChartComponent.defaultProps = defaultProps;
 
-const SizedLineChartComponent = sizeMe()(LineChartComponent);
-
 const LineChart = props => (
   <Scaler>
     <ScalerContext.Consumer>
       {({ yAxisWidth, series, subDomain }) => (
-        <SizedLineChartComponent
+        <LineChartComponent
           {...props}
           yAxisWidth={yAxisWidth}
           series={series}
