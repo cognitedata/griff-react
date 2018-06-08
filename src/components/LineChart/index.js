@@ -141,10 +141,7 @@ class LineChartComponent extends Component {
       ruler,
     } = this.props;
 
-    const {
-      containerWidth = 0,
-      containerHeight = 0,
-    } = this.state;
+    const { containerWidth = 0, containerHeight = 0 } = this.state;
 
     const width = propWidth || containerWidth;
     const height = propHeight || containerHeight;
@@ -194,7 +191,10 @@ class LineChartComponent extends Component {
           }}
         >
           <svg width="100%" height="100%" style={{ display: 'block' }}>
-            <ScaledLineCollection width={chartSize.width} height={chartSize.height} />
+            <ScaledLineCollection
+              width={chartSize.width}
+              height={chartSize.height}
+            />
             <InteractionLayer
               width={chartSize.width}
               height={chartSize.height}
@@ -270,6 +270,3 @@ LineChart.propTypes = propTypes;
 LineChart.defaultProps = defaultProps;
 
 export default LineChart;
-
-
-

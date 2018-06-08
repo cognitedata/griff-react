@@ -192,38 +192,26 @@ storiesOf('LineChart', module)
   )
   .add(
     'Stretchy',
-    withInfo()(() => {
-      class ResizingChart extends React.Component {
-        render() {
-          return (
-            <React.Fragment>
-              <p>
-                The chart should resize with resizing the window
-              </p>
-              <div
-                style={{
-                  width: '100%',
-                  height: 'calc(100vh - 100px)',
-                  border: '2px solid red',
-                }}
-              >
-                <DataProvider
-                  defaultLoader={staticLoader}
-                  baseDomain={staticBaseDomain}
-                  series={[
-                    { id: 1, color: 'steelblue' },
-                    { id: 2, color: 'maroon' },
-                  ]}
-                >
-                  <LineChart />
-                </DataProvider>
-              </div>
-            </React.Fragment>
-          );
-        }
-      }
-      return <ResizingChart />;
-    })
+    withInfo()(() => (
+      <React.Fragment>
+        <p>The chart should resize with resizing the window</p>
+        <div
+          style={{
+            width: '100%',
+            height: 'calc(100vh - 100px)',
+            border: '2px solid red',
+          }}
+        >
+          <DataProvider
+            defaultLoader={staticLoader}
+            baseDomain={staticBaseDomain}
+            series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+          >
+            <LineChart />
+          </DataProvider>
+        </div>
+      </React.Fragment>
+    ))
   )
   .add(
     'Custom default accessors',
