@@ -116,10 +116,10 @@ class LineChartComponent extends Component {
   };
 
   updateDimensions = () => {
+    const container = document.getElementById('chart-container');
     this.setState({
-      width:
-        document.getElementById('chart-container') &&
-        document.getElementById('chart-container').clientWidth,
+      containerWidth: container && container.clientWidth,
+      containerHeight: container && container.clientHeight,
     });
   };
 
@@ -170,7 +170,9 @@ class LineChartComponent extends Component {
           gridTemplateColumns: '1fr auto',
           gridTemplateRows: '1fr auto',
           height: '100%',
+          width: '100%',
         }}
+        id="chart-container"
         ref={r => {
           if (r) {
             if (
@@ -184,7 +186,6 @@ class LineChartComponent extends Component {
             }
           }
         }}
-        id="chart-container"
       >
         <div
           className="lines-container"
@@ -269,3 +270,6 @@ LineChart.propTypes = propTypes;
 LineChart.defaultProps = defaultProps;
 
 export default LineChart;
+
+
+
