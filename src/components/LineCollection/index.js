@@ -1,13 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createYScale, createXScale } from '../../utils/scale-helpers';
-import { seriesPropType } from '../../utils/proptypes';
+import { createYScale } from '../../utils/scale-helpers';
+import { seriesPropType, scalerFactoryFunc } from '../../utils/proptypes';
 import ScalerContext from '../../context/Scaler';
 import Line from '../Line';
 
 const LineCollection = props => {
-  const { series, width, height, domain } = props;
-  const xScale = createXScale(domain, width);
+  const { series, width, height, domain, xScalerFactory } = props;
+  const xScale = xScalerFactory(domain, width);
   const clipPath = `clip-path-${series
     .filter(s => !s.hidden)
     .map(s => s.id)
@@ -39,6 +39,7 @@ LineCollection.propTypes = {
   height: PropTypes.number.isRequired,
   series: seriesPropType,
   domain: PropTypes.arrayOf(PropTypes.number),
+  xScalerFactory: scalerFactoryFunc.isRequired,
 };
 
 LineCollection.defaultProps = {
@@ -50,8 +51,13 @@ export default LineCollection;
 
 export const ScaledLineCollection = props => (
   <ScalerContext.Consumer>
-    {({ subDomain, series }) => (
-      <LineCollection {...props} series={series} domain={subDomain} />
+    {({ subDomain, series, xScalerFactory }) => (
+      <LineCollection
+        {...props}
+        series={series}
+        domain={subDomain}
+        xScalerFactory={xScalerFactory}
+      />
     )}
   </ScalerContext.Consumer>
 );

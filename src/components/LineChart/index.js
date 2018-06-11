@@ -120,6 +120,7 @@ class LineChartComponent extends Component {
       contextChart,
       annotations,
       ruler,
+      xScalerFactory,
     } = this.props;
 
     const width = propWidth || sizeWidth;
@@ -184,7 +185,11 @@ class LineChartComponent extends Component {
           />
         </div>
         <div className="x-axis-container" style={{ width: '100%' }}>
-          <XAxis domain={subDomain} width={chartSize.width} />
+          <XAxis
+            domain={subDomain}
+            width={chartSize.width}
+            xScalerFactory={xScalerFactory}
+          />
         </div>
         <div />
         {contextChart.visible && (
@@ -215,12 +220,13 @@ const SizedLineChartComponent = sizeMe()(LineChartComponent);
 const LineChart = props => (
   <Scaler>
     <ScalerContext.Consumer>
-      {({ yAxisWidth, series, subDomain }) => (
+      {({ yAxisWidth, series, subDomain, xScalerFactory }) => (
         <SizedLineChartComponent
           {...props}
           yAxisWidth={yAxisWidth}
           series={series}
           subDomain={subDomain}
+          xScalerFactory={xScalerFactory}
         />
       )}
     </ScalerContext.Consumer>

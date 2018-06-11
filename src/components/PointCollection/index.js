@@ -1,17 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ScalerContext from '../../context/Scaler';
-import { createXScale, createYScale } from '../../utils/scale-helpers';
+import { createYScale } from '../../utils/scale-helpers';
 import Points from '../Points';
 
-const propTypes = {};
+const propTypes = {
+  // (domain, width) => [number, number]
+  xScalerFactory: PropTypes.func.isRequired,
+};
 const defaultProps = {};
 
 class PointCollection extends React.Component {
   render() {
-    const { width, height, series, domain } = this.props;
+    const { width, height, series, domain, xScalerFactory } = this.props;
 
-    const xScale = createXScale(domain, width);
+    const xScale = xScalerFactory(domain, width);
     const points = series.filter(s => !s.hidden).map(s => {
       const yScale = createYScale(s.yDomain, height);
       return <Points key={s.id} {...s} xScale={xScale} yScale={yScale} />;
@@ -32,8 +35,13 @@ export default PointCollection;
 
 export const ScaledPointCollection = props => (
   <ScalerContext.Consumer>
-    {({ subDomain, series }) => (
-      <PointCollection {...props} series={series} domain={subDomain} />
+    {({ subDomain, series, xScalerFactory }) => (
+      <PointCollection
+        {...props}
+        series={series}
+        domain={subDomain}
+        xScalerFactory={xScalerFactory}
+      />
     )}
   </ScalerContext.Consumer>
 );

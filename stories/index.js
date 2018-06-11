@@ -16,11 +16,11 @@ import {
 } from '../src';
 import quandlLoader from './quandlLoader';
 
-const randomData = (baseDomain, n = 250) => {
+const randomData = (baseDomain, n, multiplier) => {
   const data = [];
   const dt = (baseDomain[1] - baseDomain[0]) / n;
   for (let i = baseDomain[0]; i <= baseDomain[1]; i += dt) {
-    const value = Math.random();
+    const value = Math.random() * multiplier;
     data.push({
       timestamp: i,
       value,
@@ -33,6 +33,7 @@ const staticLoader = ({
   id,
   baseDomain,
   pointsPerSeries,
+  multiplier = 1,
   oldSeries,
   reason,
 }) => {
@@ -40,7 +41,7 @@ const staticLoader = ({
   if (reason === 'MOUNTED') {
     // Create dataset on mount
     return {
-      data: randomData(baseDomain, pointsPerSeries || 250),
+      data: randomData(baseDomain, pointsPerSeries || 250, multiplier),
     };
   }
   // Otherwise, return the existing dataset.
@@ -1132,8 +1133,18 @@ const mapping = {
 const scatterplotloader = ({ id, ...params }) => {
   const pair = mapping[id];
   const { x, y } = {
-    x: staticLoader({ id: pair.x, pointsPerSeries: 2, ...params }),
-    y: staticLoader({ id: pair.y, pointsPerSeries: 2, ...params }),
+    x: staticLoader({
+      id: pair.x,
+      pointsPerSeries: 2,
+      multiplier: 1,
+      ...params,
+    }),
+    y: staticLoader({
+      id: pair.y,
+      pointsPerSeries: 2,
+      multiplier: 1,
+      ...params,
+    }),
   };
 
   const data = [];
@@ -1188,8 +1199,8 @@ storiesOf('Scatterplot', module)
         <Scatterplot
           height={500}
           width={500}
-          yAxisDisplayMode={AxisDisplayMode.NONE}
           contextChart={{ visible: false }}
+          zoomable
         />
       </DataProvider>
     ))

@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
-import { createXScale } from '../utils/scale-helpers';
+import { scalerFactoryFunc } from '../utils/proptypes';
 
 const propTypes = {
   domain: PropTypes.arrayOf(PropTypes.number).isRequired,
   strokeColor: PropTypes.string,
   width: PropTypes.number.isRequired,
   height: PropTypes.number,
+  xScalerFactory: scalerFactoryFunc.isRequired,
 };
 
 const defaultProps = {
@@ -47,8 +48,8 @@ function multiFormat(date) {
 
 class Axis extends Component {
   renderAxis() {
-    const { domain, width, strokeColor } = this.props;
-    const scale = createXScale(domain, width);
+    const { domain, width, strokeColor, xScalerFactory } = this.props;
+    const scale = xScalerFactory(domain, width);
     const axis = d3.axisBottom(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;

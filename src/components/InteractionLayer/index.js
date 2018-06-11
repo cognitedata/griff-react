@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import ScalerContext from '../../context/Scaler';
-import { createXScale, createYScale } from '../../utils/scale-helpers';
+import { createYScale } from '../../utils/scale-helpers';
 import {
   seriesPropType,
   annotationPropType,
@@ -22,12 +22,15 @@ class InteractionLayer extends React.Component {
     onMouseMove: PropTypes.func,
     onMouseOut: PropTypes.func,
     updateXTransformation: PropTypes.func,
+    updateZoomTransformation: PropTypes.func,
     series: seriesPropType,
     annotations: PropTypes.arrayOf(annotationPropType),
     width: PropTypes.number.isRequired,
     subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     zoomable: PropTypes.bool,
+    // (domain, width) => [number, number]
+    xScalerFactory: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -38,6 +41,7 @@ class InteractionLayer extends React.Component {
     onMouseMove: null,
     onMouseOut: null,
     updateXTransformation: () => {},
+    updateZoomTransformation: () => {},
     series: [],
     zoomable: true,
     ruler: {
@@ -118,15 +122,16 @@ class InteractionLayer extends React.Component {
     const { subDomain: c, baseDomain: curBaseDomain } = this.props;
     if (this.rectSelection.property('__zoom')) {
       // Checking if the existing selection has a current zoom state.
-      const { width, subDomain, baseDomain } = this.props;
+      const { width, subDomain, baseDomain, xScalerFactory } = this.props;
       const newBaseDomain = !isEqual(prevBaseDomain, curBaseDomain);
       if (!isEqual(p, c) || width !== prevProps.width || newBaseDomain) {
-        const scale = createXScale(baseDomain, width);
+        const scale = xScalerFactory(baseDomain, width);
         const selection = subDomain.map(scale);
         const transform = d3.zoomIdentity
           .scale(width / (selection[1] - selection[0]))
           .translate(-selection[0], 0);
         const prev = this.rectSelection.property('__zoom');
+        console.log(subDomain);
         // Checking if the difference in x transform is significant
         // This means that something else has zoomed (brush) and we need to update the internals
         // TODO: This should be optimized
@@ -193,9 +198,10 @@ class InteractionLayer extends React.Component {
       subDomain,
       width,
       annotations,
+      xScalerFactory,
     } = this.props;
     if (onClickAnnotation) {
-      const xScale = createXScale(subDomain, width);
+      const xScale = xScalerFactory(subDomain, width);
       const xpos = e.nativeEvent.offsetX;
       const ypos = e.nativeEvent.offsetY;
       const rawTimestamp = xScale.invert(xpos).getTime();
@@ -225,9 +231,18 @@ class InteractionLayer extends React.Component {
   };
 
   processMouseMove = (xpos, ypos) => {
-    const { series, height, width, subDomain, onMouseMove, ruler } = this.props;
-    const xScale = createXScale(subDomain, width);
-    const rawTimestamp = xScale.invert(xpos).getTime();
+    const {
+      series,
+      height,
+      width,
+      subDomain,
+      onMouseMove,
+      ruler,
+      xScalerFactory,
+    } = this.props;
+    const xScale = xScalerFactory(subDomain, width);
+    const inverted = xScale.invert(xpos);
+    const rawTimestamp = inverted.getTime ? inverted.getTime() : inverted;
     const newPoints = [];
     series.forEach(s => {
       const { data, xAccessor, yAccessor, yDomain } = s;
@@ -281,12 +296,19 @@ class InteractionLayer extends React.Component {
   };
 
   render() {
-    const { width, height, crosshair, ruler, subDomain } = this.props;
+    const {
+      width,
+      height,
+      crosshair,
+      ruler,
+      subDomain,
+      xScalerFactory,
+    } = this.props;
     const {
       crosshair: { x, y },
       points,
     } = this.state;
-    const xScale = createXScale(subDomain, width);
+    const xScale = xScalerFactory(subDomain, width);
     let lines = null;
     if (crosshair && x !== null && y !== null) {
       lines = (
@@ -335,7 +357,7 @@ class InteractionLayer extends React.Component {
           width={width}
           height={height}
           pointerEvents="all"
-          fill="none"
+          fill="#0003"
           onClick={this.onClick}
           onMouseMove={this.onMouseMove}
           onBlur={this.onMouseMove}
@@ -348,13 +370,20 @@ class InteractionLayer extends React.Component {
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ subDomain, baseDomain, series, updateXTransformation }) => (
+    {({
+      subDomain,
+      baseDomain,
+      series,
+      updateXTransformation,
+      xScalerFactory,
+    }) => (
       <InteractionLayer
         {...props}
         subDomain={subDomain}
         baseDomain={baseDomain}
         series={series}
         updateXTransformation={updateXTransformation}
+        xScalerFactory={xScalerFactory}
       />
     )}
   </ScalerContext.Consumer>

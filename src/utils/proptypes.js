@@ -55,3 +55,6 @@ export const axisDisplayModeType = PropTypes.shape({
   // (axisWidth, numAxes) => (width of all of the axes)
   width: PropTypes.func.isRequired,
 });
+
+// (domain, [width|height]) => [number, number]
+export const scalerFactoryFunc = PropTypes.func;

@@ -11,3 +11,9 @@ export const createXScale = (domain, width) =>
     .scaleTime()
     .domain(domain)
     .range([0, width]);
+
+export const createLinearXScale = (domain, width) =>
+  d3
+    .scaleLinear()
+    .domain(domain)
+    .range([0, width]);

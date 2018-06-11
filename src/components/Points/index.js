@@ -27,7 +27,6 @@ const Points = ({
       fill={color}
     />
   ));
-  console.log(points);
   return <g>{points}</g>;
 };
 
