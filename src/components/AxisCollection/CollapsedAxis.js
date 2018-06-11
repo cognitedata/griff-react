@@ -15,6 +15,7 @@ export default class CollapsedAxis extends Component {
     series: PropTypes.arrayOf(singleSeriePropType),
     height: PropTypes.number.isRequired,
     width: PropTypes.number.isRequired,
+    offsetx: PropTypes.number,
     updateYTransformation: PropTypes.func,
     yTransformation: PropTypes.shape({
       y: PropTypes.number.isRequired,
@@ -30,6 +31,7 @@ export default class CollapsedAxis extends Component {
     updateYTransformation: () => {},
     yTransformation: null,
     color: '#666',
+    offsetx: 0,
   };
 
   componentWillMount() {
@@ -127,9 +129,9 @@ export default class CollapsedAxis extends Component {
   }
 
   render() {
-    const { zoomable } = this.props;
+    const { zoomable, offsetx } = this.props;
     return (
-      <g className="axis-y">
+      <g className="axis-y" transform={`translate(${offsetx}, 0)`}>
         {this.renderAxis()}
         {zoomable && this.renderZoomRect()}
       </g>

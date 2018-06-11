@@ -36,18 +36,11 @@ const defaultProps = {
 };
 
 class AxisCollection extends React.Component {
-  showCollapsedAxis = () => {
-    const { series, axisDisplayMode } = this.props;
-    return series.filter(
-      s =>
-        !s.hidden &&
-        (s.yAxisDisplayMode || axisDisplayMode) === AxisDisplayMode.COLLAPSED
-    ).length;
-  };
+  axisFilter = mode => s =>
+    !s.hidden && (s.yAxisDisplayMode || this.props.axisDisplayMode) === mode;
 
   renderAllAxes() {
     const {
-      axisDisplayMode,
       series,
       zoomable,
       height,
@@ -55,44 +48,40 @@ class AxisCollection extends React.Component {
       yAxisWidth,
       yTransformations,
     } = this.props;
-    // Make sure that the axes don't appear if we're also going to be rendering
-    // the placeholder axis.
-    let axisOffsetX = this.showCollapsedAxis() ? yAxisWidth : 0;
-    return series
-      .filter(
-        s =>
-          !s.hidden &&
-          (s.yAxisDisplayMode || axisDisplayMode) === AxisDisplayMode.ALL
-      )
-      .map((s, idx) => {
-        if (idx > 0) {
-          axisOffsetX += yAxisWidth;
-        }
-        return (
-          <YAxis
-            key={`y-axis--${s.id}`}
-            offsetx={axisOffsetX}
-            zoomable={s.zoomable !== undefined ? s.zoomable : zoomable}
-            series={s}
-            height={height}
-            width={yAxisWidth}
-            updateYTransformation={updateYTransformation}
-            yTransformation={yTransformations[s.id]}
-          />
-        );
-      });
+    let axisOffsetX = 0;
+    return series.filter(this.axisFilter(AxisDisplayMode.ALL)).map((s, idx) => {
+      if (idx > 0) {
+        axisOffsetX += yAxisWidth;
+      }
+      return (
+        <YAxis
+          key={`y-axis--${s.id}`}
+          offsetx={axisOffsetX}
+          zoomable={s.zoomable !== undefined ? s.zoomable : zoomable}
+          series={s}
+          height={height}
+          width={yAxisWidth}
+          updateYTransformation={updateYTransformation}
+          yTransformation={yTransformations[s.id]}
+        />
+      );
+    });
   }
 
   renderPlaceholderAxis() {
-    const { height, yAxisWidth } = this.props;
-    // The most-specific setting wins.
-    const numCollapsed = this.showCollapsedAxis();
+    const { height, yAxisWidth, series } = this.props;
+    const numCollapsed = series.filter(
+      this.axisFilter(AxisDisplayMode.COLLAPSED)
+    ).length;
+    const numVisible = series.filter(this.axisFilter(AxisDisplayMode.ALL))
+      .length;
     // TODO: Should we only do this if there's more than 1?
     if (numCollapsed) {
       return (
         <CollapsedAxis
           key="y-axis--collapsed"
           height={height}
+          offsetx={numVisible * yAxisWidth}
           width={yAxisWidth}
         />
       );
@@ -102,13 +91,10 @@ class AxisCollection extends React.Component {
 
   render() {
     const { width, height, onMouseEnter, onMouseLeave } = this.props;
-    const axes = [];
-    axes.push(this.renderPlaceholderAxis());
+
     // We need to render all of the axes (even if they're hidden) in order to
     // keep the zoom states in sync across show/hide toggles.
-    this.renderAllAxes().forEach(axis => {
-      axes.push(axis);
-    });
+    const axes = this.renderAllAxes();
     return (
       <svg
         width={width}
@@ -119,6 +105,7 @@ class AxisCollection extends React.Component {
         onBlur={onMouseLeave}
       >
         {axes}
+        {this.renderPlaceholderAxis()}
       </svg>
     );
   }
