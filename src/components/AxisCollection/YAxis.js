@@ -88,7 +88,8 @@ export default class YAxis extends Component {
     const tickSizeOuter = axis.tickSizeOuter();
     const tickSizeInner = axis.tickSizeInner();
     const tickPadding = axis.tickPadding();
-    const values = scale.ticks();
+    // same as for xAxis but consider height of the screen ~two times smaller
+    const values = scale.ticks(Math.floor(height / 50) || 1);
     const k = 1;
     const tickFormat = scale.tickFormat();
     const range = scale.range().map(r => r + halfStrokeWidth);

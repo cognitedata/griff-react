@@ -93,7 +93,8 @@ export default class CollapsedAxis extends Component {
     const halfStrokeWidth = strokeWidth / 2;
     const tickSizeOuter = axis.tickSizeOuter();
     const tickSizeInner = axis.tickSizeInner();
-    const values = scale.ticks();
+    // same as for xAxis but consider height of the screen ~two times smaller
+    const values = scale.ticks(Math.floor(height / 50) || 1);
     const k = 2.5;
     const range = scale.range().map(r => r + halfStrokeWidth);
     const pathString = [
