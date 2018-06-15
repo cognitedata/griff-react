@@ -86,6 +86,10 @@ const customAccessorLoader = ({ baseDomain, oldSeries, reason }) => {
 };
 
 const staticBaseDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
+const subStaticBaseDomain = [
+  Date.now() - 1000 * 60 * 60 * 24 * 20,
+  Date.now() - 1000 * 60 * 60 * 24 * 10,
+];
 const liveBaseDomain = [Date.now() - 1000 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
@@ -189,6 +193,19 @@ storiesOf('LineChart', module)
       }
       return <ResizingChart />;
     })
+  )
+  .add(
+    'Custom subdomain',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        subDomain={subStaticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+    ))
   )
   .add(
     'Custom default accessors',

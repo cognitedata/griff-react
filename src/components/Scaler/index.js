@@ -20,7 +20,8 @@ class Scaler extends Component {
 
   state = {
     yDomains: {},
-    subDomain: this.props.dataContext.baseDomain,
+    subDomain:
+      this.props.dataContext.subDomain || this.props.dataContext.baseDomain,
     yTransformations: {},
   };
 

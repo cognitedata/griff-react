@@ -66,6 +66,20 @@ class InteractionLayer extends React.Component {
       .extent([[0, 0], [width, height]]);
     this.rectSelection = d3.select(this.zoomNode);
     this.syncZoomingState();
+
+    if (this.rectSelection.property('__zoom')) {
+      const { subDomain, baseDomain } = this.props;
+      // if subDomain differs from baseDomain on componentDidMount step that means
+      // it has been specified by a user and we need to update internals
+      if (!isEqual(subDomain, baseDomain)) {
+        const scale = createXScale(baseDomain, width);
+        const selection = subDomain.map(scale);
+        const transform = d3.zoomIdentity
+          .scale(width / (selection[1] - selection[0]))
+          .translate(-selection[0], 0);
+        this.rectSelection.property('__zoom', transform);
+      }
+    }
   }
 
   componentDidUpdate(prevProps) {
