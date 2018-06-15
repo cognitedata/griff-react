@@ -637,6 +637,33 @@ storiesOf('LineChart', module)
     ))
   )
   .add(
+    'Live loading and ruler',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={liveLoader}
+        baseDomain={liveBaseDomain}
+        updateInterval={33}
+        yAxisWidth={50}
+        series={[
+          { id: 1, color: 'steelblue', name: 'name1' },
+          { id: 2, color: 'maroon', name: 'name2' },
+        ]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          crosshair={false}
+          ruler={{
+            visible: true,
+            yLabel: point =>
+              `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+            xLabel: point =>
+              moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+          }}
+        />
+      </DataProvider>
+    ))
+  )
+  .add(
     'Enable/disable series',
     withInfo()(() => {
       const colors = {
