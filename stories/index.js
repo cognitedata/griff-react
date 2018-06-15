@@ -86,10 +86,6 @@ const customAccessorLoader = ({ baseDomain, oldSeries, reason }) => {
 };
 
 const staticBaseDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
-const subStaticBaseDomain = [
-  Date.now() - 1000 * 60 * 60 * 24 * 20,
-  Date.now() - 1000 * 60 * 60 * 24 * 10,
-];
 const liveBaseDomain = [Date.now() - 1000 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
@@ -193,19 +189,6 @@ storiesOf('LineChart', module)
       }
       return <ResizingChart />;
     })
-  )
-  .add(
-    'Custom subdomain',
-    withInfo()(() => (
-      <DataProvider
-        defaultLoader={staticLoader}
-        baseDomain={staticBaseDomain}
-        subDomain={subStaticBaseDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
-        <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
-    ))
   )
   .add(
     'Custom default accessors',
@@ -562,6 +545,54 @@ storiesOf('LineChart', module)
         }
       }
       return <DynamicBaseDomain />;
+    })
+  )
+  .add(
+    'Dynamic sub domain',
+    withInfo()(() => {
+      const subDomainFirst = [
+        Date.now() - 1000 * 60 * 60 * 24 * 20,
+        Date.now() - 1000 * 60 * 60 * 24 * 10,
+      ];
+
+      const subDomainSecond = [
+        Date.now() - 1000 * 60 * 60 * 24 * 10,
+        Date.now(),
+      ];
+
+      class CustomSubDomain extends React.Component {
+        state = {
+          isFirst: true,
+        };
+
+        render() {
+          return (
+            <React.Fragment>
+              <button
+                onClick={() => this.setState({ isFirst: !this.state.isFirst })}
+              >
+                {this.state.isFirst
+                  ? `Switch subDomain`
+                  : `Switch back subDomain`}
+              </button>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                subDomain={
+                  this.state.isFirst ? subDomainFirst : subDomainSecond
+                }
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart height={CHART_HEIGHT} />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <CustomSubDomain />;
     })
   )
   .add(

@@ -132,7 +132,10 @@ export default class DataProvider extends Component {
     });
 
     // Check if basedomain changed in props -- if so reset state.
-    if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
+    if (
+      !isEqual(this.props.baseDomain, prevProps.baseDomain) ||
+      !isEqual(this.props.subDomain, prevProps.subDomain)
+    ) {
       // eslint-disable-next-line
       this.setState(
         {
