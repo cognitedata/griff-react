@@ -25,6 +25,15 @@ class Scaler extends Component {
     yTransformations: {},
   };
 
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (!isEqual(prevState.subDomain, nextProps.dataContext.subDomain)) {
+      return {
+        subDomain: nextProps.dataContext.subDomain,
+      };
+    }
+    return null;
+  }
+
   componentDidUpdate(prevProps, prevState) {
     // Check every serie if its yDomain changed
     // If so -- update the state

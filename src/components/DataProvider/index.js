@@ -113,6 +113,10 @@ export default class DataProvider extends Component {
     const { series } = this.props;
     const { subDomain, baseDomain } = this.state;
 
+    if (!isEqual(this.props.subDomain, prevProps.subDomain)) {
+      this.subDomainChanged(this.props.subDomain);
+    }
+
     const currentSeriesKeys = {};
     series.forEach(s => {
       currentSeriesKeys[s.id] = true;
@@ -132,10 +136,7 @@ export default class DataProvider extends Component {
     });
 
     // Check if basedomain changed in props -- if so reset state.
-    if (
-      !isEqual(this.props.baseDomain, prevProps.baseDomain) ||
-      !isEqual(this.props.subDomain, prevProps.subDomain)
-    ) {
+    if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
       // eslint-disable-next-line
       this.setState(
         {
