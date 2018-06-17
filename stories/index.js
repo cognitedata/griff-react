@@ -109,6 +109,42 @@ storiesOf('LineChart', module)
     ))
   )
   .add(
+    'Multiple',
+    withInfo()(() => (
+      <React.Fragment>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 1, color: 'steelblue' },
+            { id: 2, color: 'maroon' },
+            { id: 3, color: 'orange' },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 1, color: 'steelblue' },
+            { id: 2, color: 'maroon' },
+            { id: 3, color: 'orange', hidden: true },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      </React.Fragment>
+    ))
+  )
+  .add(
     'Sized',
     withInfo()(() => (
       <div>
