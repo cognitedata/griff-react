@@ -38,9 +38,19 @@ const deleteUndefinedFromObject = obj => {
   return newObject;
 };
 
+// make sure that passed subDomain is part of baseDomain
+const getSubDomain = (baseDomain, subDomain) => {
+  if (!subDomain) {
+    return baseDomain;
+  }
+  const minDomain = Math.max(subDomain[0], baseDomain[0]);
+  const maxDomain = Math.min(subDomain[1], baseDomain[1]);
+  return [minDomain, maxDomain];
+};
+
 export default class DataProvider extends Component {
   state = {
-    subDomain: this.props.baseDomain,
+    subDomain: getSubDomain(this.props.baseDomain, this.props.subDomain),
     baseDomain: this.props.baseDomain,
     loaderConfig: {},
     contextSeries: {},
@@ -103,6 +113,10 @@ export default class DataProvider extends Component {
     const { series } = this.props;
     const { subDomain, baseDomain } = this.state;
 
+    if (!isEqual(this.props.subDomain, prevProps.subDomain)) {
+      this.subDomainChanged(this.props.subDomain);
+    }
+
     const currentSeriesKeys = {};
     series.forEach(s => {
       currentSeriesKeys[s.id] = true;
@@ -127,7 +141,7 @@ export default class DataProvider extends Component {
       this.setState(
         {
           baseDomain: this.props.baseDomain,
-          subDomain: this.props.baseDomain,
+          subDomain: getSubDomain(this.props.baseDomain, this.props.subDomain),
           loaderConfig: {},
           contextSeries: {},
           yDomains: {},
@@ -290,6 +304,7 @@ export default class DataProvider extends Component {
 
 DataProvider.propTypes = {
   baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  subDomain: PropTypes.arrayOf(PropTypes.number),
   updateInterval: PropTypes.number,
   yAccessor: PropTypes.func,
   y0Accessor: PropTypes.func,
@@ -311,4 +326,5 @@ DataProvider.defaultProps = {
   pointsPerSeries: 250,
   yAxisWidth: 50,
   defaultLoader: null,
+  subDomain: null,
 };

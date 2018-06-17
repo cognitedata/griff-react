@@ -548,6 +548,54 @@ storiesOf('LineChart', module)
     })
   )
   .add(
+    'Dynamic sub domain',
+    withInfo()(() => {
+      const subDomainFirst = [
+        Date.now() - 1000 * 60 * 60 * 24 * 20,
+        Date.now() - 1000 * 60 * 60 * 24 * 10,
+      ];
+
+      const subDomainSecond = [
+        Date.now() - 1000 * 60 * 60 * 24 * 10,
+        Date.now(),
+      ];
+
+      class CustomSubDomain extends React.Component {
+        state = {
+          isFirst: true,
+        };
+
+        render() {
+          return (
+            <React.Fragment>
+              <button
+                onClick={() => this.setState({ isFirst: !this.state.isFirst })}
+              >
+                {this.state.isFirst
+                  ? `Switch subDomain`
+                  : `Switch back subDomain`}
+              </button>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                subDomain={
+                  this.state.isFirst ? subDomainFirst : subDomainSecond
+                }
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart height={CHART_HEIGHT} />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <CustomSubDomain />;
+    })
+  )
+  .add(
     'Ruler',
     withInfo()(() => (
       <DataProvider
