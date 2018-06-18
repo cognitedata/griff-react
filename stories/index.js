@@ -1202,12 +1202,7 @@ storiesOf('Scatterplot', module)
         xAccessor={d => +d.x}
         yAccessor={d => +d.y}
       >
-        <Scatterplot
-          height={500}
-          width={500}
-          contextChart={{ visible: false }}
-          zoomable
-        />
+        <Scatterplot height={500} width={500} zoomable />
       </DataProvider>
     ))
   );

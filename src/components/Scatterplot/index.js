@@ -5,12 +5,15 @@ import ScalerContext from '../../context/Scaler';
 import { ScaledPointCollection } from '../PointCollection';
 import InteractionLayer, { ZoomMode } from '../InteractionLayer';
 import { createLinearXScale } from '../../utils/scale-helpers';
+import { seriesPropType } from '../../utils/proptypes';
+import UnifiedAxis from '../UnifedAxis';
 
 const propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   zoomable: PropTypes.bool,
   onClick: PropTypes.func,
+  series: PropTypes.arrayOf(seriesPropType).isRequired,
 };
 
 const defaultProps = {
@@ -18,17 +21,26 @@ const defaultProps = {
   onClick: null,
 };
 
-const ScatterplotComponent = ({ width, height, zoomable, onClick }) => (
-  <svg width={width} height={height}>
-    <ScaledPointCollection height={height} width={width} />
-    <InteractionLayer
-      height={height}
-      width={width}
-      zoomable={zoomable}
-      onClick={onClick}
-      zoomMode={ZoomMode.BOTH}
-    />
-  </svg>
+const ScatterplotComponent = ({ width, height, series, zoomable, onClick }) => (
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: 'auto 1fr',
+      gridTemplateRows: 'auto 1fr',
+    }}
+  >
+    <svg width={width} height={height}>
+      <ScaledPointCollection height={height} width={width} />
+      <InteractionLayer
+        height={height}
+        width={width}
+        zoomable={zoomable}
+        onClick={onClick}
+        zoomMode={ZoomMode.BOTH}
+      />
+    </svg>
+    <UnifiedAxis series={series} height={height} width={100} />
+  </div>
 );
 
 ScatterplotComponent.propTypes = propTypes;
