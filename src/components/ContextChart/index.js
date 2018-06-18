@@ -61,6 +61,7 @@ export default class ContextChart extends Component {
             width={width}
             height={height}
             domain={baseDomain}
+            xScalerFactory={xScalerFactory}
           />
           <Brush
             width={width}
@@ -70,7 +71,12 @@ export default class ContextChart extends Component {
             zoomable={zoomable}
           />
         </svg>
-        <XAxis width={width} height={50} domain={baseDomain} />
+        <XAxis
+          width={width}
+          height={50}
+          domain={baseDomain}
+          xScalerFactory={xScalerFactory}
+        />
       </React.Fragment>
     );
   }

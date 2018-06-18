@@ -214,9 +214,6 @@ class LineChartComponent extends Component {
 LineChartComponent.propTypes = propTypes;
 LineChartComponent.defaultProps = defaultProps;
 
-LineChartComponent.propTypes = propTypes;
-LineChartComponent.defaultProps = defaultProps;
-
 const SizedLineChartComponent = sizeMe()(LineChartComponent);
 
 const LineChart = props => (
