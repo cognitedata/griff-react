@@ -15,6 +15,7 @@ const Line = ({
   hidden,
   drawPoints,
   strokeWidth,
+  clipPath,
 }) => {
   let line;
   let area;
@@ -65,7 +66,7 @@ const Line = ({
       ));
   }
   return (
-    <g clipPath="url(#linechart-clip-path)">
+    <g clipPath={`url(#${clipPath})`}>
       {area && (
         <path
           d={area(data)}
@@ -107,6 +108,7 @@ Line.propTypes = {
   hidden: PropTypes.bool,
   drawPoints: PropTypes.bool,
   strokeWidth: PropTypes.number,
+  clipPath: PropTypes.string.isRequired,
 };
 
 Line.defaultProps = {
