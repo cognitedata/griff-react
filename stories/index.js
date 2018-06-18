@@ -1,5 +1,4 @@
 import React from 'react';
-import * as d3 from 'd3';
 import moment from 'moment';
 import Select from 'react-select';
 import isEqual from 'lodash.isequal';
@@ -1130,51 +1129,58 @@ const mapping = {
   '3 4': { x: 3, y: 4 },
 };
 
-const scatterplotloader = ({ id, ...params }) => {
-  const pair = mapping[id];
-  const { x, y } = {
-    x: staticLoader({
-      id: pair.x,
-      pointsPerSeries: 2,
-      multiplier: 1,
-      ...params,
-    }),
-    y: staticLoader({
-      id: pair.y,
-      pointsPerSeries: 2,
-      multiplier: 1,
-      ...params,
-    }),
-  };
-
-  const data = [];
-  const lastKnown = { x: undefined, y: undefined, z: undefined };
-  while ((x.data.length || y.data.length) && data.length < 10) {
-    const points = {
-      x: x.data.length ? x.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
-      y: y.data.length ? y.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
+const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
+  if (reason === 'MOUNTED') {
+    const pair = mapping[id];
+    const { x, y } = {
+      x: staticLoader({
+        id: pair.x,
+        pointsPerSeries: 2,
+        multiplier: 1,
+        reason,
+        oldSeries,
+        ...params,
+      }),
+      y: staticLoader({
+        id: pair.y,
+        pointsPerSeries: 2,
+        multiplier: 1,
+        reason,
+        oldSeries,
+        ...params,
+      }),
     };
-    if (points.x.timestamp < points.y.timestamp) {
-      const point = x.data.shift();
-      lastKnown.x = point.value;
-      lastKnown.z = point.timestamp;
-    } else {
-      const point = y.data.shift();
-      lastKnown.y = point.value;
-      lastKnown.z = point.timestamp;
-    }
-    if (
-      lastKnown.x !== undefined &&
-      lastKnown.y !== undefined &&
-      lastKnown.z !== undefined
-    ) {
-      data.push({
-        ...lastKnown,
-      });
-    }
-  }
 
-  return { data };
+    const data = [];
+    const lastKnown = { x: undefined, y: undefined, z: undefined };
+    while (x.data.length || y.data.length) {
+      const points = {
+        x: x.data.length ? x.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
+        y: y.data.length ? y.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
+      };
+      if (points.x.timestamp < points.y.timestamp) {
+        const point = x.data.shift();
+        lastKnown.x = point.value;
+        lastKnown.z = point.timestamp;
+      } else {
+        const point = y.data.shift();
+        lastKnown.y = point.value;
+        lastKnown.z = point.timestamp;
+      }
+      if (
+        lastKnown.x !== undefined &&
+        lastKnown.y !== undefined &&
+        lastKnown.z !== undefined
+      ) {
+        data.push({
+          ...lastKnown,
+        });
+      }
+    }
+
+    return { data };
+  }
+  return { data: oldSeries.data };
 };
 
 storiesOf('Scatterplot', module)
