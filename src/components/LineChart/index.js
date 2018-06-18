@@ -39,6 +39,17 @@ const propTypes = {
   onAxisMouseEnter: PropTypes.func,
   onAxisMouseLeave: PropTypes.func,
   areas: PropTypes.arrayOf(areaPropType),
+  /**
+   * Pass in a callback function which will be given a defined area when the
+   * user creates one. See the definition in proptypes.js for a description of
+   * what this object will look like.
+   *
+   * If this is set, then the chart will not have zooming functionality, because
+   * the area definition mechanism (dragging a box with the mouse) conflicts
+   * with the panning gesture. If both pieces of functionality are desired, then
+   * this should only be set conditionally when the area definition
+   * functionality should be enabled.
+   */
   // area => null
   onAreaDefined: PropTypes.func,
   // (area, xpos, ypos) => shouldContinue
