@@ -103,6 +103,9 @@ class InteractionLayer extends React.Component {
     // Look into this.
     if (
       this.props.zoomable !== prevProps.zoomable ||
+      // Since onAreaDefined *also* controls whether zooming is enabled, then
+      // we need to treat changes in this property just like we treat changes
+      // to the zooming state.
       this.props.onAreaDefined !== prevProps.onAreaDefined
     ) {
       this.syncZoomingState();
