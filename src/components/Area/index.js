@@ -1,7 +1,8 @@
 import React from 'react';
-import { areaPropType } from '../../utils/proptypes';
+import PropTypes from 'prop-types';
+import { coordinatePropType } from '../../utils/proptypes';
 
-const Area = ({ start, end, color = '#f00', opacity = 0.25 }) => {
+const Area = ({ start, end, color, opacity }) => {
   if (!start || !end) {
     return null;
   }
@@ -22,9 +23,15 @@ const Area = ({ start, end, color = '#f00', opacity = 0.25 }) => {
 };
 
 Area.propTypes = {
-  ...areaPropType,
+  color: PropTypes.string,
+  start: coordinatePropType.isRequired,
+  end: coordinatePropType.isRequired,
+  opacity: PropTypes.number,
 };
 
-Area.defaultProps = {};
+Area.defaultProps = {
+  color: '#000',
+  opacity: 0.15,
+};
 
 export default Area;
