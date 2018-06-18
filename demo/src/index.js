@@ -63,7 +63,7 @@ class App extends Component {
   render() {
     const { series, baseDomain, zoomable, dataProps, lineProps } = this.state;
     return (
-      <div>
+      <div style={{ height: '100vh' }}>
         <p>
           Edit the window.series, window.dataProps and window.lineProps
           variables and click <button onClick={this.update}>here</button> to
@@ -80,7 +80,6 @@ class App extends Component {
         >
           <LineChart
             crosshair
-            height={500}
             zoomable={zoomable}
             {...lineProps}
           />

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import sizeMe from 'react-sizeme';
 import AxisCollection from '../AxisCollection';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
@@ -18,10 +17,9 @@ import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
 
 const propTypes = {
-  // eslint-disable-next-line react/require-default-props
-  size: PropTypes.shape({ width: PropTypes.number.isRequired }),
+  // eslint-disable-next-line react/require-default-props }),
   width: PropTypes.number,
-  height: PropTypes.number.isRequired,
+  height: PropTypes.number,
   zoomable: PropTypes.bool,
   series: seriesPropType,
   crosshair: PropTypes.bool,
@@ -58,6 +56,7 @@ const defaultProps = {
   },
   yAxisWidth: 50,
   width: 0,
+  height: 0,
   subDomain: [],
   yAxisDisplayMode: AxisDisplayMode.ALL,
   onAxisMouseEnter: null,
@@ -66,6 +65,19 @@ const defaultProps = {
 
 class LineChartComponent extends Component {
   state = {};
+
+  componentWillMount = () => {
+    this.updateDimensions();
+  };
+
+  componentDidMount = () => {
+    window.addEventListener('resize', this.updateDimensions);
+    this.updateDimensions();
+  };
+
+  componentWillUnmount = () => {
+    window.removeEventListener('resize', this.updateDimensions);
+  };
 
   getContextChartHeight = ({ xAxisHeight, height }) => {
     const { contextChart } = this.props;
@@ -103,11 +115,18 @@ class LineChartComponent extends Component {
     return width;
   };
 
+  updateDimensions = () => {
+    const container = document.getElementById('chart-container');
+    this.setState({
+      containerWidth: container && container.clientWidth,
+      containerHeight: container && container.clientHeight,
+    });
+  };
+
   render() {
     const {
-      size: { width: sizeWidth },
       width: propWidth,
-      height,
+      height: propHeight,
       subDomain,
       crosshair,
       onMouseMove,
@@ -122,7 +141,10 @@ class LineChartComponent extends Component {
       ruler,
     } = this.props;
 
-    const width = propWidth || sizeWidth;
+    const { containerWidth = 0, containerHeight = 0 } = this.state;
+
+    const width = propWidth || containerWidth;
+    const height = propHeight || containerHeight;
     const xAxisHeight = 50;
     const axisCollectionSize = {
       width: this.getYAxisCollectionWidth(),
@@ -142,20 +164,40 @@ class LineChartComponent extends Component {
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: `${chartSize.width}px auto`,
+          gridTemplateColumns: '1fr auto',
           gridTemplateRows: '1fr auto',
-          height: `${height}px`,
+          height: '100%',
+          width: '100%',
+        }}
+        id="chart-container"
+        ref={r => {
+          if (r) {
+            if (
+              this.state.containerWidth !== r.clientWidth ||
+              this.state.containerHeight !== r.clientHeight
+            ) {
+              this.setState({
+                containerWidth: r.clientWidth,
+                containerHeight: r.clientHeight,
+              });
+            }
+          }
         }}
       >
-        <div className="lines-container" style={{ height: '100%' }}>
-          <svg width={chartSize.width} height={chartSize.height}>
+        <div
+          className="lines-container"
+          style={{
+            height: '100%',
+          }}
+        >
+          <svg width="100%" height="100%" style={{ display: 'block' }}>
             <ScaledLineCollection
-              height={chartSize.height}
               width={chartSize.width}
+              height={chartSize.height}
             />
             <InteractionLayer
-              height={chartSize.height}
               width={chartSize.width}
+              height={chartSize.height}
               crosshair={crosshair}
               onMouseMove={onMouseMove}
               onClickAnnotation={onClickAnnotation}
@@ -169,7 +211,6 @@ class LineChartComponent extends Component {
         <div
           className="y-axis-container"
           style={{
-            width: `${axisCollectionSize.width}px`,
             display: 'flex',
             flexDirection: 'column',
           }}
@@ -179,7 +220,7 @@ class LineChartComponent extends Component {
             axisDisplayMode={yAxisDisplayMode}
             onMouseEnter={onAxisMouseEnter}
             onMouseLeave={onAxisMouseLeave}
-            height={axisCollectionSize.height}
+            height={chartSize.height}
             width={axisCollectionSize.width}
           />
         </div>
@@ -210,13 +251,11 @@ LineChartComponent.defaultProps = defaultProps;
 LineChartComponent.propTypes = propTypes;
 LineChartComponent.defaultProps = defaultProps;
 
-const SizedLineChartComponent = sizeMe()(LineChartComponent);
-
 const LineChart = props => (
   <Scaler>
     <ScalerContext.Consumer>
       {({ yAxisWidth, series, subDomain }) => (
-        <SizedLineChartComponent
+        <LineChartComponent
           {...props}
           yAxisWidth={yAxisWidth}
           series={series}

@@ -84,9 +84,9 @@ class Brush extends React.Component {
     if (!this.props.zoomable) {
       return;
     }
+    const position = e.nativeEvent.offsetX;
+    const { selection } = this.props;
     if (this.state.isDraggingHandleEast) {
-      const position = e.nativeEvent.offsetX;
-      const { selection } = this.props;
       if (position < selection[0]) {
         this.setState({
           isDraggingHandleEast: false,
@@ -97,8 +97,6 @@ class Brush extends React.Component {
       const newSelection = [selection[0], position];
       this.props.onUpdateSelection(newSelection);
     } else if (this.state.isDraggingHandleWest) {
-      const position = e.nativeEvent.offsetX;
-      const { selection } = this.props;
       if (position > selection[1]) {
         this.setState({
           isDraggingHandleWest: false,
@@ -109,9 +107,8 @@ class Brush extends React.Component {
       const newSelection = [position, selection[1]];
       this.onUpdateSelection(newSelection);
     } else if (this.state.isDraggingSelection) {
-      const { selection, width } = this.props;
+      const { width } = this.props;
       const { dragStartSelection } = this.state;
-      const position = e.nativeEvent.offsetX;
       const dx = position - dragStartSelection;
       const newSelection = selection.map(d => d + dx);
       if (newSelection[0] >= 0 && newSelection[1] <= width) {
