@@ -133,6 +133,13 @@ class InteractionLayer extends React.Component {
         }
       }
     }
+    if (prevProps.onAreaDefined && !this.props.onAreaDefined) {
+      // They no longer care about areas; if we're building one, then remove it.
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({
+        area: null,
+      });
+    }
   }
 
   onMouseDown = e => {
