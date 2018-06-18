@@ -3,15 +3,15 @@ import * as d3 from 'd3';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
-import { singleSeriePropType } from '../../utils/proptypes';
+import { seriesPropType } from '../../utils/proptypes';
 
 const propTypes = {
   zoomable: PropTypes.bool,
-  series: PropTypes.arrayOf(singleSeriePropType).isRequired,
+  series: seriesPropType.isRequired,
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   updateYTransformation: PropTypes.func,
-  yTransformations: PropTypes.arrayOf(
+  yTransformations: PropTypes.objectOf(
     PropTypes.shape({
       y: PropTypes.number.isRequired,
       k: PropTypes.number.isRequired,
@@ -43,15 +43,16 @@ export default class CombinedYAxis extends Component {
       this.syncZoomingState();
     }
     const { yTransformations } = this.props;
-    if (yTransformations) {
+    const firstTransformation = (yTransformations || {})[
+      Object.keys(yTransformations)[0]
+    ];
+    if (firstTransformation) {
       if (
         !isEqual(
           this.getDomain(prevProps.series),
           this.getDomain(this.props.series)
         )
       ) {
-        const firstTransformation =
-          yTransformations[Object.keys(yTransformations)[0]];
         this.selection.property('__zoom', firstTransformation);
       }
     }

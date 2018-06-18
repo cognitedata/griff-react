@@ -13,7 +13,7 @@ const propTypes = {
   height: PropTypes.number.isRequired,
   zoomable: PropTypes.bool,
   onClick: PropTypes.func,
-  series: PropTypes.arrayOf(seriesPropType).isRequired,
+  series: seriesPropType.isRequired,
 };
 
 const defaultProps = {

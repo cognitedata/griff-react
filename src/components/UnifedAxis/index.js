@@ -5,7 +5,7 @@ import CombinedYAxis from './CombinedYAxis';
 import { seriesPropType } from '../../utils/proptypes';
 
 const propTypes = {
-  series: PropTypes.arrayOf(seriesPropType).isRequired,
+  series: seriesPropType.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   updateYTransformation: PropTypes.func.isRequired,
