@@ -11,6 +11,7 @@ import {
   annotationPropType,
   rulerPropType,
   axisDisplayModeType,
+  scalerFactoryFunc,
 } from '../../utils/proptypes';
 import { ScaledLineCollection } from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
@@ -37,6 +38,7 @@ const propTypes = {
   yAxisDisplayMode: axisDisplayModeType,
   onAxisMouseEnter: PropTypes.func,
   onAxisMouseLeave: PropTypes.func,
+  xScalerFactory: scalerFactoryFunc.isRequired,
 };
 
 const defaultProps = {

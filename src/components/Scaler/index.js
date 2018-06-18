@@ -132,7 +132,6 @@ class Scaler extends Component {
   }
 
   updateXTransformation = (xTransformation, width) => {
-    console.log(xTransformation, width);
     const { baseDomain } = this.props.dataContext;
     const { xScalerFactory } = this.props;
     // Get the new rescaled axis

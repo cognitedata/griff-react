@@ -6,28 +6,29 @@ import { ScaledPointCollection } from '../PointCollection';
 import InteractionLayer from '../InteractionLayer';
 import { createLinearXScale } from '../../utils/scale-helpers';
 
-const propTypes = {};
+const propTypes = {
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  zoomable: PropTypes.bool,
+  onClick: PropTypes.func,
+};
 
-const defaultProps = {};
+const defaultProps = {
+  zoomable: true,
+  onClick: null,
+};
 
-class ScatterplotComponent extends React.Component {
-  state = {};
-
-  render() {
-    const { width, height, zoomable, onClick, subDomain } = this.props;
-    return (
-      <svg width={width} height={height}>
-        <ScaledPointCollection height={height} width={width} />
-        <InteractionLayer
-          height={height}
-          width={width}
-          zoomable={zoomable}
-          onClick={onClick}
-        />
-      </svg>
-    );
-  }
-}
+const ScatterplotComponent = ({ width, height, zoomable, onClick }) => (
+  <svg width={width} height={height}>
+    <ScaledPointCollection height={height} width={width} />
+    <InteractionLayer
+      height={height}
+      width={width}
+      zoomable={zoomable}
+      onClick={onClick}
+    />
+  </svg>
+);
 
 ScatterplotComponent.propTypes = propTypes;
 ScatterplotComponent.defaultProps = defaultProps;
