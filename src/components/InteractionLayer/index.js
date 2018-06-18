@@ -262,7 +262,7 @@ class InteractionLayer extends React.Component {
             ypos > Math.min(a.start.ypos, a.end.ypos) &&
             ypos < Math.max(a.start.ypos, a.end.ypos);
           if (x && y) {
-            // Clicked within an annotation
+            // Clicked within an area
             stopNotifying = onAreaClicked(a, xpos, ypos);
             notified = true;
           }
