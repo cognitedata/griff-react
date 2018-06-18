@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import { ScaledPointCollection } from '../PointCollection';
-import InteractionLayer from '../InteractionLayer';
+import InteractionLayer, { ZoomMode } from '../InteractionLayer';
 import { createLinearXScale } from '../../utils/scale-helpers';
 
 const propTypes = {
@@ -26,6 +26,7 @@ const ScatterplotComponent = ({ width, height, zoomable, onClick }) => (
       width={width}
       zoomable={zoomable}
       onClick={onClick}
+      zoomMode={ZoomMode.BOTH}
     />
   </svg>
 );

@@ -12,6 +12,12 @@ import {
 import Annotation from '../Annotation';
 import Ruler from '../Ruler';
 
+export const ZoomMode = {
+  X: 0,
+  Y: 1,
+  BOTH: 2,
+};
+
 class InteractionLayer extends React.Component {
   static propTypes = {
     crosshair: PropTypes.bool,
@@ -31,6 +37,7 @@ class InteractionLayer extends React.Component {
     zoomable: PropTypes.bool,
     // (domain, width) => [number, number]
     xScalerFactory: PropTypes.func.isRequired,
+    zoomMode: PropTypes.oneOf(Object.keys(ZoomMode).map(k => ZoomMode[k])),
   };
 
   static defaultProps = {
@@ -49,6 +56,7 @@ class InteractionLayer extends React.Component {
       xLabel: () => {},
       yLabel: () => {},
     },
+    zoomMode: ZoomMode.X,
   };
 
   state = {
@@ -292,19 +300,25 @@ class InteractionLayer extends React.Component {
   };
 
   zoomed = () => {
-    const { ruler } = this.props;
+    const { ruler, zoomMode } = this.props;
     if (ruler && ruler.visible) {
       this.processMouseMove(this.state.touchX, this.state.touchY);
     }
     const t = d3.event.transform;
-    if (this.props.updateYTransformation) {
+    if (
+      (zoomMode === ZoomMode.X || zoomMode === ZoomMode.BOTH) &&
+      this.props.updateXTransformation
+    ) {
+      this.props.updateXTransformation(t, this.props.width);
+    }
+    if (
+      (zoomMode === ZoomMode.Y || zoomMode === ZoomMode.BOTH) &&
+      this.props.updateYTransformation
+    ) {
       const { series } = this.props;
       series.forEach(s => {
         this.props.updateYTransformation(s.id, t, this.props.height);
       });
-    }
-    if (this.props.updateXTransformation) {
-      this.props.updateXTransformation(t, this.props.width);
     }
   };
 
