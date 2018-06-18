@@ -409,7 +409,7 @@ class InteractionLayer extends React.Component {
   };
 
   render() {
-    const { width, height, crosshair, ruler, series } = this.props;
+    const { width, height, crosshair, ruler, series, subDomain } = this.props;
     const {
       crosshair: { x, y },
       points,
@@ -443,7 +443,7 @@ class InteractionLayer extends React.Component {
     const annotations = this.props.annotations.map(a => (
       <Annotation key={a.id} {...a} height={height} />
     ));
-    const xScale = createXScale(this.props.subDomain, width);
+    const xScale = createXScale(subDomain, width);
     const areas = this.props.areas.map(a => {
       let scaledArea;
       let s = null;
