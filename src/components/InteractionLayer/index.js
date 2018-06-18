@@ -90,7 +90,12 @@ class InteractionLayer extends React.Component {
     const { subDomain: prevSuDomain, ruler, xScalerFactory } = this.props;
     const { subDomain: curSubDomain, width } = nextProps;
     const { touchX, touchY } = this.state;
-    if (ruler && touchX !== null && !isEqual(prevSuDomain, curSubDomain)) {
+    if (
+      ruler &&
+      ruler.visible &&
+      touchX !== null &&
+      !isEqual(prevSuDomain, curSubDomain)
+    ) {
       // keep track on ruler on subdomain update
       const prevXScale = xScalerFactory(prevSuDomain, width);
       const curXScale = xScalerFactory(curSubDomain, width);
@@ -160,7 +165,7 @@ class InteractionLayer extends React.Component {
         },
       });
     }
-    if (onMouseMove || ruler) {
+    if (onMouseMove || (ruler && ruler.visible)) {
       this.processMouseMove(xpos, ypos);
       this.setState({
         touchX: xpos,
@@ -179,7 +184,7 @@ class InteractionLayer extends React.Component {
         },
       });
     }
-    if (ruler) {
+    if (ruler && ruler.visible) {
       this.setState({ points: [] });
     }
     if (onMouseMove) {
@@ -277,7 +282,7 @@ class InteractionLayer extends React.Component {
       }
     });
 
-    if (ruler) {
+    if (ruler && ruler.visible) {
       this.setState({ points: newPoints });
     }
 
@@ -287,7 +292,8 @@ class InteractionLayer extends React.Component {
   };
 
   zoomed = () => {
-    if (this.props.ruler) {
+    const { ruler } = this.props;
+    if (ruler && ruler.visible) {
       this.processMouseMove(this.state.touchX, this.state.touchY);
     }
     const t = d3.event.transform;
