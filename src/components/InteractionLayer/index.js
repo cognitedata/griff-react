@@ -442,14 +442,14 @@ class InteractionLayer extends React.Component {
     ));
     const xScale = createXScale(this.props.subDomain, width);
     const areas = this.props.areas.map(a => {
-      let a1 = a;
+      let scaledArea;
       let s = null;
       if (a.seriesId) {
         s = series.find(s1 => s1.id === a.seriesId);
       }
       if (a.start.xval && a.end.xval) {
         const yScale = createYScale(s.yDomain, height);
-        a1 = {
+        scaledArea = {
           ...a,
           start: {
             ...a.start,
@@ -462,9 +462,18 @@ class InteractionLayer extends React.Component {
             ypos: yScale(a.end.yval),
           },
         };
+      } else {
+        // This area does not need any scaling.
+        scaledArea = a;
       }
-      const color = a1.color || (s ? s.color : null);
-      return <Area key={a1.uuid || a1.seriesId} color={color} {...a1} />;
+      const color = scaledArea.color || (s ? s.color : null);
+      return (
+        <Area
+          key={scaledArea.uuid || scaledArea.seriesId}
+          color={color}
+          {...scaledArea}
+        />
+      );
     });
     const areaBeingDefined = area ? (
       <Area key="user" {...area} color="#999" />
