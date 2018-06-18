@@ -14,6 +14,11 @@ import Annotation from '../Annotation';
 import Ruler from '../Ruler';
 import Area from '../Area';
 
+const MINIMUM_AREA_DIMENSION_PIXELS = 30;
+const isLargeEnough = area =>
+  Math.abs(area.start.xpos - area.end.xpos) > MINIMUM_AREA_DIMENSION_PIXELS ||
+  Math.abs(area.start.ypos - area.end.ypos) > MINIMUM_AREA_DIMENSION_PIXELS;
+
 class InteractionLayer extends React.Component {
   static propTypes = {
     crosshair: PropTypes.bool,
@@ -150,7 +155,7 @@ class InteractionLayer extends React.Component {
     }, 50);
     e.preventDefault();
     const { area } = this.state;
-    if (area.start && area.end) {
+    if (area.start && area.end && isLargeEnough(area)) {
       this.props.onAreaDefined(area);
     }
     this.setState({ area: null });
