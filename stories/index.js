@@ -1205,4 +1205,21 @@ storiesOf('Scatterplot', module)
         <Scatterplot height={500} width={500} zoomable />
       </DataProvider>
     ))
+  )
+  .add(
+    'Scatterplot (stroke width)',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        baseDomain={[0, 1]}
+        series={[
+          { id: '1 2', color: 'steelblue', strokeWidth: 2 },
+          { id: '3 4', color: 'maroon', strokeWidth: 5 },
+        ]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot height={500} width={500} zoomable />
+      </DataProvider>
+    ))
   );
