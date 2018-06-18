@@ -137,11 +137,15 @@ export default class DataProvider extends Component {
 
     // Check if basedomain changed in props -- if so reset state.
     if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
+      const newSubDomain = getSubDomain(
+        this.props.baseDomain,
+        this.props.subDomain
+      );
       // eslint-disable-next-line
       this.setState(
         {
           baseDomain: this.props.baseDomain,
-          subDomain: getSubDomain(this.props.baseDomain, this.props.subDomain),
+          subDomain: newSubDomain,
           loaderConfig: {},
           contextSeries: {},
           yDomains: {},
@@ -152,6 +156,9 @@ export default class DataProvider extends Component {
           );
         }
       );
+      if (this.props.onSubDomainChanged) {
+        this.props.onSubDomainChanged(newSubDomain);
+      }
       if (this.fetchInterval) {
         clearInterval(this.fetchInterval);
       }
@@ -270,6 +277,9 @@ export default class DataProvider extends Component {
         ),
       250
     );
+    if (this.props.onSubDomainChanged) {
+      this.props.onSubDomainChanged(subDomain);
+    }
     this.setState({ subDomain });
   };
 
@@ -315,6 +325,8 @@ DataProvider.propTypes = {
   children: PropTypes.node.isRequired,
   defaultLoader: PropTypes.func,
   series: seriesPropType.isRequired,
+  // (subDomain) => null
+  onSubDomainChanged: PropTypes.func,
 };
 
 DataProvider.defaultProps = {
@@ -327,4 +339,5 @@ DataProvider.defaultProps = {
   yAxisWidth: 50,
   defaultLoader: null,
   subDomain: null,
+  onSubDomainChanged: null,
 };
