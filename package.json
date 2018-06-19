@@ -1,6 +1,6 @@
 {
   "name": "@cognite/griff-react",
-  "version": "0.2.10",
+  "version": "0.2.14",
   "description": "Charting library that relies on React's virtual diffing.",
   "main": "lib/index.js",
   "module": "es/index.js",
