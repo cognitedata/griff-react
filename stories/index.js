@@ -1,752 +1,1474 @@
 import React from 'react';
+import * as d3 from 'd3';
+import moment from 'moment';
+import Select from 'react-select';
+import isEqual from 'lodash.isequal';
+import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
-import { DataProvider, ChartContainer, LineChart, ContextChart } from '../src';
-import moment from 'moment';
-import axios from 'axios';
-import * as d3 from 'd3';
-import { Slider } from 'antd';
-import StaticAxis from './StaticAxis';
-import 'antd/dist/antd.css';
+import { DataProvider, LineChart, Brush, AxisDisplayMode } from '../src';
+import quandlLoader from './quandlLoader';
 
-const randomData = () => {
+const randomData = (baseDomain, n = 250) => {
   const data = [];
-  for (let i = 250; i > 0; i--) {
-    const timestamp = Date.now() - i * 100000000;
+  const dt = (baseDomain[1] - baseDomain[0]) / n;
+  for (let i = baseDomain[0]; i <= baseDomain[1]; i += dt) {
     const value = Math.random();
     data.push({
-      timestamp,
+      timestamp: i,
       value,
     });
   }
   return data;
 };
 
-const baseConfig = {
-  yAxis: {
-    mode: 'every',
-    accessor: d => d.value,
-    width: 50,
-  },
-  xAxis: {
-    accessor: d => d.timestamp,
-    calculateDomain: data => d3.extent(data, d => d.timestamp),
-  },
-  baseDomain: d3.extent(randomData(), d => d.timestamp),
+const staticLoader = ({
+  id,
+  baseDomain,
+  pointsPerSeries,
+  oldSeries,
+  reason,
+}) => {
+  action('LOADER_REQUEST_DATA')(id, reason);
+  if (reason === 'MOUNTED') {
+    // Create dataset on mount
+    return {
+      data: randomData(baseDomain, pointsPerSeries || 250),
+    };
+  }
+  // Otherwise, return the existing dataset.
+  return {
+    data: oldSeries.data,
+  };
 };
 
-storiesOf('DataProvider', module)
+const liveLoader = ({ oldSeries, baseDomain, reason }) => {
+  // action('LOADER_REQUEST_DATA')(id, reason);
+  if (reason === 'MOUNTED') {
+    // Create dataset on mount
+    return {
+      data: randomData(baseDomain, 25),
+    };
+  }
+  if (reason === 'INTERVAL') {
+    let splicingIndex = 0;
+    for (let i = 0; i < oldSeries.data; i += 1) {
+      if (oldSeries.data[i] >= baseDomain[0]) {
+        splicingIndex = i - 1;
+        break;
+      }
+    }
+    return Math.random() < 0.05
+      ? {
+          data: [
+            ...oldSeries.data.slice(splicingIndex),
+            { timestamp: Date.now(), value: Math.random() },
+          ],
+        }
+      : oldSeries;
+  }
+  // Otherwise, return the existing dataset.
+  return {
+    data: oldSeries.data,
+  };
+};
+
+const customAccessorLoader = ({ baseDomain, oldSeries, reason }) => {
+  if (reason === 'MOUNTED') {
+    return {
+      data: randomData(baseDomain).map(d => [d.timestamp, d.value]),
+    };
+  }
+  return {
+    data: oldSeries.data,
+  };
+};
+
+const staticBaseDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
+const liveBaseDomain = [Date.now() - 1000 * 30, Date.now()];
+const CHART_HEIGHT = 500;
+
+/* eslint-disable react/no-multi-comp */
+storiesOf('LineChart', module)
+  .addDecorator(story => (
+    <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
+      {story()}
+    </div>
+  ))
   .add(
-    'with static data',
-    withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
-      return (
-        <DataProvider
-          config={baseConfig}
-          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-          height={500}
-          width={800}
-          loader={loader()}
-          colors={{
-            1: 'red',
-            2: 'green',
-            3: 'blue',
-          }}
-        >
-          <ChartContainer>
-            <LineChart heightPct={1} crosshairs />
-          </ChartContainer>
-        </DataProvider>
-      );
-    })
+    'Basic',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+    ))
   )
   .add(
-    'with static data and custom accessor functions',
-    withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: {
-            data: randomData().map(r => ({
-              timestamp: r.timestamp,
-              y: r.value,
-            })),
-            id: 1,
-            yAccessor: d => d.y,
-            step: true,
-          },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
-      return (
+    'Multiple',
+    withInfo()(() => (
+      <React.Fragment>
         <DataProvider
-          config={baseConfig}
-          margin={{ top: 50, bottom: 10, left: 10, right: 10 }}
-          height={500}
-          width={800}
-          loader={loader()}
-          colors={{
-            1: 'red',
-            2: 'green',
-            3: 'blue',
-          }}
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 1, color: 'steelblue' },
+            { id: 2, color: 'maroon' },
+            { id: 3, color: 'orange' },
+          ]}
         >
-          <ChartContainer>
-            <LineChart
-              heightPct={1}
-              onMouseMove={data => {
-                if (data.points) {
-                  action(JSON.stringify(data.points, null, 2))();
-                }
-              }}
-            />
-          </ChartContainer>
+          <LineChart height={CHART_HEIGHT} />
         </DataProvider>
-      );
-    })
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 1, color: 'steelblue' },
+            { id: 2, color: 'maroon' },
+            { id: 3, color: 'orange', hidden: true },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      </React.Fragment>
+    ))
   )
   .add(
-    'with static data and timeline',
-    withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-        };
-        return () => series;
-      };
-      return (
-        <DataProvider
-          config={baseConfig}
-          margin={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          height={500}
-          width={800}
-          loader={loader()}
-          colors={{
-            1: 'steelblue',
-            2: 'maroon',
+    'Sized',
+    withInfo()(() => (
+      <div>
+        <p>All of the components should be entirely contained in the red box</p>
+        <div
+          style={{
+            width: `${CHART_HEIGHT}px`,
+            height: `${CHART_HEIGHT}px`,
+            border: '2px solid red',
           }}
         >
-          <ChartContainer>
-            <LineChart heightPct={0.8} />
-            <ContextChart heightPct={0.1} margin={{ top: 0.1 }} />
-          </ChartContainer>
-        </DataProvider>
-      );
-    })
+          <DataProvider
+            defaultLoader={staticLoader}
+            baseDomain={staticBaseDomain}
+            series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+          >
+            <LineChart height={CHART_HEIGHT} width={CHART_HEIGHT} />
+          </DataProvider>
+        </div>
+      </div>
+    ))
   )
   .add(
-    'Dynamic data, aggregating oil prices last 10 years.',
+    'Resizing',
     withInfo()(() => {
-      const loader = () => {
-        const formatDate = date => moment(date).format('YYYY-MM-DD');
+      class ResizingChart extends React.Component {
+        state = { width: CHART_HEIGHT, height: CHART_HEIGHT };
 
-        const calculateGranularity = (domain, pps) => {
-          const diff = domain[1] - domain[0];
-
-          if (diff / (1000 * 60 * 60 * 24) < pps) {
-            // Can we show daily
-            return 'daily';
-          } else if (diff / (1000 * 60 * 60 * 24 * 7) < pps) {
-            // Can we show weekly
-            return 'weekly';
-          } else if (diff / (1000 * 60 * 60 * 24 * 30) < pps) {
-            // Can we show monthly
-            return 'monthly';
-          } else if (diff / (1000 * 60 * 60 * 24 * 30 * 3) < pps) {
-            return 'quarterly';
-          }
-          return 'annualy';
-        };
-        let previousGranularity = null;
-        let prevDomain = [-Infinity, Infinity];
-        return async (domain, subDomain, config, oldSeries, reason) => {
-          const granularity = calculateGranularity(
-            subDomain,
-            config.pointsPerSerie
-          );
-          if (
-            granularity === previousGranularity &&
-            subDomain[0] > prevDomain[0] &&
-            subDomain[1] < prevDomain[1] &&
-            reason === 'UPDATE_SUBDOMAIN'
-          ) {
-            action(`Skipped updating subdomain, same granularity.`)();
-            return oldSeries;
-          }
-          action(`Loader requested data. Reason: ${reason}`)(
-            reason,
-            domain,
-            subDomain,
-            granularity
-          );
-          if (reason === 'NEW_LOADER') {
-            return oldSeries;
-          }
-          previousGranularity = granularity;
-          prevDomain = domain;
-          const result = await axios.get(
-            `https://www.quandl.com/api/v3/datasets/OPEC/ORB.json?start_date=${formatDate(
-              subDomain[0]
-            )}&end_date=${formatDate(
-              subDomain[1]
-            )}&order=asc&collapse=${granularity}&api_key=Yztsvxixwuz_NQz-8Ze3`
-          );
-          const { dataset } = result.data;
-          let data = dataset.data.map(d => ({
-            timestamp: +moment(d[0]),
-            value: d[1],
-          }));
-          if (reason === 'UPDATE_SUBDOMAIN') {
-            const oldSerie = oldSeries[1];
-            if (oldSerie && data.length > 0) {
-              const xAccessor = oldSerie.xAccessor || config.xAxis.accessor;
-              const oldData = oldSerie.data;
-              const firstPoint = xAccessor(data[0]);
-              const lastPoint = xAccessor(data[data.length - 1]);
-              let insertionStart = 0;
-              let insertionEnd = data.length - 1;
-
-              for (let idx = 1; idx < oldData.length; idx += 1) {
-                if (xAccessor(oldData[idx]) > firstPoint) {
-                  insertionStart = idx - 1;
-                  break;
-                }
-              }
-              for (let idx = oldData.length - 2; idx > 0; idx -= 1) {
-                if (xAccessor(oldData[idx]) <= lastPoint) {
-                  insertionEnd = idx + 1;
-                  break;
-                }
-              }
-              data = [
-                ...oldData.slice(0, insertionStart),
-                ...data,
-                ...oldData.slice(insertionEnd),
-              ];
-            }
-          }
-          return {
-            1: {
-              id: 1,
-              data,
-              drawPoints: granularity === 'daily',
+        toggleHide = key => {
+          const { hiddenSeries } = this.state;
+          this.setState({
+            hiddenSeries: {
+              ...hiddenSeries,
+              [key]: !hiddenSeries[key],
             },
-          };
-        };
-      };
-      return (
-        <DataProvider
-          config={{
-            ...baseConfig,
-            pointsPerSerie: 100,
-            baseDomain: [+moment().subtract(15, 'year'), +moment()],
-          }}
-          margin={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          height={500}
-          width={800}
-          loader={loader()}
-          colors={{ 1: 'steelblue' }}
-        >
-          <ChartContainer>
-            <LineChart heightPct={0.8} crosshairs={true} />
-            <ContextChart heightPct={0.1} margin={{ top: 0.1 }} />
-          </ChartContainer>
-        </DataProvider>
-      );
-    })
-  )
-  .add(
-    'Static data, timeline, hide/unhide series.',
-    withInfo()(() => {
-      let _loader = tags => {
-        const series = {};
-        tags.forEach(t => {
-          series[t.id] = { ...t, data: randomData() };
-        });
-        return (domain, subDomain, config, oldSeries, reason) => {
-          action(reason)();
-          return series;
-        };
-      };
-      let tags = [
-        {
-          id: 1,
-        },
-        {
-          id: 2,
-        },
-      ];
-      class Wrapper extends React.Component {
-        state = {
-          loader: _loader(tags),
-          tags,
-          hiddenSeries: {},
+          });
         };
 
         render() {
-          const { tags, hiddenSeries, loader } = this.state;
+          const { width, height } = this.state;
+          const nextWidth =
+            width === CHART_HEIGHT ? CHART_HEIGHT * 2 : CHART_HEIGHT;
+          const nextHeight =
+            height === CHART_HEIGHT ? CHART_HEIGHT * 2 : CHART_HEIGHT;
           return (
-            <div>
-              <DataProvider
-                config={baseConfig}
-                margin={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                height={800}
-                width={1200}
-                loader={loader}
-                colors={{
-                  1: 'steelblue',
-                  2: 'maroon',
+            <React.Fragment>
+              <p>
+                All of the components should be entirely contained in the red
+                box
+              </p>
+              <button onClick={() => this.setState({ width: nextWidth })}>
+                change to {nextWidth} pixels wide
+              </button>
+              <button onClick={() => this.setState({ height: nextHeight })}>
+                change to {nextHeight} pixels high
+              </button>
+              <div
+                style={{
+                  width: `${width}px`,
+                  height: `${height}px`,
+                  border: '2px solid red',
                 }}
-                hiddenSeries={hiddenSeries}
               >
-                <ChartContainer>
-                  <LineChart heightPct={0.8} />
-                  <ContextChart heightPct={0.1} margin={{ top: 0.1 }} />
-                </ChartContainer>
-              </DataProvider>
-              {tags.map(t => (
-                <button
-                  key={t.id}
-                  onClick={e => {
-                    this.setState({
-                      hiddenSeries: {
-                        ...hiddenSeries,
-                        [t.id]: !hiddenSeries[t.id],
-                      },
-                    });
-                  }}
+                <DataProvider
+                  defaultLoader={staticLoader}
+                  baseDomain={staticBaseDomain}
+                  series={[
+                    { id: 1, color: 'steelblue' },
+                    { id: 2, color: 'maroon' },
+                  ]}
                 >
-                  {hiddenSeries[t.id] ? 'show' : 'hide'} {t.id}
-                </button>
-              ))}
-            </div>
+                  <LineChart height={height} width={width} />
+                </DataProvider>
+              </div>
+            </React.Fragment>
           );
         }
       }
-      return <Wrapper />;
+      return <ResizingChart />;
+    })
+  )
+  .add(
+    'Custom default accessors',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={customAccessorLoader}
+        xAccessor={d => d[0]}
+        yAccessor={d => d[1]}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'min/max',
+    withInfo()(() => {
+      const y0Accessor = d => d[1] - 0.5;
+      const y1Accessor = d => d[1] + 0.5;
+      return (
+        <DataProvider
+          defaultLoader={customAccessorLoader}
+          xAccessor={d => d[0]}
+          yAccessor={d => d[1]}
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 10, color: 'steelblue', y0Accessor, y1Accessor },
+            { id: 2, color: 'maroon' },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      );
+    })
+  )
+  .add(
+    'min/max (step series)',
+    withInfo()(() => {
+      const y0Accessor = d => d[1] - 0.5;
+      const y1Accessor = d => d[1] + 0.5;
+      return (
+        <DataProvider
+          defaultLoader={customAccessorLoader}
+          baseDomain={staticBaseDomain}
+          xAccessor={d => d[0]}
+          yAccessor={d => d[1]}
+          series={[
+            { id: 10, color: 'steelblue', y0Accessor, y1Accessor, step: true },
+            { id: 2, color: 'maroon', step: true },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      );
+    })
+  )
+  .add(
+    'Loading data from api',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={quandlLoader}
+        baseDomain={[+moment().subtract(10, 'year'), +moment()]}
+        series={[
+          {
+            id: 'COM/COFFEE_BRZL',
+            color: 'steelblue',
+          },
+          {
+            id: 'COM/COFFEE_CLMB',
+            color: 'red',
+          },
+        ]}
+        pointsPerSeries={100}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Hide series',
+    withInfo()(() => {
+      class HiddenSeries extends React.Component {
+        state = { hiddenSeries: {} };
+
+        toggleHide = key => {
+          const { hiddenSeries } = this.state;
+          this.setState({
+            hiddenSeries: {
+              ...hiddenSeries,
+              [key]: !hiddenSeries[key],
+            },
+          });
+        };
+
+        render() {
+          const { hiddenSeries } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  {
+                    id: 1,
+                    color: 'steelblue',
+                    hidden: hiddenSeries[1],
+                  },
+                  {
+                    id: 2,
+                    color: 'maroon',
+                    hidden: hiddenSeries[2],
+                  },
+                ]}
+              >
+                <LineChart height={CHART_HEIGHT} />
+              </DataProvider>
+              <button onClick={() => this.toggleHide(1)}>Hide series 1</button>
+              <button onClick={() => this.toggleHide(2)}>Hide series 2</button>
+            </React.Fragment>
+          );
+        }
+      }
+      return <HiddenSeries />;
+    })
+  )
+  .add(
+    'Specify y domain',
+    withInfo()(() => {
+      const staticDomain = [-2, 2];
+      class SpecifyDomain extends React.Component {
+        state = { yDomains: {} };
+
+        setStaticDomain = key => {
+          const { yDomains } = this.state;
+          if (yDomains[key]) {
+            const newYDomains = { ...yDomains };
+            delete newYDomains[key];
+            this.setState({ yDomains: newYDomains });
+            action(`Removing static domain`)(key);
+            return;
+          }
+          action(`Setting domain to DataProvider`)(key);
+          this.setState({ yDomains: { ...yDomains, [key]: staticDomain } });
+        };
+
+        render() {
+          const { yDomains } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue', yDomain: yDomains[1] },
+                  { id: 2, color: 'maroon', yDomain: yDomains[2] },
+                ]}
+              >
+                <LineChart height={CHART_HEIGHT} />
+              </DataProvider>
+              <button onClick={() => this.setStaticDomain(1)}>
+                Static series 1
+              </button>
+              <button onClick={() => this.setStaticDomain(2)}>
+                Static series 2
+              </button>
+            </React.Fragment>
+          );
+        }
+      }
+      return <SpecifyDomain />;
     })
   )
   .add(
     'Annotations',
     withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
-      const series = loader()()[1];
-      const annotations = [
+      const series = staticLoader({
+        id: 1,
+        reason: 'MOUNTED',
+      }).data;
+      const exampleAnnotations = [
         {
           id: 1,
-          data: [series.data[40].timestamp, series.data[60].timestamp],
-          color: 'steelblue',
+          data: [series[40].timestamp, series[60].timestamp],
+          color: 'black',
         },
       ];
       return (
         <DataProvider
-          config={baseConfig}
-          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-          height={500}
-          width={800}
-          loader={loader()}
-          colors={{ 1: 'red', 2: 'green', 3: 'blue' }}
-          annotations={annotations}
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
         >
-          <ChartContainer>
-            <LineChart
-              heightPct={0.85}
-              crosshairs
-              onClickAnnotation={action('Clicked annotation')}
-            />
-            <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
-          </ChartContainer>
+          <LineChart height={CHART_HEIGHT} annotations={exampleAnnotations} />
         </DataProvider>
       );
     })
   )
   .add(
-    'Line + points',
+    'Click events',
     withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2, drawPoints: true },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
-      const series = loader()()[1];
-      const annotations = [
-        { id: 1, data: [series.data[40].timestamp, series.data[60].timestamp] },
+      const series = staticLoader({
+        id: 1,
+        reason: 'MOUNTED',
+      }).data;
+      const exampleAnnotations = [
+        {
+          id: 1,
+          data: [series[40].timestamp, series[60].timestamp],
+          color: 'black',
+        },
       ];
       return (
         <DataProvider
-          config={baseConfig}
-          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-          height={500}
-          width={800}
-          loader={loader()}
-          colors={{ 1: 'red', 2: 'green', 3: 'blue' }}
-          annotations={annotations}
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
         >
-          <ChartContainer>
-            <LineChart heightPct={0.85} crosshairs />
-            <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
-          </ChartContainer>
+          <LineChart
+            height={CHART_HEIGHT}
+            annotations={exampleAnnotations}
+            onClickAnnotation={annotation => {
+              action('annotation click')(annotation);
+            }}
+            onClick={e => {
+              action('chart click')(e);
+            }}
+          />
         </DataProvider>
       );
     })
   )
   .add(
-    'static data with static axis range',
-    withInfo()(() => {
-      return <StaticAxis />;
-    })
+    'Draw points',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        pointsPerSeries={100}
+        series={[
+          { id: 1, color: 'steelblue' },
+          { id: 2, color: 'maroon', drawPoints: true },
+        ]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+    ))
   )
   .add(
-    'without y-axes',
-    withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
-      const config = {
-        ...baseConfig,
-        yAxis: {
-          ...baseConfig.yAxis,
-          display: 'NONE',
-        },
-      };
-      return (
-        <DataProvider
-          config={config}
-          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-          height={500}
-          width={800}
-          loader={loader()}
-          colors={{
-            1: 'red',
-            2: 'green',
-            3: 'blue',
-          }}
-        >
-          <ChartContainer>
-            <LineChart heightPct={1} crosshairs />
-          </ChartContainer>
-        </DataProvider>
-      );
-    })
+    'Without context chart',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart height={CHART_HEIGHT} contextChart={{ visible: false }} />
+      </DataProvider>
+    ))
   )
   .add(
-    'without zooming',
+    'Non-Zoomable',
     withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
+      class ZoomToggle extends React.Component {
+        state = {
+          zoomable: true,
+          yZoomable: { 1: false, 2: false },
         };
-        return () => series;
-      };
-      const config = {
-        ...baseConfig,
-        zoomable: false,
-      };
-      return (
-        <DataProvider
-          config={config}
-          margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-          height={500}
-          width={800}
-          loader={loader()}
-          colors={{
-            1: 'red',
-            2: 'green',
-            3: 'blue',
-          }}
-        >
-          <ChartContainer>
-            <LineChart heightPct={1} crosshairs />
-          </ChartContainer>
-        </DataProvider>
-      );
-    })
-  )
-  .add(
-    'toggleable zooming',
-    withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
+
+        toggleZoom = id => {
+          action('zoomed')(`${id} - ${!this.state.yZoomable[id]}`);
+          this.setState({
+            yZoomable: {
+              ...this.state.yZoomable,
+              [id]: !this.state.yZoomable[id],
+            },
+          });
         };
-        return () => series;
-      };
-      const config = {
-        ...baseConfig,
-        zoomable: false,
-      };
-      class Wrapper extends React.Component {
-        state = { zoomable: false };
-        render() {
-          const { zoomable } = this.state;
-          const configCopy = {
-            ...config,
-            zoomable: zoomable,
-          };
-          return (
-            <div>
-              <DataProvider
-                config={configCopy}
-                margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-                height={500}
-                width={800}
-                loader={loader()}
-                colors={{
-                  1: 'red',
-                  2: 'green',
-                  3: 'blue',
-                }}
-              >
-                <ChartContainer>
-                  <LineChart heightPct={1} crosshairs />
-                </ChartContainer>
-              </DataProvider>
-              <button onClick={() => this.setState({ zoomable: !zoomable })}>
-                Toggle
-              </button>
-            </div>
-          );
-        }
-      }
-      return <Wrapper />;
-    })
-  )
-  .add(
-    'Toggle time line chart',
-    withInfo()(() => {
-      const loader = () => {
-        const series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        return () => series;
-      };
-      const config = {
-        ...baseConfig,
-      };
-      class Wrapper extends React.Component {
-        state = { showTimeline: true };
 
         render() {
-          const { showTimeline } = this.state;
+          const { zoomable, yZoomable } = this.state;
           return (
-            <div>
+            <React.Fragment>
               <DataProvider
-                config={config}
-                margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-                height={500}
-                width={800}
-                loader={loader()}
-                colors={{
-                  1: 'red',
-                  2: 'green',
-                  3: 'blue',
-                }}
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue', zoomable: yZoomable[1] },
+                  { id: 2, color: 'maroon', zoomable: yZoomable[2] },
+                ]}
               >
-                <ChartContainer>
-                  <LineChart heightPct={showTimeline ? 0.85 : 1} crosshairs />
-                  {showTimeline ? (
-                    <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
-                  ) : null}
-                </ChartContainer>
+                <LineChart height={CHART_HEIGHT} zoomable={zoomable} />
               </DataProvider>
               <button
-                onClick={() => this.setState({ showTimeline: !showTimeline })}
+                onClick={() =>
+                  this.setState({ zoomable: !this.state.zoomable })
+                }
               >
-                Toggle
+                Toggle x zoom [{zoomable ? 'on' : 'off'}]
               </button>
-            </div>
+              <button onClick={() => this.toggleZoom(1)}>
+                Toggle y1 zoom [{yZoomable[1] !== false ? 'on' : 'off'}]
+              </button>
+              <button onClick={() => this.toggleZoom(2)}>
+                Toggle y2 zoom [{yZoomable[2] !== false ? 'on' : 'off'}]
+              </button>
+            </React.Fragment>
           );
         }
       }
-      return <Wrapper />;
+      return <ZoomToggle />;
     })
   )
   .add(
-    'Adjustable line thickness',
+    'Dynamic base domain',
     withInfo()(() => {
-      class Wrapper extends React.Component {
-        series = {
-          1: { data: randomData(), id: 1 },
-          2: { data: randomData(), id: 2 },
-          3: { data: randomData(), id: 3 },
-        };
-        _loader = () => {
-          return () => this.series;
-        };
-        loader = this._loader();
-        config = {
-          ...baseConfig,
+      class DynamicBaseDomain extends React.Component {
+        state = {
+          baseDomain: staticBaseDomain,
         };
 
-        state = { showTimeline: true, strokeWidths: {} };
+        toggleBaseDomain = () => {
+          const { baseDomain } = this.state;
+          const newDomain = isEqual(baseDomain, staticBaseDomain)
+            ? [
+                staticBaseDomain[0] - 100000000 * 50,
+                staticBaseDomain[1] + 100000000 * 50,
+              ]
+            : staticBaseDomain;
+          this.setState({ baseDomain: newDomain });
+        };
 
         render() {
-          const { showTimeline, strokeWidths } = this.state;
+          const { baseDomain } = this.state;
           return (
             <div>
+              <button onClick={this.toggleBaseDomain}>
+                {isEqual(baseDomain, staticBaseDomain)
+                  ? 'Shrink baseDomain'
+                  : 'Reset base domain'}
+              </button>
               <DataProvider
-                config={this.config}
-                margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-                height={500}
-                width={800}
-                loader={this.loader}
-                colors={{
-                  1: 'red',
-                  2: 'green',
-                  3: 'blue',
-                }}
-                strokeWidths={strokeWidths}
+                defaultLoader={staticLoader}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+                baseDomain={baseDomain}
               >
-                <ChartContainer>
-                  <LineChart heightPct={showTimeline ? 0.85 : 1} crosshairs />
-                  <ContextChart heightPct={0.1} margin={{ top: 0.05 }} />
-                </ChartContainer>
+                <LineChart height={CHART_HEIGHT} />
               </DataProvider>
-              {Object.keys(this.series).map((key, index) => (
-                <Slider
-                  key={`slider-${key}`}
-                  value={1}
-                  min={1}
-                  max={10}
-                  step={0.25}
-                  onChange={value => {
-                    const copy = { ...strokeWidths };
-                    copy[key] = value;
-                    this.setState({
-                      strokeWidths: copy,
-                    });
-                  }}
-                  value={strokeWidths[key]}
-                />
-              ))}
             </div>
           );
         }
       }
-      return <Wrapper />;
+      return <DynamicBaseDomain />;
     })
   )
-  .add('Single value', () => {
-    const _loader = () => {
-      const series = {
-        1: {
-          data: randomData().map(r => ({ timestamp: r.timestamp, value: 15 })),
-          step: true,
-        },
-        2: {
-          data: randomData(),
-        },
-      };
-      return () => series;
-    };
-    const loader = _loader();
-    return (
+  .add(
+    'Dynamic sub domain',
+    withInfo()(() => {
+      const subDomainFirst = [
+        Date.now() - 1000 * 60 * 60 * 24 * 20,
+        Date.now() - 1000 * 60 * 60 * 24 * 10,
+      ];
+
+      const subDomainSecond = [
+        Date.now() - 1000 * 60 * 60 * 24 * 10,
+        Date.now(),
+      ];
+
+      class CustomSubDomain extends React.Component {
+        state = {
+          isFirst: true,
+        };
+
+        render() {
+          return (
+            <React.Fragment>
+              <button
+                onClick={() => this.setState({ isFirst: !this.state.isFirst })}
+              >
+                {this.state.isFirst
+                  ? `Switch subDomain`
+                  : `Switch back subDomain`}
+              </button>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                subDomain={
+                  this.state.isFirst ? subDomainFirst : subDomainSecond
+                }
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart height={CHART_HEIGHT} />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <CustomSubDomain />;
+    })
+  )
+  .add(
+    'Live loading',
+    withInfo()(() => (
       <DataProvider
-        config={{ ...baseConfig }}
-        margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-        height={500}
-        width={800}
-        colors={{ 1: 'steelblue', 2: 'red' }}
-        loader={loader}
+        defaultLoader={liveLoader}
+        baseDomain={liveBaseDomain}
+        updateInterval={33}
+        yAxisWidth={50}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
       >
-        <ChartContainer>
-          <LineChart heightPct={1} crosshairs />
-        </ChartContainer>
+        <LineChart height={CHART_HEIGHT} />
       </DataProvider>
-    );
-  })
-  .add('min/max', () => {
-    const min = d => d.value * ((75 + d.timestamp % 10) / 100);
-    const max = d => d.value * ((110 + d.timestamp % 10) / 100);
-    const myloader = () => {
-      const series = {
-        1: {
-          data: randomData().map(r => ({ timestamp: r.timestamp, value: 15 })),
-          step: true,
-          y0Accessor: min,
-          y1Accessor: max,
-        },
-        2: {
-          data: randomData(),
-          y0Accessor: min,
-          y1Accessor: max,
-        },
-      };
-      return () => series;
-    };
-    const loader = myloader();
-    return (
+    ))
+  )
+  .add(
+    'Live loading and ruler',
+    withInfo()(() => (
       <DataProvider
-        config={{ ...baseConfig }}
-        margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-        height={500}
-        width={800}
-        colors={{ 1: 'steelblue', 2: 'red' }}
-        loader={loader}
+        defaultLoader={liveLoader}
+        baseDomain={liveBaseDomain}
+        updateInterval={33}
+        yAxisWidth={50}
+        series={[
+          { id: 1, color: 'steelblue', name: 'name1' },
+          { id: 2, color: 'maroon', name: 'name2' },
+        ]}
       >
-        <ChartContainer>
-          <LineChart heightPct={1} crosshairs />
-        </ChartContainer>
+        <LineChart
+          height={CHART_HEIGHT}
+          crosshair={false}
+          ruler={{
+            visible: true,
+            yLabel: point =>
+              `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+            xLabel: point =>
+              moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+          }}
+        />
       </DataProvider>
-    );
-  })
-  .add('Onclick', () => {
-    const _loader = () => {
-      const series = {
-        1: {
-          data: randomData().map(r => ({ timestamp: r.timestamp, value: 15 })),
-          step: true,
-        },
-        2: {
-          data: randomData(),
-        },
+    ))
+  )
+  .add(
+    'Enable/disable series',
+    withInfo()(() => {
+      const colors = {
+        'COM/COFFEE_BRZL': 'steelblue',
+        'COM/COFFEE_CLMB': 'maroon',
       };
-      return () => series;
-    };
-    const loader = _loader();
-    return (
+      const options = [
+        { value: 'COM/COFFEE_BRZL', label: 'Brazil coffe price' },
+        { value: 'COM/COFFEE_CLMB', label: 'Columbia coffe price' },
+      ];
+
+      const baseDomain = [+moment().subtract(10, 'year'), +moment()];
+
+      // eslint-disable-next-line
+      class EnableDisableSeries extends React.Component {
+        state = {
+          series: options,
+        };
+
+        onChangeSeries = series => this.setState({ series });
+
+        render() {
+          const { series } = this.state;
+          return (
+            <React.Fragment>
+              <Select
+                multi
+                value={series}
+                options={options}
+                onChange={this.onChangeSeries}
+                style={{ marginBottom: '15px' }}
+              />
+              <DataProvider
+                defaultLoader={quandlLoader}
+                pointsPerSeries={100}
+                baseDomain={baseDomain}
+                series={series.map(s => ({
+                  id: s.value,
+                  color: colors[s.value],
+                }))}
+              >
+                <LineChart height={CHART_HEIGHT} />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <EnableDisableSeries />;
+    })
+  )
+  .add(
+    'Custom context brush',
+    withInfo()(() => {
+      const width = 600;
+      const height = 50;
+      // eslint-disable-next-line
+      class BrushComponent extends React.Component {
+        state = {
+          selection: [0, width],
+        };
+
+        onUpdateSelection = selection => {
+          this.setState({
+            selection,
+          });
+        };
+
+        render() {
+          const { selection } = this.state;
+          return (
+            <div>
+              <svg width={width} height={height} stroke="#777">
+                <Brush
+                  height={height}
+                  width={width}
+                  selection={selection}
+                  onUpdateSelection={this.onUpdateSelection}
+                />
+              </svg>
+              <p>width: {width}</p>
+              <p>
+                selection: [{selection[0]}, {selection[1]}]
+              </p>
+            </div>
+          );
+        }
+      }
+      return <BrushComponent />;
+    })
+  );
+
+storiesOf('Y-Axis Modes', module)
+  .addDecorator(story => (
+    <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
+      {story()}
+    </div>
+  ))
+  .add(
+    'Without y axis',
+    withInfo()(() => (
       <DataProvider
-        config={{ ...baseConfig }}
-        margin={{ top: 50, bottom: 10, left: 20, right: 10 }}
-        height={500}
-        width={800}
-        colors={{ 1: 'steelblue', 2: 'red' }}
-        loader={loader}
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
       >
-        <ChartContainer>
-          <LineChart heightPct={1} crosshairs onClick={action('Clicked')} />
-        </ChartContainer>
+        <LineChart
+          height={CHART_HEIGHT}
+          yAxisDisplayMode={AxisDisplayMode.NONE}
+        />
       </DataProvider>
-    );
-  });
+    ))
+  )
+  .add(
+    'Collapsed y axis',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+        />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Some hidden',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class SomeCollapsed extends React.Component {
+        state = {
+          yAxisDisplayMode: AxisDisplayMode.ALL,
+        };
+
+        render() {
+          const { yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  {
+                    id: 1,
+                    color: 'steelblue',
+                    yAxisDisplayMode: AxisDisplayMode.NONE,
+                  },
+                  {
+                    id: 2,
+                    color: 'maroon',
+                  },
+                  {
+                    id: 3,
+                    color: 'orange',
+                    yAxisDisplayMode: AxisDisplayMode.NONE,
+                  },
+                  { id: 4, color: 'green' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                />
+              </DataProvider>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.ALL,
+                  })
+                }
+              >
+                ALL
+              </button>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.NONE,
+                  })
+                }
+              >
+                NONE
+              </button>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+                  })
+                }
+              >
+                COLLAPSED
+              </button>
+            </React.Fragment>
+          );
+        }
+      }
+      return <SomeCollapsed />;
+    })
+  )
+  .add(
+    'Some collapsed',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class SomeCollapsed extends React.Component {
+        state = {
+          yAxisDisplayMode: AxisDisplayMode.ALL,
+        };
+
+        render() {
+          const { yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  {
+                    id: 1,
+                    color: 'steelblue',
+                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+                  },
+                  {
+                    id: 2,
+                    color: 'maroon',
+                  },
+                  {
+                    id: 3,
+                    color: 'orange',
+                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+                  },
+                  { id: 4, color: 'green' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <SomeCollapsed />;
+    })
+  )
+  .add(
+    'Some collapsed (until hover)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class SomeCollapsed extends React.Component {
+        state = {
+          yAxisDisplayMode: AxisDisplayMode.ALL,
+          series: [
+            {
+              id: 1,
+              color: 'steelblue',
+              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+            },
+            {
+              id: 2,
+              color: 'maroon',
+            },
+            {
+              id: 3,
+              color: 'orange',
+              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+            },
+            { id: 4, color: 'green' },
+          ],
+        };
+
+        toggleAxisMode = () => {
+          const series = this.state.series.map(s => {
+            let yAxisDisplayMode;
+            if (s.id === 1 || s.id === 3) {
+              if (!s.yAxisDisplayMode) {
+                yAxisDisplayMode = AxisDisplayMode.COLLAPSED;
+              }
+            }
+            return {
+              ...s,
+              yAxisDisplayMode,
+            };
+          });
+          this.setState({
+            series,
+          });
+        };
+
+        render() {
+          const { series, yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={series}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                  onAxisMouseEnter={this.toggleAxisMode}
+                  onAxisMouseLeave={this.toggleAxisMode}
+                />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <SomeCollapsed />;
+    })
+  )
+  .add(
+    'AxisCollection modes (button)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class ExpandCollapse extends React.Component {
+        state = {
+          yAxisDisplayMode: AxisDisplayMode.ALL,
+        };
+
+        render() {
+          const { yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                />
+              </DataProvider>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.ALL,
+                  })
+                }
+              >
+                ALL
+              </button>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.NONE,
+                  })
+                }
+              >
+                NONE
+              </button>
+              <button
+                onClick={() =>
+                  this.setState({
+                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+                  })
+                }
+              >
+                COLLAPSED
+              </button>
+            </React.Fragment>
+          );
+        }
+      }
+      return <ExpandCollapse />;
+    })
+  )
+  .add(
+    'AxisCollection modes (hover)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class ExpandCollapse extends React.Component {
+        state = {
+          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+        };
+
+        toggleAxisMode = () => {
+          this.setState({
+            yAxisDisplayMode:
+              this.state.yAxisDisplayMode === AxisDisplayMode.ALL
+                ? AxisDisplayMode.COLLAPSED
+                : AxisDisplayMode.ALL,
+          });
+        };
+
+        render() {
+          const { yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                  onAxisMouseEnter={this.toggleAxisMode}
+                  onAxisMouseLeave={this.toggleAxisMode}
+                />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <ExpandCollapse />;
+    })
+  );
+
+storiesOf('InteractionLayer', module)
+  .add(
+    'Ruler',
+    withInfo()(() => (
+      <DataProvider
+        baseDomain={staticBaseDomain}
+        defaultLoader={staticLoader}
+        xAccessor={d => d.timestamp}
+        yAccessor={d => d.value}
+        series={[
+          { id: 1, color: 'steelblue', name: 'name1' },
+          { id: 2, color: 'maroon', name: 'name2' },
+        ]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          crosshair={false}
+          ruler={{
+            visible: true,
+            yLabel: point =>
+              `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+            xLabel: point =>
+              moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+          }}
+        />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Area (no zoom)',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          onAreaDefined={area => {
+            action('Area defined')(area);
+          }}
+        />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Area (zoom)',
+    withInfo()(() => {
+      class ZoomByArea extends React.Component {
+        state = { subDomain: null };
+
+        onAreaDefined = area => {
+          const { start, end } = area;
+          const subDomain = [
+            start.points[0].timestamp,
+            end.points[0].timestamp,
+          ];
+          this.setState({
+            subDomain,
+          });
+          action('New subdomain')(subDomain);
+        };
+
+        render() {
+          const { subDomain } = this.state;
+          return (
+            <DataProvider
+              defaultLoader={staticLoader}
+              baseDomain={staticBaseDomain}
+              subDomain={subDomain}
+              series={[
+                { id: 1, color: 'steelblue' },
+                { id: 2, color: 'maroon' },
+              ]}
+            >
+              <LineChart
+                height={CHART_HEIGHT}
+                onAreaDefined={this.onAreaDefined}
+              />
+            </DataProvider>
+          );
+        }
+      }
+      return <ZoomByArea />;
+    })
+  )
+  .add(
+    'Area (hold shift to enable)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnDemandArea extends React.Component {
+        state = { enableArea: false };
+
+        componentDidMount() {
+          d3.select('body').on('keydown', this.onKeyDown);
+          d3.select('body').on('keyup', this.onKeyUp);
+        }
+
+        onAreaDefined = area => {
+          action('Area defined')(area);
+        };
+
+        onKeyDown = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: true });
+          }
+        };
+
+        onKeyUp = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: false });
+          }
+        };
+
+        render() {
+          const { enableArea } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  onAreaDefined={enableArea ? this.onAreaDefined : null}
+                />
+              </DataProvider>
+              (You might need to click here first)
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnDemandArea />;
+    })
+  )
+  .add(
+    'Persistent fixed area (hold shift to enable)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnDemandArea extends React.Component {
+        state = { enableArea: false, area: undefined };
+
+        componentDidMount() {
+          d3.select('body').on('keydown', this.onKeyDown);
+          d3.select('body').on('keyup', this.onKeyUp);
+        }
+
+        onAreaDefined = area => {
+          this.setState({
+            area,
+          });
+        };
+
+        onKeyDown = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: true });
+          }
+        };
+
+        onKeyUp = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: false });
+          }
+        };
+
+        render() {
+          const { enableArea, area } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  areas={area ? [area] : []}
+                  onAreaDefined={enableArea ? this.onAreaDefined : null}
+                />
+              </DataProvider>
+              (You might need to click here first)
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnDemandArea />;
+    })
+  )
+  .add(
+    'Persistent fixed areas (click to remove)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnDemandArea extends React.Component {
+        state = { areas: [] };
+
+        onAreaDefined = area => {
+          const { areas } = this.state;
+          this.setState({
+            areas: [...areas, area],
+          });
+        };
+
+        onAreaClicked = (area, xpos, ypos) => {
+          action('Area clicked')(area, xpos, ypos);
+          this.setState({
+            areas: this.state.areas.filter(a => a.id !== area.id),
+          });
+          return true;
+        };
+
+        render() {
+          const { areas } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  areas={areas}
+                  onAreaDefined={this.onAreaDefined}
+                  onAreaClicked={this.onAreaClicked}
+                />
+              </DataProvider>
+              (You might need to click here first)
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnDemandArea />;
+    })
+  )
+  .add(
+    'Persistent fixed areas (click outside to clear)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnDemandArea extends React.Component {
+        state = { areas: [] };
+
+        onAreaDefined = area => {
+          const { areas } = this.state;
+          this.setState({
+            areas: [...areas, area],
+          });
+        };
+
+        onAreaClicked = (area, xpos, ypos) => {
+          action('Area clicked')(area, xpos, ypos);
+        };
+
+        onChartClicked = () => {
+          this.setState({
+            areas: [],
+          });
+        };
+
+        render() {
+          const { areas } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  areas={areas}
+                  onAreaDefined={this.onAreaDefined}
+                  onAreaClicked={this.onAreaClicked}
+                  onClick={this.onChartClicked}
+                />
+              </DataProvider>
+              (You might need to click here first)
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnDemandArea />;
+    })
+  )
+  .add(
+    'Persistent series area (hold shift to enable)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnDemandArea extends React.Component {
+        state = { enableArea: false, areas: [] };
+
+        componentDidMount() {
+          d3.select('body').on('keydown', this.onKeyDown);
+          d3.select('body').on('keyup', this.onKeyUp);
+        }
+
+        onAreaDefined = area => {
+          const newAreas = [...this.state.areas];
+          for (let i = 0; i < area.start.points.length; i += 1) {
+            const newArea = {
+              seriesId: area.start.points[i].id,
+              start: {
+                ...area.start,
+                xval: area.start.points[i].timestamp,
+                yval: area.start.points[i].value,
+              },
+              end: {
+                ...area.end,
+                xval: area.end.points[i].timestamp,
+                yval: area.end.points[i].value,
+              },
+            };
+            newAreas.push(newArea);
+          }
+          this.setState({
+            areas: newAreas,
+          });
+        };
+
+        onKeyDown = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: true });
+          }
+        };
+
+        onKeyUp = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: false });
+          }
+        };
+
+        render() {
+          const { enableArea, areas } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  areas={areas}
+                  onAreaDefined={enableArea ? this.onAreaDefined : null}
+                />
+              </DataProvider>
+              (You might need to click here first)
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnDemandArea />;
+    })
+  );

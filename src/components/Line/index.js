@@ -15,27 +15,36 @@ const Line = ({
   hidden,
   drawPoints,
   strokeWidth,
+  clipPath,
 }) => {
   let line;
+  let area;
   if (step) {
     line = d3
       .line()
       .curve(d3.curveStepAfter)
       .x(d => xScale(xAccessor(d)))
       .y(d => yScale(yAccessor(d)));
+    if (y0Accessor && y1Accessor) {
+      area = d3
+        .area()
+        .curve(d3.curveStepAfter)
+        .x(d => xScale(xAccessor(d)))
+        .y0(d => yScale(y0Accessor(d)))
+        .y1(d => yScale(y1Accessor(d)));
+    }
   } else {
     line = d3
       .line()
       .x(d => xScale(xAccessor(d)))
       .y(d => yScale(yAccessor(d)));
-  }
-  let area = null;
-  if (y0Accessor && y1Accessor) {
-    area = d3
-      .area()
-      .x(d => xScale(xAccessor(d)))
-      .y0(d => yScale(y0Accessor(d)))
-      .y1(d => yScale(y1Accessor(d)));
+    if (y0Accessor && y1Accessor) {
+      area = d3
+        .area()
+        .x(d => xScale(xAccessor(d)))
+        .y0(d => yScale(y0Accessor(d)))
+        .y1(d => yScale(y1Accessor(d)));
+    }
   }
   let circles = null;
   if (drawPoints) {
@@ -57,7 +66,7 @@ const Line = ({
       ));
   }
   return (
-    <g clipPath="url(#linechart-clip-path)">
+    <g clipPath={`url(#${clipPath})`}>
       {area && (
         <path
           d={area(data)}
@@ -87,16 +96,19 @@ const Line = ({
 Line.propTypes = {
   xScale: PropTypes.func.isRequired,
   yScale: PropTypes.func.isRequired,
+  // eslint-disable-next-line
   data: PropTypes.array.isRequired,
+  // Data can take any form as long as the xAccessor and yAccessors are set.
   xAccessor: PropTypes.func.isRequired,
   yAccessor: PropTypes.func.isRequired,
-  y0Accessor: PropTypes.func.isRequired,
-  y1Accessor: PropTypes.func.isRequired,
+  y0Accessor: PropTypes.func,
+  y1Accessor: PropTypes.func,
   color: PropTypes.string.isRequired,
   step: PropTypes.bool,
   hidden: PropTypes.bool,
   drawPoints: PropTypes.bool,
   strokeWidth: PropTypes.number,
+  clipPath: PropTypes.string.isRequired,
 };
 
 Line.defaultProps = {
@@ -104,6 +116,8 @@ Line.defaultProps = {
   hidden: false,
   drawPoints: false,
   strokeWidth: 1,
+  y0Accessor: null,
+  y1Accessor: null,
 };
 
 export default Line;
