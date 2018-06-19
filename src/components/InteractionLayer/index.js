@@ -98,6 +98,37 @@ class InteractionLayer extends React.Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    const { subDomain: prevSuDomain, ruler } = this.props;
+    const { subDomain: curSubDomain, width } = nextProps;
+    const { touchX, touchY } = this.state;
+    if (
+      ruler &&
+      ruler.visible &&
+      touchX !== null &&
+      !isEqual(prevSuDomain, curSubDomain)
+    ) {
+      // keep track on ruler on subdomain update
+      const prevXScale = createXScale(prevSuDomain, width);
+      const curXScale = createXScale(curSubDomain, width);
+      const ts = prevXScale.invert(touchX).getTime();
+      const newXPos = curXScale(ts);
+      // hide ruler if point went out to the left of subdomain
+      if (newXPos < 0) {
+        this.setState({
+          points: [],
+          touchX: null,
+          touchY: null,
+        });
+      } else {
+        this.setState({
+          touchX: newXPos,
+        });
+        this.processMouseMove(newXPos, touchY);
+      }
+    }
+  }
+
   componentDidUpdate(prevProps) {
     // This is only updating internals -- but could still slow down performance.
     // Look into this.
@@ -188,7 +219,7 @@ class InteractionLayer extends React.Component {
     }
 
     const { area } = this.state;
-    if (onMouseMove || ruler || area) {
+    if (onMouseMove || (ruler && ruler.visible) || area) {
       this.processMouseMove(xpos, ypos);
       this.setState({
         touchX: xpos,
@@ -211,7 +242,7 @@ class InteractionLayer extends React.Component {
         },
       });
     }
-    if (ruler) {
+    if (ruler && ruler.visible) {
       this.setState({ points: [] });
     }
     if (onMouseMove) {
@@ -380,7 +411,7 @@ class InteractionLayer extends React.Component {
       }
     });
 
-    if (ruler) {
+    if (ruler && ruler.visible) {
       this.setState({ points: newPoints });
     }
 
@@ -401,7 +432,8 @@ class InteractionLayer extends React.Component {
   };
 
   zoomed = () => {
-    if (this.props.ruler) {
+    const { ruler } = this.props;
+    if (ruler && ruler.visible) {
       this.processMouseMove(this.state.touchX, this.state.touchY);
     }
     const t = d3.event.transform;

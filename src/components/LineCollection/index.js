@@ -8,13 +8,25 @@ import Line from '../Line';
 const LineCollection = props => {
   const { series, width, height, domain } = props;
   const xScale = createXScale(domain, width);
+  const clipPath = `clip-path-${series
+    .filter(s => !s.hidden)
+    .map(s => s.id)
+    .join('-')}`;
   const lines = series.filter(s => !s.hidden).map(s => {
     const yScale = createYScale(s.yDomain, height);
-    return <Line key={s.id} {...s} xScale={xScale} yScale={yScale} />;
+    return (
+      <Line
+        key={s.id}
+        {...s}
+        xScale={xScale}
+        yScale={yScale}
+        clipPath={clipPath}
+      />
+    );
   });
   return (
     <g width={width} height={height}>
-      <clipPath id="linechart-clip-path">
+      <clipPath id={clipPath}>
         <rect width={width} height={height} fill="none" />
       </clipPath>
       {lines}

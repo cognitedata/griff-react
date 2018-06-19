@@ -109,6 +109,42 @@ storiesOf('LineChart', module)
     ))
   )
   .add(
+    'Multiple',
+    withInfo()(() => (
+      <React.Fragment>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 1, color: 'steelblue' },
+            { id: 2, color: 'maroon' },
+            { id: 3, color: 'orange' },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 1, color: 'steelblue' },
+            { id: 2, color: 'maroon' },
+            { id: 3, color: 'orange', hidden: true },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      </React.Fragment>
+    ))
+  )
+  .add(
     'Sized',
     withInfo()(() => (
       <div>
@@ -606,6 +642,33 @@ storiesOf('LineChart', module)
         series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
       >
         <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Live loading and ruler',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={liveLoader}
+        baseDomain={liveBaseDomain}
+        updateInterval={33}
+        yAxisWidth={50}
+        series={[
+          { id: 1, color: 'steelblue', name: 'name1' },
+          { id: 2, color: 'maroon', name: 'name2' },
+        ]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          crosshair={false}
+          ruler={{
+            visible: true,
+            yLabel: point =>
+              `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+            xLabel: point =>
+              moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+          }}
+        />
       </DataProvider>
     ))
   )
