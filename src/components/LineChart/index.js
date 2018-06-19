@@ -6,6 +6,7 @@ import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import { ScaledContextChart } from '../ContextChart';
 import {
+  areaPropType,
   contextChartPropType,
   seriesPropType,
   annotationPropType,
@@ -37,6 +38,22 @@ const propTypes = {
   yAxisDisplayMode: axisDisplayModeType,
   onAxisMouseEnter: PropTypes.func,
   onAxisMouseLeave: PropTypes.func,
+  areas: PropTypes.arrayOf(areaPropType),
+  /**
+   * Pass in a callback function which will be given a defined area when the
+   * user creates one. See the definition in proptypes.js for a description of
+   * what this object will look like.
+   *
+   * If this is set, then the chart will not have zooming functionality, because
+   * the area definition mechanism (dragging a box with the mouse) conflicts
+   * with the panning gesture. If both pieces of functionality are desired, then
+   * this should only be set conditionally when the area definition
+   * functionality should be enabled.
+   */
+  // area => null
+  onAreaDefined: PropTypes.func,
+  // (area, xpos, ypos) => shouldContinue
+  onAreaClicked: PropTypes.func,
 };
 
 const defaultProps = {
@@ -62,6 +79,9 @@ const defaultProps = {
   yAxisDisplayMode: AxisDisplayMode.ALL,
   onAxisMouseEnter: null,
   onAxisMouseLeave: null,
+  areas: [],
+  onAreaDefined: null,
+  onAreaClicked: null,
 };
 
 class LineChartComponent extends Component {
@@ -120,6 +140,9 @@ class LineChartComponent extends Component {
       contextChart,
       annotations,
       ruler,
+      areas,
+      onAreaDefined,
+      onAreaClicked,
     } = this.props;
 
     const width = propWidth || sizeWidth;
@@ -163,6 +186,9 @@ class LineChartComponent extends Component {
               ruler={ruler}
               annotations={annotations}
               onClick={onClick}
+              areas={areas}
+              onAreaDefined={onAreaDefined}
+              onAreaClicked={onAreaClicked}
             />
           </svg>
         </div>
@@ -204,6 +230,9 @@ class LineChartComponent extends Component {
     );
   }
 }
+LineChartComponent.propTypes = propTypes;
+LineChartComponent.defaultProps = defaultProps;
+
 LineChartComponent.propTypes = propTypes;
 LineChartComponent.defaultProps = defaultProps;
 
