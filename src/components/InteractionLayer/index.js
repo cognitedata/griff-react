@@ -177,27 +177,30 @@ class InteractionLayer extends React.Component {
   }
 
   onMouseDown = e => {
-    e.preventDefault();
-    this.mouseDown = true;
-    const xpos = e.nativeEvent.offsetX;
-    const ypos = e.nativeEvent.offsetY;
-    this.setState({
-      area: {
-        id: Date.now(),
-        start: this.getDataForCoordinate(xpos, ypos, true),
-      },
-    });
+    if (this.props.onAreaDefined) {
+      this.mouseDown = true;
+      const xpos = e.nativeEvent.offsetX;
+      const ypos = e.nativeEvent.offsetY;
+      this.setState({
+        area: {
+          id: Date.now(),
+          start: this.getDataForCoordinate(xpos, ypos, true),
+        },
+      });
+    }
   };
 
-  onMouseUp = e => {
+  onMouseUp = () => {
+    const { onAreaDefined } = this.props;
     setTimeout(() => {
       this.mouseUp = false;
       this.dragging = false;
     }, 50);
-    e.preventDefault();
-    const { area } = this.state;
-    if (area.start && area.end && isLargeEnough(area)) {
-      this.props.onAreaDefined(area);
+    if (onAreaDefined) {
+      const { area } = this.state;
+      if (area.start && area.end && isLargeEnough(area)) {
+        onAreaDefined(area);
+      }
     }
     this.setState({ area: null });
   };
