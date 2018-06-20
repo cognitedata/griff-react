@@ -23,33 +23,32 @@ const Line = ({
   // There's no point in drawing pixels more than 30k pixels outside of the range
   // so this hack will work for a while.
   // Without this, when zoomed far enough in the line will disappear.
-  const boundedSeries = d =>
-    Math.min(Math.max(xScale(xAccessor(d)), -30000), 30000);
+  const boundedSeries = value => Math.min(Math.max(value, -30000), 30000);
   if (step) {
     line = d3
       .line()
       .curve(d3.curveStepAfter)
-      .x(boundedSeries)
-      .y(d => yScale(yAccessor(d)));
+      .x(d => boundedSeries(xScale(xAccessor(d))))
+      .y(d => boundedSeries(yScale(yAccessor(d))));
     if (y0Accessor && y1Accessor) {
       area = d3
         .area()
         .curve(d3.curveStepAfter)
-        .x(boundedSeries)
-        .y0(d => yScale(y0Accessor(d)))
-        .y1(d => yScale(y1Accessor(d)));
+        .x(d => boundedSeries(xScale(xAccessor(d))))
+        .y0(d => boundedSeries(yScale(y0Accessor(d))))
+        .y1(d => boundedSeries(yScale(y1Accessor(d))));
     }
   } else {
     line = d3
       .line()
-      .x(boundedSeries)
-      .y(d => yScale(yAccessor(d)));
+      .x(d => boundedSeries(xScale(xAccessor(d))))
+      .y(d => boundedSeries(yScale(yAccessor(d))));
     if (y0Accessor && y1Accessor) {
       area = d3
         .area()
-        .x(boundedSeries)
-        .y0(d => yScale(y0Accessor(d)))
-        .y1(d => yScale(y1Accessor(d)));
+        .x(d => boundedSeries(xScale(xAccessor(d))))
+        .y0(d => boundedSeries(yScale(y0Accessor(d))))
+        .y1(d => boundedSeries(yScale(y1Accessor(d))));
     }
   }
   let circles = null;
@@ -66,7 +65,7 @@ const Line = ({
           className="line-circle"
           r={3}
           cx={xScale(xAccessor(d))}
-          cy={yScale(yAccessor(d))}
+          cy={boundedSeries(yScale(yAccessor(d)))}
           fill={color}
         />
       ));
