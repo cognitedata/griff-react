@@ -771,6 +771,47 @@ storiesOf('Y-Axis Modes', module)
     </div>
   ))
   .add(
+    'Mouse events',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class MouseEvents extends React.Component {
+        state = {
+          series: [
+            { id: 1, color: 'steelblue' },
+            { id: 2, color: 'maroon' },
+            { id: 3, color: 'orange' },
+            { id: 4, color: 'green' },
+          ],
+        };
+
+        mouseEvent = (e, seriesId) => {
+          action('Axis mouse event')(e.type, seriesId);
+        };
+
+        render() {
+          const { series, yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={series}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                  onAxisMouseEnter={this.mouseEvent}
+                  onAxisMouseLeave={this.mouseEvent}
+                />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <MouseEvents />;
+    })
+  )
+  .add(
     'Without y axis',
     withInfo()(() => (
       <DataProvider
@@ -822,10 +863,7 @@ storiesOf('Y-Axis Modes', module)
                     color: 'steelblue',
                     yAxisDisplayMode: AxisDisplayMode.NONE,
                   },
-                  {
-                    id: 2,
-                    color: 'maroon',
-                  },
+                  { id: 2, color: 'maroon' },
                   {
                     id: 3,
                     color: 'orange',
@@ -895,10 +933,7 @@ storiesOf('Y-Axis Modes', module)
                     color: 'steelblue',
                     yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
                   },
-                  {
-                    id: 2,
-                    color: 'maroon',
-                  },
+                  { id: 2, color: 'maroon' },
                   {
                     id: 3,
                     color: 'orange',
@@ -932,10 +967,7 @@ storiesOf('Y-Axis Modes', module)
               color: 'steelblue',
               yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
             },
-            {
-              id: 2,
-              color: 'maroon',
-            },
+            { id: 2, color: 'maroon' },
             {
               id: 3,
               color: 'orange',
@@ -945,22 +977,34 @@ storiesOf('Y-Axis Modes', module)
           ],
         };
 
-        toggleAxisMode = () => {
-          const series = this.state.series.map(s => {
-            let yAxisDisplayMode;
-            if (s.id === 1 || s.id === 3) {
-              if (!s.yAxisDisplayMode) {
-                yAxisDisplayMode = AxisDisplayMode.COLLAPSED;
-              }
-            }
-            return {
+        expandAll = (e, seriesId) => {
+          if (seriesId === 'collapsed') {
+            const series = this.state.series.map(s => ({
               ...s,
-              yAxisDisplayMode,
-            };
-          });
-          this.setState({
-            series,
-          });
+              yAxisDisplayMode: AxisDisplayMode.ALL,
+            }));
+            this.setState({
+              series,
+            });
+          }
+          if (this.collapseTimer) {
+            clearTimeout(this.collapseTimer);
+          }
+        };
+
+        collapseSome = () => {
+          this.collapseTimer = setTimeout(() => {
+            const series = this.state.series.map(s => ({
+              ...s,
+              yAxisDisplayMode:
+                s.id === 1 || s.id === 3
+                  ? AxisDisplayMode.COLLAPSED
+                  : AxisDisplayMode.ALL,
+            }));
+            this.setState({
+              series,
+            });
+          }, 50);
         };
 
         render() {
@@ -975,8 +1019,8 @@ storiesOf('Y-Axis Modes', module)
                 <LineChart
                   height={CHART_HEIGHT}
                   yAxisDisplayMode={yAxisDisplayMode}
-                  onAxisMouseEnter={this.toggleAxisMode}
-                  onAxisMouseLeave={this.toggleAxisMode}
+                  onAxisMouseEnter={this.expandAll}
+                  onAxisMouseLeave={this.collapseSome}
                 />
               </DataProvider>
             </React.Fragment>
@@ -1055,13 +1099,21 @@ storiesOf('Y-Axis Modes', module)
           yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
         };
 
-        toggleAxisMode = () => {
+        expand = () => {
           this.setState({
-            yAxisDisplayMode:
-              this.state.yAxisDisplayMode === AxisDisplayMode.ALL
-                ? AxisDisplayMode.COLLAPSED
-                : AxisDisplayMode.ALL,
+            yAxisDisplayMode: AxisDisplayMode.ALL,
           });
+          if (this.collapseTimer) {
+            clearTimeout(this.collapseTimer);
+          }
+        };
+
+        collapse = () => {
+          this.collapseTimer = setTimeout(() => {
+            this.setState({
+              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+            });
+          }, 50);
         };
 
         render() {
@@ -1079,8 +1131,8 @@ storiesOf('Y-Axis Modes', module)
                 <LineChart
                   height={CHART_HEIGHT}
                   yAxisDisplayMode={yAxisDisplayMode}
-                  onAxisMouseEnter={this.toggleAxisMode}
-                  onAxisMouseLeave={this.toggleAxisMode}
+                  onAxisMouseEnter={this.expand}
+                  onAxisMouseLeave={this.collapse}
                 />
               </DataProvider>
             </React.Fragment>

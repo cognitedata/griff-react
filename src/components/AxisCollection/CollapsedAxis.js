@@ -23,6 +23,8 @@ export default class CollapsedAxis extends Component {
       rescaleY: PropTypes.func.isRequired,
     }),
     color: PropTypes.string,
+    onMouseEnter: PropTypes.func,
+    onMouseLeave: PropTypes.func,
   };
 
   static defaultProps = {
@@ -32,6 +34,8 @@ export default class CollapsedAxis extends Component {
     yTransformation: null,
     color: '#666',
     offsetx: 0,
+    onMouseEnter: null,
+    onMouseLeave: null,
   };
 
   componentWillMount() {
@@ -87,7 +91,7 @@ export default class CollapsedAxis extends Component {
   }
 
   renderAxis() {
-    const { color, height } = this.props;
+    const { color, height, onMouseEnter, onMouseLeave } = this.props;
     const scale = createYScale([0, 100], height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
@@ -100,7 +104,7 @@ export default class CollapsedAxis extends Component {
     const k = 2.5;
     const range = scale.range().map(r => r + halfStrokeWidth);
     const pathString = [
-      `M${k * tickSizeOuter},${range[0]}`,
+      `M${k * tickSizeOuter},${range[0] - strokeWidth}`,
       `H${halfStrokeWidth}`,
       `V${range[1]}`,
       `H${k * tickSizeOuter}`,
@@ -112,6 +116,8 @@ export default class CollapsedAxis extends Component {
         fontSize={tickFontSize}
         textAnchor="start"
         strokeWidth={strokeWidth}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
         <path stroke={color} d={pathString} />
         {values.map(v => {
