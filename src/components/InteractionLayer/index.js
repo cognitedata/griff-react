@@ -472,10 +472,10 @@ class InteractionLayer extends React.Component {
         </React.Fragment>
       );
     }
-    const annotations = this.props.annotations.map(a => (
-      <Annotation key={a.id} {...a} height={height} />
-    ));
     const xScale = createXScale(subDomain, width);
+    const annotations = this.props.annotations.map(a => (
+      <Annotation key={a.id} {...a} height={height} xScale={xScale} />
+    ));
     const areas = this.props.areas.map(a => {
       let scaledArea;
       let s = null;
