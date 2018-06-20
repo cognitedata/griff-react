@@ -37,6 +37,7 @@ podTemplate(
                   mountPath: '/npm-credentials',
                   readOnly: true),
   ]) {
+    properties([buildDiscarder(logRotator(daysToKeepStr: '30', numToKeepStr: '20'))])
     node(label) {
     def gitCommit
     stage('Checkout code') {
