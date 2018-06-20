@@ -192,17 +192,17 @@ class InteractionLayer extends React.Component {
 
   onMouseUp = () => {
     const { onAreaDefined } = this.props;
+    setTimeout(() => {
+      this.mouseUp = false;
+      this.dragging = false;
+    }, 50);
     if (onAreaDefined) {
-      setTimeout(() => {
-        this.mouseUp = false;
-        this.dragging = false;
-      }, 50);
       const { area } = this.state;
       if (area.start && area.end && isLargeEnough(area)) {
         onAreaDefined(area);
       }
-      this.setState({ area: null });
     }
+    this.setState({ area: null });
   };
 
   onMouseMove = e => {
