@@ -26,9 +26,12 @@ class Scaler extends Component {
   };
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    if (!isEqual(prevState.subDomain, nextProps.dataContext.subDomain)) {
+    if (
+      nextProps.dataContext.externalSubDomain &&
+      !isEqual(prevState.subDomain, nextProps.dataContext.externalSubDomain)
+    ) {
       return {
-        subDomain: nextProps.dataContext.subDomain,
+        subDomain: nextProps.dataContext.externalSubDomain,
       };
     }
     return null;
