@@ -19,29 +19,35 @@ const Line = ({
 }) => {
   let line;
   let area;
+  // HTML has an issue with drawing points somewhere in the 30-35M range.
+  // There's no point in drawing pixels more than 30k pixels outside of the range
+  // so this hack will work for a while.
+  // Without this, when zoomed far enough in the line will disappear.
+  const boundedSeries = d =>
+    Math.min(Math.max(xScale(xAccessor(d)), -30000), 30000);
   if (step) {
     line = d3
       .line()
       .curve(d3.curveStepAfter)
-      .x(d => xScale(xAccessor(d)))
+      .x(boundedSeries)
       .y(d => yScale(yAccessor(d)));
     if (y0Accessor && y1Accessor) {
       area = d3
         .area()
         .curve(d3.curveStepAfter)
-        .x(d => xScale(xAccessor(d)))
+        .x(boundedSeries)
         .y0(d => yScale(y0Accessor(d)))
         .y1(d => yScale(y1Accessor(d)));
     }
   } else {
     line = d3
       .line()
-      .x(d => xScale(xAccessor(d)))
+      .x(boundedSeries)
       .y(d => yScale(yAccessor(d)));
     if (y0Accessor && y1Accessor) {
       area = d3
         .area()
-        .x(d => xScale(xAccessor(d)))
+        .x(boundedSeries)
         .y0(d => yScale(y0Accessor(d)))
         .y1(d => yScale(y1Accessor(d)));
     }
