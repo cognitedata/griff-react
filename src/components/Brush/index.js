@@ -14,11 +14,11 @@ const propTypes = {
 };
 
 const defaultProps = {
-  handleColor: '#2362c6',
+  handleColor: '#333',
   selectionColor: 'none',
   outsideColor: '#777',
   zoomable: true,
-  handleWidth: 4,
+  handleWidth: 2,
 };
 
 class Brush extends React.Component {
@@ -157,15 +157,16 @@ class Brush extends React.Component {
     const {
       width,
       height,
+      selection,
       selectionColor,
       outsideColor,
       handleColor,
       zoomable,
       handleWidth,
     } = this.props;
-    const { selection } = this.props;
     const selectionWidth = selection[1] - selection[0];
     const disabledCursor = zoomable ? null : 'inherit';
+    const handleTargetWidth = 10;
     return (
       <g fill="none" stoke="#777" onMouseMove={this.onMouseMove}>
         <rect
@@ -214,24 +215,38 @@ class Brush extends React.Component {
           y={0}
           onMouseDown={this.onMouseDownSelection}
         />
-        <rect
+        <path
           className="handle handle--west"
-          cursor={disabledCursor || 'ew-resize'}
-          x={selection[0] - handleWidth / 2}
-          y={0}
-          width={handleWidth}
-          height={height}
-          fill={handleColor}
-          onMouseDown={this.onMouseDownHandleWest}
+          stroke={handleColor}
+          strokeWidth={handleWidth}
+          d={`M ${selection[0]} 0 V ${height}`}
         />
         <rect
-          className="handle handle--east"
+          className="handle-target handle-target--west"
           cursor={disabledCursor || 'ew-resize'}
-          x={selection[1] - handleWidth / 2}
+          x={selection[0] - handleTargetWidth / 2}
           y={0}
-          width={handleWidth}
+          width={handleTargetWidth}
           height={height}
-          fill={handleColor}
+          fill="none"
+          pointerEvents="all"
+          onMouseDown={this.onMouseDownHandleWest}
+        />
+        <path
+          className="handle handle--east"
+          stroke={handleColor}
+          strokeWidth={handleWidth}
+          d={`M ${selection[1]} 0 V ${height}`}
+        />
+        <rect
+          className="handle-target handle-target--east"
+          cursor={disabledCursor || 'ew-resize'}
+          x={selection[1] - handleTargetWidth / 2}
+          y={0}
+          width={handleTargetWidth}
+          height={height}
+          fill="none"
+          pointerEvents="all"
           onMouseDown={this.onMouseDownHandleEast}
         />
       </g>
