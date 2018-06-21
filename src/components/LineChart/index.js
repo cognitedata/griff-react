@@ -36,7 +36,9 @@ const propTypes = {
   ruler: rulerPropType,
   annotations: PropTypes.arrayOf(annotationPropType),
   yAxisDisplayMode: axisDisplayModeType,
+  // (e, seriesId) => null
   onAxisMouseEnter: PropTypes.func,
+  // (e, seriesId) => null
   onAxisMouseLeave: PropTypes.func,
   areas: PropTypes.arrayOf(areaPropType),
   /**
