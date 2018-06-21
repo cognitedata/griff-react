@@ -120,7 +120,11 @@ class InteractionLayer extends React.Component {
           touchX: null,
           touchY: null,
         });
-      } else {
+      } else if (
+        // ruler should follow points during live loading
+        // except when the chart is dragging firing touchmove event
+        (((d3 || {}).event || {}).sourceEvent || {}).type !== 'touchmove'
+      ) {
         this.setState(
           {
             touchX: newXPos,
