@@ -121,10 +121,12 @@ class InteractionLayer extends React.Component {
           touchY: null,
         });
       } else {
-        this.setState({
-          touchX: newXPos,
-        });
-        this.processMouseMove(newXPos, touchY);
+        this.setState(
+          {
+            touchX: newXPos,
+          },
+          () => this.processMouseMove(newXPos, touchY)
+        );
       }
     }
   }
