@@ -1,6 +1,26 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+const propTypes = {
+  handleColor: PropTypes.string,
+  height: PropTypes.number.isRequired,
+  onUpdateSelection: PropTypes.func.isRequired,
+  selection: PropTypes.arrayOf(PropTypes.number).isRequired,
+  selectionColor: PropTypes.string,
+  outsideColor: PropTypes.string,
+  width: PropTypes.number.isRequired,
+  handleWidth: PropTypes.number,
+  zoomable: PropTypes.bool,
+};
+
+const defaultProps = {
+  handleColor: '#333',
+  selectionColor: 'none',
+  outsideColor: '#777',
+  zoomable: true,
+  handleWidth: 2,
+};
+
 class Brush extends React.Component {
   state = {
     dragStartOverlay: null,
@@ -134,18 +154,50 @@ class Brush extends React.Component {
   };
 
   render() {
-    const { width, height, selectionColor, handleColor, zoomable } = this.props;
-    const { selection } = this.props;
+    const {
+      width,
+      height,
+      selection,
+      selectionColor,
+      outsideColor,
+      handleColor,
+      zoomable,
+      handleWidth,
+    } = this.props;
     const selectionWidth = selection[1] - selection[0];
     const disabledCursor = zoomable ? null : 'inherit';
+    const handleTargetWidth = 10;
     return (
       <g fill="none" stoke="#777" onMouseMove={this.onMouseMove}>
+        <rect
+          className="before-selection"
+          fill={outsideColor}
+          fillOpacity={0.3}
+          stroke="#fff"
+          shapeRendering="crispEdges"
+          width={Math.max(0, selection[0])}
+          height={height}
+          x={0}
+          y={0}
+        />
+        <rect
+          className="after-selection"
+          fill={outsideColor}
+          fillOpacity={0.3}
+          stroke="#fff"
+          shapeRendering="crispEdges"
+          width={Math.max(0, width - selection[1])}
+          height={height}
+          x={selection[1]}
+          y={0}
+        />
         <rect
           className="overlay"
           pointerEvents="all"
           cursor={disabledCursor || 'crosshair'}
           x={0}
           y={0}
+          fill="none"
           width={width}
           height={height}
           onMouseDown={this.onMouseDownOverlay}
@@ -155,7 +207,7 @@ class Brush extends React.Component {
           cursor={disabledCursor || 'move'}
           fill={selectionColor}
           fillOpacity={0.3}
-          stroke="#fff"
+          pointerEvents="all"
           shapeRendering="crispEdges"
           width={selectionWidth}
           height={height}
@@ -163,24 +215,38 @@ class Brush extends React.Component {
           y={0}
           onMouseDown={this.onMouseDownSelection}
         />
-        <rect
+        <path
           className="handle handle--west"
-          cursor={disabledCursor || 'ew-resize'}
-          x={selection[0] - 3}
-          y={0}
-          width={6}
-          height={height}
-          fill={handleColor}
-          onMouseDown={this.onMouseDownHandleWest}
+          stroke={handleColor}
+          strokeWidth={handleWidth}
+          d={`M ${selection[0]} 0 V ${height}`}
         />
         <rect
-          className="handle handle--east"
+          className="handle-target handle-target--west"
           cursor={disabledCursor || 'ew-resize'}
-          x={selection[1] - 3}
+          x={selection[0] - handleTargetWidth / 2}
           y={0}
-          width={6}
+          width={handleTargetWidth}
           height={height}
-          fill={handleColor}
+          fill="none"
+          pointerEvents="all"
+          onMouseDown={this.onMouseDownHandleWest}
+        />
+        <path
+          className="handle handle--east"
+          stroke={handleColor}
+          strokeWidth={handleWidth}
+          d={`M ${selection[1]} 0 V ${height}`}
+        />
+        <rect
+          className="handle-target handle-target--east"
+          cursor={disabledCursor || 'ew-resize'}
+          x={selection[1] - handleTargetWidth / 2}
+          y={0}
+          width={handleTargetWidth}
+          height={height}
+          fill="none"
+          pointerEvents="all"
           onMouseDown={this.onMouseDownHandleEast}
         />
       </g>
@@ -188,20 +254,7 @@ class Brush extends React.Component {
   }
 }
 
-Brush.propTypes = {
-  handleColor: PropTypes.string,
-  height: PropTypes.number.isRequired,
-  onUpdateSelection: PropTypes.func.isRequired,
-  selection: PropTypes.arrayOf(PropTypes.number).isRequired,
-  selectionColor: PropTypes.string,
-  width: PropTypes.number.isRequired,
-  zoomable: PropTypes.bool,
-};
-
-Brush.defaultProps = {
-  handleColor: 'blue',
-  selectionColor: '#777',
-  zoomable: true,
-};
+Brush.propTypes = propTypes;
+Brush.defaultProps = defaultProps;
 
 export default Brush;

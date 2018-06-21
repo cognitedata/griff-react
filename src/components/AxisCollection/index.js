@@ -36,9 +36,11 @@ const defaultProps = {
 };
 
 class AxisCollection extends React.Component {
-  onAxisMouseEnter = seriesId => e => this.props.onMouseEnter(e, seriesId);
+  onAxisMouseEnter = seriesId =>
+    this.props.onMouseEnter ? e => this.props.onMouseEnter(e, seriesId) : null;
 
-  onAxisMouseLeave = seriesId => e => this.props.onMouseLeave(e, seriesId);
+  onAxisMouseLeave = seriesId =>
+    this.props.onMouseLeave ? e => this.props.onMouseLeave(e, seriesId) : null;
 
   axisFilter = mode => s =>
     !s.hidden && (s.yAxisDisplayMode || this.props.axisDisplayMode) === mode;
