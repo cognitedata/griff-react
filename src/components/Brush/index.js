@@ -175,7 +175,7 @@ class Brush extends React.Component {
           fillOpacity={0.3}
           stroke="#fff"
           shapeRendering="crispEdges"
-          width={selection[0]}
+          width={Math.max(0, selection[0])}
           height={height}
           x={0}
           y={0}
@@ -186,7 +186,7 @@ class Brush extends React.Component {
           fillOpacity={0.3}
           stroke="#fff"
           shapeRendering="crispEdges"
-          width={width - selection[1]}
+          width={Math.max(0, width - selection[1])}
           height={height}
           x={selection[1]}
           y={0}
