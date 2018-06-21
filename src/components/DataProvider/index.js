@@ -285,7 +285,12 @@ export default class DataProvider extends Component {
 
   render() {
     const { loaderConfig, contextSeries, baseDomain, subDomain } = this.state;
-    const { yAxisWidth, children, baseDomain: externalBaseDomain } = this.props;
+    const {
+      yAxisWidth,
+      children,
+      baseDomain: externalBaseDomain,
+      subDomain: externalSubDomain,
+    } = this.props;
     if (Object.keys(loaderConfig).length === 0) {
       // Do not bother, loader hasn't given any data yet.
       return null;
@@ -297,6 +302,8 @@ export default class DataProvider extends Component {
       // This is used to signal external changes vs internal changes
       externalBaseDomain,
       subDomain,
+      // This is used to signal external changes vs internal changes
+      externalSubDomain,
       yAxisWidth,
       subDomainChanged: this.subDomainChanged,
       contextSeries: seriesObjects.map(s => ({
