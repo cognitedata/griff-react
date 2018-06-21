@@ -13,6 +13,7 @@ class Scaler extends Component {
     dataContext: PropTypes.shape({
       baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
       subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+      externalSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
       subDomainChanged: PropTypes.func.isRequired,
       series: seriesPropType.isRequired,
     }).isRequired,
@@ -24,18 +25,6 @@ class Scaler extends Component {
       this.props.dataContext.subDomain || this.props.dataContext.baseDomain,
     yTransformations: {},
   };
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (
-      nextProps.dataContext.externalSubDomain &&
-      !isEqual(prevState.subDomain, nextProps.dataContext.externalSubDomain)
-    ) {
-      return {
-        subDomain: nextProps.dataContext.externalSubDomain,
-      };
-    }
-    return null;
-  }
 
   componentDidUpdate(prevProps, prevState) {
     // Check every serie if its yDomain changed
@@ -52,6 +41,17 @@ class Scaler extends Component {
         domainUpdate[s.id] = yDomains[s.id];
       }
     });
+    if (
+      !isEqual(
+        prevProps.dataContext.externalSubDomain,
+        this.props.dataContext.externalSubDomain
+      )
+    ) {
+      // eslint-disable-next-line
+      this.setState({
+        subDomain: this.props.dataContext.externalSubDomain,
+      });
+    }
     if (
       Object.keys(domainUpdate).length ||
       Object.keys(transformUpdate).length
