@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import AxisDisplayMode from '../components/LineChart/AxisDisplayMode';
 
 export const singleSeriePropType = PropTypes.shape({
   id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
@@ -14,7 +13,11 @@ export const singleSeriePropType = PropTypes.shape({
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,
   yDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
-  yAxisDisplayMode: PropTypes.shape(AxisDisplayMode),
+  yAxisDisplayMode: PropTypes.shape({
+    // See AxisDisplayMode
+    id: PropTypes.string.isRequired,
+    width: PropTypes.func.isRequired,
+  }),
 });
 
 export const seriesPropType = PropTypes.arrayOf(singleSeriePropType);
