@@ -13,7 +13,7 @@ class Scaler extends Component {
     dataContext: PropTypes.shape({
       baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
       subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-      externalSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+      externalSubDomain: PropTypes.arrayOf(PropTypes.number),
       subDomainChanged: PropTypes.func.isRequired,
       series: seriesPropType.isRequired,
     }).isRequired,
