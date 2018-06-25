@@ -1,7 +1,9 @@
 import PropTypes from 'prop-types';
 
+const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
+
 export const singleSeriePropType = PropTypes.shape({
-  id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  id: idPropType.isRequired,
   color: PropTypes.string,
   hidden: PropTypes.bool,
   strokeWidth: PropTypes.number,
@@ -34,7 +36,7 @@ export const annotationShape = {
 export const annotationPropType = PropTypes.shape(annotationShape);
 
 export const pointPropType = PropTypes.shape({
-  id: PropTypes.number,
+  id: idPropType,
   name: PropTypes.string,
   color: PropTypes.string,
   timestamp: PropTypes.number,
@@ -66,7 +68,7 @@ export const coordinatePropType = PropTypes.shape({
 });
 
 export const areaPropType = PropTypes.shape({
-  id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  id: idPropType,
   color: PropTypes.string,
   start: coordinatePropType.isRequired,
   end: coordinatePropType,

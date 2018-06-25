@@ -25,13 +25,14 @@ const Area = ({ start, end, color, opacity }) => {
 Area.propTypes = {
   color: PropTypes.string,
   start: coordinatePropType.isRequired,
-  end: coordinatePropType.isRequired,
+  end: coordinatePropType,
   opacity: PropTypes.number,
 };
 
 Area.defaultProps = {
   color: '#000',
   opacity: 0.15,
+  end: { xpos: 0, ypos: 0 },
 };
 
 export default Area;
