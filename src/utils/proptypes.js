@@ -69,5 +69,5 @@ export const areaPropType = PropTypes.shape({
   id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   color: PropTypes.string,
   start: coordinatePropType.isRequired,
-  end: coordinatePropType.isRequired,
+  end: coordinatePropType,
 });

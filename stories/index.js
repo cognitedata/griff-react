@@ -1523,4 +1523,60 @@ storiesOf('InteractionLayer', module)
       }
       return <OnDemandArea />;
     })
+  )
+  .add(
+    'Regression: onMouseUp',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnMouseUp extends React.Component {
+        state = { onAreaDefined: null };
+
+        componentDidMount() {
+          window.setInterval(this.toggleOnAreaDefined, 1000);
+        }
+
+        toggleOnAreaDefined = () => {
+          this.setState({
+            onAreaDefined: this.state.onAreaDefined ? null : console.log,
+          });
+        };
+
+        render() {
+          const { onAreaDefined } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  onAreaDefined={onAreaDefined}
+                />
+              </DataProvider>
+              onAreaDefined={onAreaDefined ? 'function' : 'null'}
+              <h2>Test</h2>
+              <ol>
+                <li>
+                  Press and hold when <strong>onAreaDefined</strong> says{' '}
+                  <strong>function</strong>
+                </li>
+                <li>
+                  Continue holding when it switches to <strong>null</strong>
+                </li>
+                <li>
+                  Release when it says <strong>function</strong> again
+                </li>
+                <li>Check that there are no errors in the console</li>
+              </ol>
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnMouseUp />;
+    })
   );

@@ -204,7 +204,7 @@ class InteractionLayer extends React.Component {
     }, 50);
     if (onAreaDefined) {
       const { area } = this.state;
-      if (area.start && area.end && isLargeEnough(area)) {
+      if (area && area.start && area.end && isLargeEnough(area)) {
         onAreaDefined(area);
       }
     }
