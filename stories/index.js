@@ -10,17 +10,28 @@ import { withInfo } from '@storybook/addon-info';
 import { DataProvider, LineChart, Brush, AxisDisplayMode } from '../src';
 import quandlLoader from './quandlLoader';
 
-const randomData = (baseDomain, n = 250) => {
+const randomData = (baseDomain, n = 250, singleValue = undefined) => {
   const data = [];
   const dt = (baseDomain[1] - baseDomain[0]) / n;
   for (let i = baseDomain[0]; i <= baseDomain[1]; i += dt) {
-    const value = Math.random();
+    const value = singleValue === undefined ? Math.random() : singleValue;
     data.push({
       timestamp: i,
       value,
     });
   }
   return data;
+};
+
+const monoLoader = singleValue => ({ baseDomain, oldSeries, reason }) => {
+  if (reason === 'MOUNTED') {
+    return {
+      data: randomData(baseDomain, 250, singleValue),
+    };
+  }
+  return {
+    data: oldSeries.data,
+  };
 };
 
 const staticLoader = ({
@@ -138,6 +149,23 @@ storiesOf('LineChart', module)
           defaultLoader={staticLoader}
           baseDomain={staticBaseDomain}
           series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      </React.Fragment>
+    ))
+  )
+  .add(
+    'Single-value in y axis',
+    withInfo()(() => (
+      <React.Fragment>
+        <DataProvider
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 1, color: 'steelblue', loader: monoLoader(0) },
+            { id: 2, color: 'maroon', loader: monoLoader(0.5) },
+            { id: 3, color: 'orange', loader: monoLoader(-0.5) },
+          ]}
         >
           <LineChart height={CHART_HEIGHT} />
         </DataProvider>
@@ -689,7 +717,7 @@ storiesOf('LineChart', module)
       // eslint-disable-next-line
       class EnableDisableSeries extends React.Component {
         state = {
-          series: options,
+          series: [options[0]],
         };
 
         onChangeSeries = series => this.setState({ series });

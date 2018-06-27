@@ -20,7 +20,15 @@ const calculateDomainFromData = (
   }
   const diff = extent[1] - extent[0];
   if (Math.abs(diff) < 1e-3) {
-    return [(1 / 2) * extent[0], (3 / 2) * extent[0]];
+    if (extent[0] === 0) {
+      // If 0 is the only value present in the series, hard code domain.
+      return [-0.25, 0.25];
+    }
+    const domain = [(1 / 2) * extent[0], (3 / 2) * extent[0]];
+    if (domain[1] < domain[0]) {
+      return [domain[1], domain[0]];
+    }
+    return domain;
   }
   return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
 };
