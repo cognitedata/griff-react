@@ -108,8 +108,10 @@ export default class DataProvider extends Component {
     // run the fetchData lifecycle for those series
     const { updateInterval } = this.props;
     const { updateInterval: prevUpdateInterval } = prevProps;
-    if (prevUpdateInterval && updateInterval !== prevUpdateInterval) {
-      clearInterval(this.fetchInterval);
+    if (updateInterval !== prevUpdateInterval) {
+      if (prevUpdateInterval) {
+        clearInterval(this.fetchInterval);
+      }
       if (updateInterval) {
         this.startUpdateInterval();
       }
