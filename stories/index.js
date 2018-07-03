@@ -16,17 +16,11 @@ import {
 } from '../src';
 import quandlLoader from './quandlLoader';
 
-const randomData = ({
-  baseDomain,
-  n = 250,
-  singleValue = undefined,
-  multiplier = 1,
-}) => {
+const randomData = ({ baseDomain, n = 250, singleValue = undefined }) => {
   const data = [];
   const dt = (baseDomain[1] - baseDomain[0]) / n;
-  for (let i = baseDomain[0]; i <= baseDomain[1]; i += dt) {
-    const value =
-      singleValue === undefined ? Math.random() * multiplier : singleValue;
+  for (let i = baseDomain[0]; data.length < n; i += dt) {
+    const value = singleValue === undefined ? Math.random() : singleValue;
     data.push({
       timestamp: i,
       value,
@@ -49,7 +43,7 @@ const monoLoader = singleValue => ({ baseDomain, oldSeries, reason }) => {
 const staticLoader = ({
   id,
   baseDomain,
-  pointsPerSeries,
+  n = 250,
   multiplier = 1,
   oldSeries,
   reason,
@@ -58,7 +52,7 @@ const staticLoader = ({
   if (reason === 'MOUNTED') {
     // Create dataset on mount
     return {
-      data: randomData({ baseDomain, n: pointsPerSeries || 250, multiplier }),
+      data: randomData({ baseDomain, n, multiplier }),
     };
   }
   // Otherwise, return the existing dataset.
@@ -1633,22 +1627,22 @@ const mapping = {
   '8 9': { x: 8, y: 9 },
 };
 
+const NUM_POINTS = 50;
+
 const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
   if (reason === 'MOUNTED') {
     const pair = mapping[id];
     const { x, y } = {
       x: staticLoader({
         id: pair.x,
-        pointsPerSeries: 2,
-        multiplier: 1,
+        n: NUM_POINTS,
         reason,
         oldSeries,
         ...params,
       }),
       y: staticLoader({
         id: pair.y,
-        pointsPerSeries: 2,
-        multiplier: 1,
+        n: NUM_POINTS,
         reason,
         oldSeries,
         ...params,
@@ -1662,15 +1656,16 @@ const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
         x: x.data.length ? x.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
         y: y.data.length ? y.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
       };
-      if (points.x.timestamp < points.y.timestamp) {
-        const point = x.data.shift();
+      let point;
+      if (points.x.timestamp <= points.y.timestamp) {
+        point = x.data.shift();
         lastKnown.x = point.value;
-        lastKnown.z = point.timestamp;
-      } else {
-        const point = y.data.shift();
-        lastKnown.y = point.value;
-        lastKnown.z = point.timestamp;
       }
+      if (points.y.timestamp <= points.x.timestamp) {
+        point = y.data.shift();
+        lastKnown.y = point.value;
+      }
+      lastKnown.z = point.timestamp;
       if (
         lastKnown.x !== undefined &&
         lastKnown.y !== undefined &&
@@ -1694,15 +1689,12 @@ storiesOf('Scatterplot', module)
     </div>
   ))
   .add(
-    'Scatterplot',
+    'Scatterplot (one series)',
     withInfo()(() => (
       <DataProvider
         defaultLoader={scatterplotloader}
         baseDomain={[0, 1]}
-        series={[
-          { id: '1 2', color: 'steelblue' },
-          { id: '3 4', color: 'maroon' },
-        ]}
+        series={[{ id: '1 2', color: 'steelblue' }]}
         xAccessor={d => +d.x}
         yAccessor={d => +d.y}
       >
