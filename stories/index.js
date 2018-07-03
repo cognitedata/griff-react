@@ -1624,7 +1624,13 @@ storiesOf('InteractionLayer', module)
 
 const mapping = {
   '1 2': { x: 1, y: 2 },
+  '2 3': { x: 2, y: 3 },
   '3 4': { x: 3, y: 4 },
+  '4 5': { x: 4, y: 5 },
+  '5 6': { x: 5, y: 6 },
+  '6 7': { x: 6, y: 7 },
+  '7 8': { x: 7, y: 8 },
+  '8 9': { x: 8, y: 9 },
 };
 
 const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
@@ -1696,6 +1702,29 @@ storiesOf('Scatterplot', module)
         series={[
           { id: '1 2', color: 'steelblue' },
           { id: '3 4', color: 'maroon' },
+        ]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot height={500} width={500} zoomable />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Scatterplot (many pairs)',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        baseDomain={[0, 1]}
+        series={[
+          { id: '1 2', color: '#ACF39D' },
+          { id: '2 3', color: '#E85F5C' },
+          { id: '3 4', color: '#9CFFFA' },
+          { id: '4 5', color: '#773344' },
+          { id: '5 6', color: '#E3B5A4' },
+          { id: '6 7', color: '#2E0219' },
+          { id: '7 8', color: '#2E0219' },
+          { id: '8 9', color: '#2E0219' },
         ]}
         xAccessor={d => +d.x}
         yAccessor={d => +d.y}
