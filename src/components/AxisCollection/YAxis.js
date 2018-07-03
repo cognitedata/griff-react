@@ -93,9 +93,10 @@ export default class YAxis extends Component {
     const tickSizeInner = axis.tickSizeInner();
     const tickPadding = axis.tickPadding();
     // same as for xAxis but consider height of the screen ~two times smaller
-    const values = scale.ticks(Math.floor(height / 50) || 1);
+    const nTicks = Math.floor(height / 50) || 1;
+    const values = scale.ticks(nTicks);
     const k = 1;
-    const tickFormat = scale.tickFormat();
+    const tickFormat = scale.tickFormat(nTicks);
     const range = scale.range().map(r => r + halfStrokeWidth);
     const pathString = [
       // Move to this (x,y); start drawing
