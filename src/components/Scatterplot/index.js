@@ -5,7 +5,7 @@ import ScalerContext from '../../context/Scaler';
 import { ScaledPointCollection } from '../PointCollection';
 import InteractionLayer, { ZoomMode } from '../InteractionLayer';
 import { createLinearXScale } from '../../utils/scale-helpers';
-import { seriesPropType } from '../../utils/proptypes';
+import { seriesPropType, scalerFactoryFunc } from '../../utils/proptypes';
 import UnifiedAxis from '../UnifedAxis';
 
 const propTypes = {
@@ -14,6 +14,7 @@ const propTypes = {
   zoomable: PropTypes.bool,
   onClick: PropTypes.func,
   series: seriesPropType.isRequired,
+  xScalerFactory: scalerFactoryFunc.isRequired,
 };
 
 const defaultProps = {
@@ -21,7 +22,14 @@ const defaultProps = {
   onClick: null,
 };
 
-const ScatterplotComponent = ({ width, height, series, zoomable, onClick }) => (
+const ScatterplotComponent = ({
+  width,
+  height,
+  series,
+  zoomable,
+  onClick,
+  xScalerFactory,
+}) => (
   <div
     style={{
       display: 'grid',
@@ -37,6 +45,7 @@ const ScatterplotComponent = ({ width, height, series, zoomable, onClick }) => (
         zoomable={zoomable}
         onClick={onClick}
         zoomMode={ZoomMode.BOTH}
+        xScalerFactory={xScalerFactory}
       />
     </svg>
     <UnifiedAxis series={series} height={height} width={100} />

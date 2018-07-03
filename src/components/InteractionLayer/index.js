@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import ScalerContext from '../../context/Scaler';
-import { createXScale, createYScale } from '../../utils/scale-helpers';
+import { createYScale } from '../../utils/scale-helpers';
 import {
   areaPropType,
   seriesPropType,
@@ -13,6 +13,12 @@ import {
 import Annotation from '../Annotation';
 import Ruler from '../Ruler';
 import Area from '../Area';
+
+export const ZoomMode = {
+  X: 0,
+  Y: 1,
+  BOTH: 2,
+};
 
 const MINIMUM_AREA_DIMENSION_PIXELS = 30;
 const isLargeEnough = area =>
@@ -33,6 +39,7 @@ class InteractionLayer extends React.Component {
     onMouseMove: PropTypes.func,
     onMouseOut: PropTypes.func,
     updateXTransformation: PropTypes.func,
+    updateYTransformation: PropTypes.func,
     series: seriesPropType,
     areas: PropTypes.arrayOf(areaPropType),
     annotations: PropTypes.arrayOf(annotationPropType),
@@ -40,6 +47,9 @@ class InteractionLayer extends React.Component {
     subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     zoomable: PropTypes.bool,
+    // (domain, width) => [number, number]
+    xScalerFactory: PropTypes.func.isRequired,
+    zoomMode: PropTypes.oneOf(Object.keys(ZoomMode).map(k => ZoomMode[k])),
   };
 
   static defaultProps = {
@@ -53,6 +63,7 @@ class InteractionLayer extends React.Component {
     onMouseMove: null,
     onMouseOut: null,
     updateXTransformation: () => {},
+    updateYTransformation: () => {},
     series: [],
     zoomable: true,
     ruler: {
@@ -60,6 +71,7 @@ class InteractionLayer extends React.Component {
       xLabel: () => {},
       yLabel: () => {},
     },
+    zoomMode: ZoomMode.X,
   };
 
   state = {
@@ -74,7 +86,7 @@ class InteractionLayer extends React.Component {
   };
 
   componentDidMount() {
-    const { width, height } = this.props;
+    const { width, height, xScalerFactory } = this.props;
     this.zoom = d3
       .zoom()
       .scaleExtent([1, Infinity])
@@ -85,10 +97,10 @@ class InteractionLayer extends React.Component {
 
     if (this.rectSelection.property('__zoom')) {
       const { subDomain, baseDomain } = this.props;
-      // if subDomain differs from baseDomain on componentDidMount step that means
-      // it has been specified by a user and we need to update internals
+      // if subDomain differs from baseDomain on componentDidMount step that
+      // means it has been specified by a user and we need to update internals
       if (!isEqual(subDomain, baseDomain)) {
-        const scale = createXScale(baseDomain, width);
+        const scale = xScalerFactory(baseDomain, width);
         const selection = subDomain.map(scale);
         const transform = d3.zoomIdentity
           .scale(width / (selection[1] - selection[0]))
@@ -99,7 +111,7 @@ class InteractionLayer extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { subDomain: prevSuDomain, ruler } = this.props;
+    const { subDomain: prevSuDomain, ruler, xScalerFactory } = this.props;
     const { subDomain: curSubDomain, width } = nextProps;
     const { touchX, touchY } = this.state;
     if (
@@ -109,8 +121,8 @@ class InteractionLayer extends React.Component {
       !isEqual(prevSuDomain, curSubDomain)
     ) {
       // keep track on ruler on subdomain update
-      const prevXScale = createXScale(prevSuDomain, width);
-      const curXScale = createXScale(curSubDomain, width);
+      const prevXScale = xScalerFactory(prevSuDomain, width);
+      const curXScale = xScalerFactory(curSubDomain, width);
       const ts = prevXScale.invert(touchX).getTime();
       const newXPos = curXScale(ts);
       // hide ruler if point went out to the left of subdomain
@@ -151,10 +163,10 @@ class InteractionLayer extends React.Component {
     const { subDomain: c, baseDomain: curBaseDomain } = this.props;
     if (this.rectSelection.property('__zoom')) {
       // Checking if the existing selection has a current zoom state.
-      const { width, subDomain, baseDomain } = this.props;
+      const { width, subDomain, baseDomain, xScalerFactory } = this.props;
       const newBaseDomain = !isEqual(prevBaseDomain, curBaseDomain);
       if (!isEqual(p, c) || width !== prevProps.width || newBaseDomain) {
-        const scale = createXScale(baseDomain, width);
+        const scale = xScalerFactory(baseDomain, width);
         const selection = subDomain.map(scale);
         const transform = d3.zoomIdentity
           .scale(width / (selection[1] - selection[0]))
@@ -272,13 +284,14 @@ class InteractionLayer extends React.Component {
       width,
       annotations,
       areas,
+      xScalerFactory,
     } = this.props;
     if (this.dragging) {
       return;
     }
     if (onClickAnnotation || onAreaClicked) {
       let notified = false;
-      const xScale = createXScale(subDomain, width);
+      const xScale = xScalerFactory(subDomain, width);
       const xpos = e.nativeEvent.offsetX;
       const ypos = e.nativeEvent.offsetY;
       const rawTimestamp = xScale.invert(xpos).getTime();
@@ -328,9 +341,9 @@ class InteractionLayer extends React.Component {
 
   // TODO: This extrapolate thing is super gross and so hacky.
   getDataForCoordinate = (xpos, ypos, extrapolate = false) => {
-    const { subDomain, width, series, height } = this.props;
+    const { subDomain, width, series, height, xScalerFactory } = this.props;
 
-    const xScale = createXScale(subDomain, width);
+    const xScale = xScalerFactory(subDomain, width);
     const rawTimestamp = xScale.invert(xpos).getTime();
     const output = { xpos, ypos, points: [] };
     series.forEach(s => {
@@ -382,8 +395,16 @@ class InteractionLayer extends React.Component {
   };
 
   processMouseMove = (xpos, ypos) => {
-    const { series, height, width, subDomain, onMouseMove, ruler } = this.props;
-    const xScale = createXScale(subDomain, width);
+    const {
+      series,
+      height,
+      width,
+      subDomain,
+      onMouseMove,
+      ruler,
+      xScalerFactory,
+    } = this.props;
+    const xScale = xScalerFactory(subDomain, width);
     const rawTimestamp = xScale.invert(xpos).getTime();
     const newPoints = [];
     series.forEach(s => {
@@ -441,16 +462,35 @@ class InteractionLayer extends React.Component {
   };
 
   zoomed = () => {
-    const { ruler } = this.props;
+    const { ruler, zoomMode } = this.props;
     if (ruler && ruler.visible) {
       this.processMouseMove(this.state.touchX, this.state.touchY);
     }
     const t = d3.event.transform;
-    this.props.updateXTransformation(t, this.props.width);
+    if (
+      (zoomMode === ZoomMode.X || zoomMode === ZoomMode.BOTH) &&
+      this.props.updateXTransformation
+    ) {
+      this.props.updateXTransformation(t, this.props.width);
+    }
+    if (zoomMode === ZoomMode.Y || zoomMode === ZoomMode.BOTH) {
+      const { series } = this.props;
+      series.forEach(s => {
+        this.props.updateYTransformation(s.id, t, this.props.height);
+      });
+    }
   };
 
   render() {
-    const { width, height, crosshair, ruler, series, subDomain } = this.props;
+    const {
+      width,
+      height,
+      crosshair,
+      ruler,
+      series,
+      subDomain,
+      xScalerFactory,
+    } = this.props;
     const {
       crosshair: { x, y },
       points,
@@ -481,7 +521,7 @@ class InteractionLayer extends React.Component {
         </React.Fragment>
       );
     }
-    const xScale = createXScale(subDomain, width);
+    const xScale = xScalerFactory(subDomain, width);
     const annotations = this.props.annotations.map(a => (
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
     ));
@@ -559,13 +599,22 @@ class InteractionLayer extends React.Component {
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ subDomain, baseDomain, series, updateXTransformation }) => (
+    {({
+      subDomain,
+      baseDomain,
+      series,
+      updateXTransformation,
+      updateYTransformation,
+      xScalerFactory,
+    }) => (
       <InteractionLayer
         {...props}
         subDomain={subDomain}
         baseDomain={baseDomain}
         series={series}
         updateXTransformation={updateXTransformation}
+        updateYTransformation={updateYTransformation}
+        xScalerFactory={xScalerFactory}
       />
     )}
   </ScalerContext.Consumer>
