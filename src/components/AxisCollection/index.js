@@ -36,10 +36,16 @@ const defaultProps = {
 };
 
 class AxisCollection extends React.Component {
+  onAxisMouseEnter = seriesId =>
+    this.props.onMouseEnter ? e => this.props.onMouseEnter(e, seriesId) : null;
+
+  onAxisMouseLeave = seriesId =>
+    this.props.onMouseLeave ? e => this.props.onMouseLeave(e, seriesId) : null;
+
   axisFilter = mode => s =>
     !s.hidden && (s.yAxisDisplayMode || this.props.axisDisplayMode) === mode;
 
-  renderAllAxes() {
+  renderAllVisibleAxes() {
     const {
       series,
       zoomable,
@@ -63,6 +69,8 @@ class AxisCollection extends React.Component {
           width={yAxisWidth}
           updateYTransformation={updateYTransformation}
           yTransformation={yTransformations[s.id]}
+          onMouseEnter={this.onAxisMouseEnter(s.id)}
+          onMouseLeave={this.onAxisMouseLeave(s.id)}
         />
       );
     });
@@ -83,6 +91,8 @@ class AxisCollection extends React.Component {
           height={height}
           offsetx={numVisible * yAxisWidth}
           width={yAxisWidth}
+          onMouseEnter={this.onAxisMouseEnter('collapsed')}
+          onMouseLeave={this.onAxisMouseLeave('collapsed')}
         />
       );
     }
@@ -90,20 +100,13 @@ class AxisCollection extends React.Component {
   }
 
   render() {
-    const { width, height, onMouseEnter, onMouseLeave } = this.props;
+    const { width, height } = this.props;
 
     // We need to render all of the axes (even if they're hidden) in order to
     // keep the zoom states in sync across show/hide toggles.
-    const axes = this.renderAllAxes();
+    const axes = this.renderAllVisibleAxes();
     return (
-      <svg
-        width={width}
-        height={height}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-        onFocus={onMouseEnter}
-        onBlur={onMouseLeave}
-      >
+      <svg width={width} height={height}>
         {axes}
         {this.renderPlaceholderAxis()}
       </svg>

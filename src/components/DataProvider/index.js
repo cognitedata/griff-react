@@ -20,7 +20,15 @@ const calculateDomainFromData = (
   }
   const diff = extent[1] - extent[0];
   if (Math.abs(diff) < 1e-3) {
-    return [(1 / 2) * extent[0], (3 / 2) * extent[0]];
+    if (extent[0] === 0) {
+      // If 0 is the only value present in the series, hard code domain.
+      return [-0.25, 0.25];
+    }
+    const domain = [(1 / 2) * extent[0], (3 / 2) * extent[0]];
+    if (domain[1] < domain[0]) {
+      return [domain[1], domain[0]];
+    }
+    return domain;
   }
   return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
 };
@@ -100,8 +108,10 @@ export default class DataProvider extends Component {
     // run the fetchData lifecycle for those series
     const { updateInterval } = this.props;
     const { updateInterval: prevUpdateInterval } = prevProps;
-    if (prevUpdateInterval && updateInterval !== prevUpdateInterval) {
-      clearInterval(this.fetchInterval);
+    if (updateInterval !== prevUpdateInterval) {
+      if (prevUpdateInterval) {
+        clearInterval(this.fetchInterval);
+      }
       if (updateInterval) {
         this.startUpdateInterval();
       }
@@ -285,7 +295,12 @@ export default class DataProvider extends Component {
 
   render() {
     const { loaderConfig, contextSeries, baseDomain, subDomain } = this.state;
-    const { yAxisWidth, children, baseDomain: externalBaseDomain } = this.props;
+    const {
+      yAxisWidth,
+      children,
+      baseDomain: externalBaseDomain,
+      subDomain: externalSubDomain,
+    } = this.props;
     if (Object.keys(loaderConfig).length === 0) {
       // Do not bother, loader hasn't given any data yet.
       return null;
@@ -297,6 +312,8 @@ export default class DataProvider extends Component {
       // This is used to signal external changes vs internal changes
       externalBaseDomain,
       subDomain,
+      // This is used to signal external changes vs internal changes
+      externalSubDomain,
       yAxisWidth,
       subDomainChanged: this.subDomainChanged,
       contextSeries: seriesObjects.map(s => ({

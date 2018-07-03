@@ -6,6 +6,7 @@ import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
+import * as d3 from 'd3';
 import {
   DataProvider,
   LineChart,
@@ -15,17 +16,34 @@ import {
 } from '../src';
 import quandlLoader from './quandlLoader';
 
-const randomData = (baseDomain, n, multiplier) => {
+const randomData = ({
+  baseDomain,
+  n = 250,
+  singleValue = undefined,
+  multiplier = 1,
+}) => {
   const data = [];
   const dt = (baseDomain[1] - baseDomain[0]) / n;
   for (let i = baseDomain[0]; i <= baseDomain[1]; i += dt) {
-    const value = Math.random() * multiplier;
+    const value =
+      singleValue === undefined ? Math.random() * multiplier : singleValue;
     data.push({
       timestamp: i,
       value,
     });
   }
   return data;
+};
+
+const monoLoader = singleValue => ({ baseDomain, oldSeries, reason }) => {
+  if (reason === 'MOUNTED') {
+    return {
+      data: randomData({ baseDomain, n: 250, singleValue }),
+    };
+  }
+  return {
+    data: oldSeries.data,
+  };
 };
 
 const staticLoader = ({
@@ -40,7 +58,7 @@ const staticLoader = ({
   if (reason === 'MOUNTED') {
     // Create dataset on mount
     return {
-      data: randomData(baseDomain, pointsPerSeries || 250, multiplier),
+      data: randomData({ baseDomain, n: pointsPerSeries || 250, multiplier }),
     };
   }
   // Otherwise, return the existing dataset.
@@ -54,7 +72,7 @@ const liveLoader = ({ oldSeries, baseDomain, reason }) => {
   if (reason === 'MOUNTED') {
     // Create dataset on mount
     return {
-      data: randomData(baseDomain, 25),
+      data: randomData({ baseDomain, n: 25 }),
     };
   }
   if (reason === 'INTERVAL') {
@@ -83,7 +101,7 @@ const liveLoader = ({ oldSeries, baseDomain, reason }) => {
 const customAccessorLoader = ({ baseDomain, oldSeries, reason }) => {
   if (reason === 'MOUNTED') {
     return {
-      data: randomData(baseDomain).map(d => [d.timestamp, d.value]),
+      data: randomData({ baseDomain }).map(d => [d.timestamp, d.value]),
     };
   }
   return {
@@ -144,6 +162,23 @@ storiesOf('LineChart', module)
           defaultLoader={staticLoader}
           baseDomain={staticBaseDomain}
           series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      </React.Fragment>
+    ))
+  )
+  .add(
+    'Single-value in y axis',
+    withInfo()(() => (
+      <React.Fragment>
+        <DataProvider
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 1, color: 'steelblue', loader: monoLoader(0) },
+            { id: 2, color: 'maroon', loader: monoLoader(0.5) },
+            { id: 3, color: 'orange', loader: monoLoader(-0.5) },
+          ]}
         >
           <LineChart height={CHART_HEIGHT} />
         </DataProvider>
@@ -638,33 +673,6 @@ storiesOf('LineChart', module)
     })
   )
   .add(
-    'Ruler',
-    withInfo()(() => (
-      <DataProvider
-        baseDomain={staticBaseDomain}
-        defaultLoader={staticLoader}
-        xAccessor={d => d.timestamp}
-        yAccessor={d => d.value}
-        series={[
-          { id: 1, color: 'steelblue', name: 'name1' },
-          { id: 2, color: 'maroon', name: 'name2' },
-        ]}
-      >
-        <LineChart
-          height={CHART_HEIGHT}
-          crosshair={false}
-          ruler={{
-            visible: true,
-            yLabel: point =>
-              `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
-            xLabel: point =>
-              moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
-          }}
-        />
-      </DataProvider>
-    ))
-  )
-  .add(
     'Live loading',
     withInfo()(() => (
       <DataProvider
@@ -722,7 +730,7 @@ storiesOf('LineChart', module)
       // eslint-disable-next-line
       class EnableDisableSeries extends React.Component {
         state = {
-          series: options,
+          series: [options[0]],
         };
 
         onChangeSeries = series => this.setState({ series });
@@ -804,6 +812,47 @@ storiesOf('Y-Axis Modes', module)
     </div>
   ))
   .add(
+    'Mouse events',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class MouseEvents extends React.Component {
+        state = {
+          series: [
+            { id: 1, color: 'steelblue' },
+            { id: 2, color: 'maroon' },
+            { id: 3, color: 'orange' },
+            { id: 4, color: 'green' },
+          ],
+        };
+
+        mouseEvent = (e, seriesId) => {
+          action('Axis mouse event')(e.type, seriesId);
+        };
+
+        render() {
+          const { series, yAxisDisplayMode } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={series}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  yAxisDisplayMode={yAxisDisplayMode}
+                  onAxisMouseEnter={this.mouseEvent}
+                  onAxisMouseLeave={this.mouseEvent}
+                />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <MouseEvents />;
+    })
+  )
+  .add(
     'Without y axis',
     withInfo()(() => (
       <DataProvider
@@ -855,10 +904,7 @@ storiesOf('Y-Axis Modes', module)
                     color: 'steelblue',
                     yAxisDisplayMode: AxisDisplayMode.NONE,
                   },
-                  {
-                    id: 2,
-                    color: 'maroon',
-                  },
+                  { id: 2, color: 'maroon' },
                   {
                     id: 3,
                     color: 'orange',
@@ -928,10 +974,7 @@ storiesOf('Y-Axis Modes', module)
                     color: 'steelblue',
                     yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
                   },
-                  {
-                    id: 2,
-                    color: 'maroon',
-                  },
+                  { id: 2, color: 'maroon' },
                   {
                     id: 3,
                     color: 'orange',
@@ -965,10 +1008,7 @@ storiesOf('Y-Axis Modes', module)
               color: 'steelblue',
               yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
             },
-            {
-              id: 2,
-              color: 'maroon',
-            },
+            { id: 2, color: 'maroon' },
             {
               id: 3,
               color: 'orange',
@@ -978,22 +1018,34 @@ storiesOf('Y-Axis Modes', module)
           ],
         };
 
-        toggleAxisMode = () => {
-          const series = this.state.series.map(s => {
-            let yAxisDisplayMode;
-            if (s.id === 1 || s.id === 3) {
-              if (!s.yAxisDisplayMode) {
-                yAxisDisplayMode = AxisDisplayMode.COLLAPSED;
-              }
-            }
-            return {
+        expandAll = (e, seriesId) => {
+          if (seriesId === 'collapsed') {
+            const series = this.state.series.map(s => ({
               ...s,
-              yAxisDisplayMode,
-            };
-          });
-          this.setState({
-            series,
-          });
+              yAxisDisplayMode: AxisDisplayMode.ALL,
+            }));
+            this.setState({
+              series,
+            });
+          }
+          if (this.collapseTimer) {
+            clearTimeout(this.collapseTimer);
+          }
+        };
+
+        collapseSome = () => {
+          this.collapseTimer = setTimeout(() => {
+            const series = this.state.series.map(s => ({
+              ...s,
+              yAxisDisplayMode:
+                s.id === 1 || s.id === 3
+                  ? AxisDisplayMode.COLLAPSED
+                  : AxisDisplayMode.ALL,
+            }));
+            this.setState({
+              series,
+            });
+          }, 50);
         };
 
         render() {
@@ -1008,8 +1060,8 @@ storiesOf('Y-Axis Modes', module)
                 <LineChart
                   height={CHART_HEIGHT}
                   yAxisDisplayMode={yAxisDisplayMode}
-                  onAxisMouseEnter={this.toggleAxisMode}
-                  onAxisMouseLeave={this.toggleAxisMode}
+                  onAxisMouseEnter={this.expandAll}
+                  onAxisMouseLeave={this.collapseSome}
                 />
               </DataProvider>
             </React.Fragment>
@@ -1088,13 +1140,21 @@ storiesOf('Y-Axis Modes', module)
           yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
         };
 
-        toggleAxisMode = () => {
+        expand = () => {
           this.setState({
-            yAxisDisplayMode:
-              this.state.yAxisDisplayMode === AxisDisplayMode.ALL
-                ? AxisDisplayMode.COLLAPSED
-                : AxisDisplayMode.ALL,
+            yAxisDisplayMode: AxisDisplayMode.ALL,
           });
+          if (this.collapseTimer) {
+            clearTimeout(this.collapseTimer);
+          }
+        };
+
+        collapse = () => {
+          this.collapseTimer = setTimeout(() => {
+            this.setState({
+              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+            });
+          }, 50);
         };
 
         render() {
@@ -1112,8 +1172,8 @@ storiesOf('Y-Axis Modes', module)
                 <LineChart
                   height={CHART_HEIGHT}
                   yAxisDisplayMode={yAxisDisplayMode}
-                  onAxisMouseEnter={this.toggleAxisMode}
-                  onAxisMouseLeave={this.toggleAxisMode}
+                  onAxisMouseEnter={this.expand}
+                  onAxisMouseLeave={this.collapse}
                 />
               </DataProvider>
             </React.Fragment>
@@ -1121,6 +1181,444 @@ storiesOf('Y-Axis Modes', module)
         }
       }
       return <ExpandCollapse />;
+    })
+  );
+
+storiesOf('InteractionLayer', module)
+  .add(
+    'Ruler',
+    withInfo()(() => (
+      <DataProvider
+        baseDomain={staticBaseDomain}
+        defaultLoader={staticLoader}
+        xAccessor={d => d.timestamp}
+        yAccessor={d => d.value}
+        series={[
+          { id: 1, color: 'steelblue', name: 'name1' },
+          { id: 2, color: 'maroon', name: 'name2' },
+        ]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          crosshair={false}
+          ruler={{
+            visible: true,
+            yLabel: point =>
+              `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+            xLabel: point =>
+              moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+          }}
+        />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Area (no zoom)',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          onAreaDefined={area => {
+            action('Area defined')(area);
+          }}
+        />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Area (zoom)',
+    withInfo()(() => {
+      class ZoomByArea extends React.Component {
+        state = { subDomain: null };
+
+        onAreaDefined = area => {
+          const { start, end } = area;
+          const subDomain = [
+            start.points[0].timestamp,
+            end.points[0].timestamp,
+          ];
+          this.setState({
+            subDomain,
+          });
+          action('New subdomain')(subDomain);
+        };
+
+        render() {
+          const { subDomain } = this.state;
+          return (
+            <DataProvider
+              defaultLoader={staticLoader}
+              baseDomain={staticBaseDomain}
+              subDomain={subDomain}
+              series={[
+                { id: 1, color: 'steelblue' },
+                { id: 2, color: 'maroon' },
+              ]}
+            >
+              <LineChart
+                height={CHART_HEIGHT}
+                onAreaDefined={this.onAreaDefined}
+              />
+            </DataProvider>
+          );
+        }
+      }
+      return <ZoomByArea />;
+    })
+  )
+  .add(
+    'Area (hold shift to enable)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnDemandArea extends React.Component {
+        state = { enableArea: false };
+
+        componentDidMount() {
+          d3.select('body').on('keydown', this.onKeyDown);
+          d3.select('body').on('keyup', this.onKeyUp);
+        }
+
+        onAreaDefined = area => {
+          action('Area defined')(area);
+        };
+
+        onKeyDown = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: true });
+          }
+        };
+
+        onKeyUp = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: false });
+          }
+        };
+
+        render() {
+          const { enableArea } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  onAreaDefined={enableArea ? this.onAreaDefined : null}
+                />
+              </DataProvider>
+              (You might need to click here first)
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnDemandArea />;
+    })
+  )
+  .add(
+    'Persistent fixed area (hold shift to enable)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnDemandArea extends React.Component {
+        state = { enableArea: false, area: undefined };
+
+        componentDidMount() {
+          d3.select('body').on('keydown', this.onKeyDown);
+          d3.select('body').on('keyup', this.onKeyUp);
+        }
+
+        onAreaDefined = area => {
+          this.setState({
+            area,
+          });
+        };
+
+        onKeyDown = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: true });
+          }
+        };
+
+        onKeyUp = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: false });
+          }
+        };
+
+        render() {
+          const { enableArea, area } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  areas={area ? [area] : []}
+                  onAreaDefined={enableArea ? this.onAreaDefined : null}
+                />
+              </DataProvider>
+              (You might need to click here first)
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnDemandArea />;
+    })
+  )
+  .add(
+    'Persistent fixed areas (click to remove)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnDemandArea extends React.Component {
+        state = { areas: [] };
+
+        onAreaDefined = area => {
+          const { areas } = this.state;
+          this.setState({
+            areas: [...areas, area],
+          });
+        };
+
+        onAreaClicked = (area, xpos, ypos) => {
+          action('Area clicked')(area, xpos, ypos);
+          this.setState({
+            areas: this.state.areas.filter(a => a.id !== area.id),
+          });
+          return true;
+        };
+
+        render() {
+          const { areas } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  areas={areas}
+                  onAreaDefined={this.onAreaDefined}
+                  onAreaClicked={this.onAreaClicked}
+                />
+              </DataProvider>
+              (You might need to click here first)
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnDemandArea />;
+    })
+  )
+  .add(
+    'Persistent fixed areas (click outside to clear)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnDemandArea extends React.Component {
+        state = { areas: [] };
+
+        onAreaDefined = area => {
+          const { areas } = this.state;
+          this.setState({
+            areas: [...areas, area],
+          });
+        };
+
+        onAreaClicked = (area, xpos, ypos) => {
+          action('Area clicked')(area, xpos, ypos);
+        };
+
+        onChartClicked = () => {
+          this.setState({
+            areas: [],
+          });
+        };
+
+        render() {
+          const { areas } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  areas={areas}
+                  onAreaDefined={this.onAreaDefined}
+                  onAreaClicked={this.onAreaClicked}
+                  onClick={this.onChartClicked}
+                />
+              </DataProvider>
+              (You might need to click here first)
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnDemandArea />;
+    })
+  )
+  .add(
+    'Persistent series area (hold shift to enable)',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnDemandArea extends React.Component {
+        state = { enableArea: false, areas: [] };
+
+        componentDidMount() {
+          d3.select('body').on('keydown', this.onKeyDown);
+          d3.select('body').on('keyup', this.onKeyUp);
+        }
+
+        onAreaDefined = area => {
+          const newAreas = [...this.state.areas];
+          for (let i = 0; i < area.start.points.length; i += 1) {
+            const newArea = {
+              seriesId: area.start.points[i].id,
+              start: {
+                ...area.start,
+                xval: area.start.points[i].timestamp,
+                yval: area.start.points[i].value,
+              },
+              end: {
+                ...area.end,
+                xval: area.end.points[i].timestamp,
+                yval: area.end.points[i].value,
+              },
+            };
+            newAreas.push(newArea);
+          }
+          this.setState({
+            areas: newAreas,
+          });
+        };
+
+        onKeyDown = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: true });
+          }
+        };
+
+        onKeyUp = () => {
+          const code = d3.event.keyCode;
+          if (code === 16) {
+            // SHIFT
+            this.setState({ enableArea: false });
+          }
+        };
+
+        render() {
+          const { enableArea, areas } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  areas={areas}
+                  onAreaDefined={enableArea ? this.onAreaDefined : null}
+                />
+              </DataProvider>
+              (You might need to click here first)
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnDemandArea />;
+    })
+  )
+  .add(
+    'Regression: onMouseUp',
+    withInfo()(() => {
+      // eslint-disable-next-line
+      class OnMouseUp extends React.Component {
+        state = { onAreaDefined: null };
+
+        componentDidMount() {
+          window.setInterval(this.toggleOnAreaDefined, 1000);
+        }
+
+        toggleOnAreaDefined = () => {
+          this.setState({
+            onAreaDefined: this.state.onAreaDefined ? null : console.log,
+          });
+        };
+
+        render() {
+          const { onAreaDefined } = this.state;
+          return (
+            <React.Fragment>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  onAreaDefined={onAreaDefined}
+                />
+              </DataProvider>
+              onAreaDefined={onAreaDefined ? 'function' : 'null'}
+              <h2>Test</h2>
+              <ol>
+                <li>
+                  Press and hold when <strong>onAreaDefined</strong> says{' '}
+                  <strong>function</strong>
+                </li>
+                <li>
+                  Continue holding when it switches to <strong>null</strong>
+                </li>
+                <li>
+                  Release when it says <strong>function</strong> again
+                </li>
+                <li>Check that there are no errors in the console</li>
+              </ol>
+            </React.Fragment>
+          );
+        }
+      }
+      return <OnMouseUp />;
     })
   );
 

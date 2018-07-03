@@ -23,6 +23,8 @@ export default class CollapsedAxis extends Component {
       rescaleY: PropTypes.func.isRequired,
     }),
     color: PropTypes.string,
+    onMouseEnter: PropTypes.func,
+    onMouseLeave: PropTypes.func,
   };
 
   static defaultProps = {
@@ -32,6 +34,8 @@ export default class CollapsedAxis extends Component {
     yTransformation: null,
     color: '#666',
     offsetx: 0,
+    onMouseEnter: null,
+    onMouseLeave: null,
   };
 
   componentWillMount() {
@@ -87,24 +91,34 @@ export default class CollapsedAxis extends Component {
   }
 
   renderAxis() {
-    const { color, height } = this.props;
+    const { color, height, onMouseEnter, onMouseLeave } = this.props;
     const scale = createYScale([0, 100], height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;
-    const halfStrokeWidth = strokeWidth / 2;
     const tickSizeOuter = axis.tickSizeOuter();
-    const tickSizeInner = axis.tickSizeInner();
-    // same as for xAxis but consider height of the screen ~two times smaller
-    const values = scale.ticks(Math.floor(height / 50) || 1);
-    const k = 2.5;
-    const range = scale.range().map(r => r + halfStrokeWidth);
-    const pathString = [
-      `M${k * tickSizeOuter},${range[0]}`,
-      `H${halfStrokeWidth}`,
-      `V${range[1]}`,
-      `H${k * tickSizeOuter}`,
-    ].join('');
+    const range = scale.range();
+    const paths = {};
+    let offsetx = 0;
+    for (let i = 1; i < 4; i += 1) {
+      offsetx += tickSizeOuter;
+      paths[i] = {
+        path: [
+          // Move to this (x,y); start drawing
+          `M ${offsetx} ${strokeWidth}`,
+          // Draw a horizontal line to the left
+          `h -${tickSizeOuter - strokeWidth}`,
+          // Draw a vertical line from top to bottom
+          `v ${range[0] - strokeWidth * 2}`,
+          // Finish with another horizontal line
+          `h ${tickSizeOuter - strokeWidth / 2}`,
+        ].join(' '),
+        color,
+        opacity: 1 - (i - 1) / 4,
+      };
+
+      offsetx += 3;
+    }
     return (
       <g
         className="axis"
@@ -112,19 +126,17 @@ export default class CollapsedAxis extends Component {
         fontSize={tickFontSize}
         textAnchor="start"
         strokeWidth={strokeWidth}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
-        <path stroke={color} d={pathString} />
-        {values.map(v => {
-          const lineProps = { stroke: color };
-          lineProps.x2 = k * tickSizeInner;
-          lineProps.y1 = halfStrokeWidth;
-          lineProps.y2 = halfStrokeWidth;
-          return (
-            <g key={+v} opacity={1} transform={`translate(0, ${scale(v)})`}>
-              <line {...lineProps} />
-            </g>
-          );
-        })}
+        {Object.keys(paths).map(key => (
+          <path
+            key={key}
+            stroke={paths[key].color}
+            opacity={paths[key].opacity || 1}
+            d={paths[key].path}
+          />
+        ))}
       </g>
     );
   }

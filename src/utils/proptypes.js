@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
-import AxisDisplayMode from '../components/LineChart/AxisDisplayMode';
+
+const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
 export const singleSeriePropType = PropTypes.shape({
-  id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+  id: idPropType.isRequired,
   color: PropTypes.string,
   hidden: PropTypes.bool,
   strokeWidth: PropTypes.number,
@@ -14,7 +15,11 @@ export const singleSeriePropType = PropTypes.shape({
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,
   yDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
-  yAxisDisplayMode: PropTypes.shape(AxisDisplayMode),
+  yAxisDisplayMode: PropTypes.shape({
+    // See AxisDisplayMode
+    id: PropTypes.string.isRequired,
+    width: PropTypes.func.isRequired,
+  }),
 });
 
 export const seriesPropType = PropTypes.arrayOf(singleSeriePropType);
@@ -33,7 +38,7 @@ export const annotationShape = {
 export const annotationPropType = PropTypes.shape(annotationShape);
 
 export const pointPropType = PropTypes.shape({
-  id: PropTypes.number,
+  id: idPropType,
   name: PropTypes.string,
   color: PropTypes.string,
   timestamp: PropTypes.number,
@@ -69,3 +74,16 @@ export const accessorFuncPropType = PropTypes.func;
 
 // value => scaled value
 export const scaleFuncPropType = PropTypes.func;
+
+export const coordinatePropType = PropTypes.shape({
+  xpos: PropTypes.number.isRequired,
+  ypos: PropTypes.number.isRequired,
+  points: PropTypes.arrayOf(pointPropType),
+});
+
+export const areaPropType = PropTypes.shape({
+  id: idPropType,
+  color: PropTypes.string,
+  start: coordinatePropType.isRequired,
+  end: coordinatePropType,
+});
