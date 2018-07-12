@@ -1,6 +1,6 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import * as d3 from 'd3';
+import React from "react";
+import PropTypes from "prop-types";
+import * as d3 from "d3";
 
 const Line = ({
   data,
@@ -14,7 +14,7 @@ const Line = ({
   step,
   hidden,
   drawPoints,
-  strokeWidth,
+  strokeWidth
 }) => {
   let line;
   if (step) {
@@ -60,23 +60,25 @@ const Line = ({
     <g clipPath="url(#linechart-clip-path)">
       {area && (
         <path
+          className="line-area"
           d={area(data)}
           style={{
-            stroke: 'none',
+            stroke: "none",
             strokeWidth: `${strokeWidth}px`,
             fill: `${color}`,
             opacity: 0.25,
-            display: hidden ? 'none' : 'inherit',
+            display: hidden ? "none" : "inherit"
           }}
         />
       )}
       <path
+        className="line"
         d={line(data)}
         style={{
           stroke: color,
           strokeWidth: `${strokeWidth}px`,
-          fill: 'none',
-          display: hidden ? 'none' : 'inherit',
+          fill: "none",
+          display: hidden ? "none" : "inherit"
         }}
       />
       {circles}
@@ -96,14 +98,14 @@ Line.propTypes = {
   step: PropTypes.bool,
   hidden: PropTypes.bool,
   drawPoints: PropTypes.bool,
-  strokeWidth: PropTypes.number,
+  strokeWidth: PropTypes.number
 };
 
 Line.defaultProps = {
   step: false,
   hidden: false,
   drawPoints: false,
-  strokeWidth: 1,
+  strokeWidth: 1
 };
 
 export default Line;
