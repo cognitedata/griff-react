@@ -1,6 +1,6 @@
-import React from "react";
-import PropTypes from "prop-types";
-import * as d3 from "d3";
+import React from 'react';
+import PropTypes from 'prop-types';
+import * as d3 from 'd3';
 
 const Line = ({
   data,
@@ -77,11 +77,11 @@ const Line = ({
           className="line-area"
           d={area(data)}
           style={{
-            stroke: "none",
+            stroke: 'none',
             strokeWidth: `${strokeWidth}px`,
             fill: `${color}`,
             opacity: 0.25,
-            display: hidden ? "none" : "inherit"
+            display: hidden ? 'none' : 'inherit',
           }}
         />
       )}
@@ -91,8 +91,8 @@ const Line = ({
         style={{
           stroke: color,
           strokeWidth: `${strokeWidth}px`,
-          fill: "none",
-          display: hidden ? "none" : "inherit"
+          fill: 'none',
+          display: hidden ? 'none' : 'inherit',
         }}
       />
       {circles}
@@ -122,7 +122,7 @@ Line.defaultProps = {
   step: false,
   hidden: false,
   drawPoints: false,
-  strokeWidth: 1
+  strokeWidth: 1,
   y0Accessor: null,
   y1Accessor: null,
 };
