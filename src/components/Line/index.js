@@ -74,6 +74,7 @@ const Line = ({
     <g clipPath={`url(#${clipPath})`}>
       {area && (
         <path
+          className="line-area"
           d={area(data)}
           style={{
             stroke: 'none',
@@ -85,6 +86,7 @@ const Line = ({
         />
       )}
       <path
+        className="line"
         d={line(data)}
         style={{
           stroke: color,
