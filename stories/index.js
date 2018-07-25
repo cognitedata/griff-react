@@ -458,6 +458,7 @@ storiesOf('LineChart', module)
       const series = staticLoader({
         id: 1,
         reason: 'MOUNTED',
+        baseDomain: staticBaseDomain,
       }).data;
       const exampleAnnotations = [
         {
