@@ -7,6 +7,7 @@ import InteractionLayer, { ZoomMode } from '../InteractionLayer';
 import { createLinearXScale } from '../../utils/scale-helpers';
 import { seriesPropType, scalerFactoryFunc } from '../../utils/proptypes';
 import UnifiedAxis from '../UnifedAxis';
+import XAxis from '../XAxis';
 
 const propTypes = {
   width: PropTypes.number.isRequired,
@@ -15,6 +16,7 @@ const propTypes = {
   onClick: PropTypes.func,
   series: seriesPropType.isRequired,
   xScalerFactory: scalerFactoryFunc.isRequired,
+  subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
 };
 
 const defaultProps = {
@@ -29,6 +31,7 @@ const ScatterplotComponent = ({
   zoomable,
   onClick,
   xScalerFactory,
+  subDomain,
 }) => (
   <div
     style={{
@@ -49,6 +52,15 @@ const ScatterplotComponent = ({
       />
     </svg>
     <UnifiedAxis series={series} height={height} width={100} />
+    <div className="x-axis-container" style={{ width: '100%' }}>
+      <XAxis
+        domain={subDomain}
+        width={500}
+        xScalerFactory={xScalerFactory}
+        tickFormatter={Number}
+      />
+    </div>
+    <div />
   </div>
 );
 

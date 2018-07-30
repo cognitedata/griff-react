@@ -3,19 +3,6 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import { scalerFactoryFunc } from '../utils/proptypes';
 
-const propTypes = {
-  domain: PropTypes.arrayOf(PropTypes.number).isRequired,
-  strokeColor: PropTypes.string,
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number,
-  xScalerFactory: scalerFactoryFunc.isRequired,
-};
-
-const defaultProps = {
-  strokeColor: 'black',
-  height: 50,
-};
-
 const tickTransformer = v => `translate(${v}, 0)`;
 
 const formatMillisecond = d3.timeFormat('.%L');
@@ -46,9 +33,31 @@ function multiFormat(date) {
               : formatYear)(date);
 }
 
+const propTypes = {
+  domain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  strokeColor: PropTypes.string,
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number,
+  xScalerFactory: scalerFactoryFunc.isRequired,
+  // Number => String
+  tickFormatter: PropTypes.func,
+};
+
+const defaultProps = {
+  strokeColor: 'black',
+  height: 50,
+  tickFormatter: multiFormat,
+};
+
 class Axis extends Component {
   renderAxis() {
-    const { domain, width, strokeColor, xScalerFactory } = this.props;
+    const {
+      domain,
+      width,
+      strokeColor,
+      xScalerFactory,
+      tickFormatter = multiFormat,
+    } = this.props;
     const scale = xScalerFactory(domain, width);
     const axis = d3.axisBottom(scale);
     const tickFontSize = 14;
@@ -64,7 +73,6 @@ class Axis extends Component {
     // we can achieve appropriate amount of ticks for any width.
     const values = scale.ticks(Math.floor(width / 100) || 1);
     const k = 1;
-    const tickFormat = multiFormat;
     const range = scale.range().map(r => r + halfStrokeWidth);
     const pathString = [
       `M${range[0]},${k * tickSizeOuter}`,
@@ -96,7 +104,7 @@ class Axis extends Component {
           return (
             <g key={+v} opacity={1} transform={tickTransformer(scale(v))}>
               <line {...lineProps} />
-              <text {...textProps}>{tickFormat(v)}</text>
+              <text {...textProps}>{tickFormatter(v)}</text>
             </g>
           );
         })}
