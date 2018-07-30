@@ -19,8 +19,10 @@ import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
 
 const propTypes = {
-  // eslint-disable-next-line react/require-default-props
-  size: PropTypes.shape({ width: PropTypes.number.isRequired }),
+  size: PropTypes.shape({
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+  }).isRequired,
   width: PropTypes.number,
   height: PropTypes.number.isRequired,
   zoomable: PropTypes.bool,
@@ -127,9 +129,9 @@ class LineChartComponent extends Component {
 
   render() {
     const {
-      size: { width: sizeWidth },
+      size: { width: sizeWidth, height: sizeHeight },
       width: propWidth,
-      height,
+      height: propHeight,
       subDomain,
       crosshair,
       onMouseMove,
@@ -148,6 +150,7 @@ class LineChartComponent extends Component {
     } = this.props;
 
     const width = propWidth || sizeWidth;
+    const height = propHeight || sizeHeight;
     const xAxisHeight = 50;
     const axisCollectionSize = {
       width: this.getYAxisCollectionWidth(),
@@ -169,7 +172,7 @@ class LineChartComponent extends Component {
           display: 'grid',
           gridTemplateColumns: `${chartSize.width}px auto`,
           gridTemplateRows: '1fr auto',
-          height: `${height}px`,
+          height: '100%',
         }}
       >
         <div className="lines-container" style={{ height: '100%' }}>
@@ -235,13 +238,9 @@ class LineChartComponent extends Component {
 LineChartComponent.propTypes = propTypes;
 LineChartComponent.defaultProps = defaultProps;
 
-LineChartComponent.propTypes = propTypes;
-LineChartComponent.defaultProps = defaultProps;
-
-LineChartComponent.propTypes = propTypes;
-LineChartComponent.defaultProps = defaultProps;
-
-const SizedLineChartComponent = sizeMe()(LineChartComponent);
+const SizedLineChartComponent = sizeMe({ monitorHeight: true })(
+  LineChartComponent
+);
 
 const LineChart = props => (
   <Scaler>
