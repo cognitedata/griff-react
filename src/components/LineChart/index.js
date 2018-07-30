@@ -19,8 +19,10 @@ import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
 
 const propTypes = {
-  // eslint-disable-next-line react/require-default-props
-  size: PropTypes.shape({ width: PropTypes.number.isRequired }),
+  size: PropTypes.shape({
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+  }).isRequired,
   width: PropTypes.number,
   height: PropTypes.number.isRequired,
   zoomable: PropTypes.bool,
