@@ -1,6 +1,6 @@
 {
   "name": "@cognite/griff-react",
-  "version": "0.2.10",
+  "version": "0.3.0-0",
   "description": "Charting library that relies on React's virtual diffing.",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -21,9 +21,9 @@
     "storybook": "start-storybook -p 9001 -c .storybook",
     "storybook:build": "build-storybook -c .storybook -o .out",
     "demo:build": "nwb build-react-component src/index.js",
-    "package:deploy": "yarn build && np",
     "lint": "eslint src",
-    "prepush": "yarn lint"
+    "prepush": "yarn lint",
+    "release": "node scripts/publish-release.js"
   },
   "dependencies": {
     "antd": "^3.4.1",
@@ -31,9 +31,8 @@
     "d3": "^4.12.0",
     "immutable": "^3.8.2",
     "lodash.isequal": "^4.5.0",
-    "np": "^2.20.1",
     "react-select": "^1.2.1",
-    "react-sizeme": "2.4.3"
+    "react-sizeme": "2.4.4"
   },
   "peerDependencies": {
     "react": "16.x"
@@ -50,12 +49,13 @@
     "nodemon": "^1.17.4",
     "nwb": "^0.21.0",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-dom": "^16.2.0",
+    "semver": "^5.5.0"
   },
-  "author": "",
+  "author": "Cognite AS",
   "homepage": "https://griff.surge.sh/",
   "license": "MIT",
-  "repository": "",
+  "repository": "https://github.com/cognitedata/griff-react",
   "keywords": [
     "react-component"
   ],

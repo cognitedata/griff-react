@@ -196,9 +196,23 @@ storiesOf('LineChart', module)
             baseDomain={staticBaseDomain}
             series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
           >
-            <LineChart height={CHART_HEIGHT} width={CHART_HEIGHT} />
+            <LineChart />
           </DataProvider>
         </div>
+      </div>
+    ))
+  )
+  .add(
+    'Full-size',
+    withInfo()(() => (
+      <div style={{ height: '100vh' }}>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        >
+          <LineChart />
+        </DataProvider>
       </div>
     ))
   )
@@ -251,7 +265,7 @@ storiesOf('LineChart', module)
                     { id: 2, color: 'maroon' },
                   ]}
                 >
-                  <LineChart height={height} width={width} />
+                  <LineChart />
                 </DataProvider>
               </div>
             </React.Fragment>
@@ -439,6 +453,7 @@ storiesOf('LineChart', module)
       const series = staticLoader({
         id: 1,
         reason: 'MOUNTED',
+        baseDomain: staticBaseDomain,
       }).data;
       const exampleAnnotations = [
         {
@@ -464,6 +479,7 @@ storiesOf('LineChart', module)
       const series = staticLoader({
         id: 1,
         reason: 'MOUNTED',
+        baseDomain: staticBaseDomain,
       }).data;
       const exampleAnnotations = [
         {
