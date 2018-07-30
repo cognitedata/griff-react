@@ -120,6 +120,18 @@ storiesOf('LineChart', module)
     ))
   )
   .add(
+    'Basic with animation',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart height={CHART_HEIGHT} openWithAnimation />
+      </DataProvider>
+    ))
+  )
+  .add(
     'Multiple',
     withInfo()(() => (
       <React.Fragment>

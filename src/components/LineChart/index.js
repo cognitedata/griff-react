@@ -58,6 +58,9 @@ const propTypes = {
   onAreaDefined: PropTypes.func,
   // (area, xpos, ypos) => shouldContinue
   onAreaClicked: PropTypes.func,
+  // Whether or not to animate the lines on load
+  // of a single line (including when a new line gets added)
+  openWithAnimation: PropTypes.bool,
 };
 
 const defaultProps = {
@@ -86,6 +89,7 @@ const defaultProps = {
   areas: [],
   onAreaDefined: null,
   onAreaClicked: null,
+  openWithAnimation: false,
 };
 
 class LineChartComponent extends Component {
@@ -147,6 +151,7 @@ class LineChartComponent extends Component {
       areas,
       onAreaDefined,
       onAreaClicked,
+      openWithAnimation,
     } = this.props;
 
     const width = propWidth || sizeWidth;
@@ -178,6 +183,7 @@ class LineChartComponent extends Component {
         <div className="lines-container" style={{ height: '100%' }}>
           <svg width={chartSize.width} height={chartSize.height}>
             <ScaledLineCollection
+              openWithAnimation={openWithAnimation}
               height={chartSize.height}
               width={chartSize.width}
             />
