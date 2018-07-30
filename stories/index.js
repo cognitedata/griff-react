@@ -16,11 +16,16 @@ import {
 } from '../src';
 import quandlLoader from './quandlLoader';
 
-const randomData = ({ baseDomain, n = 250, singleValue = undefined }) => {
+const randomData = ({
+  baseDomain,
+  n = 250,
+  singleValue = undefined,
+  func = () => Math.random(),
+}) => {
   const data = [];
   const dt = (baseDomain[1] - baseDomain[0]) / n;
   for (let i = baseDomain[0]; data.length < n; i += dt) {
-    const value = singleValue === undefined ? Math.random() : singleValue;
+    const value = singleValue === undefined ? func(i) : singleValue;
     data.push({
       timestamp: i,
       value,
@@ -51,8 +56,9 @@ const staticLoader = ({
   action('LOADER_REQUEST_DATA')(id, reason);
   if (reason === 'MOUNTED') {
     // Create dataset on mount
+    const func = typeof id === 'function' ? id : Math.random;
     return {
-      data: randomData({ baseDomain, n, multiplier }),
+      data: randomData({ func, baseDomain, n, multiplier }),
     };
   }
   // Otherwise, return the existing dataset.
@@ -1641,6 +1647,9 @@ const mapping = {
   '6 7': { x: 6, y: 7 },
   '7 8': { x: 7, y: 8 },
   '8 9': { x: 8, y: 9 },
+  sincos: { x: Math.sin, y: Math.cos },
+  sintan: { x: Math.sin, y: Math.tan },
+  pow: { x: v => v, y: v => v * 10 },
 };
 
 const NUM_POINTS = 50;
@@ -1711,6 +1720,24 @@ storiesOf('Scatterplot', module)
         defaultLoader={scatterplotloader}
         baseDomain={[0, 1]}
         series={[{ id: '1 2', color: 'steelblue' }]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot height={500} width={500} zoomable />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Scatterplot (Geometry series)',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        baseDomain={[0, 1]}
+        series={[
+          { id: 'sincos', color: '#ACF39D' },
+          { id: 'sintan', color: '#E85F5C' },
+          { id: 'pow', color: '#9CFFFA' },
+        ]}
         xAccessor={d => +d.x}
         yAccessor={d => +d.y}
       >
