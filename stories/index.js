@@ -1716,33 +1716,37 @@ storiesOf('Scatterplot', module)
   .add(
     'Scatterplot (one series)',
     withInfo()(() => (
-      <DataProvider
-        defaultLoader={scatterplotloader}
-        baseDomain={[0, 1]}
-        series={[{ id: '1 2', color: 'steelblue' }]}
-        xAccessor={d => +d.x}
-        yAccessor={d => +d.y}
-      >
-        <Scatterplot height={500} width={500} zoomable />
-      </DataProvider>
+      <div style={{ height: '500px', width: '500px' }}>
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          baseDomain={[0, 1]}
+          series={[{ id: '1 2', color: 'steelblue' }]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+        >
+          <Scatterplot zoomable />
+        </DataProvider>
+      </div>
     ))
   )
   .add(
     'Scatterplot (Geometry series)',
     withInfo()(() => (
-      <DataProvider
-        defaultLoader={scatterplotloader}
-        baseDomain={[0, 1]}
-        series={[
-          { id: 'sincos', color: '#ACF39D' },
-          { id: 'sintan', color: '#E85F5C' },
-          { id: 'pow', color: '#9CFFFA' },
-        ]}
-        xAccessor={d => +d.x}
-        yAccessor={d => +d.y}
-      >
-        <Scatterplot height={500} width={500} zoomable />
-      </DataProvider>
+      <div style={{ height: '100vh', width: '100%' }}>
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          baseDomain={[0, 1]}
+          series={[
+            { id: 'sincos', color: '#ACF39D' },
+            { id: 'sintan', color: '#E85F5C' },
+            { id: 'pow', color: '#9CFFFA' },
+          ]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+        >
+          <Scatterplot zoomable />
+        </DataProvider>
+      </div>
     ))
   )
   .add(

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import sizeMe from 'react-sizeme';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import { ScaledPointCollection } from '../PointCollection';
@@ -10,8 +11,10 @@ import UnifiedAxis from '../UnifedAxis';
 import XAxis from '../XAxis';
 
 const propTypes = {
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
+  size: PropTypes.shape({
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+  }).isRequired,
   zoomable: PropTypes.bool,
   onClick: PropTypes.func,
   series: seriesPropType.isRequired,
@@ -25,8 +28,7 @@ const defaultProps = {
 };
 
 const ScatterplotComponent = ({
-  width,
-  height,
+  size: { width, height },
   series,
   zoomable,
   onClick,
@@ -38,12 +40,14 @@ const ScatterplotComponent = ({
       display: 'grid',
       gridTemplateColumns: 'auto 1fr',
       gridTemplateRows: 'auto 1fr',
+      height: '100%',
+      width: '100%',
     }}
   >
-    <svg width={width} height={height}>
-      <ScaledPointCollection height={height} width={width} />
+    <svg style={{ width: '100%', height: '100%' }}>
+      <ScaledPointCollection height={height - 50} width={width} />
       <InteractionLayer
-        height={height}
+        height={height - 50}
         width={width}
         zoomable={zoomable}
         onClick={onClick}
@@ -51,11 +55,11 @@ const ScatterplotComponent = ({
         xScalerFactory={xScalerFactory}
       />
     </svg>
-    <UnifiedAxis series={series} height={height} width={100} />
+    <UnifiedAxis series={series} height={height - 50} width={100} />
     <div className="x-axis-container" style={{ width: '100%' }}>
       <XAxis
         domain={subDomain}
-        width={500}
+        width={width}
         xScalerFactory={xScalerFactory}
         tickFormatter={Number}
       />
@@ -67,11 +71,15 @@ const ScatterplotComponent = ({
 ScatterplotComponent.propTypes = propTypes;
 ScatterplotComponent.defaultProps = defaultProps;
 
+const SizedScatterplotComponent = sizeMe({
+  monitorHeight: true,
+})(ScatterplotComponent);
+
 const Scatterplot = props => (
   <Scaler xScalerFactory={createLinearXScale}>
     <ScalerContext.Consumer>
       {({ series, subDomain, xScalerFactory }) => (
-        <ScatterplotComponent
+        <SizedScatterplotComponent
           {...props}
           series={series}
           subDomain={subDomain}
