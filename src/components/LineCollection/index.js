@@ -6,7 +6,7 @@ import ScalerContext from '../../context/Scaler';
 import Line from '../Line';
 
 const LineCollection = props => {
-  const { series, width, height, domain } = props;
+  const { series, width, height, domain, openingAnimationDuration } = props;
   const xScale = createXScale(domain, width);
   const clipPath = `clip-path-${series
     .filter(s => !s.hidden)
@@ -16,6 +16,7 @@ const LineCollection = props => {
     const yScale = createYScale(s.yDomain, height);
     return (
       <Line
+        openingAnimationDuration={openingAnimationDuration}
         key={s.id}
         {...s}
         xScale={xScale}
@@ -39,11 +40,13 @@ LineCollection.propTypes = {
   height: PropTypes.number.isRequired,
   series: seriesPropType,
   domain: PropTypes.arrayOf(PropTypes.number),
+  openingAnimationDuration: PropTypes.bool,
 };
 
 LineCollection.defaultProps = {
   series: [],
   domain: [0, 0],
+  openingAnimationDuration: null,
 };
 
 export default LineCollection;
