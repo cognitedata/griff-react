@@ -16,38 +16,21 @@ class Line extends React.Component {
     }, 500);
   }
 
-  getLineAnimationStyles = () => {
-    if (!this.props.openWithAnimation) {
-      return {};
-    }
-    if (this.pathRef) {
+  getAnimationClipPath = () => {
+    const { openingAnimationDuration } = this.props;
+    if (openingAnimationDuration) {
       if (this.state.animated) {
         return {
-          transition: 'stroke-dashoffset 2s ease',
-          strokeDasharray: this.pathRef.getTotalLength(),
-          strokeDashoffset: 0,
-          opacity: 1,
+          clipPath: 'polygon(0 0, 0 100%, 100% 100%, 100% 0)',
+          transition: `clip-path ${openingAnimationDuration}s ease`,
         };
       }
       return {
-        strokeDasharray: this.pathRef.getTotalLength(),
-        strokeDashoffset: this.pathRef.getTotalLength(),
+        clipPath: 'polygon(0 0, 0 100%, 0 100%, 0 0)',
+        transition: `clip-path ${openingAnimationDuration}s ease`,
       };
     }
-
-    return {
-      opacity: 0,
-    };
-  };
-
-  getClipPath = () => {
-    if (this.props.openWithAnimation) {
-      if (this.state.animated) {
-        return 'polygon(0 0, 0 100%, 100% 100%, 100% 0)';
-      }
-      return 'polygon(0 0, 0 100%, 0 100%, 0 0)';
-    }
-    return 'none';
+    return {};
   };
 
   render() {
@@ -130,12 +113,11 @@ class Line extends React.Component {
             style={{
               stroke: 'none',
               strokeWidth: `${strokeWidth}px`,
-              transition: 'clip-path 2s ease',
-              clipPath: this.getClipPath(),
               transformOrigin: 'left center',
               fill: `${color}`,
               opacity: 0.25,
               display: hidden ? 'none' : 'inherit',
+              ...this.getAnimationClipPath(),
             }}
           />
         )}
@@ -150,7 +132,7 @@ class Line extends React.Component {
             strokeWidth: `${strokeWidth}px`,
             fill: 'none',
             display: hidden ? 'none' : 'inherit',
-            ...this.getLineAnimationStyles(),
+            ...this.getAnimationClipPath(),
           }}
         />
         {circles}
@@ -175,7 +157,7 @@ Line.propTypes = {
   drawPoints: PropTypes.bool,
   strokeWidth: PropTypes.number,
   clipPath: PropTypes.string.isRequired,
-  openWithAnimation: PropTypes.bool,
+  openingAnimationDuration: PropTypes.number,
 };
 
 Line.defaultProps = {
@@ -185,7 +167,7 @@ Line.defaultProps = {
   strokeWidth: 1,
   y0Accessor: null,
   y1Accessor: null,
-  openWithAnimation: false,
+  openingAnimationDuration: null,
 };
 
 export default Line;

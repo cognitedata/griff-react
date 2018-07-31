@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import moment from 'moment';
 import Select from 'react-select';
 import isEqual from 'lodash.isequal';
+import debounce from 'lodash.debounce';
 import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
@@ -121,15 +122,149 @@ storiesOf('LineChart', module)
   )
   .add(
     'Basic with animation',
-    withInfo()(() => (
-      <DataProvider
-        defaultLoader={staticLoader}
-        baseDomain={staticBaseDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
-        <LineChart height={CHART_HEIGHT} openWithAnimation />
-      </DataProvider>
-    ))
+    withInfo()(() => {
+      class AnimChart extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            animSpeed: 4,
+            series: [
+              { id: 1, color: 'steelblue' },
+              {
+                id: 2,
+                color: 'maroon',
+              },
+            ],
+          };
+
+          this.reloadGraph = debounce(this.reloadGraph, 2000);
+        }
+
+        reloadGraph = () => {
+          this.setState({
+            series: [{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }],
+          });
+        };
+
+        render() {
+          const { animSpeed } = this.state;
+          return (
+            <div>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                series={this.state.series}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  openingAnimationDuration={animSpeed}
+                />
+              </DataProvider>
+              <br />
+              Animation speed: <br />
+              <input
+                type="range"
+                id="animSpeed"
+                name="animSpeed"
+                min="1"
+                max="20"
+                value={animSpeed}
+                step="1"
+                onChange={e => {
+                  this.setState({
+                    animSpeed: +e.target.value,
+                    series: [{ id: 1, color: 'steelblue' }],
+                  });
+                  this.reloadGraph();
+                }}
+              />
+              {animSpeed}
+            </div>
+          );
+        }
+      }
+      return <AnimChart />;
+    })
+  )
+  .add(
+    'MinMax with animation',
+    withInfo()(() => {
+      class AnimChart extends React.Component {
+        constructor(props) {
+          super(props);
+          this.y0Accessor = d => d[1] - 0.5;
+          this.y1Accessor = d => d[1] + 0.5;
+          this.state = {
+            animSpeed: 4,
+            series: [
+              { id: 1, color: 'steelblue' },
+              {
+                id: 2,
+                color: 'maroon',
+                y0Accessor: this.y0Accessor,
+                y1Accessor: this.y1Accessor,
+              },
+            ],
+          };
+
+          this.reloadGraph = debounce(this.reloadGraph, 2000);
+        }
+
+        reloadGraph = () => {
+          this.setState({
+            series: [
+              { id: 1, color: 'steelblue' },
+              {
+                id: 2,
+                color: 'maroon',
+                y0Accessor: this.y0Accessor,
+                y1Accessor: this.y1Accessor,
+              },
+            ],
+          });
+        };
+
+        render() {
+          const { animSpeed } = this.state;
+          return (
+            <div>
+              <DataProvider
+                defaultLoader={customAccessorLoader}
+                xAccessor={d => d[0]}
+                yAccessor={d => d[1]}
+                baseDomain={staticBaseDomain}
+                series={this.state.series}
+              >
+                <LineChart
+                  height={CHART_HEIGHT}
+                  openingAnimationDuration={animSpeed}
+                />
+              </DataProvider>
+              <br />
+              Animation speed: <br />
+              <input
+                type="range"
+                id="animSpeed"
+                name="animSpeed"
+                min="1"
+                max="20"
+                value={animSpeed}
+                step="1"
+                onChange={e => {
+                  this.setState({
+                    animSpeed: +e.target.value,
+                    series: [{ id: 1, color: 'steelblue' }],
+                  });
+                  this.reloadGraph();
+                }}
+              />
+              {animSpeed}
+            </div>
+          );
+        }
+      }
+      return <AnimChart />;
+    })
   )
   .add(
     'Multiple',
