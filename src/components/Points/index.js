@@ -5,6 +5,7 @@ import {
   accessorFuncPropType,
   scaleFuncPropType,
 } from '../../utils/proptypes';
+import { boundedSeries } from '../../utils/boundedseries';
 
 const propTypes = {
   data: PropTypes.arrayOf(dataPointPropType).isRequired,
@@ -31,10 +32,10 @@ const Points = ({
   const points = data.map(d => (
     <circle
       key={`${xAccessor(d)}-${yAccessor(d)}`}
-      className="scatterplot-point"
+      className="point"
       r={strokeWidth}
-      cx={xScale(xAccessor(d))}
-      cy={yScale(yAccessor(d))}
+      cx={boundedSeries(xScale(xAccessor(d)))}
+      cy={boundedSeries(yScale(yAccessor(d)))}
       fill={color}
     />
   ));

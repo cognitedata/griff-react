@@ -24,7 +24,7 @@ const PointCollection = ({ width, height, series, domain, xScalerFactory }) => {
 
   return (
     <g width={width} height={height}>
-      <clipPath id="scatterplot-clip-path">
+      <clipPath id={`scatterplot-clip-path-${series.map(s => s.id).join('-')}`}>
         <rect width={width} height={height} fill="none" />
       </clipPath>
       {points}
