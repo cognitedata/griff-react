@@ -24,12 +24,14 @@ class InteractionLayer extends React.Component {
     crosshair: PropTypes.bool,
     ruler: rulerPropType,
     height: PropTypes.number.isRequired,
-    // area => null
+    // area => void
     onAreaDefined: PropTypes.func,
-    // (area, xpos, ypos) => null
+    // (area, xpos, ypos) => void
     onAreaClicked: PropTypes.func,
     onClick: PropTypes.func,
     onClickAnnotation: PropTypes.func,
+    // event => void
+    onDoubleClick: PropTypes.func,
     onMouseMove: PropTypes.func,
     onMouseOut: PropTypes.func,
     updateXTransformation: PropTypes.func,
@@ -50,6 +52,7 @@ class InteractionLayer extends React.Component {
     onAreaClicked: null,
     onClick: null,
     onClickAnnotation: null,
+    onDoubleClick: null,
     onMouseMove: null,
     onMouseOut: null,
     updateXTransformation: () => {},
@@ -374,8 +377,14 @@ class InteractionLayer extends React.Component {
   };
 
   syncZoomingState = () => {
-    if (this.props.zoomable && !this.props.onAreaDefined) {
+    const { onAreaDefined, onDoubleClick, zoomable } = this.props;
+    if (zoomable && !onAreaDefined) {
       this.rectSelection.call(this.zoom.on('zoom', this.zoomed));
+      if (onDoubleClick) {
+        this.rectSelection.on('dblclick.zoom', () => {
+          onDoubleClick(d3.event);
+        });
+      }
     } else {
       this.rectSelection.on('.zoom', null);
     }

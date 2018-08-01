@@ -393,6 +393,21 @@ storiesOf('InteractionLayer', module)
     })
   )
   .add(
+    'Double-click events',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          onDoubleClick={action('onDoubleClick')}
+        />
+      </DataProvider>
+    ))
+  )
+  .add(
     'Regression: onMouseUp',
     withInfo()(() => {
       // eslint-disable-next-line

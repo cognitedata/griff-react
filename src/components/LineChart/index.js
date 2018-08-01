@@ -30,17 +30,19 @@ const propTypes = {
   crosshair: PropTypes.bool,
   onMouseMove: PropTypes.func,
   onClick: PropTypes.func,
-  // (annotation, x, y) => null
+  // (annotation, x, y) => void
   onClickAnnotation: PropTypes.func,
+  // event => void
+  onDoubleClick: PropTypes.func,
   subDomain: PropTypes.arrayOf(PropTypes.number),
   yAxisWidth: PropTypes.number,
   contextChart: contextChartPropType,
   ruler: rulerPropType,
   annotations: PropTypes.arrayOf(annotationPropType),
   yAxisDisplayMode: axisDisplayModeType,
-  // (e, seriesId) => null
+  // (e, seriesId) => void
   onAxisMouseEnter: PropTypes.func,
-  // (e, seriesId) => null
+  // (e, seriesId) => void
   onAxisMouseLeave: PropTypes.func,
   areas: PropTypes.arrayOf(areaPropType),
   /**
@@ -70,6 +72,7 @@ const defaultProps = {
   onMouseMove: null,
   onClick: null,
   onClickAnnotation: null,
+  onDoubleClick: null,
   series: [],
   annotations: [],
   ruler: {
@@ -137,6 +140,7 @@ class LineChartComponent extends Component {
       onMouseMove,
       onClick,
       onClickAnnotation,
+      onDoubleClick,
       zoomable,
       yAxisDisplayMode,
       onAxisMouseEnter,
@@ -187,6 +191,7 @@ class LineChartComponent extends Component {
               crosshair={crosshair}
               onMouseMove={onMouseMove}
               onClickAnnotation={onClickAnnotation}
+              onDoubleClick={onDoubleClick}
               zoomable={zoomable}
               ruler={ruler}
               annotations={annotations}
