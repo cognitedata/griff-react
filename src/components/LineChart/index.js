@@ -168,9 +168,10 @@ class LineChartComponent extends Component {
 
     return (
       <div
+        className="linechart-container"
         style={{
           display: 'grid',
-          gridTemplateColumns: `${chartSize.width}px auto`,
+          gridTemplateColumns: `1fr auto`,
           gridTemplateRows: '1fr auto',
           height: '100%',
         }}
