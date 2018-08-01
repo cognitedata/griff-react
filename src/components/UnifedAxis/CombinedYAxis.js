@@ -1,66 +1,24 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 import PropTypes from 'prop-types';
-import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
 import { seriesPropType } from '../../utils/proptypes';
 
 const propTypes = {
-  zoomable: PropTypes.bool,
   series: seriesPropType.isRequired,
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
-  updateYTransformation: PropTypes.func,
-  yTransformations: PropTypes.objectOf(
-    PropTypes.shape({
-      y: PropTypes.number.isRequired,
-      k: PropTypes.number.isRequired,
-      rescaleY: PropTypes.func.isRequired,
-    })
-  ),
   color: PropTypes.string,
   // Number => String
   tickFormatter: PropTypes.func,
 };
 
 const defaultProps = {
-  zoomable: true,
-  updateYTransformation: () => {},
-  yTransformations: null,
   color: '#000',
   tickFormatter: Number,
 };
 
 export default class CombinedYAxis extends Component {
-  componentWillMount() {
-    this.zoom = d3.zoom().on('zoom', this.didZoom);
-  }
-
-  componentDidMount() {
-    this.selection = d3.select(this.zoomNode);
-    this.syncZoomingState();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.zoomable !== this.props.zoomable) {
-      this.syncZoomingState();
-    }
-    const { yTransformations } = this.props;
-    const firstTransformation = (yTransformations || {})[
-      Object.keys(yTransformations)[0]
-    ];
-    if (firstTransformation) {
-      if (
-        !isEqual(
-          this.getDomain(prevProps.series),
-          this.getDomain(this.props.series)
-        )
-      ) {
-        this.selection.property('__zoom', firstTransformation);
-      }
-    }
-  }
-
   getDomain = seriesArray => {
     const yDomain = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
     seriesArray.forEach(s => {
@@ -69,36 +27,6 @@ export default class CombinedYAxis extends Component {
     });
     return yDomain;
   };
-
-  syncZoomingState = () => {
-    if (this.props.zoomable) {
-      this.selection.call(this.zoom);
-    } else {
-      this.selection.on('.zoom', null);
-    }
-  };
-
-  didZoom = () => {
-    const t = d3.event.transform;
-    this.props.series.forEach(s => {
-      this.props.updateYTransformation(s.id, t, this.props.height);
-    });
-  };
-
-  renderZoomRect() {
-    const { height, width } = this.props;
-    return (
-      <rect
-        width={width}
-        height={height}
-        fill="none"
-        pointerEvents="all"
-        ref={ref => {
-          this.zoomNode = ref;
-        }}
-      />
-    );
-  }
 
   renderAxis() {
     const { series, height, color, tickFormatter } = this.props;
@@ -154,14 +82,7 @@ export default class CombinedYAxis extends Component {
   }
 
   render() {
-    const { zoomable } = this.props;
-    const cursor = zoomable ? 'move' : 'inherit';
-    return (
-      <g className="axis-y" cursor={cursor}>
-        {this.renderAxis()}
-        {this.renderZoomRect()}
-      </g>
-    );
+    return <g className="axis-y">{this.renderAxis()}</g>;
   }
 }
 

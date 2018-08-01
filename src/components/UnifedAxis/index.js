@@ -8,39 +8,19 @@ const propTypes = {
   series: seriesPropType.isRequired,
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
-  updateYTransformation: PropTypes.func.isRequired,
-  yTransformations: PropTypes.objectOf(
-    PropTypes.shape({
-      k: PropTypes.number.isRequired,
-      y: PropTypes.number.isRequired,
-      rescaleY: PropTypes.func.isRequired,
-    })
-  ),
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
-  zoomable: PropTypes.bool,
 };
 const defaultProps = {
   onMouseEnter: null,
   onMouseLeave: null,
-  zoomable: true,
-  yTransformations: [],
 };
 
 class UnifiedAxis extends React.Component {
   state = {};
 
   render() {
-    const {
-      series,
-      width,
-      height,
-      onMouseEnter,
-      onMouseLeave,
-      zoomable,
-      updateYTransformation,
-      yTransformations,
-    } = this.props;
+    const { series, width, height, onMouseEnter, onMouseLeave } = this.props;
     return (
       <svg
         width={width}
@@ -54,9 +34,6 @@ class UnifiedAxis extends React.Component {
           series={series.filter(s => !s.hidden)}
           width={width}
           height={height}
-          zoomable={zoomable}
-          updateYTransformation={updateYTransformation}
-          yTransformations={yTransformations}
         />
       </svg>
     );
@@ -68,14 +45,8 @@ UnifiedAxis.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ series, yAxisWidth, updateYTransformation, yTransformations }) => (
-      <UnifiedAxis
-        {...props}
-        series={series}
-        yAxisWidth={yAxisWidth}
-        updateYTransformation={updateYTransformation}
-        yTransformations={yTransformations}
-      />
+    {({ series, yAxisWidth }) => (
+      <UnifiedAxis {...props} series={series} yAxisWidth={yAxisWidth} />
     )}
   </ScalerContext.Consumer>
 );
