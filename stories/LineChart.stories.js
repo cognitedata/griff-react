@@ -1,5 +1,4 @@
 import React from 'react';
-import * as d3 from 'd3';
 import moment from 'moment';
 import Select from 'react-select';
 import isEqual from 'lodash.isequal';
@@ -7,83 +6,15 @@ import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { withInfo } from '@storybook/addon-info';
-import { DataProvider, LineChart, Brush, AxisDisplayMode } from '../src';
+import { DataProvider, LineChart, Brush } from '../src';
 import quandlLoader from './quandlLoader';
 
-const randomData = (baseDomain, n = 250) => {
-  const data = [];
-  const dt = (baseDomain[1] - baseDomain[0]) / n;
-  for (let i = baseDomain[0]; i <= baseDomain[1]; i += dt) {
-    const value = Math.random();
-    data.push({
-      timestamp: i,
-      value,
-    });
-  }
-  return data;
-};
-
-const staticLoader = ({
-  id,
-  baseDomain,
-  pointsPerSeries,
-  oldSeries,
-  reason,
-}) => {
-  action('LOADER_REQUEST_DATA')(id, reason);
-  if (reason === 'MOUNTED') {
-    // Create dataset on mount
-    return {
-      data: randomData(baseDomain, pointsPerSeries || 250),
-    };
-  }
-  // Otherwise, return the existing dataset.
-  return {
-    data: oldSeries.data,
-  };
-};
-
-const liveLoader = ({ oldSeries, baseDomain, reason }) => {
-  // action('LOADER_REQUEST_DATA')(id, reason);
-  if (reason === 'MOUNTED') {
-    // Create dataset on mount
-    return {
-      data: randomData(baseDomain, 25),
-    };
-  }
-  if (reason === 'INTERVAL') {
-    let splicingIndex = 0;
-    for (let i = 0; i < oldSeries.data; i += 1) {
-      if (oldSeries.data[i] >= baseDomain[0]) {
-        splicingIndex = i - 1;
-        break;
-      }
-    }
-    return Math.random() < 0.05
-      ? {
-          data: [
-            ...oldSeries.data.slice(splicingIndex),
-            { timestamp: Date.now(), value: Math.random() },
-          ],
-        }
-      : oldSeries;
-  }
-  // Otherwise, return the existing dataset.
-  return {
-    data: oldSeries.data,
-  };
-};
-
-const customAccessorLoader = ({ baseDomain, oldSeries, reason }) => {
-  if (reason === 'MOUNTED') {
-    return {
-      data: randomData(baseDomain).map(d => [d.timestamp, d.value]),
-    };
-  }
-  return {
-    data: oldSeries.data,
-  };
-};
+import {
+  staticLoader,
+  monoLoader,
+  customAccessorLoader,
+  liveLoader,
+} from './loaders';
 
 const staticBaseDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const liveBaseDomain = [Date.now() - 1000 * 30, Date.now()];
@@ -109,6 +40,59 @@ storiesOf('LineChart', module)
     ))
   )
   .add(
+    'Multiple',
+    withInfo()(() => (
+      <React.Fragment>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 1, color: 'steelblue' },
+            { id: 2, color: 'maroon' },
+            { id: 3, color: 'orange' },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 1, color: 'steelblue' },
+            { id: 2, color: 'maroon' },
+            { id: 3, color: 'orange', hidden: true },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      </React.Fragment>
+    ))
+  )
+  .add(
+    'Single-value in y axis',
+    withInfo()(() => (
+      <React.Fragment>
+        <DataProvider
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 1, color: 'steelblue', loader: monoLoader(0) },
+            { id: 2, color: 'maroon', loader: monoLoader(0.5) },
+            { id: 3, color: 'orange', loader: monoLoader(-0.5) },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      </React.Fragment>
+    ))
+  )
+  .add(
     'Sized',
     withInfo()(() => (
       <div>
@@ -125,9 +109,23 @@ storiesOf('LineChart', module)
             baseDomain={staticBaseDomain}
             series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
           >
-            <LineChart height={CHART_HEIGHT} width={CHART_HEIGHT} />
+            <LineChart />
           </DataProvider>
         </div>
+      </div>
+    ))
+  )
+  .add(
+    'Full-size',
+    withInfo()(() => (
+      <div style={{ height: '100vh' }}>
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        >
+          <LineChart />
+        </DataProvider>
       </div>
     ))
   )
@@ -270,6 +268,27 @@ storiesOf('LineChart', module)
     })
   )
   .add(
+    'min/max with raw points',
+    withInfo()(() => {
+      const y0Accessor = d => d[1] - 0.5;
+      const y1Accessor = d => d[1] + 0.5;
+      return (
+        <DataProvider
+          defaultLoader={customAccessorLoader}
+          xAccessor={d => d[0]}
+          yAccessor={d => d[1]}
+          baseDomain={staticBaseDomain}
+          series={[
+            { id: 10, color: 'steelblue', y0Accessor, y1Accessor },
+            { id: 2, color: 'maroon', drawPoints: true },
+          ]}
+        >
+          <LineChart height={CHART_HEIGHT} />
+        </DataProvider>
+      );
+    })
+  )
+  .add(
     'Loading data from api',
     withInfo()(() => (
       <DataProvider
@@ -391,6 +410,7 @@ storiesOf('LineChart', module)
       const series = staticLoader({
         id: 1,
         reason: 'MOUNTED',
+        baseDomain: staticBaseDomain,
       }).data;
       const exampleAnnotations = [
         {
@@ -416,6 +436,7 @@ storiesOf('LineChart', module)
       const series = staticLoader({
         id: 1,
         reason: 'MOUNTED',
+        baseDomain: staticBaseDomain,
       }).data;
       const exampleAnnotations = [
         {
@@ -571,13 +592,75 @@ storiesOf('LineChart', module)
     })
   )
   .add(
-    'Ruler',
+    'Dynamic sub domain',
+    withInfo()(() => {
+      const subDomainFirst = [
+        Date.now() - 1000 * 60 * 60 * 24 * 20,
+        Date.now() - 1000 * 60 * 60 * 24 * 10,
+      ];
+
+      const subDomainSecond = [
+        Date.now() - 1000 * 60 * 60 * 24 * 10,
+        Date.now(),
+      ];
+
+      class CustomSubDomain extends React.Component {
+        state = {
+          isFirst: true,
+        };
+
+        render() {
+          return (
+            <React.Fragment>
+              <button
+                onClick={() => this.setState({ isFirst: !this.state.isFirst })}
+              >
+                {this.state.isFirst
+                  ? `Switch subDomain`
+                  : `Switch back subDomain`}
+              </button>
+              <DataProvider
+                defaultLoader={staticLoader}
+                baseDomain={staticBaseDomain}
+                subDomain={
+                  this.state.isFirst ? subDomainFirst : subDomainSecond
+                }
+                series={[
+                  { id: 1, color: 'steelblue' },
+                  { id: 2, color: 'maroon' },
+                ]}
+              >
+                <LineChart height={CHART_HEIGHT} />
+              </DataProvider>
+            </React.Fragment>
+          );
+        }
+      }
+      return <CustomSubDomain />;
+    })
+  )
+  .add(
+    'Live loading',
     withInfo()(() => (
       <DataProvider
-        baseDomain={staticBaseDomain}
-        defaultLoader={staticLoader}
-        xAccessor={d => d.timestamp}
-        yAccessor={d => d.value}
+        defaultLoader={liveLoader}
+        baseDomain={liveBaseDomain}
+        updateInterval={33}
+        yAxisWidth={50}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Live loading and ruler',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={liveLoader}
+        baseDomain={liveBaseDomain}
+        updateInterval={33}
+        yAxisWidth={50}
         series={[
           { id: 1, color: 'steelblue', name: 'name1' },
           { id: 2, color: 'maroon', name: 'name2' },
@@ -598,20 +681,6 @@ storiesOf('LineChart', module)
     ))
   )
   .add(
-    'Live loading',
-    withInfo()(() => (
-      <DataProvider
-        defaultLoader={liveLoader}
-        baseDomain={liveBaseDomain}
-        updateInterval={33}
-        yAxisWidth={50}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
-        <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
-    ))
-  )
-  .add(
     'Enable/disable series',
     withInfo()(() => {
       const colors = {
@@ -628,7 +697,7 @@ storiesOf('LineChart', module)
       // eslint-disable-next-line
       class EnableDisableSeries extends React.Component {
         state = {
-          series: options,
+          series: [options[0]],
         };
 
         onChangeSeries = series => this.setState({ series });
@@ -700,332 +769,5 @@ storiesOf('LineChart', module)
         }
       }
       return <BrushComponent />;
-    })
-  );
-
-storiesOf('Y-Axis Modes', module)
-  .addDecorator(story => (
-    <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
-      {story()}
-    </div>
-  ))
-  .add(
-    'Without y axis',
-    withInfo()(() => (
-      <DataProvider
-        defaultLoader={staticLoader}
-        baseDomain={staticBaseDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
-        <LineChart
-          height={CHART_HEIGHT}
-          yAxisDisplayMode={AxisDisplayMode.NONE}
-        />
-      </DataProvider>
-    ))
-  )
-  .add(
-    'Collapsed y axis',
-    withInfo()(() => (
-      <DataProvider
-        defaultLoader={staticLoader}
-        baseDomain={staticBaseDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
-        <LineChart
-          height={CHART_HEIGHT}
-          yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
-        />
-      </DataProvider>
-    ))
-  )
-  .add(
-    'Some hidden',
-    withInfo()(() => {
-      // eslint-disable-next-line
-      class SomeCollapsed extends React.Component {
-        state = {
-          yAxisDisplayMode: AxisDisplayMode.ALL,
-        };
-
-        render() {
-          const { yAxisDisplayMode } = this.state;
-          return (
-            <React.Fragment>
-              <DataProvider
-                defaultLoader={staticLoader}
-                baseDomain={staticBaseDomain}
-                series={[
-                  {
-                    id: 1,
-                    color: 'steelblue',
-                    yAxisDisplayMode: AxisDisplayMode.NONE,
-                  },
-                  {
-                    id: 2,
-                    color: 'maroon',
-                  },
-                  {
-                    id: 3,
-                    color: 'orange',
-                    yAxisDisplayMode: AxisDisplayMode.NONE,
-                  },
-                  { id: 4, color: 'green' },
-                ]}
-              >
-                <LineChart
-                  height={CHART_HEIGHT}
-                  yAxisDisplayMode={yAxisDisplayMode}
-                />
-              </DataProvider>
-              <button
-                onClick={() =>
-                  this.setState({
-                    yAxisDisplayMode: AxisDisplayMode.ALL,
-                  })
-                }
-              >
-                ALL
-              </button>
-              <button
-                onClick={() =>
-                  this.setState({
-                    yAxisDisplayMode: AxisDisplayMode.NONE,
-                  })
-                }
-              >
-                NONE
-              </button>
-              <button
-                onClick={() =>
-                  this.setState({
-                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-                  })
-                }
-              >
-                COLLAPSED
-              </button>
-            </React.Fragment>
-          );
-        }
-      }
-      return <SomeCollapsed />;
-    })
-  )
-  .add(
-    'Some collapsed',
-    withInfo()(() => {
-      // eslint-disable-next-line
-      class SomeCollapsed extends React.Component {
-        state = {
-          yAxisDisplayMode: AxisDisplayMode.ALL,
-        };
-
-        render() {
-          const { yAxisDisplayMode } = this.state;
-          return (
-            <React.Fragment>
-              <DataProvider
-                defaultLoader={staticLoader}
-                baseDomain={staticBaseDomain}
-                series={[
-                  {
-                    id: 1,
-                    color: 'steelblue',
-                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-                  },
-                  {
-                    id: 2,
-                    color: 'maroon',
-                  },
-                  {
-                    id: 3,
-                    color: 'orange',
-                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-                  },
-                  { id: 4, color: 'green' },
-                ]}
-              >
-                <LineChart
-                  height={CHART_HEIGHT}
-                  yAxisDisplayMode={yAxisDisplayMode}
-                />
-              </DataProvider>
-            </React.Fragment>
-          );
-        }
-      }
-      return <SomeCollapsed />;
-    })
-  )
-  .add(
-    'Some collapsed (until hover)',
-    withInfo()(() => {
-      // eslint-disable-next-line
-      class SomeCollapsed extends React.Component {
-        state = {
-          yAxisDisplayMode: AxisDisplayMode.ALL,
-          series: [
-            {
-              id: 1,
-              color: 'steelblue',
-              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-            },
-            {
-              id: 2,
-              color: 'maroon',
-            },
-            {
-              id: 3,
-              color: 'orange',
-              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-            },
-            { id: 4, color: 'green' },
-          ],
-        };
-
-        toggleAxisMode = () => {
-          const series = this.state.series.map(s => {
-            let yAxisDisplayMode;
-            if (s.id === 1 || s.id === 3) {
-              if (!s.yAxisDisplayMode) {
-                yAxisDisplayMode = AxisDisplayMode.COLLAPSED;
-              }
-            }
-            return {
-              ...s,
-              yAxisDisplayMode,
-            };
-          });
-          this.setState({
-            series,
-          });
-        };
-
-        render() {
-          const { series, yAxisDisplayMode } = this.state;
-          return (
-            <React.Fragment>
-              <DataProvider
-                defaultLoader={staticLoader}
-                baseDomain={staticBaseDomain}
-                series={series}
-              >
-                <LineChart
-                  height={CHART_HEIGHT}
-                  yAxisDisplayMode={yAxisDisplayMode}
-                  onAxisMouseEnter={this.toggleAxisMode}
-                  onAxisMouseLeave={this.toggleAxisMode}
-                />
-              </DataProvider>
-            </React.Fragment>
-          );
-        }
-      }
-      return <SomeCollapsed />;
-    })
-  )
-  .add(
-    'AxisCollection modes (button)',
-    withInfo()(() => {
-      // eslint-disable-next-line
-      class ExpandCollapse extends React.Component {
-        state = {
-          yAxisDisplayMode: AxisDisplayMode.ALL,
-        };
-
-        render() {
-          const { yAxisDisplayMode } = this.state;
-          return (
-            <React.Fragment>
-              <DataProvider
-                defaultLoader={staticLoader}
-                baseDomain={staticBaseDomain}
-                series={[
-                  { id: 1, color: 'steelblue' },
-                  { id: 2, color: 'maroon' },
-                ]}
-              >
-                <LineChart
-                  height={CHART_HEIGHT}
-                  yAxisDisplayMode={yAxisDisplayMode}
-                />
-              </DataProvider>
-              <button
-                onClick={() =>
-                  this.setState({
-                    yAxisDisplayMode: AxisDisplayMode.ALL,
-                  })
-                }
-              >
-                ALL
-              </button>
-              <button
-                onClick={() =>
-                  this.setState({
-                    yAxisDisplayMode: AxisDisplayMode.NONE,
-                  })
-                }
-              >
-                NONE
-              </button>
-              <button
-                onClick={() =>
-                  this.setState({
-                    yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-                  })
-                }
-              >
-                COLLAPSED
-              </button>
-            </React.Fragment>
-          );
-        }
-      }
-      return <ExpandCollapse />;
-    })
-  )
-  .add(
-    'AxisCollection modes (hover)',
-    withInfo()(() => {
-      // eslint-disable-next-line
-      class ExpandCollapse extends React.Component {
-        state = {
-          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-        };
-
-        toggleAxisMode = () => {
-          this.setState({
-            yAxisDisplayMode:
-              this.state.yAxisDisplayMode === AxisDisplayMode.ALL
-                ? AxisDisplayMode.COLLAPSED
-                : AxisDisplayMode.ALL,
-          });
-        };
-
-        render() {
-          const { yAxisDisplayMode } = this.state;
-          return (
-            <React.Fragment>
-              <DataProvider
-                defaultLoader={staticLoader}
-                baseDomain={staticBaseDomain}
-                series={[
-                  { id: 1, color: 'steelblue' },
-                  { id: 2, color: 'maroon' },
-                ]}
-              >
-                <LineChart
-                  height={CHART_HEIGHT}
-                  yAxisDisplayMode={yAxisDisplayMode}
-                  onAxisMouseEnter={this.toggleAxisMode}
-                  onAxisMouseLeave={this.toggleAxisMode}
-                />
-              </DataProvider>
-            </React.Fragment>
-          );
-        }
-      }
-      return <ExpandCollapse />;
     })
   );

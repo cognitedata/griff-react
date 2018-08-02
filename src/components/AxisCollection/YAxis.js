@@ -5,27 +5,31 @@ import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
 import { singleSeriePropType } from '../../utils/proptypes';
 
+const propTypes = {
+  zoomable: PropTypes.bool,
+  offsetx: PropTypes.number.isRequired,
+  series: singleSeriePropType.isRequired,
+  height: PropTypes.number.isRequired,
+  width: PropTypes.number.isRequired,
+  updateYTransformation: PropTypes.func,
+  yTransformation: PropTypes.shape({
+    y: PropTypes.number.isRequired,
+    k: PropTypes.number.isRequired,
+    rescaleY: PropTypes.func.isRequired,
+  }),
+  onMouseEnter: PropTypes.func,
+  onMouseLeave: PropTypes.func,
+};
+
+const defaultProps = {
+  zoomable: true,
+  updateYTransformation: () => {},
+  yTransformation: null,
+  onMouseEnter: null,
+  onMouseLeave: null,
+};
+
 export default class YAxis extends Component {
-  static propTypes = {
-    zoomable: PropTypes.bool,
-    offsetx: PropTypes.number.isRequired,
-    series: singleSeriePropType.isRequired,
-    height: PropTypes.number.isRequired,
-    width: PropTypes.number.isRequired,
-    updateYTransformation: PropTypes.func,
-    yTransformation: PropTypes.shape({
-      y: PropTypes.number.isRequired,
-      k: PropTypes.number.isRequired,
-      rescaleY: PropTypes.func.isRequired,
-    }),
-  };
-
-  static defaultProps = {
-    zoomable: true,
-    updateYTransformation: () => {},
-    yTransformation: null,
-  };
-
   componentWillMount() {
     this.zoom = d3.zoom().on('zoom', this.didZoom);
   }
@@ -88,9 +92,11 @@ export default class YAxis extends Component {
     const tickSizeOuter = axis.tickSizeOuter();
     const tickSizeInner = axis.tickSizeInner();
     const tickPadding = axis.tickPadding();
-    const values = scale.ticks();
+    // same as for xAxis but consider height of the screen ~two times smaller
+    const nTicks = Math.floor(height / 50) || 1;
+    const values = scale.ticks(nTicks);
     const k = 1;
-    const tickFormat = scale.tickFormat();
+    const tickFormat = scale.tickFormat(nTicks);
     const range = scale.range().map(r => r + halfStrokeWidth);
     const pathString = [
       // Move to this (x,y); start drawing
@@ -132,13 +138,15 @@ export default class YAxis extends Component {
   }
 
   render() {
-    const { offsetx, zoomable } = this.props;
+    const { offsetx, zoomable, onMouseEnter, onMouseLeave } = this.props;
     const cursor = zoomable ? 'move' : 'inherit';
     return (
       <g
         className="axis-y"
         transform={`translate(${offsetx}, 0)`}
         cursor={cursor}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
       >
         {this.renderAxis()}
         {this.renderZoomRect()}
@@ -146,3 +154,6 @@ export default class YAxis extends Component {
     );
   }
 }
+
+YAxis.propTypes = propTypes;
+YAxis.defaultProps = defaultProps;

@@ -20,7 +20,15 @@ const calculateDomainFromData = (
   }
   const diff = extent[1] - extent[0];
   if (Math.abs(diff) < 1e-3) {
-    return [(1 / 2) * extent[0], (3 / 2) * extent[0]];
+    if (extent[0] === 0) {
+      // If 0 is the only value present in the series, hard code domain.
+      return [-0.25, 0.25];
+    }
+    const domain = [(1 / 2) * extent[0], (3 / 2) * extent[0]];
+    if (domain[1] < domain[0]) {
+      return [domain[1], domain[0]];
+    }
+    return domain;
   }
   return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
 };
@@ -38,9 +46,19 @@ const deleteUndefinedFromObject = obj => {
   return newObject;
 };
 
+// make sure that passed subDomain is part of baseDomain
+const getSubDomain = (baseDomain, subDomain) => {
+  if (!subDomain) {
+    return baseDomain;
+  }
+  const minDomain = Math.max(subDomain[0], baseDomain[0]);
+  const maxDomain = Math.min(subDomain[1], baseDomain[1]);
+  return [minDomain, maxDomain];
+};
+
 export default class DataProvider extends Component {
   state = {
-    subDomain: this.props.baseDomain,
+    subDomain: getSubDomain(this.props.baseDomain, this.props.subDomain),
     baseDomain: this.props.baseDomain,
     loaderConfig: {},
     contextSeries: {},
@@ -90,8 +108,10 @@ export default class DataProvider extends Component {
     // run the fetchData lifecycle for those series
     const { updateInterval } = this.props;
     const { updateInterval: prevUpdateInterval } = prevProps;
-    if (prevUpdateInterval && updateInterval !== prevUpdateInterval) {
-      clearInterval(this.fetchInterval);
+    if (updateInterval !== prevUpdateInterval) {
+      if (prevUpdateInterval) {
+        clearInterval(this.fetchInterval);
+      }
       if (updateInterval) {
         this.startUpdateInterval();
       }
@@ -102,6 +122,10 @@ export default class DataProvider extends Component {
     }
     const { series } = this.props;
     const { subDomain, baseDomain } = this.state;
+
+    if (!isEqual(this.props.subDomain, prevProps.subDomain)) {
+      this.subDomainChanged(this.props.subDomain);
+    }
 
     const currentSeriesKeys = {};
     series.forEach(s => {
@@ -123,11 +147,15 @@ export default class DataProvider extends Component {
 
     // Check if basedomain changed in props -- if so reset state.
     if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
+      const newSubDomain = getSubDomain(
+        this.props.baseDomain,
+        this.props.subDomain
+      );
       // eslint-disable-next-line
       this.setState(
         {
           baseDomain: this.props.baseDomain,
-          subDomain: this.props.baseDomain,
+          subDomain: newSubDomain,
           loaderConfig: {},
           contextSeries: {},
           yDomains: {},
@@ -138,6 +166,9 @@ export default class DataProvider extends Component {
           );
         }
       );
+      if (this.props.onSubDomainChanged) {
+        this.props.onSubDomainChanged(newSubDomain);
+      }
       if (this.fetchInterval) {
         clearInterval(this.fetchInterval);
       }
@@ -256,12 +287,20 @@ export default class DataProvider extends Component {
         ),
       250
     );
+    if (this.props.onSubDomainChanged) {
+      this.props.onSubDomainChanged(subDomain);
+    }
     this.setState({ subDomain });
   };
 
   render() {
     const { loaderConfig, contextSeries, baseDomain, subDomain } = this.state;
-    const { yAxisWidth, children, baseDomain: externalBaseDomain } = this.props;
+    const {
+      yAxisWidth,
+      children,
+      baseDomain: externalBaseDomain,
+      subDomain: externalSubDomain,
+    } = this.props;
     if (Object.keys(loaderConfig).length === 0) {
       // Do not bother, loader hasn't given any data yet.
       return null;
@@ -273,6 +312,8 @@ export default class DataProvider extends Component {
       // This is used to signal external changes vs internal changes
       externalBaseDomain,
       subDomain,
+      // This is used to signal external changes vs internal changes
+      externalSubDomain,
       yAxisWidth,
       subDomainChanged: this.subDomainChanged,
       contextSeries: seriesObjects.map(s => ({
@@ -290,6 +331,7 @@ export default class DataProvider extends Component {
 
 DataProvider.propTypes = {
   baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  subDomain: PropTypes.arrayOf(PropTypes.number),
   updateInterval: PropTypes.number,
   yAccessor: PropTypes.func,
   y0Accessor: PropTypes.func,
@@ -300,6 +342,8 @@ DataProvider.propTypes = {
   children: PropTypes.node.isRequired,
   defaultLoader: PropTypes.func,
   series: seriesPropType.isRequired,
+  // (subDomain) => null
+  onSubDomainChanged: PropTypes.func,
 };
 
 DataProvider.defaultProps = {
@@ -311,4 +355,6 @@ DataProvider.defaultProps = {
   pointsPerSeries: 250,
   yAxisWidth: 50,
   defaultLoader: null,
+  subDomain: null,
+  onSubDomainChanged: null,
 };

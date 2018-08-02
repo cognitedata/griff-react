@@ -13,6 +13,7 @@ class Scaler extends Component {
     dataContext: PropTypes.shape({
       baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
       subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+      externalSubDomain: PropTypes.arrayOf(PropTypes.number),
       subDomainChanged: PropTypes.func.isRequired,
       series: seriesPropType.isRequired,
     }).isRequired,
@@ -20,7 +21,8 @@ class Scaler extends Component {
 
   state = {
     yDomains: {},
-    subDomain: this.props.dataContext.baseDomain,
+    subDomain:
+      this.props.dataContext.subDomain || this.props.dataContext.baseDomain,
     yTransformations: {},
   };
 
@@ -39,6 +41,17 @@ class Scaler extends Component {
         domainUpdate[s.id] = yDomains[s.id];
       }
     });
+    if (
+      !isEqual(
+        prevProps.dataContext.externalSubDomain,
+        this.props.dataContext.externalSubDomain
+      )
+    ) {
+      // eslint-disable-next-line
+      this.setState({
+        subDomain: this.props.dataContext.externalSubDomain,
+      });
+    }
     if (
       Object.keys(domainUpdate).length ||
       Object.keys(transformUpdate).length

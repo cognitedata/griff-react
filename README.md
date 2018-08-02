@@ -97,3 +97,18 @@ const loader = ({ id, oldSeries, reason }) => {
 ```
 
 The loader will override the `series` if same keys are provided properties sent to the `DataProvider.`.
+
+## Branches
+
+Active development happens on the `master` branch -- changes here will be published as a prerelease of the N+1 release.
+As of this writing, `master` will eventually become the `0.3.0` release, so its version in `package.json` is `0.3.0-0`.
+
+When it is time cut the `0.3.0` release, a `0.3` branch will be created, and `package.json`'s `version` field will have the prerelease portion removed.
+Then `master`'s `package.json` will be given a version of `0.4.0-0`.
+
+Changes to older versions will need to be merged into release branches as well as the `master` branch, unless it is a specific fix, relevant to only that version.
+
+### Publishing
+
+To publish versions, run `yarn release`.
+This will determine the correct version number, publish the release, and then push the new tag to GitHub.
