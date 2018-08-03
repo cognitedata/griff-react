@@ -361,6 +361,18 @@ storiesOf('InteractionLayer', module)
     }
     return <OnDemandArea />;
   })
+  .add('Double-click events', () => (
+    <DataProvider
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        onDoubleClick={action('onDoubleClick')}
+      />
+    </DataProvider>
+  ))
   .add('Regression: onMouseUp', () => {
     // eslint-disable-next-line
     class OnMouseUp extends React.Component {
