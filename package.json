@@ -41,7 +41,7 @@
     "@cognite/eslint-config": "^1.0.6",
     "@cognite/react-scripts": "^2.1.0",
     "@storybook/addon-actions": "^3.2.17",
-    "@storybook/addon-info": "^3.2.17",
+    "@storybook/addon-info": "^3.4.8",
     "@storybook/react": "^3.2.17",
     "axios": "^0.17.1",
     "husky": "^0.14.3",
