@@ -215,7 +215,7 @@ class LineChartComponent extends Component {
             height: '100%',
           }}
         >
-          <svg width="100%" height="100%" style={{ display: 'block' }}>
+          <svg style={{ display: 'block', width: '100%', height: '100%' }}>
             <ScaledLineCollection
               width={chartSize.width}
               height={chartSize.height}

@@ -75,13 +75,10 @@ class InteractionLayer extends React.Component {
 
   componentDidMount() {
     const { width, height } = this.props;
-    this.zoom = d3
-      .zoom()
-      .scaleExtent([1, Infinity])
-      .translateExtent([[0, 0], [width, height]])
-      .extent([[0, 0], [width, height]]);
+    this.zoom = d3.zoom().scaleExtent([1, Infinity]);
     this.rectSelection = d3.select(this.zoomNode);
     this.syncZoomingState();
+    this.updateZoom(width, height);
 
     if (this.rectSelection.property('__zoom')) {
       const { subDomain, baseDomain } = this.props;
@@ -136,6 +133,13 @@ class InteractionLayer extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    if (
+      this.props.width !== prevProps.width ||
+      this.props.height !== prevProps.height
+    ) {
+      this.updateZoom(this.props.width, this.props.height);
+    }
+
     // This is only updating internals -- but could still slow down performance.
     // Look into this.
     if (
@@ -371,6 +375,12 @@ class InteractionLayer extends React.Component {
       }
     });
     return output;
+  };
+
+  updateZoom = (width, height) => {
+    this.zoom
+      .translateExtent([[0, 0], [width, height]])
+      .extent([[0, 0], [width, height]]);
   };
 
   syncZoomingState = () => {
