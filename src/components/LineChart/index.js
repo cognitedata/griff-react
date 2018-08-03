@@ -24,7 +24,7 @@ const propTypes = {
     height: PropTypes.number.isRequired,
   }).isRequired,
   width: PropTypes.number,
-  height: PropTypes.number.isRequired,
+  height: PropTypes.number,
   zoomable: PropTypes.bool,
   series: seriesPropType,
   crosshair: PropTypes.bool,
@@ -82,6 +82,7 @@ const defaultProps = {
   },
   yAxisWidth: 50,
   width: 0,
+  height: 0,
   subDomain: [],
   yAxisDisplayMode: AxisDisplayMode.ALL,
   onAxisMouseEnter: null,
@@ -172,9 +173,10 @@ class LineChartComponent extends Component {
 
     return (
       <div
+        className="linechart-container"
         style={{
           display: 'grid',
-          gridTemplateColumns: `${chartSize.width}px auto`,
+          gridTemplateColumns: `1fr auto`,
           gridTemplateRows: '1fr auto',
           height: '100%',
         }}
