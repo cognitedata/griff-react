@@ -329,6 +329,13 @@ class InteractionLayer extends React.Component {
     }
   };
 
+  onDoubleClick = e => {
+    const { onDoubleClick } = this.props;
+    if (onDoubleClick) {
+      onDoubleClick(e);
+    }
+  };
+
   // TODO: This extrapolate thing is super gross and so hacky.
   getDataForCoordinate = (xpos, ypos, extrapolate = false) => {
     const { subDomain, width, series, height } = this.props;
@@ -381,9 +388,7 @@ class InteractionLayer extends React.Component {
     if (zoomable && !onAreaDefined) {
       this.rectSelection.call(this.zoom.on('zoom', this.zoomed));
       if (onDoubleClick) {
-        this.rectSelection.on('dblclick.zoom', () => {
-          onDoubleClick(d3.event);
-        });
+        this.rectSelection.on('dblclick.zoom', null);
       }
     } else {
       this.rectSelection.on('.zoom', null);
@@ -560,6 +565,7 @@ class InteractionLayer extends React.Component {
           onMouseOut={this.onMouseOut}
           onMouseDown={this.onMouseDown}
           onMouseUp={this.onMouseUp}
+          onDoubleClick={this.onDoubleClick}
         />
       </React.Fragment>
     );
