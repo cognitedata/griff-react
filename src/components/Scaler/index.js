@@ -180,13 +180,37 @@ class Scaler extends Component {
       updateYTransformation: this.updateYTransformation,
       yTransformations,
     };
-    const enrichedSeries = dataContext.series.map(s => ({
-      ...s,
-      yDomain: yDomains[s.id] || s.yDomain,
-    }));
+
+    const collectionsById = {};
+    (dataContext.collections || []).forEach(c => {
+      collectionsById[c.id] = {
+        ...c,
+        yDomain: c.yDomain || [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+      };
+    });
+
+    const enrichedSeries = dataContext.series.map(s => {
+      const yDomain = yDomains[s.id] || s.yDomain;
+      if (s.collectionId) {
+        const collection = collectionsById[s.collectionId];
+        collection.yDomain = [
+          Math.min(yDomain[0], collection.yDomain[0]),
+          Math.max(yDomain[1], collection.yDomain[1]),
+        ];
+      }
+      return {
+        ...s,
+        yDomain,
+      };
+    });
+
     const enrichedContext = {
       subDomain: subDomain || dataContext.subDomain,
       series: enrichedSeries,
+      collections: Object.values(collectionsById),
     };
 
     const finalContext = {

@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types';
+import { AxisDisplayMode } from '../';
 
 const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
 export const singleSeriePropType = PropTypes.shape({
   id: idPropType.isRequired,
+  collectionId: idPropType.isRequired,
   color: PropTypes.string,
   hidden: PropTypes.bool,
   strokeWidth: PropTypes.number,
@@ -73,3 +75,27 @@ export const areaPropType = PropTypes.shape({
   start: coordinatePropType.isRequired,
   end: coordinatePropType,
 });
+
+class GriffPropTypes {
+  static collection = PropTypes.shape({
+    id: idPropType.isRequired,
+    color: PropTypes.string.isRequired,
+    drawPoints: PropTypes.bool,
+    hidden: PropTypes.bool,
+    strokeWidth: PropTypes.number,
+    xAccessor: PropTypes.func,
+    yAxisDisplayMode: PropTypes.instanceOf(AxisDisplayMode),
+    yAccessor: PropTypes.func,
+    y0Accessor: PropTypes.func,
+    y1Accessor: PropTypes.func,
+    yDomain: PropTypes.arrayOf(PropTypes.number),
+  });
+
+  static collections = PropTypes.arrayOf(GriffPropTypes.collection);
+
+  static singleSeries = singleSeriePropType;
+
+  static multipleSeries = PropTypes.arrayOf(GriffPropTypes.singleSeries);
+}
+
+export default GriffPropTypes;

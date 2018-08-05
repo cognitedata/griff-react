@@ -4,7 +4,7 @@ import Promise from 'bluebird';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
-import { seriesPropType } from '../../utils/proptypes';
+import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 
 const calculateDomainFromData = (
   data,
@@ -180,7 +180,13 @@ export default class DataProvider extends Component {
     clearInterval(this.fetchInterval);
   }
 
-  getSeriesObjects = () => this.props.series.map(this.enrichSeries);
+  getSeriesObjects = () => {
+    const collectionsById = {};
+    (this.props.collections || []).forEach(c => {
+      collectionsById[c.id] = c;
+    });
+    return this.props.series.map(s => this.enrichSeries(s, collectionsById));
+  };
 
   getSingleSeriesObject = id => {
     const series = this.props.series.find(s => id === s.id);
@@ -211,18 +217,26 @@ export default class DataProvider extends Component {
     }
   };
 
-  enrichSeries = series => {
+  enrichSeries = (series, collectionsById = {}) => {
     const { yAccessor, y0Accessor, y1Accessor, xAccessor } = this.props;
     const { loaderConfig, yDomains } = this.state;
+    const collection = series.collectionId
+      ? collectionsById[series.collectionId] || {}
+      : {};
     return {
+      drawPoints: collection.drawPoints,
+      strokeWidth: collection.strokeWidth,
       data: [],
       ...deleteUndefinedFromObject(series),
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
-      xAccessor: series.xAccessor || xAccessor,
-      yAccessor: series.yAccessor || yAccessor,
-      y0Accessor: series.y0Accessor || y0Accessor,
-      y1Accessor: series.y1Accessor || y1Accessor,
-      yDomain: series.yDomain || yDomains[series.id] || [0, 0],
+      xAccessor: series.xAccessor || collection.xAccessor || xAccessor,
+      yAccessor: series.yAccessor || collection.yAccessor || yAccessor,
+      y0Accessor: series.y0Accessor || collection.y0Accessor || y0Accessor,
+      y1Accessor: series.y1Accessor || collection.y1Accessor || y1Accessor,
+      yAxisDisplayMode: series.yAxisDisplayMode || collection.yAxisDisplayMode,
+      yDomain: series.yDomain ||
+        collection.yDomain ||
+        yDomains[series.id] || [0, 0],
     };
   };
 
@@ -300,6 +314,7 @@ export default class DataProvider extends Component {
       children,
       baseDomain: externalBaseDomain,
       subDomain: externalSubDomain,
+      collections,
     } = this.props;
     if (Object.keys(loaderConfig).length === 0) {
       // Do not bother, loader hasn't given any data yet.
@@ -308,6 +323,7 @@ export default class DataProvider extends Component {
     const seriesObjects = this.getSeriesObjects();
     const context = {
       series: seriesObjects,
+      collections,
       baseDomain,
       // This is used to signal external changes vs internal changes
       externalBaseDomain,
@@ -342,6 +358,7 @@ DataProvider.propTypes = {
   children: PropTypes.node.isRequired,
   defaultLoader: PropTypes.func,
   series: seriesPropType.isRequired,
+  collections: PropTypes.arrayOf(GriffPropTypes.collection),
   // (subDomain) => null
   onSubDomainChanged: PropTypes.func,
 };
@@ -357,4 +374,5 @@ DataProvider.defaultProps = {
   defaultLoader: null,
   subDomain: null,
   onSubDomainChanged: null,
+  collections: [],
 };
