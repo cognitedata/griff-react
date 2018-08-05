@@ -185,7 +185,9 @@ export default class DataProvider extends Component {
     (this.props.collections || []).forEach(c => {
       collectionsById[c.id] = c;
     });
-    return this.props.series.map(s => this.enrichSeries(s, collectionsById));
+    return this.props.series.map(s =>
+      this.enrichSeries(s, collectionsById[s.collectionId || ''] || {})
+    );
   };
 
   getSingleSeriesObject = id => {
@@ -195,7 +197,12 @@ export default class DataProvider extends Component {
         `Trying to get single series object for id ${id} which is not defined in props.`
       );
     }
-    return this.enrichSeries(series);
+    return this.enrichSeries(
+      series,
+      series.collectionId
+        ? (this.props.collections || []).find(c => series.collectionId === c.id)
+        : {}
+    );
   };
 
   startUpdateInterval = () => {
@@ -217,22 +224,47 @@ export default class DataProvider extends Component {
     }
   };
 
-  enrichSeries = (series, collectionsById = {}) => {
+  enrichSeries = (series, collection = {}) => {
     const { yAccessor, y0Accessor, y1Accessor, xAccessor } = this.props;
     const { loaderConfig, yDomains } = this.state;
-    const collection = series.collectionId
-      ? collectionsById[series.collectionId] || {}
-      : {};
+
+    const undefinedTruthiness = (a, b, c) => {
+      if (a === undefined) {
+        if (b === undefined) {
+          return c;
+        }
+        return b;
+      }
+      return a;
+    };
+
     return {
       drawPoints: collection.drawPoints,
       strokeWidth: collection.strokeWidth,
+      hidden: collection.hidden,
       data: [],
       ...deleteUndefinedFromObject(series),
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
-      xAccessor: series.xAccessor || collection.xAccessor || xAccessor,
-      yAccessor: series.yAccessor || collection.yAccessor || yAccessor,
-      y0Accessor: series.y0Accessor || collection.y0Accessor || y0Accessor,
-      y1Accessor: series.y1Accessor || collection.y1Accessor || y1Accessor,
+      xAccessor: undefinedTruthiness(
+        series.xAccessor,
+        collection.xAccessor,
+        xAccessor
+      ),
+      yAccessor: undefinedTruthiness(
+        series.yAccessor,
+        collection.yAccessor,
+        yAccessor
+      ),
+      y0Accessor: undefinedTruthiness(
+        series.y0Accessor,
+        collection.y0Accessor,
+        y0Accessor
+      ),
+      y1Accessor: undefinedTruthiness(
+        series.y1Accessor,
+        collection.y1Accessor,
+        y1Accessor
+      ),
       yAxisDisplayMode: series.yAxisDisplayMode || collection.yAxisDisplayMode,
       yDomain: series.yDomain ||
         collection.yDomain ||

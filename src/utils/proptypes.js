@@ -5,7 +5,7 @@ const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
 export const singleSeriePropType = PropTypes.shape({
   id: idPropType.isRequired,
-  collectionId: idPropType.isRequired,
+  collectionId: idPropType,
   color: PropTypes.string,
   hidden: PropTypes.bool,
   strokeWidth: PropTypes.number,
