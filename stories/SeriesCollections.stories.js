@@ -128,6 +128,42 @@ storiesOf('Series Collections', module)
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
   ])
+  .add('strokeWidth', () => [
+    <DataProvider
+      key="default"
+      baseDomain={staticBaseDomain}
+      defaultLoader={staticLoader}
+      xAccessor={d => d.timestamp}
+      yAccessor={d => d.value}
+      series={[
+        { id: 1, collectionId: '1+2', color: 'steelblue', name: 'name1' },
+        { id: 2, collectionId: '1+2', color: 'maroon', name: 'name2' },
+      ]}
+      collections={[{ id: '1+2', color: 'red', strokeWidth: 3 }]}
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>,
+    <DataProvider
+      key="override"
+      baseDomain={staticBaseDomain}
+      defaultLoader={staticLoader}
+      xAccessor={d => d.timestamp}
+      yAccessor={d => d.value}
+      series={[
+        { id: 1, collectionId: '1+2', color: 'steelblue', name: 'name1' },
+        {
+          id: 2,
+          collectionId: '1+2',
+          color: 'maroon',
+          name: 'name2',
+          strokeWidth: 1,
+        },
+      ]}
+      collections={[{ id: '1+2', color: 'red', strokeWidth: 3 }]}
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>,
+  ])
   .add('y0Accessor', () => {
     const y0Accessor = d => d.value - 0.5;
     const y1Accessor = d => d.value + 0.5;
