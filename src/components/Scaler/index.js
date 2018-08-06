@@ -182,19 +182,22 @@ class Scaler extends Component {
     };
 
     const collectionsById = {};
+    const scalingNeeded = {};
     (dataContext.collections || []).forEach(c => {
+      scalingNeeded[c.id] = !c.yDomain;
+      const yDomain = c.yDomain || [
+        Number.MAX_SAFE_INTEGER,
+        Number.MIN_SAFE_INTEGER,
+      ];
       collectionsById[c.id] = {
         ...c,
-        yDomain: c.yDomain || [
-          Number.MAX_SAFE_INTEGER,
-          Number.MIN_SAFE_INTEGER,
-        ],
+        yDomain,
       };
     });
 
     const enrichedSeries = dataContext.series.map(s => {
       const yDomain = yDomains[s.id] || s.yDomain;
-      if (s.collectionId) {
+      if (s.collectionId && scalingNeeded[s.collectionId]) {
         const collection = collectionsById[s.collectionId];
         collection.yDomain = [
           Math.min(yDomain[0], collection.yDomain[0]),

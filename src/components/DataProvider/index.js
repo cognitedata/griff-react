@@ -266,8 +266,8 @@ export default class DataProvider extends Component {
         y1Accessor
       ),
       yAxisDisplayMode: series.yAxisDisplayMode || collection.yAxisDisplayMode,
-      yDomain: series.yDomain ||
-        collection.yDomain ||
+      yDomain: collection.yDomain ||
+        series.yDomain ||
         yDomains[series.id] || [0, 0],
     };
   };
