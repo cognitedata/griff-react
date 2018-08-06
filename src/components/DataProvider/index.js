@@ -6,7 +6,7 @@ import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 
-const calculateDomainFromData = (
+export const calculateDomainFromData = (
   data,
   accessor,
   y0Accessor = null,
