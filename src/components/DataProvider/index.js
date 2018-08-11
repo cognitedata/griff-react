@@ -352,9 +352,38 @@ export default class DataProvider extends Component {
       return null;
     }
     const seriesObjects = this.getSeriesObjects();
+
+    const collectionsById = {};
+    const collectionsWithDomains = collections
+      .map(c => ({
+        ...c,
+        yDomain: seriesObjects
+          .filter(s => s.collectionId === c.id)
+          .map(s => s.yDomain)
+          .reduce(
+            (acc, yDomain) => [
+              Math.min(acc[0], yDomain[0]),
+              Math.max(acc[1], yDomain[1]),
+            ],
+            [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
+          ),
+      }))
+      .map(c => {
+        collectionsById[c.id] = c;
+        return c;
+      });
+
+    const collectedSeries = seriesObjects.map(s => ({
+      ...s,
+      yDomain:
+        s.collectionId !== undefined
+          ? [...collectionsById[s.collectionId].yDomain]
+          : s.yDomain,
+    }));
+
     const context = {
-      series: seriesObjects,
-      collections,
+      series: collectedSeries,
+      collections: collectionsWithDomains,
       baseDomain,
       // This is used to signal external changes vs internal changes
       externalBaseDomain,

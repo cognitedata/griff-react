@@ -88,17 +88,16 @@ class AxisCollection extends React.Component {
         collections.filter(this.axisFilter(AxisDisplayMode.ALL)).map(c => {
           axisOffsetX += yAxisWidth;
 
+          const collectedSeries = series.filter(s => s.collectionId === c.id);
+
           const updateCollectionYTransformation = (
             collectionId,
             transformation
           ) => {
-            series.filter(s => s.collectionId === collectionId).forEach(s => {
-              updateYTransformation(
-                [s.id, collectionId],
-                transformation,
-                height
-              );
+            collectedSeries.forEach(s => {
+              updateYTransformation(s.id, transformation, height);
             });
+            updateYTransformation(collectionId, transformation, height);
           };
 
           return (

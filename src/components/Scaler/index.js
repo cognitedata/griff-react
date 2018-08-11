@@ -158,26 +158,21 @@ class Scaler extends Component {
     );
   };
 
-  updateYTransformation = (keys, scaler, height) => {
+  updateYTransformation = (key, scaler, height) => {
     const { dataContext } = this.props;
 
-    const yDomains = { ...this.state.yDomains };
-    const yTransformations = { ...this.state.yTransformations };
+    const { yDomain } =
+      dataContext.series.find(s => s.id === key) ||
+      dataContext.collections.find(c => c.id === key);
+    const newSubDomain = scaler
+      .rescaleY(createYScale(yDomain, height))
+      .domain()
+      .map(Number);
 
-    (typeof keys === 'object' ? keys : [keys]).forEach(key => {
-      const { yDomain } =
-        dataContext.series.find(s => s.id === key) ||
-        dataContext.collections.find(c => c.id === key) ||
-        {};
-      const newSubDomain = scaler
-        .rescaleY(createYScale(yDomain, height))
-        .domain()
-        .map(Number);
-      yDomains[key] = newSubDomain;
-      yTransformations[key] = scaler;
+    this.setState({
+      yDomains: { ...this.state.yDomains, [key]: newSubDomain },
+      yTransformations: { ...this.state.yTransformations, [key]: scaler },
     });
-
-    this.setState({ yDomains, yTransformations });
   };
 
   render() {
@@ -190,37 +185,20 @@ class Scaler extends Component {
       yTransformations,
     };
 
-    const collectionsById = {};
-    const scalingNeeded = {};
-    (dataContext.collections || []).forEach(c => {
-      scalingNeeded[c.id] = !c.yDomain;
-      const yDomain = yDomains[c.id] ||
-        c.yDomain || [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
-      collectionsById[c.id] = {
-        ...c,
-        yDomain,
-      };
-    });
+    const enrichedSeries = dataContext.series.map(s => ({
+      ...s,
+      yDomain: yDomains[s.id] || s.yDomain,
+    }));
 
-    const enrichedSeries = dataContext.series.map(s => {
-      const yDomain = yDomains[s.id] || s.yDomain;
-      if (s.collectionId && scalingNeeded[s.collectionId]) {
-        const collection = collectionsById[s.collectionId];
-        collection.yDomain = [
-          Math.min(yDomain[0], collection.yDomain[0]),
-          Math.max(yDomain[1], collection.yDomain[1]),
-        ];
-      }
-      return {
-        ...s,
-        yDomain,
-      };
-    });
+    const enrichedCollections = dataContext.collections.map(c => ({
+      ...c,
+      yDomain: yDomains[c.id] || c.yDomain,
+    }));
 
     const enrichedContext = {
       subDomain: subDomain || dataContext.subDomain,
       series: enrichedSeries,
-      collections: Object.values(collectionsById),
+      collections: enrichedCollections,
     };
 
     const finalContext = {

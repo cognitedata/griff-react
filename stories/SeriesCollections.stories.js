@@ -8,8 +8,9 @@ const staticBaseDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
 storiesOf('Series Collections', module)
-  .add('Single collection', () => (
+  .add('Single collection', () => [
     <DataProvider
+      key="simple"
       baseDomain={staticBaseDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
@@ -21,8 +22,28 @@ storiesOf('Series Collections', module)
       collections={[{ id: '1+2', color: 'red' }]}
     >
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
-  ))
+    </DataProvider>,
+    <DataProvider
+      key="scaled"
+      baseDomain={staticBaseDomain}
+      defaultLoader={staticLoader}
+      xAccessor={d => d.timestamp}
+      yAccessor={d => d.value}
+      series={[
+        { id: 1, collectionId: '1+2', color: 'steelblue', name: 'name1' },
+        {
+          id: 2,
+          collectionId: '1+2',
+          color: 'maroon',
+          name: 'name2',
+          yAccessor: d => d.value + 2,
+        },
+      ]}
+      collections={[{ id: '1+2', color: 'red' }]}
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>,
+  ])
   .add('Multiple collections', () => (
     <DataProvider
       baseDomain={staticBaseDomain}
