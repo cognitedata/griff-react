@@ -129,6 +129,26 @@ storiesOf('Series Collections', module)
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
     <DataProvider
+      key="preference"
+      baseDomain={staticBaseDomain}
+      defaultLoader={staticLoader}
+      xAccessor={d => d.timestamp}
+      yAccessor={d => d.value}
+      series={[
+        { id: 1, collectionId: '1+2', color: 'steelblue', name: 'name1' },
+        {
+          id: 2,
+          collectionId: '1+2',
+          color: 'maroon',
+          name: 'name2',
+          hidden: true,
+        },
+      ]}
+      collections={[{ id: '1+2', color: 'red' }]}
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>,
+    <DataProvider
       key="override"
       baseDomain={staticBaseDomain}
       defaultLoader={staticLoader}
@@ -161,6 +181,26 @@ storiesOf('Series Collections', module)
         { id: 2, collectionId: '1+2', color: 'maroon', name: 'name2' },
       ]}
       collections={[{ id: '1+2', color: 'red', strokeWidth: 3 }]}
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>,
+    <DataProvider
+      key="preference"
+      baseDomain={staticBaseDomain}
+      defaultLoader={staticLoader}
+      xAccessor={d => d.timestamp}
+      yAccessor={d => d.value}
+      series={[
+        { id: 1, collectionId: '1+2', color: 'steelblue', name: 'name1' },
+        {
+          id: 2,
+          collectionId: '1+2',
+          color: 'maroon',
+          name: 'name2',
+          strokeWidth: 2,
+        },
+      ]}
+      collections={[{ id: '1+2', color: 'red' }]}
     >
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
@@ -205,6 +245,27 @@ storiesOf('Series Collections', module)
           },
         ]}
         collections={[{ id: '1+2', color: 'red', y0Accessor, y1Accessor }]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>,
+      <DataProvider
+        key="preference"
+        baseDomain={staticBaseDomain}
+        defaultLoader={staticLoader}
+        xAccessor={d => d.timestamp}
+        yAccessor={d => d.value}
+        series={[
+          { id: 3, collectionId: '3+4', color: 'steelblue', name: 'name1' },
+          {
+            id: 4,
+            collectionId: '3+4',
+            color: 'maroon',
+            name: 'name2',
+            y0Accessor,
+            y1Accessor,
+          },
+        ]}
+        collections={[{ id: '3+4', color: 'red' }]}
       >
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>,
