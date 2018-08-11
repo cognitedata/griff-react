@@ -79,6 +79,7 @@ export const areaPropType = PropTypes.shape({
 class GriffPropTypes {
   static collection = PropTypes.shape({
     id: idPropType.isRequired,
+    // This the color used when referencing the collection (eg, the common axis)
     color: PropTypes.string.isRequired,
     drawPoints: PropTypes.bool,
     hidden: PropTypes.bool,

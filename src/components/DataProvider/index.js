@@ -6,7 +6,7 @@ import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 
-export const calculateDomainFromData = (
+const calculateDomainFromData = (
   data,
   accessor,
   y0Accessor = null,
@@ -237,7 +237,6 @@ export default class DataProvider extends Component {
       }
       return a;
     };
-
     return {
       drawPoints: collection.drawPoints,
       strokeWidth: collection.strokeWidth,

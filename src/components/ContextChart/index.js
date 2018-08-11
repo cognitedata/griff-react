@@ -7,7 +7,6 @@ import Annotation from '../Annotation';
 import { createXScale } from '../../utils/scale-helpers';
 import { seriesPropType, annotationPropType } from '../../utils/proptypes';
 import Brush from '../Brush';
-import { calculateDomainFromData } from '../DataProvider';
 
 export default class ContextChart extends Component {
   static propTypes = {
@@ -49,23 +48,12 @@ export default class ContextChart extends Component {
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
     ));
 
-    // Remove the yDomain from the context series charts
-    const strippedContextSeries = contextSeries.map(s => ({
-      ...s,
-      yDomain: calculateDomainFromData(
-        s.data,
-        s.yAccessor,
-        s.y0Accessor,
-        s.y1Accessor
-      ),
-    }));
-
     return (
       <React.Fragment>
         <svg height={height} width={width}>
           {annotations}
           <LineCollection
-            series={strippedContextSeries}
+            series={contextSeries}
             width={width}
             height={height}
             domain={baseDomain}

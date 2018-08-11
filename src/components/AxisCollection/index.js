@@ -93,12 +93,13 @@ class AxisCollection extends React.Component {
             transformation
           ) => {
             series.filter(s => s.collectionId === collectionId).forEach(s => {
-              updateYTransformation(s.id, transformation, height);
+              updateYTransformation(
+                [s.id, collectionId],
+                transformation,
+                height
+              );
             });
           };
-
-          const yTransformation =
-            yTransformations[series.find(s => s.collectionId === c.id).id];
 
           return (
             <YAxis
@@ -109,7 +110,7 @@ class AxisCollection extends React.Component {
               height={height}
               width={yAxisWidth}
               updateYTransformation={updateCollectionYTransformation}
-              yTransformation={yTransformation}
+              yTransformation={yTransformations[c.id]}
               onMouseEnter={this.onAxisMouseEnter(c.id)}
               onMouseLeave={this.onAxisMouseLeave(c.id)}
             />

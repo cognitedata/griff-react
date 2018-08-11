@@ -251,6 +251,8 @@ storiesOf('Series Collections', module)
     </DataProvider>,
   ])
   .add('yDomain', () => [
+    // The yDomain is provided on the collection; the axis should have this
+    // yDomain.
     <DataProvider
       key="default"
       baseDomain={staticBaseDomain}
@@ -261,10 +263,12 @@ storiesOf('Series Collections', module)
         { id: 1, collectionId: '1+2', color: 'steelblue', name: 'name1' },
         { id: 2, collectionId: '1+2', color: 'maroon', name: 'name2' },
       ]}
-      collections={[{ id: '1+2', color: 'red', yDomain: [-5, 5] }]}
+      collections={[{ id: '1+2', color: 'red', yDomain: [-4, 4] }]}
     >
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
+    // The yDomain is also provided on one series -- this override should be
+    // ignored because it is ignored when in a collection.
     <DataProvider
       key="override"
       baseDomain={staticBaseDomain}
@@ -282,6 +286,29 @@ storiesOf('Series Collections', module)
         },
       ]}
       collections={[{ id: '1+2', color: 'red', yDomain: [-5, 5] }]}
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>,
+    // The two series are offset so that the context chart behavior can be
+    // verified. The context chart should use the same initial (unscaled)
+    // yDomain as the collection.
+    <DataProvider
+      key="scaled"
+      baseDomain={staticBaseDomain}
+      defaultLoader={staticLoader}
+      xAccessor={d => d.timestamp}
+      yAccessor={d => d.value}
+      series={[
+        { id: 1, collectionId: '1+2', color: 'steelblue', name: 'name1' },
+        {
+          id: 2,
+          collectionId: '1+2',
+          color: 'maroon',
+          name: 'name2',
+          yAccessor: d => d.value + 2,
+        },
+      ]}
+      collections={[{ id: '1+2', color: 'red', yDomain: [-6, 6] }]}
     >
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,

@@ -5,7 +5,7 @@ import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import ScalerContext from '../../context/Scaler';
 import { createXScale, createYScale } from '../../utils/scale-helpers';
-import { seriesPropType } from '../../utils/proptypes';
+import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 
 class Scaler extends Component {
   static propTypes = {
@@ -16,6 +16,7 @@ class Scaler extends Component {
       externalSubDomain: PropTypes.arrayOf(PropTypes.number),
       subDomainChanged: PropTypes.func.isRequired,
       series: seriesPropType.isRequired,
+      collections: GriffPropTypes.collections.isRequired,
     }).isRequired,
   };
 
@@ -39,6 +40,11 @@ class Scaler extends Component {
       if (!isEqual(yDomains[s.id], s.yDomain)) {
         transformUpdate[s.id] = d3.zoomIdentity;
         domainUpdate[s.id] = yDomains[s.id];
+
+        if (s.collectionId) {
+          transformUpdate[s.collectionId] = d3.zoomIdentity;
+          domainUpdate[s.collectionId] = yDomains[s.id];
+        }
       }
     });
     if (
@@ -152,23 +158,26 @@ class Scaler extends Component {
     );
   };
 
-  updateYTransformation = (key, scaler, height) => {
-    const series = this.props.dataContext.series.find(s => s.id === key);
-    const newSubDomain = scaler
-      .rescaleY(createYScale(series.yDomain, height))
-      .domain()
-      .map(Number);
+  updateYTransformation = (keys, scaler, height) => {
+    const { dataContext } = this.props;
 
-    this.setState({
-      yDomains: {
-        ...this.state.yDomains,
-        [key]: newSubDomain,
-      },
-      yTransformations: {
-        ...this.state.yTransformations,
-        [key]: scaler,
-      },
+    const yDomains = { ...this.state.yDomains };
+    const yTransformations = { ...this.state.yTransformations };
+
+    (typeof keys === 'object' ? keys : [keys]).forEach(key => {
+      const { yDomain } =
+        dataContext.series.find(s => s.id === key) ||
+        dataContext.collections.find(c => c.id === key) ||
+        {};
+      const newSubDomain = scaler
+        .rescaleY(createYScale(yDomain, height))
+        .domain()
+        .map(Number);
+      yDomains[key] = newSubDomain;
+      yTransformations[key] = scaler;
     });
+
+    this.setState({ yDomains, yTransformations });
   };
 
   render() {
@@ -185,10 +194,8 @@ class Scaler extends Component {
     const scalingNeeded = {};
     (dataContext.collections || []).forEach(c => {
       scalingNeeded[c.id] = !c.yDomain;
-      const yDomain = c.yDomain || [
-        Number.MAX_SAFE_INTEGER,
-        Number.MIN_SAFE_INTEGER,
-      ];
+      const yDomain = yDomains[c.id] ||
+        c.yDomain || [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
       collectionsById[c.id] = {
         ...c,
         yDomain,
