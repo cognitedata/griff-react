@@ -48,26 +48,44 @@ class AxisCollection extends React.Component {
   onAxisMouseLeave = seriesId =>
     this.props.onMouseLeave ? e => this.props.onMouseLeave(e, seriesId) : null;
 
-  axisFilter = mode => {
-    const modes = mode.map ? mode : [mode];
-    return s => {
-      if (s.hidden) {
-        return false;
-      }
-      return Boolean(
-        modes.find(
-          m => m.id === (s.yAxisDisplayMode || this.props.axisDisplayMode).id
-        )
-      );
-    };
+  getAxisOffsets = () => {
+    const { series, yAxisPlacement, yAxisWidth } = this.props;
+
+    const numCollapsed = series.filter(
+      this.axisFilter(AxisDisplayMode.COLLAPSED)
+    ).length;
+    const numVisible = series.filter(this.axisFilter(AxisDisplayMode.ALL))
+      .length;
+
+    switch (yAxisPlacement) {
+      case AxisPlacement.LEFT:
+        return {
+          collapsed: 0,
+          visible: numCollapsed ? yAxisWidth : 0,
+        };
+      case AxisPlacement.BOTH:
+        throw new Error(
+          'BOTH is not a valid option for AxisCollection -- please specify RIGHT or LEFT'
+        );
+      case AxisPlacement.RIGHT:
+      case AxisPlacement.UNSPECIFIED:
+      default:
+        return {
+          collapsed: numVisible * yAxisWidth,
+          visible: 0,
+        };
+    }
   };
+
+  axisFilter = mode => s =>
+    !s.hidden && (s.yAxisDisplayMode || this.props.axisDisplayMode) === mode;
 
   placementFilter = s =>
     !s.yAxisPlacement ||
     s.yAxisPlacement === AxisPlacement.BOTH ||
     s.yAxisPlacement === this.props.yAxisPlacement;
 
-  renderAllVisibleAxes() {
+  renderAllVisibleAxes = offsetx => {
     const {
       series,
       zoomable,
@@ -77,7 +95,7 @@ class AxisCollection extends React.Component {
       yAxisWidth,
       yTransformations,
     } = this.props;
-    let axisOffsetX = 0;
+    let axisOffsetX = offsetx;
 
     const filteredSeries = series
       .filter(this.axisFilter(AxisDisplayMode.ALL))
@@ -106,22 +124,20 @@ class AxisCollection extends React.Component {
         />
       );
     });
-  }
+  };
 
-  renderPlaceholderAxis() {
+  renderPlaceholderAxis = offsetx => {
     const { height, yAxisWidth, series, yAxisPlacement } = this.props;
     const numCollapsed = series.filter(
       this.axisFilter(AxisDisplayMode.COLLAPSED)
     ).length;
-    const numVisible = series.filter(this.axisFilter(AxisDisplayMode.ALL))
-      .length;
     // TODO: Should we only do this if there's more than 1?
     if (numCollapsed) {
       return (
         <CollapsedAxis
           key="y-axis--collapsed"
           height={height}
-          offsetx={numVisible * yAxisWidth}
+          offsetx={offsetx}
           width={yAxisWidth}
           onMouseEnter={this.onAxisMouseEnter('collapsed')}
           onMouseLeave={this.onAxisMouseLeave('collapsed')}
@@ -130,25 +146,33 @@ class AxisCollection extends React.Component {
       );
     }
     return null;
-  }
+  };
 
   render() {
     const { height, series, yAxisWidth } = this.props;
 
-    const calculatedWidth =
-      series
-        .filter(
-          this.axisFilter([AxisDisplayMode.ALL, AxisDisplayMode.COLLAPSED])
-        )
-        .filter(this.placementFilter).length * yAxisWidth;
+    const calculatedWidth = series
+      .filter(this.axisFilter(AxisDisplayMode.ALL))
+      .filter(this.placementFilter)
+      .reduce((acc, s) => {
+        if (s.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+          return acc;
+        }
+        return acc + yAxisWidth;
+      }, series.filter(this.axisFilter(AxisDisplayMode.COLLAPSED)).length ? yAxisWidth : 0);
+
+    const {
+      collapsed: collapsedOffsetX,
+      visible: visibleOffsetX,
+    } = this.getAxisOffsets();
 
     // We need to render all of the axes (even if they're hidden) in order to
     // keep the zoom states in sync across show/hide toggles.
-    const axes = this.renderAllVisibleAxes();
+    const axes = this.renderAllVisibleAxes(visibleOffsetX);
     return (
       <svg width={calculatedWidth} height={height}>
         {axes}
-        {this.renderPlaceholderAxis()}
+        {this.renderPlaceholderAxis(collapsedOffsetX)}
       </svg>
     );
   }

@@ -1,7 +1,12 @@
 import React from 'react';
 import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
-import { DataProvider, LineChart, AxisPlacement } from '../src';
+import {
+  DataProvider,
+  LineChart,
+  AxisPlacement,
+  AxisDisplayMode,
+} from '../src';
 import { staticLoader } from './loaders';
 
 const staticBaseDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
@@ -92,5 +97,38 @@ storiesOf('Y-Axis Placement', module)
       ]}
     >
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
+    </DataProvider>
+  ))
+  .add('Collapsed axis', () => (
+    <DataProvider
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[
+        {
+          id: 1,
+          color: 'steelblue',
+          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+        },
+        { id: 2, color: 'maroon', yAxisDisplayMode: AxisDisplayMode.COLLAPSED },
+      ]}
+    >
+      <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
+    </DataProvider>
+  ))
+  .add('Mixed axis modes', () => (
+    <DataProvider
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[
+        {
+          id: 1,
+          color: 'steelblue',
+          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+        },
+        { id: 2, color: 'maroon', yAxisDisplayMode: AxisDisplayMode.COLLAPSED },
+        { id: 2, color: 'orange', yAxisDisplayMode: AxisDisplayMode.ALL },
+      ]}
+    >
+      <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>
   ));
