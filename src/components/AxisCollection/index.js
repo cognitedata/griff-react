@@ -3,12 +3,16 @@ import PropTypes from 'prop-types';
 import CollapsedAxis from './CollapsedAxis';
 import YAxis from './YAxis';
 import ScalerContext from '../../context/Scaler';
-import { seriesPropType, axisDisplayModeType } from '../../utils/proptypes';
+import {
+  seriesPropType,
+  axisDisplayModeType,
+  axisPlacementType,
+} from '../../utils/proptypes';
 import AxisDisplayMode from '../LineChart/AxisDisplayMode';
+import AxisPlacement from '../LineChart/AxisPlacement';
 
 const propTypes = {
   height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
   series: seriesPropType,
   zoomable: PropTypes.bool,
   updateYTransformation: PropTypes.func,
@@ -23,6 +27,7 @@ const propTypes = {
   axisDisplayMode: axisDisplayModeType,
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
+  yAxisPlacement: axisPlacementType,
 };
 
 const defaultProps = {
@@ -31,6 +36,7 @@ const defaultProps = {
   updateYTransformation: () => {},
   yAxisWidth: 50,
   axisDisplayMode: AxisDisplayMode.ALL,
+  yAxisPlacement: AxisPlacement.RIGHT,
   onMouseEnter: null,
   onMouseLeave: null,
 };
@@ -42,8 +48,24 @@ class AxisCollection extends React.Component {
   onAxisMouseLeave = seriesId =>
     this.props.onMouseLeave ? e => this.props.onMouseLeave(e, seriesId) : null;
 
-  axisFilter = mode => s =>
-    !s.hidden && (s.yAxisDisplayMode || this.props.axisDisplayMode) === mode;
+  axisFilter = mode => {
+    const modes = mode.map ? mode : [mode];
+    return s => {
+      if (s.hidden) {
+        return false;
+      }
+      return Boolean(
+        modes.find(
+          m => m.id === (s.yAxisDisplayMode || this.props.axisDisplayMode).id
+        )
+      );
+    };
+  };
+
+  placementFilter = s =>
+    !s.yAxisPlacement ||
+    s.yAxisPlacement === AxisPlacement.BOTH ||
+    s.yAxisPlacement === this.props.yAxisPlacement;
 
   renderAllVisibleAxes() {
     const {
@@ -51,11 +73,20 @@ class AxisCollection extends React.Component {
       zoomable,
       height,
       updateYTransformation,
+      yAxisPlacement,
       yAxisWidth,
       yTransformations,
     } = this.props;
     let axisOffsetX = 0;
-    return series.filter(this.axisFilter(AxisDisplayMode.ALL)).map((s, idx) => {
+
+    const filteredSeries = series
+      .filter(this.axisFilter(AxisDisplayMode.ALL))
+      .filter(this.placementFilter);
+    if (yAxisPlacement === AxisPlacement.LEFT) {
+      filteredSeries.reverse();
+    }
+
+    return filteredSeries.map((s, idx) => {
       if (idx > 0) {
         axisOffsetX += yAxisWidth;
       }
@@ -71,13 +102,14 @@ class AxisCollection extends React.Component {
           yTransformation={yTransformations[s.id]}
           onMouseEnter={this.onAxisMouseEnter(s.id)}
           onMouseLeave={this.onAxisMouseLeave(s.id)}
+          yAxisPlacement={yAxisPlacement}
         />
       );
     });
   }
 
   renderPlaceholderAxis() {
-    const { height, yAxisWidth, series } = this.props;
+    const { height, yAxisWidth, series, yAxisPlacement } = this.props;
     const numCollapsed = series.filter(
       this.axisFilter(AxisDisplayMode.COLLAPSED)
     ).length;
@@ -93,6 +125,7 @@ class AxisCollection extends React.Component {
           width={yAxisWidth}
           onMouseEnter={this.onAxisMouseEnter('collapsed')}
           onMouseLeave={this.onAxisMouseLeave('collapsed')}
+          yAxisPlacement={yAxisPlacement}
         />
       );
     }
@@ -100,13 +133,20 @@ class AxisCollection extends React.Component {
   }
 
   render() {
-    const { width, height } = this.props;
+    const { height, series, yAxisWidth } = this.props;
+
+    const calculatedWidth =
+      series
+        .filter(
+          this.axisFilter([AxisDisplayMode.ALL, AxisDisplayMode.COLLAPSED])
+        )
+        .filter(this.placementFilter).length * yAxisWidth;
 
     // We need to render all of the axes (even if they're hidden) in order to
     // keep the zoom states in sync across show/hide toggles.
     const axes = this.renderAllVisibleAxes();
     return (
-      <svg width={width} height={height}>
+      <svg width={calculatedWidth} height={height}>
         {axes}
         {this.renderPlaceholderAxis()}
       </svg>

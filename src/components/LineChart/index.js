@@ -12,11 +12,14 @@ import {
   annotationPropType,
   rulerPropType,
   axisDisplayModeType,
+  axisPlacementType,
 } from '../../utils/proptypes';
 import { ScaledLineCollection } from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
 import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
+import AxisPlacement from './AxisPlacement';
+import Layout from './Layout';
 
 const propTypes = {
   size: PropTypes.shape({
@@ -40,6 +43,7 @@ const propTypes = {
   ruler: rulerPropType,
   annotations: PropTypes.arrayOf(annotationPropType),
   yAxisDisplayMode: axisDisplayModeType,
+  yAxisPlacement: axisPlacementType,
   // (e, seriesId) => void
   onAxisMouseEnter: PropTypes.func,
   // (e, seriesId) => void
@@ -85,6 +89,7 @@ const defaultProps = {
   height: 0,
   subDomain: [],
   yAxisDisplayMode: AxisDisplayMode.ALL,
+  yAxisPlacement: AxisPlacement.RIGHT,
   onAxisMouseEnter: null,
   onAxisMouseLeave: null,
   areas: [],
@@ -131,27 +136,53 @@ class LineChartComponent extends Component {
     return width;
   };
 
+  getYAxisPlacement = () => {
+    const { series, yAxisPlacement } = this.props;
+    const yAxisPlacements = series.reduce(
+      (acc, s) => {
+        if (s.yAxisPlacement) {
+          acc[s.yAxisPlacement.id] = (acc[s.yAxisPlacement.id] || 0) + 1;
+        }
+        return acc;
+      },
+      { [yAxisPlacement.id]: 1 }
+    );
+    if (yAxisPlacements[AxisPlacement.BOTH.id]) {
+      return AxisPlacement.BOTH;
+    }
+    if (
+      yAxisPlacements[AxisPlacement.LEFT.id] &&
+      yAxisPlacements[AxisPlacement.RIGHT.id]
+    ) {
+      return AxisPlacement.BOTH;
+    }
+    if (yAxisPlacements[AxisPlacement.LEFT.id]) {
+      return AxisPlacement.LEFT;
+    }
+    return yAxisPlacement || AxisPlacement.RIGHT;
+  };
+
   render() {
     const {
-      size: { width: sizeWidth, height: sizeHeight },
-      width: propWidth,
-      height: propHeight,
-      subDomain,
+      annotations,
+      areas,
+      contextChart,
       crosshair,
-      onMouseMove,
+      height: propHeight,
+      onAreaDefined,
+      onAreaClicked,
+      onAxisMouseEnter,
+      onAxisMouseLeave,
       onClick,
       onClickAnnotation,
       onDoubleClick,
-      zoomable,
-      yAxisDisplayMode,
-      onAxisMouseEnter,
-      onAxisMouseLeave,
-      contextChart,
-      annotations,
+      onMouseMove,
+      size: { width: sizeWidth, height: sizeHeight },
+      subDomain,
       ruler,
-      areas,
-      onAreaDefined,
-      onAreaClicked,
+      width: propWidth,
+      yAxisDisplayMode,
+      zoomable,
     } = this.props;
 
     const width = propWidth || sizeWidth;
@@ -172,16 +203,9 @@ class LineChartComponent extends Component {
     axisCollectionSize.height = chartSize.height;
 
     return (
-      <div
-        className="linechart-container"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `1fr auto`,
-          gridTemplateRows: '1fr auto',
-          height: '100%',
-        }}
-      >
-        <div className="lines-container" style={{ height: '100%' }}>
+      <Layout
+        yAxisPlacement={this.getYAxisPlacement()}
+        lineChart={
           <svg width={chartSize.width} height={chartSize.height}>
             <ScaledLineCollection
               height={chartSize.height}
@@ -203,42 +227,28 @@ class LineChartComponent extends Component {
               onAreaClicked={onAreaClicked}
             />
           </svg>
-        </div>
-        <div
-          className="y-axis-container"
-          style={{
-            width: `${axisCollectionSize.width}px`,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
+        }
+        yAxis={
           <AxisCollection
             zoomable={zoomable}
             axisDisplayMode={yAxisDisplayMode}
             onMouseEnter={onAxisMouseEnter}
             onMouseLeave={onAxisMouseLeave}
             height={axisCollectionSize.height}
-            width={axisCollectionSize.width}
           />
-        </div>
-        <div className="x-axis-container" style={{ width: '100%' }}>
-          <XAxis domain={subDomain} width={chartSize.width} />
-        </div>
-        <div />
-        {contextChart.visible && (
-          <div
-            className="context-container"
-            style={{ display: 'flex', flexDirection: 'column' }}
-          >
+        }
+        xAxis={<XAxis domain={subDomain} width={chartSize.width} />}
+        contextChart={
+          contextChart.visible && (
             <ScaledContextChart
               height={contextChart.height || 100}
               width={chartSize.width}
               zoomable={zoomable}
               annotations={annotations}
             />
-          </div>
-        )}
-      </div>
+          )
+        }
+      />
     );
   }
 }
