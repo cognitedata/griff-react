@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
 import AxisCollection from '../AxisCollection';
+import GridLines from '../GridLines';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import { ScaledContextChart } from '../ContextChart';
@@ -12,6 +13,7 @@ import {
   annotationPropType,
   rulerPropType,
   axisDisplayModeType,
+  gridPropType,
 } from '../../utils/proptypes';
 import { ScaledLineCollection } from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
@@ -23,6 +25,7 @@ const propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
   }).isRequired,
+  grid: gridPropType,
   width: PropTypes.number,
   height: PropTypes.number,
   zoomable: PropTypes.bool,
@@ -63,6 +66,7 @@ const propTypes = {
 };
 
 const defaultProps = {
+  grid: null,
   zoomable: true,
   contextChart: {
     visible: true,
@@ -133,6 +137,7 @@ class LineChartComponent extends Component {
 
   render() {
     const {
+      grid,
       size: { width: sizeWidth, height: sizeHeight },
       width: propWidth,
       height: propHeight,
@@ -183,6 +188,11 @@ class LineChartComponent extends Component {
       >
         <div className="lines-container" style={{ height: '100%' }}>
           <svg width={chartSize.width} height={chartSize.height}>
+            <GridLines
+              grid={grid}
+              height={chartSize.height}
+              width={chartSize.width}
+            />
             <ScaledLineCollection
               height={chartSize.height}
               width={chartSize.width}

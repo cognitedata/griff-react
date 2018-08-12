@@ -73,3 +73,87 @@ export const areaPropType = PropTypes.shape({
   start: coordinatePropType.isRequired,
   end: coordinatePropType,
 });
+
+/**
+ * Specification for the grid rendered under the data.
+ */
+export const gridPropType = PropTypes.shape({
+  /** Color of the lines (default: #000) */
+  color: PropTypes.string,
+  /** Thickness of the lines (default: 1) */
+  strokeWidth: PropTypes.number,
+  /** Opacity of the lines (default: 0.4) */
+  opacity: PropTypes.number,
+
+  /**
+   * Defines the behavior of the vertical grid lines (rendered from the X axis)
+   */
+  x: {
+    /** Render lines every X pixels */
+    pixels: PropTypes.number,
+
+    /**
+     * Render this many lines (approximatey). If this is `0`, then the lines
+     * will match the tick marks on the x axis.
+     */
+    count: PropTypes.number,
+
+    /**
+     * Color of the lines. If this is not specified, then the top-level color
+     * property will be used.
+     */
+    color: PropTypes.string,
+
+    /**
+     * Thickness of the lines. If this is not specified, then the top-level
+     * strokeWidth property will be used.
+     */
+    strokeWidth: PropTypes.number,
+
+    /**
+     * Opaccity of the lines. If this is not specified, then the top-level
+     * opacity property will be used.
+     */
+    opacity: PropTypes.number,
+  },
+
+  /**
+   * Defines the behavior of the horizontal grid lines (rendered from the Y
+   * axis)
+   */
+  y: {
+    /** Render lines every X pixels */
+    pixels: PropTypes.number,
+
+    /**
+     * The series ID to link these lines to for scaling purposes. This way they
+     * will be redrawn the y axis is zoomed, translated, etc.
+     */
+    seriesId: idPropType,
+
+    /**
+     * Render this many lines (approximatey). If this is `0`, then the lines
+     * will match the tick marks on the x axis.
+     */
+    count: PropTypes.number,
+
+    /**
+     * Color of the lines. If this is `null` (magic value), and `seriesId`
+     * points to a series, then that color will be used. However, if `seriesId`
+     * is not set, then the top-level color will be used.
+     */
+    color: PropTypes.string,
+
+    /**
+     * Thickness of the lines. If this is not specified, then the top-level
+     * strokeWidth property will be used.
+     */
+    strokeWidth: PropTypes.number,
+
+    /**
+     * Opaccity of the lines. If this is not specified, then the top-level
+     * opacity property will be used.
+     */
+    opacity: PropTypes.number,
+  },
+});
