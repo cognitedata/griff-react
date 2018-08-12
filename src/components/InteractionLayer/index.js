@@ -30,12 +30,14 @@ class InteractionLayer extends React.Component {
     crosshair: PropTypes.bool,
     ruler: rulerPropType,
     height: PropTypes.number.isRequired,
-    // area => null
+    // area => void
     onAreaDefined: PropTypes.func,
-    // (area, xpos, ypos) => null
+    // (area, xpos, ypos) => void
     onAreaClicked: PropTypes.func,
     onClick: PropTypes.func,
     onClickAnnotation: PropTypes.func,
+    // event => void
+    onDoubleClick: PropTypes.func,
     onMouseMove: PropTypes.func,
     onMouseOut: PropTypes.func,
     updateXTransformation: PropTypes.func,
@@ -60,6 +62,7 @@ class InteractionLayer extends React.Component {
     onAreaClicked: null,
     onClick: null,
     onClickAnnotation: null,
+    onDoubleClick: null,
     onMouseMove: null,
     onMouseOut: null,
     updateXTransformation: () => {},
@@ -339,6 +342,13 @@ class InteractionLayer extends React.Component {
     }
   };
 
+  onDoubleClick = e => {
+    const { onDoubleClick } = this.props;
+    if (onDoubleClick) {
+      onDoubleClick(e);
+    }
+  };
+
   // TODO: This extrapolate thing is super gross and so hacky.
   getDataForCoordinate = (xpos, ypos, extrapolate = false) => {
     const { subDomain, width, series, height, xScalerFactory } = this.props;
@@ -387,8 +397,12 @@ class InteractionLayer extends React.Component {
   };
 
   syncZoomingState = () => {
-    if (this.props.zoomable && !this.props.onAreaDefined) {
+    const { onAreaDefined, onDoubleClick, zoomable } = this.props;
+    if (zoomable && !onAreaDefined) {
       this.rectSelection.call(this.zoom.on('zoom', this.zoomed));
+      if (onDoubleClick) {
+        this.rectSelection.on('dblclick.zoom', null);
+      }
     } else {
       this.rectSelection.on('.zoom', null);
     }
@@ -591,6 +605,7 @@ class InteractionLayer extends React.Component {
           onMouseOut={this.onMouseOut}
           onMouseDown={this.onMouseDown}
           onMouseUp={this.onMouseUp}
+          onDoubleClick={this.onDoubleClick}
         />
       </React.Fragment>
     );
