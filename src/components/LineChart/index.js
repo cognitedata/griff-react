@@ -114,26 +114,29 @@ class LineChartComponent extends Component {
     return xAxisHeight + (contextChart.height || 100);
   };
 
-  getYAxisCollectionWidth = () => {
-    const { yAxisDisplayMode, series, yAxisWidth } = this.props;
-    const counts = {};
-    series.forEach(s => {
-      if (s.hidden) {
-        return;
-      }
-      const mode = (s.yAxisDisplayMode || yAxisDisplayMode).id;
-      counts[mode] = (counts[mode] || 0) + 1;
-    });
-    const w1 = AxisDisplayMode.ALL.width(
-      yAxisWidth,
-      counts[AxisDisplayMode.ALL.id] || 0
-    );
-    const w2 = AxisDisplayMode.COLLAPSED.width(
-      yAxisWidth,
-      counts[AxisDisplayMode.COLLAPSED.id] || 0
-    );
-    const width = w1 + w2;
-    return width;
+  getYAxisCollectionWidth = placement => {
+    const { series, yAxisDisplayMode, yAxisPlacement, yAxisWidth } = this.props;
+
+    const filteredSeries = series
+      .filter(s => !s.hidden)
+      .filter(
+        s =>
+          (s.yAxisPlacement || yAxisPlacement) &&
+          ((s.yAxisPlacement || yAxisPlacement) === AxisPlacement.BOTH ||
+            (s.yAxisPlacement || yAxisPlacement) === placement)
+      );
+
+    const displayModeFilter = mode => s =>
+      (s.yAxisDisplayMode || yAxisDisplayMode) === mode;
+
+    return filteredSeries
+      .filter(displayModeFilter(AxisDisplayMode.ALL))
+      .reduce((acc, s) => {
+        if (s.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+          return acc;
+        }
+        return acc + yAxisWidth;
+      }, filteredSeries.filter(displayModeFilter(AxisDisplayMode.COLLAPSED)).length ? yAxisWidth : 0);
   };
 
   getYAxisPlacement = () => {
@@ -188,19 +191,17 @@ class LineChartComponent extends Component {
     const width = propWidth || sizeWidth;
     const height = propHeight || sizeHeight;
     const xAxisHeight = 50;
-    const axisCollectionSize = {
-      width: this.getYAxisCollectionWidth(),
-    };
     const contextChartSpace = this.getContextChartHeight({
       xAxisHeight,
       height,
     });
     const chartSize = {
-      width: width - axisCollectionSize.width,
+      width:
+        width -
+        this.getYAxisCollectionWidth(AxisPlacement.LEFT) -
+        this.getYAxisCollectionWidth(AxisPlacement.RIGHT),
       height: height - xAxisHeight - contextChartSpace,
     };
-
-    axisCollectionSize.height = chartSize.height;
 
     return (
       <Layout
@@ -234,7 +235,7 @@ class LineChartComponent extends Component {
             axisDisplayMode={yAxisDisplayMode}
             onMouseEnter={onAxisMouseEnter}
             onMouseLeave={onAxisMouseLeave}
-            height={axisCollectionSize.height}
+            height={chartSize.height}
           />
         }
         xAxis={<XAxis domain={subDomain} width={chartSize.width} />}
