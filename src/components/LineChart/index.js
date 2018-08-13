@@ -144,22 +144,22 @@ class LineChartComponent extends Component {
     const yAxisPlacements = series.reduce(
       (acc, s) => {
         if (s.yAxisPlacement) {
-          acc[s.yAxisPlacement.id] = (acc[s.yAxisPlacement.id] || 0) + 1;
+          acc[s.yAxisPlacement] = (acc[s.yAxisPlacement] || 0) + 1;
         }
         return acc;
       },
-      { [yAxisPlacement.id]: 1 }
+      { [yAxisPlacement]: 1 }
     );
-    if (yAxisPlacements[AxisPlacement.BOTH.id]) {
+    if (yAxisPlacements[AxisPlacement.BOTH]) {
       return AxisPlacement.BOTH;
     }
     if (
-      yAxisPlacements[AxisPlacement.LEFT.id] &&
-      yAxisPlacements[AxisPlacement.RIGHT.id]
+      yAxisPlacements[AxisPlacement.LEFT] &&
+      yAxisPlacements[AxisPlacement.RIGHT]
     ) {
       return AxisPlacement.BOTH;
     }
-    if (yAxisPlacements[AxisPlacement.LEFT.id]) {
+    if (yAxisPlacements[AxisPlacement.LEFT]) {
       return AxisPlacement.LEFT;
     }
     return yAxisPlacement || AxisPlacement.RIGHT;
