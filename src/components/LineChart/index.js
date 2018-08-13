@@ -160,15 +160,13 @@ class LineChartComponent extends Component {
     const yAxisPlacements = []
       .concat(series.filter(s => s.collectionId === undefined))
       .concat(collections)
-      .reduce(
-        (acc, item) => {
-          if (item.yAxisPlacement) {
-            acc[item.yAxisPlacement] = (acc[item.yAxisPlacement] || 0) + 1;
-          }
-          return acc;
-        },
-        { [yAxisPlacement]: 1 }
-      );
+      .reduce((acc, item) => {
+        const placement = item.yAxisPlacement || yAxisPlacement;
+        if (placement) {
+          acc[placement] = (acc[placement] || 0) + 1;
+        }
+        return acc;
+      }, {});
     if (yAxisPlacements[AxisPlacement.BOTH]) {
       return AxisPlacement.BOTH;
     }

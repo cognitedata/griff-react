@@ -266,6 +266,19 @@ storiesOf('Y-Axis Placement', module)
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
     </DataProvider>,
   ])
+  .add('Misleading placements', () => [
+    <DataProvider
+      key="series"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[
+        { id: 1, color: 'steelblue', yAxisPlacement: AxisPlacement.LEFT },
+        { id: 2, color: 'maroon' },
+      ]}
+    >
+      <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
+    </DataProvider>,
+  ])
   .add('Collapsed axis', () => [
     <DataProvider
       key="series"
