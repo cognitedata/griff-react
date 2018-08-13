@@ -63,6 +63,11 @@ export const axisDisplayModeType = PropTypes.shape({
   width: PropTypes.func.isRequired,
 });
 
+export const axisPlacementType = PropTypes.shape({
+  id: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired,
+});
+
 export const coordinatePropType = PropTypes.shape({
   xpos: PropTypes.number.isRequired,
   ypos: PropTypes.number.isRequired,

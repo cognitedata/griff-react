@@ -6,12 +6,13 @@ import ScalerContext from '../../context/Scaler';
 import GriffPropTypes, {
   seriesPropType,
   axisDisplayModeType,
+  axisPlacementType,
 } from '../../utils/proptypes';
 import AxisDisplayMode from '../LineChart/AxisDisplayMode';
+import AxisPlacement from '../LineChart/AxisPlacement';
 
 const propTypes = {
   height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
   series: seriesPropType,
   collections: GriffPropTypes.collections,
   zoomable: PropTypes.bool,
@@ -27,6 +28,7 @@ const propTypes = {
   axisDisplayMode: axisDisplayModeType,
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
+  yAxisPlacement: axisPlacementType,
 };
 
 const defaultProps = {
@@ -36,6 +38,7 @@ const defaultProps = {
   updateYTransformation: () => {},
   yAxisWidth: 50,
   axisDisplayMode: AxisDisplayMode.ALL,
+  yAxisPlacement: AxisPlacement.RIGHT,
   onMouseEnter: null,
   onMouseLeave: null,
 };
@@ -47,45 +50,93 @@ class AxisCollection extends React.Component {
   onAxisMouseLeave = seriesId =>
     this.props.onMouseLeave ? e => this.props.onMouseLeave(e, seriesId) : null;
 
+  getAxisOffsets = () => {
+    const { series, yAxisPlacement, yAxisWidth } = this.props;
+
+    const numCollapsed = series.filter(
+      this.axisFilter(AxisDisplayMode.COLLAPSED)
+    ).length;
+    const numVisible = series.filter(this.axisFilter(AxisDisplayMode.ALL))
+      .length;
+
+    switch (yAxisPlacement) {
+      case AxisPlacement.LEFT:
+        return {
+          collapsed: 0,
+          visible: numCollapsed ? yAxisWidth : 0,
+        };
+      case AxisPlacement.BOTH:
+        throw new Error(
+          'BOTH is not a valid option for AxisCollection -- please specify RIGHT or LEFT'
+        );
+      case AxisPlacement.RIGHT:
+      case AxisPlacement.UNSPECIFIED:
+      default:
+        return {
+          collapsed: numVisible * yAxisWidth,
+          visible: 0,
+        };
+    }
+  };
+
   axisFilter = mode => s =>
     !s.hidden && (s.yAxisDisplayMode || this.props.axisDisplayMode) === mode;
 
-  renderAllVisibleAxes() {
+  placementFilter = s =>
+    !s.yAxisPlacement ||
+    s.yAxisPlacement === AxisPlacement.BOTH ||
+    s.yAxisPlacement === this.props.yAxisPlacement;
+
+  renderAllVisibleAxes = offsetx => {
     const {
       collections,
       series,
       zoomable,
       height,
       updateYTransformation,
+      yAxisPlacement,
       yAxisWidth,
       yTransformations,
     } = this.props;
-    let axisOffsetX = -yAxisWidth;
+    let axisOffsetX = offsetx - yAxisWidth;
+
+    const filteredSeries = series
+      .filter(this.axisFilter(AxisDisplayMode.ALL))
+      .filter(this.placementFilter);
+    if (yAxisPlacement === AxisPlacement.LEFT) {
+      filteredSeries.reverse();
+    }
+
+    const filteredCollections = collections
+      .filter(this.axisFilter(AxisDisplayMode.ALL))
+      .filter(this.placementFilter);
+    if (yAxisPlacement === AxisPlacement.LEFT) {
+      filteredCollections.reverse();
+    }
+
     return []
       .concat(
-        series
-          .filter(s => !s.collectionId)
-          .filter(this.axisFilter(AxisDisplayMode.ALL))
-          .map(s => {
-            axisOffsetX += yAxisWidth;
-            return (
-              <YAxis
-                key={`y-axis--${s.id}`}
-                offsetx={axisOffsetX}
-                zoomable={s.zoomable !== undefined ? s.zoomable : zoomable}
-                series={s}
-                height={height}
-                width={yAxisWidth}
-                updateYTransformation={updateYTransformation}
-                yTransformation={yTransformations[s.id]}
-                onMouseEnter={this.onAxisMouseEnter(s.id)}
-                onMouseLeave={this.onAxisMouseLeave(s.id)}
-              />
-            );
-          })
+        filteredSeries.filter(s => s.collectionId === undefined).map(s => {
+          axisOffsetX += yAxisWidth;
+          return (
+            <YAxis
+              key={`y-axis--${s.id}`}
+              offsetx={axisOffsetX}
+              zoomable={s.zoomable !== undefined ? s.zoomable : zoomable}
+              series={s}
+              height={height}
+              width={yAxisWidth}
+              updateYTransformation={updateYTransformation}
+              yTransformation={yTransformations[s.id]}
+              onMouseEnter={this.onAxisMouseEnter(s.id)}
+              onMouseLeave={this.onAxisMouseLeave(s.id)}
+              yAxisPlacement={yAxisPlacement}
+            />
+          );
+        })
       )
       .concat(
-        collections.filter(this.axisFilter(AxisDisplayMode.ALL)).map(c => {
+        filteredCollections.map(c => {
           axisOffsetX += yAxisWidth;
 
           const collectedSeries = series.filter(s => s.collectionId === c.id);
@@ -112,45 +163,63 @@ class AxisCollection extends React.Component {
               yTransformation={yTransformations[c.id]}
               onMouseEnter={this.onAxisMouseEnter(c.id)}
               onMouseLeave={this.onAxisMouseLeave(c.id)}
+              yAxisPlacement={yAxisPlacement}
             />
           );
         })
       );
-  }
+  };
 
-  renderPlaceholderAxis() {
-    const { height, yAxisWidth, series } = this.props;
+  renderPlaceholderAxis = offsetx => {
+    const { height, yAxisWidth, series, yAxisPlacement } = this.props;
     const numCollapsed = series.filter(
       this.axisFilter(AxisDisplayMode.COLLAPSED)
     ).length;
-    const numVisible = series.filter(this.axisFilter(AxisDisplayMode.ALL))
-      .length;
     // TODO: Should we only do this if there's more than 1?
     if (numCollapsed) {
       return (
         <CollapsedAxis
           key="y-axis--collapsed"
           height={height}
-          offsetx={numVisible * yAxisWidth}
+          offsetx={offsetx}
           width={yAxisWidth}
           onMouseEnter={this.onAxisMouseEnter('collapsed')}
           onMouseLeave={this.onAxisMouseLeave('collapsed')}
+          yAxisPlacement={yAxisPlacement}
         />
       );
     }
     return null;
-  }
+  };
 
   render() {
-    const { width, height } = this.props;
+    const { collections, height, series, yAxisWidth } = this.props;
+
+    const calculatedWidth = []
+      .concat(series)
+      .concat(collections)
+      .filter(item => item.collectionId === undefined)
+      .filter(this.axisFilter(AxisDisplayMode.ALL))
+      .filter(this.placementFilter)
+      .reduce((acc, item) => {
+        if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+          return acc;
+        }
+        return acc + yAxisWidth;
+      }, series.filter(this.axisFilter(AxisDisplayMode.COLLAPSED)).length ? yAxisWidth : 0);
+
+    const {
+      collapsed: collapsedOffsetX,
+      visible: visibleOffsetX,
+    } = this.getAxisOffsets();
 
     // We need to render all of the axes (even if they're hidden) in order to
     // keep the zoom states in sync across show/hide toggles.
-    const axes = this.renderAllVisibleAxes();
+    const axes = this.renderAllVisibleAxes(visibleOffsetX);
     return (
-      <svg width={width} height={height}>
+      <svg width={calculatedWidth} height={height}>
         {axes}
-        {this.renderPlaceholderAxis()}
+        {this.renderPlaceholderAxis(collapsedOffsetX)}
       </svg>
     );
   }
