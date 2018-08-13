@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ScalerContext from '../../context/Scaler';
-import { gridPropType, seriesPropType } from '../../utils/proptypes';
+import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 
 const propTypes = {
-  grid: gridPropType,
+  grid: GriffPropTypes.grid,
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   series: seriesPropType.isRequired,

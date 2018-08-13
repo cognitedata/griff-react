@@ -5,4 +5,6 @@ export default React.createContext({
   baseDomain: [0, 0],
   yDomains: {},
   yTransformations: {},
+  series: [],
+  collections: [],
 });
