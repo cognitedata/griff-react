@@ -34,13 +34,29 @@ const Layout = ({ contextChart, lineChart, xAxis, yAxis, yAxisPlacement }) => {
   const yAxes = [];
   let areas;
 
+  const quote = s => `'${s}'`;
+
   switch (yAxisPlacement) {
     case AxisPlacement.LEFT:
-      areas = "'yaxis chart' '. xaxis' '. context'";
+      areas = [
+        // formatting for readability
+        'yaxis chart',
+        '. xaxis',
+        '. context',
+      ]
+        .map(quote)
+        .join(' ');
       yAxes.push(axisContainer('yaxis')(yAxis, yAxisPlacement));
       break;
     case AxisPlacement.BOTH: {
-      areas = "'yaxis-left chart yaxis-right' '. xaxis .' '. context .'";
+      areas = [
+        // formatting for readability
+        'yaxis-left chart yaxis-right',
+        '. xaxis .',
+        '. context .',
+      ]
+        .map(quote)
+        .join(' ');
       yAxes.push(axisContainer('yaxis-left')(yAxis, AxisPlacement.LEFT));
       yAxes.push(axisContainer('yaxis-right')(yAxis, AxisPlacement.RIGHT));
       break;
@@ -48,7 +64,14 @@ const Layout = ({ contextChart, lineChart, xAxis, yAxis, yAxisPlacement }) => {
     case AxisPlacement.RIGHT:
     case AxisPlacement.UNSPECIFIED:
     default:
-      areas = "'chart yaxis' 'xaxis .' 'context .'";
+      areas = [
+        // formatting for readability
+        'chart yaxis',
+        'xaxis .',
+        'context .',
+      ]
+        .map(quote)
+        .join(' ');
       yAxes.push(axisContainer('yaxis')(yAxis, yAxisPlacement));
       break;
   }
