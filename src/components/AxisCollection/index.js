@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import CollapsedAxis from './CollapsedAxis';
 import YAxis from './YAxis';
 import ScalerContext from '../../context/Scaler';
-import {
+import GriffPropTypes, {
   seriesPropType,
   axisDisplayModeType,
   axisPlacementType,
@@ -14,6 +14,7 @@ import AxisPlacement from '../LineChart/AxisPlacement';
 const propTypes = {
   height: PropTypes.number.isRequired,
   series: seriesPropType,
+  collections: GriffPropTypes.collections,
   zoomable: PropTypes.bool,
   updateYTransformation: PropTypes.func,
   yAxisWidth: PropTypes.number,
@@ -32,6 +33,7 @@ const propTypes = {
 
 const defaultProps = {
   series: [],
+  collections: [],
   zoomable: true,
   updateYTransformation: () => {},
   yAxisWidth: 50,
@@ -87,6 +89,7 @@ class AxisCollection extends React.Component {
 
   renderAllVisibleAxes = offsetx => {
     const {
+      collections,
       series,
       zoomable,
       height,
@@ -95,7 +98,7 @@ class AxisCollection extends React.Component {
       yAxisWidth,
       yTransformations,
     } = this.props;
-    let axisOffsetX = offsetx;
+    let axisOffsetX = offsetx - yAxisWidth;
 
     const filteredSeries = series
       .filter(this.axisFilter(AxisDisplayMode.ALL))
@@ -104,26 +107,66 @@ class AxisCollection extends React.Component {
       filteredSeries.reverse();
     }
 
-    return filteredSeries.map((s, idx) => {
-      if (idx > 0) {
-        axisOffsetX += yAxisWidth;
-      }
-      return (
-        <YAxis
-          key={`y-axis--${s.id}`}
-          offsetx={axisOffsetX}
-          zoomable={s.zoomable !== undefined ? s.zoomable : zoomable}
-          series={s}
-          height={height}
-          width={yAxisWidth}
-          updateYTransformation={updateYTransformation}
-          yTransformation={yTransformations[s.id]}
-          onMouseEnter={this.onAxisMouseEnter(s.id)}
-          onMouseLeave={this.onAxisMouseLeave(s.id)}
-          yAxisPlacement={yAxisPlacement}
-        />
+    const filteredCollections = collections
+      .filter(this.axisFilter(AxisDisplayMode.ALL))
+      .filter(this.placementFilter);
+    if (yAxisPlacement === AxisPlacement.LEFT) {
+      filteredCollections.reverse();
+    }
+
+    return []
+      .concat(
+        filteredSeries.filter(s => s.collectionId === undefined).map(s => {
+          axisOffsetX += yAxisWidth;
+          return (
+            <YAxis
+              key={`y-axis--${s.id}`}
+              offsetx={axisOffsetX}
+              zoomable={s.zoomable !== undefined ? s.zoomable : zoomable}
+              series={s}
+              height={height}
+              width={yAxisWidth}
+              updateYTransformation={updateYTransformation}
+              yTransformation={yTransformations[s.id]}
+              onMouseEnter={this.onAxisMouseEnter(s.id)}
+              onMouseLeave={this.onAxisMouseLeave(s.id)}
+              yAxisPlacement={yAxisPlacement}
+            />
+          );
+        })
+      )
+      .concat(
+        filteredCollections.map(c => {
+          axisOffsetX += yAxisWidth;
+
+          const collectedSeries = series.filter(s => s.collectionId === c.id);
+
+          const updateCollectionYTransformation = (
+            collectionId,
+            transformation
+          ) => {
+            collectedSeries.forEach(s => {
+              updateYTransformation(s.id, transformation, height);
+            });
+            updateYTransformation(collectionId, transformation, height);
+          };
+
+          return (
+            <YAxis
+              key={`y-axis-collection-${c.id}`}
+              offsetx={axisOffsetX}
+              zoomable={c.zoomable !== undefined ? c.zoomable : zoomable}
+              collection={c}
+              height={height}
+              width={yAxisWidth}
+              updateYTransformation={updateCollectionYTransformation}
+              yTransformation={yTransformations[c.id]}
+              onMouseEnter={this.onAxisMouseEnter(c.id)}
+              onMouseLeave={this.onAxisMouseLeave(c.id)}
+            />
+          );
+        })
       );
-    });
   };
 
   renderPlaceholderAxis = offsetx => {
@@ -182,9 +225,16 @@ AxisCollection.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ series, yAxisWidth, updateYTransformation, yTransformations }) => (
+    {({
+      collections,
+      series,
+      yAxisWidth,
+      updateYTransformation,
+      yTransformations,
+    }) => (
       <AxisCollection
         {...props}
+        collections={collections}
         series={series}
         yAxisWidth={yAxisWidth}
         updateYTransformation={updateYTransformation}

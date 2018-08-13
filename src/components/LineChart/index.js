@@ -5,7 +5,7 @@ import AxisCollection from '../AxisCollection';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import { ScaledContextChart } from '../ContextChart';
-import {
+import GriffPropTypes, {
   areaPropType,
   contextChartPropType,
   seriesPropType,
@@ -30,6 +30,7 @@ const propTypes = {
   height: PropTypes.number,
   zoomable: PropTypes.bool,
   series: seriesPropType,
+  collections: GriffPropTypes.collections,
   crosshair: PropTypes.bool,
   onMouseMove: PropTypes.func,
   onClick: PropTypes.func,
@@ -78,6 +79,7 @@ const defaultProps = {
   onClickAnnotation: null,
   onDoubleClick: null,
   series: [],
+  collections: [],
   annotations: [],
   ruler: {
     visible: false,
@@ -115,41 +117,57 @@ class LineChartComponent extends Component {
   };
 
   getYAxisCollectionWidth = placement => {
-    const { series, yAxisDisplayMode, yAxisPlacement, yAxisWidth } = this.props;
+    const {
+      collections,
+      series,
+      yAxisDisplayMode,
+      yAxisPlacement,
+      yAxisWidth,
+    } = this.props;
 
-    const filteredSeries = series
-      .filter(s => !s.hidden)
+    const displayModeFilter = mode => item =>
+      (item.yAxisDisplayMode || yAxisDisplayMode) === mode;
+
+    const filteredItems = []
+      .concat(series)
+      .concat(collections)
+      .filter(item => !item.hidden)
+      .filter(item => item.collectionId === undefined)
+      .filter(displayModeFilter(AxisDisplayMode.ALL))
       .filter(
-        s =>
-          (s.yAxisPlacement || yAxisPlacement) &&
-          ((s.yAxisPlacement || yAxisPlacement) === AxisPlacement.BOTH ||
-            (s.yAxisPlacement || yAxisPlacement) === placement)
+        item =>
+          (item.yAxisPlacement || yAxisPlacement) &&
+          ((item.yAxisPlacement || yAxisPlacement) === AxisPlacement.BOTH ||
+            (item.yAxisPlacement || yAxisPlacement) === placement)
       );
 
-    const displayModeFilter = mode => s =>
-      (s.yAxisDisplayMode || yAxisDisplayMode) === mode;
+    const hasCollapsed =
+      filteredItems.filter(displayModeFilter(AxisDisplayMode.COLLAPSED))
+        .length > 0;
 
-    return filteredSeries
-      .filter(displayModeFilter(AxisDisplayMode.ALL))
-      .reduce((acc, s) => {
-        if (s.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
-          return acc;
-        }
-        return acc + yAxisWidth;
-      }, filteredSeries.filter(displayModeFilter(AxisDisplayMode.COLLAPSED)).length ? yAxisWidth : 0);
+    return filteredItems.reduce((acc, item) => {
+      // COLLAPSED items are already accounted-for with the initial value.
+      if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+        return acc;
+      }
+      return acc + yAxisWidth;
+    }, hasCollapsed ? yAxisWidth : 0);
   };
 
   getYAxisPlacement = () => {
-    const { series, yAxisPlacement } = this.props;
-    const yAxisPlacements = series.reduce(
-      (acc, s) => {
-        if (s.yAxisPlacement) {
-          acc[s.yAxisPlacement] = (acc[s.yAxisPlacement] || 0) + 1;
-        }
-        return acc;
-      },
-      { [yAxisPlacement]: 1 }
-    );
+    const { collections, series, yAxisPlacement } = this.props;
+    const yAxisPlacements = []
+      .concat(series)
+      .concat(collections)
+      .reduce(
+        (acc, item) => {
+          if (item.yAxisPlacement) {
+            acc[item.yAxisPlacement] = (acc[item.yAxisPlacement] || 0) + 1;
+          }
+          return acc;
+        },
+        { [yAxisPlacement]: 1 }
+      );
     if (yAxisPlacements[AxisPlacement.BOTH]) {
       return AxisPlacement.BOTH;
     }
@@ -263,12 +281,13 @@ const SizedLineChartComponent = sizeMe({ monitorHeight: true })(
 const LineChart = props => (
   <Scaler>
     <ScalerContext.Consumer>
-      {({ yAxisWidth, series, subDomain }) => (
+      {({ collections, series, subDomain, yAxisWidth }) => (
         <SizedLineChartComponent
           {...props}
-          yAxisWidth={yAxisWidth}
+          collections={collections}
           series={series}
           subDomain={subDomain}
+          yAxisWidth={yAxisWidth}
         />
       )}
     </ScalerContext.Consumer>

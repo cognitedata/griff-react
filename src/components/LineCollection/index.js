@@ -4,14 +4,20 @@ import { createYScale, createXScale } from '../../utils/scale-helpers';
 import { seriesPropType } from '../../utils/proptypes';
 import ScalerContext from '../../context/Scaler';
 import Line from '../Line';
+import AxisDisplayMode from '../LineChart/AxisDisplayMode';
 
 const LineCollection = props => {
   const { series, width, height, domain } = props;
   const xScale = createXScale(domain, width);
   const clipPath = `clip-path-${series
     .filter(s => !s.hidden)
-    .map(s => s.id)
-    .join('-')}`;
+    .map(
+      s =>
+        `${s.id}-${s.collectionId || 0}-${
+          (s.yAxisDisplayMode || AxisDisplayMode.ALL).id
+        }`
+    )
+    .join('/')}`;
   const lines = series.filter(s => !s.hidden).map(s => {
     const yScale = createYScale(s.yDomain, height);
     return (

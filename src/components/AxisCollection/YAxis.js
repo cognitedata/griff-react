@@ -3,13 +3,17 @@ import * as d3 from 'd3';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
-import { singleSeriePropType, axisPlacementType } from '../../utils/proptypes';
+import GriffPropTypes, {
+  singleSeriePropType,
+  axisPlacementType,
+} from '../../utils/proptypes';
 import AxisPlacement from '../LineChart/AxisPlacement';
 
 const propTypes = {
   zoomable: PropTypes.bool,
   offsetx: PropTypes.number.isRequired,
-  series: singleSeriePropType.isRequired,
+  series: singleSeriePropType,
+  collection: GriffPropTypes.collection,
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   updateYTransformation: PropTypes.func,
@@ -24,6 +28,8 @@ const propTypes = {
 };
 
 const defaultProps = {
+  series: {},
+  collection: {},
   zoomable: true,
   updateYTransformation: () => {},
   yTransformation: null,
@@ -47,11 +53,17 @@ export default class YAxis extends Component {
       this.syncZoomingState();
     }
     if (this.props.yTransformation) {
-      if (!isEqual(prevProps.series.yDomain, this.props.series.yDomain)) {
+      if (
+        !isEqual(prevProps.series.yDomain, this.props.series.yDomain) ||
+        !isEqual(prevProps.collection.yDomain, this.props.collection.yDomain)
+      ) {
         this.selection.property('__zoom', this.props.yTransformation);
       }
     }
   }
+
+  getItem = () =>
+    this.props.series.id ? this.props.series : this.props.collection;
 
   getLineProps = ({ tickSizeInner, strokeWidth }) => {
     const { width, yAxisPlacement } = this.props;
@@ -156,12 +168,9 @@ export default class YAxis extends Component {
   };
 
   didZoom = () => {
+    const { height } = this.props;
     const t = d3.event.transform;
-    this.props.updateYTransformation(
-      this.props.series.id,
-      t,
-      this.props.height
-    );
+    this.props.updateYTransformation(this.getItem().id, t, height);
   };
 
   renderZoomRect() {
@@ -180,8 +189,9 @@ export default class YAxis extends Component {
   }
 
   renderAxis() {
-    const { series, height } = this.props;
-    const scale = createYScale(series.yDomain, height);
+    const { height } = this.props;
+
+    const scale = createYScale(this.getItem().yDomain, height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;
@@ -203,17 +213,17 @@ export default class YAxis extends Component {
         strokeWidth={strokeWidth}
       >
         <path
-          stroke={series.color}
+          stroke={this.getItem().color}
           d={this.getPathString({ tickSizeOuter, range, strokeWidth })}
         />
         {values.map(v => {
           const lineProps = {
-            stroke: series.color,
+            stroke: this.getItem().color,
             ...this.getLineProps({ tickSizeInner, strokeWidth }),
           };
 
           const textProps = {
-            fill: series.color,
+            fill: this.getItem().color,
             dy: '0.32em',
             ...this.getTextProps({ tickSizeInner, tickPadding, strokeWidth }),
           };
