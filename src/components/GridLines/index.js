@@ -8,33 +8,22 @@ const propTypes = {
   grid: gridPropType,
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
-  opacity: PropTypes.number,
-  color: PropTypes.string,
-  strokeWidth: PropTypes.number,
   series: seriesPropType.isRequired,
   subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
 };
 
 const defaultProps = {
   grid: null,
-  opacity: 0.4,
-  color: '#000',
-  strokeWidth: 1,
 };
+
+const DEFAULT_COLOR = '#666';
+const DEFAULT_OPACITY = 0.6;
+const DEFAULT_STROKE_WIDTH = 1;
 
 class GridLines extends React.Component {
   state = {};
   render() {
-    const {
-      color,
-      grid,
-      height,
-      width,
-      opacity,
-      series,
-      subDomain,
-      strokeWidth,
-    } = this.props;
+    const { grid, height, width, series, subDomain } = this.props;
 
     if (!grid) {
       return null;
@@ -63,15 +52,25 @@ class GridLines extends React.Component {
             lines.push(
               <line
                 key={`horizontal-${s.id}-${v}`}
-                opacity={y.opacity || grid.opacity || opacity}
+                opacity={y.opacity || grid.opacity || DEFAULT_OPACITY}
                 stroke={
-                  y.color === null ? s.color : y.color || grid.color || color
+                  y.color === null
+                    ? s.color
+                    : y.color || grid.color || DEFAULT_COLOR
                 }
-                strokeWidth={y.strokeWidth || grid.strokeWidth || strokeWidth}
+                strokeWidth={
+                  y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
+                }
                 x1={0}
                 x2={width}
-                y1={(y.strokeWidth || strokeWidth) / 2}
-                y2={(y.strokeWidth || strokeWidth) / 2}
+                y1={
+                  (y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) /
+                  2
+                }
+                y2={
+                  (y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) /
+                  2
+                }
                 transform={`translate(0, ${scale(v)})`}
               />
             );
@@ -90,9 +89,11 @@ class GridLines extends React.Component {
               x2={width}
               y1={position}
               y2={position}
-              stroke={y.color || color}
-              strokeWidth={y.strokeWidth || strokeWidth}
-              opacity={y.opacity || opacity}
+              stroke={y.color || grid.color || DEFAULT_COLOR}
+              strokeWidth={
+                y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
+              }
+              opacity={y.opacity || grid.opacity || DEFAULT_OPACITY}
             />
           );
         }
@@ -110,9 +111,11 @@ class GridLines extends React.Component {
               x2={width}
               y1={position}
               y2={position}
-              stroke={y.color || color}
-              strokeWidth={y.strokeWidth || strokeWidth}
-              opacity={y.opacity || opacity}
+              stroke={y.color || grid.color || DEFAULT_COLOR}
+              strokeWidth={
+                y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
+              }
+              opacity={y.opacity || grid.opacity || DEFAULT_OPACITY}
             />
           );
         }
@@ -133,9 +136,11 @@ class GridLines extends React.Component {
               y2={height}
               x1={position}
               x2={position}
-              stroke={x.color || color}
-              strokeWidth={x.strokeWidth || strokeWidth}
-              opacity={x.opacity || opacity}
+              stroke={x.color || grid.color || DEFAULT_COLOR}
+              strokeWidth={
+                x.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
+              }
+              opacity={x.opacity || grid.opacity || DEFAULT_OPACITY}
             />
           );
         }
@@ -147,13 +152,19 @@ class GridLines extends React.Component {
           lines.push(
             <line
               key={`vertical-${+v}`}
-              opacity={x.opacity || grid.opacity || opacity}
-              stroke={x.color || grid.color || color}
-              strokeWidth={x.strokeWidth || grid.strokeWidth || strokeWidth}
+              opacity={x.opacity || grid.opacity || DEFAULT_OPACITY}
+              stroke={x.color || grid.color || DEFAULT_COLOR}
+              strokeWidth={
+                x.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
+              }
               y1={0}
               y2={height}
-              x1={(x.strokeWidth || grid.strokeWidth || strokeWidth) / 2}
-              x2={(x.strokeWidth || grid.strokeWidth || strokeWidth) / 2}
+              x1={
+                (x.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) / 2
+              }
+              x2={
+                (x.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) / 2
+              }
               transform={`translate(${scale(v)}, 0)`}
             />
           );
@@ -172,9 +183,11 @@ class GridLines extends React.Component {
               y2={height}
               x1={position}
               x2={position}
-              stroke={x.color || color}
-              strokeWidth={x.strokeWidth || strokeWidth}
-              opacity={x.opacity || opacity}
+              stroke={x.color || grid.color || DEFAULT_COLOR}
+              strokeWidth={
+                x.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
+              }
+              opacity={x.opacity || grid.opacity || DEFAULT_OPACITY}
             />
           );
         }

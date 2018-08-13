@@ -109,4 +109,148 @@ storiesOf('Grid Lines', module)
         grid={{ x: { ticks: 0 }, y: { seriesIds: [1, 2], color: null } }}
       />
     </DataProvider>
-  ));
+  ))
+  .add('color', () => [
+    <DataProvider
+      key="y-dimension"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        grid={{ y: { count: 5, color: 'red' } }}
+      />
+    </DataProvider>,
+    <DataProvider
+      key="x-dimension"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        grid={{ x: { count: 5, color: 'red' } }}
+      />
+    </DataProvider>,
+    <DataProvider
+      key="grid-object"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        grid={{ color: 'red', x: { count: 5 }, y: { count: 5 } }}
+      />
+    </DataProvider>,
+    <DataProvider
+      key="different"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        grid={{
+          color: 'yellow',
+          x: { count: 5, color: 'orange' },
+          y: { count: 5, color: 'green' },
+        }}
+      />
+    </DataProvider>,
+  ])
+  .add('opacity', () => [
+    <DataProvider
+      key="y-dimension"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart height={CHART_HEIGHT} grid={{ y: { count: 5, opacity: 1 } }} />
+    </DataProvider>,
+    <DataProvider
+      key="x-dimension"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart height={CHART_HEIGHT} grid={{ x: { count: 5, opacity: 1 } }} />
+    </DataProvider>,
+    <DataProvider
+      key="grid-object"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        grid={{ opacity: 1, x: { count: 5 }, y: { count: 5 } }}
+      />
+    </DataProvider>,
+    <DataProvider
+      key="different"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        grid={{
+          opacity: 0,
+          x: { count: 5, opacity: 0.5 },
+          y: { count: 5, opacity: 1 },
+        }}
+      />
+    </DataProvider>,
+  ])
+  .add('strokeWidth', () => [
+    <DataProvider
+      key="y-dimension"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        grid={{ y: { count: 5, strokeWidth: 5 } }}
+      />
+    </DataProvider>,
+    <DataProvider
+      key="x-dimension"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        grid={{ x: { count: 5, strokeWidth: 5 } }}
+      />
+    </DataProvider>,
+    <DataProvider
+      key="grid-object"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        grid={{ strokeWidth: 5, x: { count: 5 }, y: { count: 5 } }}
+      />
+    </DataProvider>,
+    <DataProvider
+      key="different"
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        grid={{
+          strokeWidth: 15,
+          x: { count: 5, strokeWidth: 5 },
+          y: { count: 5, strokeWidth: 10 },
+        }}
+      />
+    </DataProvider>,
+  ]);
