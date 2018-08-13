@@ -4,7 +4,7 @@ import Promise from 'bluebird';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
-import { seriesPropType } from '../../utils/proptypes';
+import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 
 const calculateDomainFromData = (
   data,
@@ -180,7 +180,15 @@ export default class DataProvider extends Component {
     clearInterval(this.fetchInterval);
   }
 
-  getSeriesObjects = () => this.props.series.map(this.enrichSeries);
+  getSeriesObjects = () => {
+    const collectionsById = {};
+    (this.props.collections || []).forEach(c => {
+      collectionsById[c.id] = c;
+    });
+    return this.props.series.map(s =>
+      this.enrichSeries(s, collectionsById[s.collectionId || ''] || {})
+    );
+  };
 
   getSingleSeriesObject = id => {
     const series = this.props.series.find(s => id === s.id);
@@ -189,7 +197,12 @@ export default class DataProvider extends Component {
         `Trying to get single series object for id ${id} which is not defined in props.`
       );
     }
-    return this.enrichSeries(series);
+    return this.enrichSeries(
+      series,
+      series.collectionId
+        ? (this.props.collections || []).find(c => series.collectionId === c.id)
+        : {}
+    );
   };
 
   startUpdateInterval = () => {
@@ -211,18 +224,50 @@ export default class DataProvider extends Component {
     }
   };
 
-  enrichSeries = series => {
+  enrichSeries = (series, collection = {}) => {
     const { yAccessor, y0Accessor, y1Accessor, xAccessor } = this.props;
     const { loaderConfig, yDomains } = this.state;
+
+    const undefinedTruthiness = (a, b, c) => {
+      if (a === undefined) {
+        if (b === undefined) {
+          return c;
+        }
+        return b;
+      }
+      return a;
+    };
     return {
+      drawPoints: collection.drawPoints,
+      strokeWidth: collection.strokeWidth,
+      hidden: collection.hidden,
       data: [],
       ...deleteUndefinedFromObject(series),
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
-      xAccessor: series.xAccessor || xAccessor,
-      yAccessor: series.yAccessor || yAccessor,
-      y0Accessor: series.y0Accessor || y0Accessor,
-      y1Accessor: series.y1Accessor || y1Accessor,
-      yDomain: series.yDomain || yDomains[series.id] || [0, 0],
+      xAccessor: undefinedTruthiness(
+        series.xAccessor,
+        collection.xAccessor,
+        xAccessor
+      ),
+      yAccessor: undefinedTruthiness(
+        series.yAccessor,
+        collection.yAccessor,
+        yAccessor
+      ),
+      y0Accessor: undefinedTruthiness(
+        series.y0Accessor,
+        collection.y0Accessor,
+        y0Accessor
+      ),
+      y1Accessor: undefinedTruthiness(
+        series.y1Accessor,
+        collection.y1Accessor,
+        y1Accessor
+      ),
+      yAxisDisplayMode: series.yAxisDisplayMode || collection.yAxisDisplayMode,
+      yDomain: collection.yDomain ||
+        series.yDomain ||
+        yDomains[series.id] || [0, 0],
     };
   };
 
@@ -300,14 +345,45 @@ export default class DataProvider extends Component {
       children,
       baseDomain: externalBaseDomain,
       subDomain: externalSubDomain,
+      collections,
     } = this.props;
     if (Object.keys(loaderConfig).length === 0) {
       // Do not bother, loader hasn't given any data yet.
       return null;
     }
     const seriesObjects = this.getSeriesObjects();
+
+    const collectionsById = {};
+    const collectionsWithDomains = collections
+      .map(c => ({
+        ...c,
+        yDomain: seriesObjects
+          .filter(s => s.collectionId === c.id)
+          .map(s => s.yDomain)
+          .reduce(
+            (acc, yDomain) => [
+              Math.min(acc[0], yDomain[0]),
+              Math.max(acc[1], yDomain[1]),
+            ],
+            [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
+          ),
+      }))
+      .map(c => {
+        collectionsById[c.id] = c;
+        return c;
+      });
+
+    const collectedSeries = seriesObjects.map(s => ({
+      ...s,
+      yDomain:
+        s.collectionId !== undefined
+          ? [...collectionsById[s.collectionId].yDomain]
+          : s.yDomain,
+    }));
+
     const context = {
-      series: seriesObjects,
+      series: collectedSeries,
+      collections: collectionsWithDomains,
       baseDomain,
       // This is used to signal external changes vs internal changes
       externalBaseDomain,
@@ -342,6 +418,7 @@ DataProvider.propTypes = {
   children: PropTypes.node.isRequired,
   defaultLoader: PropTypes.func,
   series: seriesPropType.isRequired,
+  collections: PropTypes.arrayOf(GriffPropTypes.collection),
   // (subDomain) => null
   onSubDomainChanged: PropTypes.func,
 };
@@ -357,4 +434,5 @@ DataProvider.defaultProps = {
   defaultLoader: null,
   subDomain: null,
   onSubDomainChanged: null,
+  collections: [],
 };

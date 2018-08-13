@@ -5,7 +5,7 @@ import AxisCollection from '../AxisCollection';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import { ScaledContextChart } from '../ContextChart';
-import {
+import GriffPropTypes, {
   areaPropType,
   contextChartPropType,
   seriesPropType,
@@ -27,6 +27,7 @@ const propTypes = {
   height: PropTypes.number,
   zoomable: PropTypes.bool,
   series: seriesPropType,
+  collections: GriffPropTypes.collections,
   crosshair: PropTypes.bool,
   onMouseMove: PropTypes.func,
   onClick: PropTypes.func,
@@ -74,6 +75,7 @@ const defaultProps = {
   onClickAnnotation: null,
   onDoubleClick: null,
   series: [],
+  collections: [],
   annotations: [],
   ruler: {
     visible: false,
@@ -110,15 +112,20 @@ class LineChartComponent extends Component {
   };
 
   getYAxisCollectionWidth = () => {
-    const { yAxisDisplayMode, series, yAxisWidth } = this.props;
+    const { collections, series, yAxisDisplayMode, yAxisWidth } = this.props;
     const counts = {};
-    series.forEach(s => {
-      if (s.hidden) {
+    const addCount = item => {
+      if (item.hidden) {
         return;
       }
-      const mode = (s.yAxisDisplayMode || yAxisDisplayMode).id;
+      if (item.collectionId) {
+        return;
+      }
+      const mode = (item.yAxisDisplayMode || yAxisDisplayMode).id;
       counts[mode] = (counts[mode] || 0) + 1;
-    });
+    };
+    series.forEach(addCount);
+    collections.forEach(addCount);
     const w1 = AxisDisplayMode.ALL.width(
       yAxisWidth,
       counts[AxisDisplayMode.ALL.id] || 0
@@ -252,12 +259,13 @@ const SizedLineChartComponent = sizeMe({ monitorHeight: true })(
 const LineChart = props => (
   <Scaler>
     <ScalerContext.Consumer>
-      {({ yAxisWidth, series, subDomain }) => (
+      {({ collections, series, subDomain, yAxisWidth }) => (
         <SizedLineChartComponent
           {...props}
-          yAxisWidth={yAxisWidth}
+          collections={collections}
           series={series}
           subDomain={subDomain}
+          yAxisWidth={yAxisWidth}
         />
       )}
     </ScalerContext.Consumer>

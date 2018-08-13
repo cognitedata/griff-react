@@ -3,12 +3,13 @@ import * as d3 from 'd3';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
-import { singleSeriePropType } from '../../utils/proptypes';
+import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
 
 const propTypes = {
   zoomable: PropTypes.bool,
   offsetx: PropTypes.number.isRequired,
-  series: singleSeriePropType.isRequired,
+  series: singleSeriePropType,
+  collection: GriffPropTypes.collection,
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   updateYTransformation: PropTypes.func,
@@ -22,6 +23,8 @@ const propTypes = {
 };
 
 const defaultProps = {
+  series: {},
+  collection: {},
   zoomable: true,
   updateYTransformation: () => {},
   yTransformation: null,
@@ -44,11 +47,17 @@ export default class YAxis extends Component {
       this.syncZoomingState();
     }
     if (this.props.yTransformation) {
-      if (!isEqual(prevProps.series.yDomain, this.props.series.yDomain)) {
+      if (
+        !isEqual(prevProps.series.yDomain, this.props.series.yDomain) ||
+        !isEqual(prevProps.collection.yDomain, this.props.collection.yDomain)
+      ) {
         this.selection.property('__zoom', this.props.yTransformation);
       }
     }
   }
+
+  getItem = () =>
+    this.props.series.id ? this.props.series : this.props.collection;
 
   syncZoomingState = () => {
     if (this.props.zoomable) {
@@ -59,12 +68,9 @@ export default class YAxis extends Component {
   };
 
   didZoom = () => {
+    const { height } = this.props;
     const t = d3.event.transform;
-    this.props.updateYTransformation(
-      this.props.series.id,
-      t,
-      this.props.height
-    );
+    this.props.updateYTransformation(this.getItem().id, t, height);
   };
 
   renderZoomRect() {
@@ -83,8 +89,9 @@ export default class YAxis extends Component {
   }
 
   renderAxis() {
-    const { series, height } = this.props;
-    const scale = createYScale(series.yDomain, height);
+    const { height } = this.props;
+
+    const scale = createYScale(this.getItem().yDomain, height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;
@@ -116,14 +123,14 @@ export default class YAxis extends Component {
         textAnchor="start"
         strokeWidth={strokeWidth}
       >
-        <path stroke={series.color} d={pathString} />
+        <path stroke={this.getItem().color} d={pathString} />
         {values.map(v => {
-          const lineProps = { stroke: series.color };
+          const lineProps = { stroke: this.getItem().color };
           lineProps.x2 = k * tickSizeInner;
           lineProps.y1 = halfStrokeWidth;
           lineProps.y2 = halfStrokeWidth;
 
-          const textProps = { fill: series.color, dy: '0.32em' };
+          const textProps = { fill: this.getItem().color, dy: '0.32em' };
           textProps.x = k * Math.max(tickSizeInner, 0) + tickPadding;
           textProps.y = halfStrokeWidth;
           return (
