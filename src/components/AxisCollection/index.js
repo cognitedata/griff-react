@@ -163,6 +163,7 @@ class AxisCollection extends React.Component {
               yTransformation={yTransformations[c.id]}
               onMouseEnter={this.onAxisMouseEnter(c.id)}
               onMouseLeave={this.onAxisMouseLeave(c.id)}
+              yAxisPlacement={yAxisPlacement}
             />
           );
         })
@@ -192,13 +193,16 @@ class AxisCollection extends React.Component {
   };
 
   render() {
-    const { height, series, yAxisWidth } = this.props;
+    const { collections, height, series, yAxisWidth } = this.props;
 
-    const calculatedWidth = series
+    const calculatedWidth = []
+      .concat(series)
+      .concat(collections)
+      .filter(item => item.collectionId === undefined)
       .filter(this.axisFilter(AxisDisplayMode.ALL))
       .filter(this.placementFilter)
-      .reduce((acc, s) => {
-        if (s.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+      .reduce((acc, item) => {
+        if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
           return acc;
         }
         return acc + yAxisWidth;

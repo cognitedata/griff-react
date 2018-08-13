@@ -133,7 +133,6 @@ class LineChartComponent extends Component {
       .concat(collections)
       .filter(item => !item.hidden)
       .filter(item => item.collectionId === undefined)
-      .filter(displayModeFilter(AxisDisplayMode.ALL))
       .filter(
         item =>
           (item.yAxisPlacement || yAxisPlacement) &&
@@ -145,19 +144,21 @@ class LineChartComponent extends Component {
       filteredItems.filter(displayModeFilter(AxisDisplayMode.COLLAPSED))
         .length > 0;
 
-    return filteredItems.reduce((acc, item) => {
-      // COLLAPSED items are already accounted-for with the initial value.
-      if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
-        return acc;
-      }
-      return acc + yAxisWidth;
-    }, hasCollapsed ? yAxisWidth : 0);
+    return filteredItems
+      .filter(displayModeFilter(AxisDisplayMode.ALL))
+      .reduce((acc, item) => {
+        // COLLAPSED items are already accounted-for with the initial value.
+        if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+          return acc;
+        }
+        return acc + yAxisWidth;
+      }, hasCollapsed ? yAxisWidth : 0);
   };
 
   getYAxisPlacement = () => {
     const { collections, series, yAxisPlacement } = this.props;
     const yAxisPlacements = []
-      .concat(series)
+      .concat(series.filter(s => s.collectionId === undefined))
       .concat(collections)
       .reduce(
         (acc, item) => {
