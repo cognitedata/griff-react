@@ -72,6 +72,9 @@ podTemplate(
           pullRequest.comment("${PR_COMMENT_MARKER}The storybook for this PR is hosted on https://${BASE_URL_PR}${env.CHANGE_ID}.surge.sh")
         }
       } else {
+        if (env.BRANCH_NAME == 'master') {
+          sh('yarn release')
+        }
         stage('Deploy storybook') {
           sh('yarn global add surge')
           sh("surge .out ${BASE_URL_BRANCH}${BRANCH_NAME.replaceAll('\\.', '-')}.surge.sh")
