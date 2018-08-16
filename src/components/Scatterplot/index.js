@@ -6,7 +6,7 @@ import ScalerContext from '../../context/Scaler';
 import { ScaledPointCollection } from '../PointCollection';
 import InteractionLayer, { ZoomMode } from '../InteractionLayer';
 import { createLinearXScale } from '../../utils/scale-helpers';
-import {
+import GriffPropTypes, {
   seriesPropType,
   scalerFactoryFunc,
   axisPlacementType,
@@ -15,8 +15,10 @@ import UnifiedAxis from '../UnifedAxis';
 import XAxis from '../XAxis';
 import Layout from './Layout';
 import AxisPlacement from '../AxisPlacement';
+import GridLines from '../GridLines';
 
 const propTypes = {
+  grid: GriffPropTypes.grid,
   size: PropTypes.shape({
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
@@ -30,12 +32,14 @@ const propTypes = {
 };
 
 const defaultProps = {
+  grid: null,
   zoomable: true,
   onClick: null,
   yAxisPlacement: AxisPlacement.RIGHT,
 };
 
 const ScatterplotComponent = ({
+  grid,
   size: { width, height },
   series,
   zoomable,
@@ -47,6 +51,7 @@ const ScatterplotComponent = ({
   <Layout
     chart={
       <svg style={{ width: '100%', height: '100%' }}>
+        <GridLines grid={grid} height={height} width={width} />
         <ScaledPointCollection height={height - 50} width={width} />
         <InteractionLayer
           height={height - 50}
@@ -67,12 +72,7 @@ const ScatterplotComponent = ({
       />
     }
     xAxis={
-      <XAxis
-        domain={subDomain}
-        width={width}
-        xScalerFactory={xScalerFactory}
-        tickFormatter={Number}
-      />
+      <XAxis domain={subDomain} width={width} xScalerFactory={xScalerFactory} />
     }
     yAxisPlacement={yAxisPlacement}
   />

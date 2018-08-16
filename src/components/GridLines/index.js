@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ScalerContext from '../../context/Scaler';
-import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
+import GriffPropTypes, {
+  seriesPropType,
+  scalerFactoryFunc,
+} from '../../utils/proptypes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 
 const propTypes = {
@@ -10,10 +13,12 @@ const propTypes = {
   width: PropTypes.number.isRequired,
   series: seriesPropType.isRequired,
   subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  xScalerFactory: scalerFactoryFunc,
 };
 
 const defaultProps = {
   grid: null,
+  xScalerFactory: createXScale,
 };
 
 const DEFAULT_COLOR = '#666';
@@ -23,7 +28,14 @@ const DEFAULT_STROKE_WIDTH = 1;
 class GridLines extends React.Component {
   state = {};
   render() {
-    const { grid, height, width, series, subDomain } = this.props;
+    const {
+      grid,
+      height,
+      width,
+      series,
+      subDomain,
+      xScalerFactory,
+    } = this.props;
 
     if (!grid) {
       return null;
@@ -146,7 +158,7 @@ class GridLines extends React.Component {
         }
       } else if (x.ticks !== undefined) {
         // This heavily inspired by XAxis -- maybe we can consolidate them?
-        const scale = createXScale(subDomain, width);
+        const scale = xScalerFactory(subDomain, width);
         const values = scale.ticks(x.ticks || Math.floor(width / 100) || 1);
         values.forEach(v => {
           lines.push(
@@ -203,11 +215,12 @@ GridLines.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ series, subDomain, yTransformations }) => (
+    {({ series, subDomain, xScalerFactory, yTransformations }) => (
       <GridLines
         {...props}
         series={series}
         subDomain={subDomain}
+        xScalerFactory={xScalerFactory}
         yTransformations={yTransformations}
       />
     )}

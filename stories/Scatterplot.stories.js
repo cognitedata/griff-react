@@ -119,6 +119,22 @@ storiesOf('Scatterplot', module)
       </DataProvider>
     </div>
   ))
+  .add('Grid', () => (
+    <div style={{ height: '500px', width: '500px' }}>
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        baseDomain={[0, 1]}
+        series={[{ id: '1 2', color: 'steelblue' }]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot
+          zoomable
+          grid={{ x: { ticks: 0 }, y: { count: 9, seriesIds: ['1 2'] } }}
+        />
+      </DataProvider>
+    </div>
+  ))
   .add('Scatterplot (Geometry series)', () => (
     <div style={{ height: '100vh', width: '100%' }}>
       <DataProvider
