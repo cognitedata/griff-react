@@ -5,7 +5,7 @@ import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import ScalerContext from '../../context/Scaler';
 import { createXScale, createYScale } from '../../utils/scale-helpers';
-import { seriesPropType } from '../../utils/proptypes';
+import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 
 class Scaler extends Component {
   static propTypes = {
@@ -16,6 +16,7 @@ class Scaler extends Component {
       externalSubDomain: PropTypes.arrayOf(PropTypes.number),
       subDomainChanged: PropTypes.func.isRequired,
       series: seriesPropType.isRequired,
+      collections: GriffPropTypes.collections.isRequired,
     }).isRequired,
     // (domain, width) => [number, number]
     xScalerFactory: PropTypes.func,
@@ -45,6 +46,11 @@ class Scaler extends Component {
       if (!isEqual(yDomains[s.id], s.yDomain)) {
         transformUpdate[s.id] = d3.zoomIdentity;
         domainUpdate[s.id] = yDomains[s.id];
+
+        if (s.collectionId) {
+          transformUpdate[s.collectionId] = d3.zoomIdentity;
+          domainUpdate[s.collectionId] = yDomains[s.id];
+        }
       }
     });
     if (
@@ -162,21 +168,19 @@ class Scaler extends Component {
   };
 
   updateYTransformation = (key, scaler, height) => {
-    const series = this.props.dataContext.series.find(s => s.id === key);
+    const { dataContext } = this.props;
+
+    const { yDomain } =
+      dataContext.series.find(s => s.id === key) ||
+      dataContext.collections.find(c => c.id === key);
     const newSubDomain = scaler
-      .rescaleY(createYScale(series.yDomain, height))
+      .rescaleY(createYScale(yDomain, height))
       .domain()
       .map(Number);
 
     this.setState({
-      yDomains: {
-        ...this.state.yDomains,
-        [key]: newSubDomain,
-      },
-      yTransformations: {
-        ...this.state.yTransformations,
-        [key]: scaler,
-      },
+      yDomains: { ...this.state.yDomains, [key]: newSubDomain },
+      yTransformations: { ...this.state.yTransformations, [key]: scaler },
     });
   };
 
@@ -189,13 +193,21 @@ class Scaler extends Component {
       updateYTransformation: this.updateYTransformation,
       yTransformations,
     };
+
     const enrichedSeries = dataContext.series.map(s => ({
       ...s,
       yDomain: yDomains[s.id] || s.yDomain,
     }));
+
+    const enrichedCollections = dataContext.collections.map(c => ({
+      ...c,
+      yDomain: yDomains[c.id] || c.yDomain,
+    }));
+
     const enrichedContext = {
-      subDomain: subDomain || dataContext.subDomain,
+      collections: enrichedCollections,
       series: enrichedSeries,
+      subDomain: subDomain || dataContext.subDomain,
       xScalerFactory,
     };
 

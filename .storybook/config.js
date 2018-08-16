@@ -12,8 +12,17 @@ function loadStories() {
 setDefaults({ inline: true, header: false });
 
 addDecorator((story, context) => (
-  <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
-    {withInfo()(story)(context)}
+  <div style={{ backgroundColor: '#f3f3f3' }}>
+    <div
+      style={{
+        backgroundColor: '#fff',
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '80%',
+      }}
+    >
+      {withInfo()(story)(context)}
+    </div>
   </div>
 ));
 

@@ -3,7 +3,8 @@ import * as d3 from 'd3';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
-import { singleSeriePropType } from '../../utils/proptypes';
+import { singleSeriePropType, axisPlacementType } from '../../utils/proptypes';
+import AxisPlacement from '../LineChart/AxisPlacement';
 
 export default class CollapsedAxis extends Component {
   static propTypes = {
@@ -25,6 +26,7 @@ export default class CollapsedAxis extends Component {
     color: PropTypes.string,
     onMouseEnter: PropTypes.func,
     onMouseLeave: PropTypes.func,
+    yAxisPlacement: axisPlacementType,
   };
 
   static defaultProps = {
@@ -36,6 +38,7 @@ export default class CollapsedAxis extends Component {
     offsetx: 0,
     onMouseEnter: null,
     onMouseLeave: null,
+    yAxisPlacement: AxisPlacement.RIGHT,
   };
 
   componentWillMount() {
@@ -57,6 +60,40 @@ export default class CollapsedAxis extends Component {
       }
     }
   }
+
+  getPath = ({ offsetx, strokeWidth, tickSizeOuter, range }) => {
+    const { yAxisPlacement, width } = this.props;
+    switch (yAxisPlacement) {
+      case AxisPlacement.LEFT:
+        return [
+          // Move to this (x,y); start drawing
+          `M ${width - offsetx} ${strokeWidth}`,
+          // Draw a horizontal line to the left
+          `h ${tickSizeOuter - strokeWidth}`,
+          // Draw a vertical line from top to bottom
+          `v ${range[0] - strokeWidth * 2}`,
+          // Finish with another horizontal line
+          `h -${tickSizeOuter - strokeWidth / 2}`,
+        ].join(' ');
+      case AxisPlacement.BOTH:
+        throw new Error(
+          'BOTH is not a valid option for CollapsedAxis -- please specify RIGHT or LEFT'
+        );
+      case AxisPlacement.RIGHT:
+      case AxisPlacement.UNSPECIFIED:
+      default:
+        return [
+          // Move to this (x,y); start drawing
+          `M ${offsetx} ${strokeWidth}`,
+          // Draw a horizontal line to the left
+          `h -${tickSizeOuter - strokeWidth}`,
+          // Draw a vertical line from top to bottom
+          `v ${range[0] - strokeWidth * 2}`,
+          // Finish with another horizontal line
+          `h ${tickSizeOuter - strokeWidth / 2}`,
+        ].join(' ');
+    }
+  };
 
   syncZoomingState = () => {
     if (this.props.zoomable) {
@@ -103,16 +140,7 @@ export default class CollapsedAxis extends Component {
     for (let i = 1; i < 4; i += 1) {
       offsetx += tickSizeOuter;
       paths[i] = {
-        path: [
-          // Move to this (x,y); start drawing
-          `M ${offsetx} ${strokeWidth}`,
-          // Draw a horizontal line to the left
-          `h -${tickSizeOuter - strokeWidth}`,
-          // Draw a vertical line from top to bottom
-          `v ${range[0] - strokeWidth * 2}`,
-          // Finish with another horizontal line
-          `h ${tickSizeOuter - strokeWidth / 2}`,
-        ].join(' '),
+        path: this.getPath({ offsetx, strokeWidth, tickSizeOuter, range }),
         color,
         opacity: 1 - (i - 1) / 4,
       };

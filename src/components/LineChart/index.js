@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
 import AxisCollection from '../AxisCollection';
+import GridLines from '../GridLines';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import { ScaledContextChart } from '../ContextChart';
-import {
+import GriffPropTypes, {
   areaPropType,
   contextChartPropType,
   seriesPropType,
@@ -13,21 +14,26 @@ import {
   rulerPropType,
   axisDisplayModeType,
   scalerFactoryFunc,
+  axisPlacementType,
 } from '../../utils/proptypes';
 import { ScaledLineCollection } from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
 import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
+import AxisPlacement from './AxisPlacement';
+import Layout from './Layout';
 
 const propTypes = {
   size: PropTypes.shape({
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
   }).isRequired,
+  grid: GriffPropTypes.grid,
   width: PropTypes.number,
   height: PropTypes.number,
   zoomable: PropTypes.bool,
   series: seriesPropType,
+  collections: GriffPropTypes.collections,
   crosshair: PropTypes.bool,
   onMouseMove: PropTypes.func,
   onClick: PropTypes.func,
@@ -41,6 +47,7 @@ const propTypes = {
   ruler: rulerPropType,
   annotations: PropTypes.arrayOf(annotationPropType),
   yAxisDisplayMode: axisDisplayModeType,
+  yAxisPlacement: axisPlacementType,
   // (e, seriesId) => void
   onAxisMouseEnter: PropTypes.func,
   // (e, seriesId) => void
@@ -65,6 +72,7 @@ const propTypes = {
 };
 
 const defaultProps = {
+  grid: null,
   zoomable: true,
   contextChart: {
     visible: true,
@@ -76,6 +84,7 @@ const defaultProps = {
   onClickAnnotation: null,
   onDoubleClick: null,
   series: [],
+  collections: [],
   annotations: [],
   ruler: {
     visible: false,
@@ -87,6 +96,7 @@ const defaultProps = {
   height: 0,
   subDomain: [],
   yAxisDisplayMode: AxisDisplayMode.ALL,
+  yAxisPlacement: AxisPlacement.RIGHT,
   onAxisMouseEnter: null,
   onAxisMouseLeave: null,
   areas: [],
@@ -111,81 +121,122 @@ class LineChartComponent extends Component {
     return xAxisHeight + (contextChart.height || 100);
   };
 
-  getYAxisCollectionWidth = () => {
-    const { yAxisDisplayMode, series, yAxisWidth } = this.props;
-    const counts = {};
-    series.forEach(s => {
-      if (s.hidden) {
-        return;
-      }
-      const mode = (s.yAxisDisplayMode || yAxisDisplayMode).id;
-      counts[mode] = (counts[mode] || 0) + 1;
-    });
-    const w1 = AxisDisplayMode.ALL.width(
+  getYAxisCollectionWidth = placement => {
+    const {
+      collections,
+      series,
+      yAxisDisplayMode,
+      yAxisPlacement,
       yAxisWidth,
-      counts[AxisDisplayMode.ALL.id] || 0
-    );
-    const w2 = AxisDisplayMode.COLLAPSED.width(
-      yAxisWidth,
-      counts[AxisDisplayMode.COLLAPSED.id] || 0
-    );
-    const width = w1 + w2;
-    return width;
+    } = this.props;
+
+    const displayModeFilter = mode => item =>
+      (item.yAxisDisplayMode || yAxisDisplayMode) === mode;
+
+    const filteredItems = []
+      .concat(series)
+      .concat(collections)
+      .filter(item => !item.hidden)
+      .filter(item => item.collectionId === undefined)
+      .filter(
+        item =>
+          (item.yAxisPlacement || yAxisPlacement) &&
+          ((item.yAxisPlacement || yAxisPlacement) === AxisPlacement.BOTH ||
+            (item.yAxisPlacement || yAxisPlacement) === placement)
+      );
+
+    const hasCollapsed =
+      filteredItems.filter(displayModeFilter(AxisDisplayMode.COLLAPSED))
+        .length > 0;
+
+    return filteredItems
+      .filter(displayModeFilter(AxisDisplayMode.ALL))
+      .reduce((acc, item) => {
+        // COLLAPSED items are already accounted-for with the initial value.
+        if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+          return acc;
+        }
+        return acc + yAxisWidth;
+      }, hasCollapsed ? yAxisWidth : 0);
+  };
+
+  getYAxisPlacement = () => {
+    const { collections, series, yAxisPlacement } = this.props;
+    const yAxisPlacements = []
+      .concat(series.filter(s => s.collectionId === undefined))
+      .concat(collections)
+      .reduce((acc, item) => {
+        const placement = item.yAxisPlacement || yAxisPlacement;
+        if (placement) {
+          acc[placement] = (acc[placement] || 0) + 1;
+        }
+        return acc;
+      }, {});
+    if (yAxisPlacements[AxisPlacement.BOTH]) {
+      return AxisPlacement.BOTH;
+    }
+    if (
+      yAxisPlacements[AxisPlacement.LEFT] &&
+      yAxisPlacements[AxisPlacement.RIGHT]
+    ) {
+      return AxisPlacement.BOTH;
+    }
+    if (yAxisPlacements[AxisPlacement.LEFT]) {
+      return AxisPlacement.LEFT;
+    }
+    return yAxisPlacement || AxisPlacement.RIGHT;
   };
 
   render() {
     const {
-      size: { width: sizeWidth, height: sizeHeight },
-      width: propWidth,
-      height: propHeight,
-      subDomain,
+      annotations,
+      areas,
+      contextChart,
       crosshair,
-      onMouseMove,
+      grid,
+      height: propHeight,
+      onAreaDefined,
+      onAreaClicked,
+      onAxisMouseEnter,
+      onAxisMouseLeave,
       onClick,
       onClickAnnotation,
       onDoubleClick,
-      zoomable,
-      yAxisDisplayMode,
-      onAxisMouseEnter,
-      onAxisMouseLeave,
-      contextChart,
-      annotations,
+      onMouseMove,
+      size: { width: sizeWidth, height: sizeHeight },
+      subDomain,
       ruler,
+      width: propWidth,
       xScalerFactory,
-      areas,
-      onAreaDefined,
-      onAreaClicked,
+      yAxisDisplayMode,
+      zoomable,
     } = this.props;
 
     const width = propWidth || sizeWidth;
     const height = propHeight || sizeHeight;
     const xAxisHeight = 50;
-    const axisCollectionSize = {
-      width: this.getYAxisCollectionWidth(),
-    };
     const contextChartSpace = this.getContextChartHeight({
       xAxisHeight,
       height,
     });
     const chartSize = {
-      width: width - axisCollectionSize.width,
+      width:
+        width -
+        this.getYAxisCollectionWidth(AxisPlacement.LEFT) -
+        this.getYAxisCollectionWidth(AxisPlacement.RIGHT),
       height: height - xAxisHeight - contextChartSpace,
     };
 
-    axisCollectionSize.height = chartSize.height;
-
     return (
-      <div
-        className="linechart-container"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: `1fr auto`,
-          gridTemplateRows: '1fr auto',
-          height: '100%',
-        }}
-      >
-        <div className="lines-container" style={{ height: '100%' }}>
+      <Layout
+        yAxisPlacement={this.getYAxisPlacement()}
+        lineChart={
           <svg width={chartSize.width} height={chartSize.height}>
+            <GridLines
+              grid={grid}
+              height={chartSize.height}
+              width={chartSize.width}
+            />
             <ScaledLineCollection
               height={chartSize.height}
               width={chartSize.width}
@@ -206,46 +257,34 @@ class LineChartComponent extends Component {
               onAreaClicked={onAreaClicked}
             />
           </svg>
-        </div>
-        <div
-          className="y-axis-container"
-          style={{
-            width: `${axisCollectionSize.width}px`,
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
+        }
+        yAxis={
           <AxisCollection
             zoomable={zoomable}
             axisDisplayMode={yAxisDisplayMode}
             onMouseEnter={onAxisMouseEnter}
             onMouseLeave={onAxisMouseLeave}
-            height={axisCollectionSize.height}
-            width={axisCollectionSize.width}
+            height={chartSize.height}
           />
-        </div>
-        <div className="x-axis-container" style={{ width: '100%' }}>
+        }
+        xAxis={
           <XAxis
             domain={subDomain}
             width={chartSize.width}
             xScalerFactory={xScalerFactory}
           />
-        </div>
-        <div />
-        {contextChart.visible && (
-          <div
-            className="context-container"
-            style={{ display: 'flex', flexDirection: 'column' }}
-          >
+        }
+        contextChart={
+          contextChart.visible && (
             <ScaledContextChart
               height={contextChart.height || 100}
               width={chartSize.width}
               zoomable={zoomable}
               annotations={annotations}
             />
-          </div>
-        )}
-      </div>
+          )
+        }
+      />
     );
   }
 }
@@ -259,13 +298,14 @@ const SizedLineChartComponent = sizeMe({ monitorHeight: true })(
 const LineChart = props => (
   <Scaler>
     <ScalerContext.Consumer>
-      {({ yAxisWidth, series, subDomain, xScalerFactory }) => (
+      {({ collections, series, subDomain, xScalerFactory, yAxisWidth }) => (
         <SizedLineChartComponent
           {...props}
-          yAxisWidth={yAxisWidth}
+          collections={collections}
           series={series}
           subDomain={subDomain}
           xScalerFactory={xScalerFactory}
+          yAxisWidth={yAxisWidth}
         />
       )}
     </ScalerContext.Consumer>

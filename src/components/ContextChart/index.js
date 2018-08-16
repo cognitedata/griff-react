@@ -52,6 +52,7 @@ export default class ContextChart extends Component {
     const annotations = this.props.annotations.map(a => (
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
     ));
+
     return (
       <React.Fragment>
         <svg height={height} width={width}>
