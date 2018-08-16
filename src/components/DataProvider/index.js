@@ -418,7 +418,7 @@ DataProvider.propTypes = {
   children: PropTypes.node.isRequired,
   defaultLoader: PropTypes.func,
   series: seriesPropType.isRequired,
-  collections: PropTypes.arrayOf(GriffPropTypes.collection),
+  collections: GriffPropTypes.collections,
   // (subDomain) => null
   onSubDomainChanged: PropTypes.func,
 };
