@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import PropTypes from 'prop-types';
 import { createYScale } from '../../utils/scale-helpers';
-import { seriesPropType } from '../../utils/proptypes';
+import { seriesPropType, axisPlacementType } from '../../utils/proptypes';
+import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {
   series: seriesPropType.isRequired,
@@ -11,11 +12,13 @@ const propTypes = {
   color: PropTypes.string,
   // Number => String
   tickFormatter: PropTypes.func,
+  yAxisPlacement: axisPlacementType,
 };
 
 const defaultProps = {
   color: '#000',
   tickFormatter: Number,
+  yAxisPlacement: AxisPlacement.RIGHT,
 };
 
 export default class CombinedYAxis extends Component {
@@ -26,6 +29,100 @@ export default class CombinedYAxis extends Component {
       yDomain[1] = Math.max(yDomain[1], s.yDomain[1]);
     });
     return yDomain;
+  };
+
+  getLineProps = ({ tickSizeInner, strokeWidth }) => {
+    const { width, yAxisPlacement } = this.props;
+    switch (yAxisPlacement) {
+      case AxisPlacement.LEFT:
+        return {
+          x1: width - strokeWidth,
+          x2: width - strokeWidth - tickSizeInner,
+          y1: strokeWidth / 2,
+          y2: strokeWidth / 2,
+        };
+      case AxisPlacement.BOTH:
+        throw new Error(
+          'BOTH is not a valid option for YAxis -- please specify RIGHT or LEFT'
+        );
+      case AxisPlacement.RIGHT:
+      case AxisPlacement.UNSPECIFIED:
+      default:
+        return {
+          x1: 0,
+          x2: tickSizeInner,
+          y1: strokeWidth / 2,
+          y2: strokeWidth / 2,
+        };
+    }
+  };
+
+  getPathString = ({ tickSizeOuter, range, strokeWidth }) => {
+    const { yAxisPlacement, width } = this.props;
+    switch (yAxisPlacement) {
+      case AxisPlacement.LEFT:
+        return [
+          `M${width - tickSizeOuter},${range[0] - strokeWidth}`,
+          `H${width - strokeWidth}`,
+          `V${range[1]}`,
+          `H${width - tickSizeOuter}`,
+        ].join('');
+      case AxisPlacement.BOTH:
+        throw new Error(
+          'BOTH is not a valid option for YAxis -- please specify RIGHT or LEFT'
+        );
+      case AxisPlacement.RIGHT:
+      case AxisPlacement.UNSPECIFIED:
+      default:
+        return [
+          // Move to this (x,y); start drawing
+          `M${tickSizeOuter},${range[0] - strokeWidth}`,
+          // Draw a horizontal line half strokeWidth long
+          `H${strokeWidth / 2}`,
+          // Draw a vertical line from bottom to top
+          `V${range[1]}`,
+          // Finish with another horizontal line
+          `H${tickSizeOuter}`,
+        ].join('');
+    }
+  };
+
+  getTextAnchor = () => {
+    const { yAxisPlacement } = this.props;
+    switch (yAxisPlacement) {
+      case AxisPlacement.LEFT:
+        return 'end';
+      case AxisPlacement.BOTH:
+        throw new Error(
+          'BOTH is not a valid option for YAxis -- please specify RIGHT or LEFT'
+        );
+      case AxisPlacement.RIGHT:
+      case AxisPlacement.UNSPECIFIED:
+      default:
+        return 'start';
+    }
+  };
+
+  getTextProps = ({ tickSizeInner, tickPadding, strokeWidth }) => {
+    const { width, yAxisPlacement } = this.props;
+    switch (yAxisPlacement) {
+      case AxisPlacement.LEFT:
+        return {
+          x: Math.max(width - tickSizeInner, 0) - tickPadding,
+          y: strokeWidth / 2,
+        };
+      case AxisPlacement.BOTH:
+        throw new Error(
+          'BOTH is not a valid option for YAxis -- please specify RIGHT or LEFT'
+        );
+      case AxisPlacement.RIGHT:
+      case AxisPlacement.UNSPECIFIED:
+      default:
+        return {
+          x: Math.max(tickSizeInner, 0) + tickPadding,
+          y: strokeWidth / 2,
+        };
+    }
   };
 
   renderAxis() {
@@ -40,36 +137,30 @@ export default class CombinedYAxis extends Component {
     const tickPadding = axis.tickPadding();
     // same as for xAxis but consider height of the screen ~two times smaller
     const values = scale.ticks(Math.floor(height / 50) || 1);
-    const k = 1;
     const range = scale.range().map(r => r + halfStrokeWidth);
-    const pathString = [
-      // Move to this (x,y); start drawing
-      `M${k * tickSizeOuter},${range[0] - strokeWidth}`,
-      // Draw a horizontal line halfStrokeWidth long
-      `H${halfStrokeWidth}`,
-      // Draw a vertical line from bottom to top
-      `V${range[1]}`,
-      // Finish with another horizontal line
-      `H${k * tickSizeOuter}`,
-    ].join('');
     return (
       <g
         className="axis"
         fill="none"
         fontSize={tickFontSize}
-        textAnchor="start"
+        textAnchor={this.getTextAnchor()}
         strokeWidth={strokeWidth}
       >
-        <path stroke={series.color || color} d={pathString} />
+        <path
+          stroke={series.color || color}
+          d={this.getPathString({ tickSizeOuter, range, strokeWidth })}
+        />
         {values.map(v => {
-          const lineProps = { stroke: series.color || color };
-          lineProps.x2 = k * tickSizeInner;
-          lineProps.y1 = halfStrokeWidth;
-          lineProps.y2 = halfStrokeWidth;
+          const lineProps = {
+            stroke: series.color || color,
+            ...this.getLineProps({ tickSizeInner, range, strokeWidth }),
+          };
 
-          const textProps = { fill: series.color || color, dy: '0.32em' };
-          textProps.x = k * Math.max(tickSizeInner, 0) + tickPadding;
-          textProps.y = halfStrokeWidth;
+          const textProps = {
+            fill: series.color || color,
+            dy: '0.32em',
+            ...this.getTextProps({ tickSizeInner, tickPadding, strokeWidth }),
+          };
           return (
             <g key={+v} opacity={1} transform={`translate(0, ${scale(v)})`}>
               <line {...lineProps} />

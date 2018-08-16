@@ -20,7 +20,7 @@ import { ScaledLineCollection } from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
 import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
-import AxisPlacement from './AxisPlacement';
+import AxisPlacement from '../AxisPlacement';
 import Layout from './Layout';
 
 const propTypes = {

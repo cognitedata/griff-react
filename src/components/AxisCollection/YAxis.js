@@ -7,7 +7,7 @@ import GriffPropTypes, {
   singleSeriePropType,
   axisPlacementType,
 } from '../../utils/proptypes';
-import AxisPlacement from '../LineChart/AxisPlacement';
+import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {
   zoomable: PropTypes.bool,

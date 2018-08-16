@@ -2,7 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ScalerContext from '../../context/Scaler';
 import CombinedYAxis from './CombinedYAxis';
-import { seriesPropType } from '../../utils/proptypes';
+import { seriesPropType, axisPlacementType } from '../../utils/proptypes';
+import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {
   series: seriesPropType.isRequired,
@@ -10,17 +11,26 @@ const propTypes = {
   height: PropTypes.number.isRequired,
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
+  yAxisPlacement: axisPlacementType,
 };
 const defaultProps = {
   onMouseEnter: null,
   onMouseLeave: null,
+  yAxisPlacement: AxisPlacement.RIGHT,
 };
 
 class UnifiedAxis extends React.Component {
   state = {};
 
   render() {
-    const { series, width, height, onMouseEnter, onMouseLeave } = this.props;
+    const {
+      series,
+      width,
+      height,
+      onMouseEnter,
+      onMouseLeave,
+      yAxisPlacement,
+    } = this.props;
     return (
       <svg
         width={width}
@@ -34,6 +44,7 @@ class UnifiedAxis extends React.Component {
           series={series.filter(s => !s.hidden)}
           width={width}
           height={height}
+          yAxisPlacement={yAxisPlacement}
         />
       </svg>
     );

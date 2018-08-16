@@ -6,9 +6,15 @@ import ScalerContext from '../../context/Scaler';
 import { ScaledPointCollection } from '../PointCollection';
 import InteractionLayer, { ZoomMode } from '../InteractionLayer';
 import { createLinearXScale } from '../../utils/scale-helpers';
-import { seriesPropType, scalerFactoryFunc } from '../../utils/proptypes';
+import {
+  seriesPropType,
+  scalerFactoryFunc,
+  axisPlacementType,
+} from '../../utils/proptypes';
 import UnifiedAxis from '../UnifedAxis';
 import XAxis from '../XAxis';
+import Layout from './Layout';
+import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {
   size: PropTypes.shape({
@@ -20,11 +26,13 @@ const propTypes = {
   series: seriesPropType.isRequired,
   xScalerFactory: scalerFactoryFunc.isRequired,
   subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  yAxisPlacement: axisPlacementType,
 };
 
 const defaultProps = {
   zoomable: true,
   onClick: null,
+  yAxisPlacement: AxisPlacement.RIGHT,
 };
 
 const ScatterplotComponent = ({
@@ -33,39 +41,41 @@ const ScatterplotComponent = ({
   zoomable,
   onClick,
   xScalerFactory,
+  yAxisPlacement,
   subDomain,
 }) => (
-  <div
-    style={{
-      display: 'grid',
-      gridTemplateColumns: 'auto 1fr',
-      gridTemplateRows: 'auto 1fr',
-      height: '100%',
-      width: '100%',
-    }}
-  >
-    <svg style={{ width: '100%', height: '100%' }}>
-      <ScaledPointCollection height={height - 50} width={width} />
-      <InteractionLayer
+  <Layout
+    chart={
+      <svg style={{ width: '100%', height: '100%' }}>
+        <ScaledPointCollection height={height - 50} width={width} />
+        <InteractionLayer
+          height={height - 50}
+          width={width}
+          zoomable={zoomable}
+          onClick={onClick}
+          zoomMode={ZoomMode.BOTH}
+          xScalerFactory={xScalerFactory}
+        />
+      </svg>
+    }
+    yAxis={
+      <UnifiedAxis
+        yAxisPlacement={yAxisPlacement}
+        series={series}
         height={height - 50}
-        width={width}
-        zoomable={zoomable}
-        onClick={onClick}
-        zoomMode={ZoomMode.BOTH}
-        xScalerFactory={xScalerFactory}
+        width={100}
       />
-    </svg>
-    <UnifiedAxis series={series} height={height - 50} width={100} />
-    <div className="x-axis-container" style={{ width: '100%' }}>
+    }
+    xAxis={
       <XAxis
         domain={subDomain}
         width={width}
         xScalerFactory={xScalerFactory}
         tickFormatter={Number}
       />
-    </div>
-    <div />
-  </div>
+    }
+    yAxisPlacement={yAxisPlacement}
+  />
 );
 
 ScatterplotComponent.propTypes = propTypes;

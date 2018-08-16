@@ -4,8 +4,7 @@ import AxisPlacement from '../AxisPlacement';
 import { axisPlacementType } from '../../utils/proptypes';
 
 const propTypes = {
-  contextChart: PropTypes.node,
-  lineChart: PropTypes.node.isRequired,
+  chart: PropTypes.node.isRequired,
   xAxis: PropTypes.node.isRequired,
   yAxis: PropTypes.node.isRequired,
   yAxisPlacement: axisPlacementType,
@@ -30,7 +29,7 @@ const axisContainer = area => (axis, placement) => (
   </div>
 );
 
-const Layout = ({ contextChart, lineChart, xAxis, yAxis, yAxisPlacement }) => {
+const Layout = ({ chart, xAxis, yAxis, yAxisPlacement }) => {
   const yAxes = [];
   let areas;
 
@@ -77,7 +76,7 @@ const Layout = ({ contextChart, lineChart, xAxis, yAxis, yAxisPlacement }) => {
   }
   return (
     <div
-      className="linechart-container"
+      className="scatterplot-container"
       style={{
         display: 'grid',
         gridTemplateAreas: areas,
@@ -85,10 +84,10 @@ const Layout = ({ contextChart, lineChart, xAxis, yAxis, yAxisPlacement }) => {
       }}
     >
       <div
-        className="lines-container"
+        className="chart-container"
         style={{ gridArea: 'chart', height: '100%' }}
       >
-        {lineChart}
+        {chart}
       </div>
 
       {yAxes}
@@ -99,19 +98,6 @@ const Layout = ({ contextChart, lineChart, xAxis, yAxis, yAxisPlacement }) => {
       >
         {xAxis}
       </div>
-      <div style={{ gridArea: 'spacer' }} />
-      {contextChart && (
-        <div
-          className="context-container"
-          style={{
-            gridArea: 'context',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {contextChart}
-        </div>
-      )}
     </div>
   );
 };

@@ -2,7 +2,7 @@ import React from 'react';
 import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { withInfo } from '@storybook/addon-info';
-import { DataProvider, Scatterplot } from '../src';
+import { DataProvider, Scatterplot, AxisPlacement } from '../src';
 import { staticLoader } from './loaders';
 
 const mapping = {
@@ -80,83 +80,97 @@ storiesOf('Scatterplot', module)
       {story()}
     </div>
   ))
-  .add(
-    'Scatterplot (one series)',
-    withInfo()(() => (
-      <div style={{ height: '500px', width: '500px' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
-          xAccessor={d => +d.x}
-          yAccessor={d => +d.y}
-        >
-          <Scatterplot zoomable />
-        </DataProvider>
-      </div>
-    ))
-  )
-  .add(
-    'Scatterplot (Geometry series)',
-    withInfo()(() => (
-      <div style={{ height: '100vh', width: '100%' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
-          series={[
-            { id: 'sincos', color: '#ACF39D' },
-            { id: 'sintan', color: '#E85F5C' },
-            { id: 'pow', color: '#9CFFFA' },
-          ]}
-          xAccessor={d => +d.x}
-          yAccessor={d => +d.y}
-        >
-          <Scatterplot zoomable />
-        </DataProvider>
-      </div>
-    ))
-  )
-  .add(
-    'Scatterplot (many pairs)',
-    withInfo()(() => (
-      <div style={{ height: '500px', width: '500px' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
-          series={[
-            { id: '1 2', color: '#ACF39D' },
-            { id: '2 3', color: '#E85F5C' },
-            { id: '3 4', color: '#9CFFFA' },
-            { id: '4 5', color: '#773344' },
-            { id: '5 6', color: '#E3B5A4' },
-            { id: '6 7', color: '#2E0219' },
-            { id: '7 8', color: '#2E0219' },
-            { id: '8 9', color: '#2E0219' },
-          ]}
-          xAccessor={d => +d.x}
-          yAccessor={d => +d.y}
-        >
-          <Scatterplot zoomable />
-        </DataProvider>
-      </div>
-    ))
-  )
-  .add(
-    'Scatterplot (stroke width)',
-    withInfo()(() => (
-      <div style={{ height: '500px', width: '500px' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
-          series={[
-            { id: '1 2', color: 'steelblue', strokeWidth: 2 },
-            { id: '3 4', color: 'maroon', strokeWidth: 5 },
-          ]}
-          xAccessor={d => +d.x}
-          yAccessor={d => +d.y}
-        >
-          <Scatterplot zoomable />
-        </DataProvider>
-      </div>
-    ))
-  );
+  .add('Scatterplot (one series)', () => (
+    <div style={{ height: '500px', width: '500px' }}>
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        baseDomain={[0, 1]}
+        series={[{ id: '1 2', color: 'steelblue' }]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot zoomable />
+      </DataProvider>
+    </div>
+  ))
+  .add('Left axes', () => (
+    <div style={{ height: '500px', width: '500px' }}>
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        baseDomain={[0, 1]}
+        series={[{ id: '1 2', color: 'steelblue' }]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot zoomable yAxisPlacement={AxisPlacement.LEFT} />
+      </DataProvider>
+    </div>
+  ))
+  .add('Both axes', () => (
+    <div style={{ height: '500px', width: '500px' }}>
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        baseDomain={[0, 1]}
+        series={[{ id: '1 2', color: 'steelblue' }]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot zoomable yAxisPlacement={AxisPlacement.BOTH} />
+      </DataProvider>
+    </div>
+  ))
+  .add('Scatterplot (Geometry series)', () => (
+    <div style={{ height: '100vh', width: '100%' }}>
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        baseDomain={[0, 1]}
+        series={[
+          { id: 'sincos', color: '#ACF39D' },
+          { id: 'sintan', color: '#E85F5C' },
+          { id: 'pow', color: '#9CFFFA' },
+        ]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot zoomable />
+      </DataProvider>
+    </div>
+  ))
+  .add('Scatterplot (many pairs)', () => (
+    <div style={{ height: '500px', width: '500px' }}>
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        baseDomain={[0, 1]}
+        series={[
+          { id: '1 2', color: '#ACF39D' },
+          { id: '2 3', color: '#E85F5C' },
+          { id: '3 4', color: '#9CFFFA' },
+          { id: '4 5', color: '#773344' },
+          { id: '5 6', color: '#E3B5A4' },
+          { id: '6 7', color: '#2E0219' },
+          { id: '7 8', color: '#2E0219' },
+          { id: '8 9', color: '#2E0219' },
+        ]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot zoomable />
+      </DataProvider>
+    </div>
+  ))
+  .add('Scatterplot (stroke width)', () => (
+    <div style={{ height: '500px', width: '500px' }}>
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        baseDomain={[0, 1]}
+        series={[
+          { id: '1 2', color: 'steelblue', strokeWidth: 2 },
+          { id: '3 4', color: 'maroon', strokeWidth: 5 },
+        ]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot zoomable />
+      </DataProvider>
+    </div>
+  ));

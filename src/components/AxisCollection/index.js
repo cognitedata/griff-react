@@ -9,7 +9,7 @@ import GriffPropTypes, {
   axisPlacementType,
 } from '../../utils/proptypes';
 import AxisDisplayMode from '../LineChart/AxisDisplayMode';
-import AxisPlacement from '../LineChart/AxisPlacement';
+import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {
   height: PropTypes.number.isRequired,
