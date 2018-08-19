@@ -93,32 +93,6 @@ storiesOf('Scatterplot', module)
       </DataProvider>
     </div>
   ))
-  .add('Left axes', () => (
-    <div style={{ height: '500px', width: '500px' }}>
-      <DataProvider
-        defaultLoader={scatterplotloader}
-        baseDomain={[0, 1]}
-        series={[{ id: '1 2', color: 'steelblue' }]}
-        xAccessor={d => +d.x}
-        yAccessor={d => +d.y}
-      >
-        <Scatterplot zoomable yAxisPlacement={AxisPlacement.LEFT} />
-      </DataProvider>
-    </div>
-  ))
-  .add('Both axes', () => (
-    <div style={{ height: '500px', width: '500px' }}>
-      <DataProvider
-        defaultLoader={scatterplotloader}
-        baseDomain={[0, 1]}
-        series={[{ id: '1 2', color: 'steelblue' }]}
-        xAccessor={d => +d.x}
-        yAccessor={d => +d.y}
-      >
-        <Scatterplot zoomable yAxisPlacement={AxisPlacement.BOTH} />
-      </DataProvider>
-    </div>
-  ))
   .add('Grid', () => (
     <div style={{ height: '500px', width: '500px' }}>
       <DataProvider
@@ -134,6 +108,32 @@ storiesOf('Scatterplot', module)
         />
       </DataProvider>
     </div>
+  ))
+  .add('Axes', () => (
+    <React.Fragment>
+      {[AxisPlacement.RIGHT, AxisPlacement.BOTH, AxisPlacement.LEFT].map(
+        placement => (
+          <div
+            style={{
+              width: '500px',
+              height: '500px',
+              outline: '1px solid red',
+              margin: '1em',
+            }}
+          >
+            <DataProvider
+              defaultLoader={scatterplotloader}
+              baseDomain={[0, 1]}
+              series={[{ id: '1 2', color: 'steelblue' }]}
+              xAccessor={d => +d.x}
+              yAccessor={d => +d.y}
+            >
+              <Scatterplot zoomable yAxisPlacement={placement} />
+            </DataProvider>
+          </div>
+        )
+      )}
+    </React.Fragment>
   ))
   .add('Scatterplot (Geometry series)', () => (
     <div style={{ height: '100vh', width: '100%' }}>
