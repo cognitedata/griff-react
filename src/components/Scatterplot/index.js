@@ -60,6 +60,7 @@ const ScatterplotComponent = ({
           onClick={onClick}
           zoomMode={ZoomMode.BOTH}
           xScalerFactory={xScalerFactory}
+          tickFormatter={Number}
         />
       </svg>
     }
