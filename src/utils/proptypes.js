@@ -95,111 +95,115 @@ export const areaPropType = PropTypes.shape({
   end: coordinatePropType,
 });
 
-class GriffPropTypes {
-  static collection = PropTypes.shape({
-    id: idPropType.isRequired,
-    // This the color used when referencing the collection (eg, the common axis)
-    color: PropTypes.string.isRequired,
-    drawPoints: PropTypes.bool,
-    hidden: PropTypes.bool,
-    strokeWidth: PropTypes.number,
-    xAccessor: PropTypes.func,
-    yAxisDisplayMode: PropTypes.instanceOf(AxisDisplayMode),
-    yAccessor: PropTypes.func,
-    y0Accessor: PropTypes.func,
-    y1Accessor: PropTypes.func,
-    yDomain: PropTypes.arrayOf(PropTypes.number),
-  });
+const collection = PropTypes.shape({
+  id: idPropType.isRequired,
+  // This the color used when referencing the collection (eg, the common axis)
+  color: PropTypes.string.isRequired,
+  drawPoints: PropTypes.bool,
+  hidden: PropTypes.bool,
+  strokeWidth: PropTypes.number,
+  xAccessor: PropTypes.func,
+  yAxisDisplayMode: PropTypes.instanceOf(AxisDisplayMode),
+  yAccessor: PropTypes.func,
+  y0Accessor: PropTypes.func,
+  y1Accessor: PropTypes.func,
+  yDomain: PropTypes.arrayOf(PropTypes.number),
+});
 
-  static collections = PropTypes.arrayOf(GriffPropTypes.collection);
+const collections = PropTypes.arrayOf(collection);
 
-  static singleSeries = singleSeriePropType;
+const singleSeries = singleSeriePropType;
 
-  static multipleSeries = PropTypes.arrayOf(GriffPropTypes.singleSeries);
+const multipleSeries = PropTypes.arrayOf(singleSeries);
+
+/**
+ * Specification for the grid rendered under the data.
+ */
+const grid = PropTypes.shape({
+  /** Color of the lines (default: #000) */
+  color: PropTypes.string,
+  /** Thickness of the lines (default: 1) */
+  strokeWidth: PropTypes.number,
+  /** Opacity of the lines (default: 0.4) */
+  opacity: PropTypes.number,
 
   /**
-   * Specification for the grid rendered under the data.
+   * Defines the behavior of the vertical grid lines (rendered from the X axis)
    */
-  static grid = PropTypes.shape({
-    /** Color of the lines (default: #000) */
+  x: PropTypes.shape({
+    /** Render lines every X pixels */
+    pixels: PropTypes.number,
+
+    /**
+     * Render this many lines (approximatey). If this is `0`, then the lines
+     * will match the tick marks on the x axis.
+     */
+    count: PropTypes.number,
+
+    /**
+     * Color of the lines. If this is not specified, then the top-level color
+     * property will be used.
+     */
     color: PropTypes.string,
-    /** Thickness of the lines (default: 1) */
+
+    /**
+     * Thickness of the lines. If this is not specified, then the top-level
+     * strokeWidth property will be used.
+     */
     strokeWidth: PropTypes.number,
-    /** Opacity of the lines (default: 0.4) */
+
+    /**
+     * Opaccity of the lines. If this is not specified, then the top-level
+     * opacity property will be used.
+     */
     opacity: PropTypes.number,
+  }),
+
+  /**
+   * Defines the behavior of the horizontal grid lines (rendered from the Y
+   * axis)
+   */
+  y: PropTypes.shape({
+    /** Render lines every X pixels */
+    pixels: PropTypes.number,
 
     /**
-     * Defines the behavior of the vertical grid lines (rendered from the X axis)
+     * The series ID to link these lines to for scaling purposes. This way they
+     * will be redrawn the y axis is zoomed, translated, etc.
      */
-    x: PropTypes.shape({
-      /** Render lines every X pixels */
-      pixels: PropTypes.number,
-
-      /**
-       * Render this many lines (approximatey). If this is `0`, then the lines
-       * will match the tick marks on the x axis.
-       */
-      count: PropTypes.number,
-
-      /**
-       * Color of the lines. If this is not specified, then the top-level color
-       * property will be used.
-       */
-      color: PropTypes.string,
-
-      /**
-       * Thickness of the lines. If this is not specified, then the top-level
-       * strokeWidth property will be used.
-       */
-      strokeWidth: PropTypes.number,
-
-      /**
-       * Opaccity of the lines. If this is not specified, then the top-level
-       * opacity property will be used.
-       */
-      opacity: PropTypes.number,
-    }),
+    seriesId: idPropType,
 
     /**
-     * Defines the behavior of the horizontal grid lines (rendered from the Y
-     * axis)
+     * Render this many lines (approximatey). If this is `0`, then the lines
+     * will match the tick marks on the x axis.
      */
-    y: PropTypes.shape({
-      /** Render lines every X pixels */
-      pixels: PropTypes.number,
+    count: PropTypes.number,
 
-      /**
-       * The series ID to link these lines to for scaling purposes. This way they
-       * will be redrawn the y axis is zoomed, translated, etc.
-       */
-      seriesId: idPropType,
+    /**
+     * Color of the lines. If this is `null` (magic value), and `seriesId`
+     * points to a series, then that color will be used. However, if `seriesId`
+     * is not set, then the top-level color will be used.
+     */
+    color: PropTypes.string,
 
-      /**
-       * Render this many lines (approximatey). If this is `0`, then the lines
-       * will match the tick marks on the x axis.
-       */
-      count: PropTypes.number,
+    /**
+     * Thickness of the lines. If this is not specified, then the top-level
+     * strokeWidth property will be used.
+     */
+    strokeWidth: PropTypes.number,
 
-      /**
-       * Color of the lines. If this is `null` (magic value), and `seriesId`
-       * points to a series, then that color will be used. However, if `seriesId`
-       * is not set, then the top-level color will be used.
-       */
-      color: PropTypes.string,
+    /**
+     * Opaccity of the lines. If this is not specified, then the top-level
+     * opacity property will be used.
+     */
+    opacity: PropTypes.number,
+  }),
+});
 
-      /**
-       * Thickness of the lines. If this is not specified, then the top-level
-       * strokeWidth property will be used.
-       */
-      strokeWidth: PropTypes.number,
-
-      /**
-       * Opaccity of the lines. If this is not specified, then the top-level
-       * opacity property will be used.
-       */
-      opacity: PropTypes.number,
-    }),
-  });
-}
-
-export default GriffPropTypes;
+export default {
+  collection,
+  collections,
+  grid,
+  multipleSeries,
+  singleSeries,
+};
