@@ -90,7 +90,7 @@ export const liveLoader = ({ oldSeries, baseDomain, reason }) => {
 export const customAccessorLoader = ({ baseDomain, oldSeries, reason }) => {
   if (reason === 'MOUNTED') {
     return {
-      data: randomData(baseDomain).map(d => [d.timestamp, d.value]),
+      data: randomData({ baseDomain }).map(d => [d.timestamp, d.value]),
     };
   }
   return {
