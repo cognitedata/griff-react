@@ -225,7 +225,16 @@ export default class DataProvider extends Component {
   };
 
   enrichSeries = (series, collection = {}) => {
-    const { yAccessor, y0Accessor, y1Accessor, xAccessor } = this.props;
+    const {
+      opacity,
+      opacityAccessor,
+      strokeWidth,
+      strokeWidthAccessor,
+      xAccessor,
+      y0Accessor,
+      y1Accessor,
+      yAccessor,
+    } = this.props;
     const { loaderConfig, yDomains } = this.state;
 
     const undefinedTruthiness = (a, b, c) => {
@@ -268,6 +277,17 @@ export default class DataProvider extends Component {
       yDomain: collection.yDomain ||
         series.yDomain ||
         yDomains[series.id] || [0, 0],
+      strokeWidthAccessor: undefinedTruthiness(
+        series.strokeWidthAccessor,
+        collection.strokeWidthAccessor,
+        strokeWidthAccessor
+      ),
+      opacity: undefinedTruthiness(series.opacity, collection.opacity, opacity),
+      opacityAccessor: undefinedTruthiness(
+        series.opacityAccessor,
+        collection.opacityAccessor,
+        opacityAccessor
+      ),
     };
   };
 
@@ -421,6 +441,10 @@ DataProvider.propTypes = {
   collections: GriffPropTypes.collections,
   // (subDomain) => null
   onSubDomainChanged: PropTypes.func,
+  opacity: PropTypes.number,
+  opacityAccessor: PropTypes.func,
+  strokeWidth: PropTypes.number,
+  strokeWidthAccessor: PropTypes.func,
 };
 
 DataProvider.defaultProps = {
@@ -435,4 +459,8 @@ DataProvider.defaultProps = {
   subDomain: null,
   onSubDomainChanged: null,
   collections: [],
+  opacity: 1.0,
+  opacityAccessor: null,
+  strokeWidth: 3,
+  strokeWidthAccessor: null,
 };

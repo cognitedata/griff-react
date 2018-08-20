@@ -174,19 +174,69 @@ storiesOf('Scatterplot', module)
       </DataProvider>
     </div>
   ))
-  .add('Scatterplot (stroke width)', () => (
-    <div style={{ height: '500px', width: '500px' }}>
-      <DataProvider
-        defaultLoader={scatterplotloader}
-        baseDomain={[0, 1]}
-        series={[
-          { id: '1 2', color: 'steelblue', strokeWidth: 2 },
-          { id: '3 4', color: 'maroon', strokeWidth: 5 },
-        ]}
-        xAccessor={d => +d.x}
-        yAccessor={d => +d.y}
-      >
-        <Scatterplot zoomable />
-      </DataProvider>
-    </div>
+  .add('Stroke width', () => (
+    <React.Fragment>
+      <div style={{ height: '500px', width: '500px' }}>
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          baseDomain={[0, 1]}
+          series={[
+            { id: '1 2', color: 'steelblue', strokeWidth: 2 },
+            { id: '3 4', color: 'maroon', strokeWidth: 5 },
+          ]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+        >
+          <Scatterplot zoomable />
+        </DataProvider>
+      </div>
+      <div style={{ height: '500px', width: '500px' }}>
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          baseDomain={[0, 1]}
+          series={[
+            { id: '1 2', color: 'steelblue' },
+            { id: '3 4', color: 'maroon' },
+          ]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+          strokeWidthAccessor={d => ((+d.x + +d.y) / 2) * 8 + 1}
+        >
+          <Scatterplot zoomable />
+        </DataProvider>
+      </div>
+    </React.Fragment>
+  ))
+  .add('Opacity', () => (
+    <React.Fragment>
+      <div style={{ height: '500px', width: '500px' }}>
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          baseDomain={[0, 1]}
+          series={[
+            { id: '1 2', color: 'steelblue', opacity: 0.25, strokeWidth: 5 },
+            { id: '3 4', color: 'maroon', opacity: 0.75, strokeWidth: 5 },
+          ]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+        >
+          <Scatterplot zoomable />
+        </DataProvider>
+      </div>
+      <div style={{ height: '500px', width: '500px' }}>
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          baseDomain={[0, 1]}
+          series={[
+            { id: '1 2', color: 'steelblue', strokeWidth: 5 },
+            { id: '3 4', color: 'maroon', strokeWidth: 5 },
+          ]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+          opacityAccessor={d => (+d.x + +d.y) / 2}
+        >
+          <Scatterplot zoomable />
+        </DataProvider>
+      </div>
+    </React.Fragment>
   ));
