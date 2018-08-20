@@ -248,7 +248,6 @@ export default class DataProvider extends Component {
     };
     return {
       drawPoints: collection.drawPoints,
-      strokeWidth: collection.strokeWidth,
       hidden: collection.hidden,
       data: [],
       ...deleteUndefinedFromObject(series),
@@ -281,6 +280,11 @@ export default class DataProvider extends Component {
         series.strokeWidthAccessor,
         collection.strokeWidthAccessor,
         strokeWidthAccessor
+      ),
+      strokeWidth: undefinedTruthiness(
+        series.strokeWidth,
+        collection.strokeWidth,
+        strokeWidth
       ),
       opacity: undefinedTruthiness(series.opacity, collection.opacity, opacity),
       opacityAccessor: undefinedTruthiness(
