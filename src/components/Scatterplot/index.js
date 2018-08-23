@@ -11,7 +11,7 @@ import GriffPropTypes, {
   scalerFactoryFunc,
   axisPlacementType,
 } from '../../utils/proptypes';
-import UnifiedAxis from '../UnifedAxis';
+import UnifiedAxis from '../UnifiedAxis';
 import XAxis from '../XAxis';
 import Layout from './Layout';
 import AxisPlacement from '../AxisPlacement';

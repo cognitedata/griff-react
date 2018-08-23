@@ -1,7 +1,6 @@
 import React from 'react';
 import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
-import { withInfo } from '@storybook/addon-info';
 import { DataProvider, Scatterplot, AxisPlacement } from '../src';
 import { staticLoader } from './loaders';
 
