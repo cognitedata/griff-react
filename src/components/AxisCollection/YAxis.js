@@ -3,10 +3,7 @@ import * as d3 from 'd3';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
-import GriffPropTypes, {
-  singleSeriePropType,
-  axisPlacementType,
-} from '../../utils/proptypes';
+import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
 import AxisPlacement from '../LineChart/AxisPlacement';
 
 const propTypes = {
@@ -24,7 +21,7 @@ const propTypes = {
   }),
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
-  yAxisPlacement: axisPlacementType,
+  yAxisPlacement: GriffPropTypes.axisPlacement,
 };
 
 const defaultProps = {

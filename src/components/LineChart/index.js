@@ -13,7 +13,6 @@ import GriffPropTypes, {
   annotationPropType,
   rulerPropType,
   axisDisplayModeType,
-  axisPlacementType,
 } from '../../utils/proptypes';
 import { ScaledLineCollection } from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
@@ -45,8 +44,9 @@ const propTypes = {
   contextChart: contextChartPropType,
   ruler: rulerPropType,
   annotations: PropTypes.arrayOf(annotationPropType),
+  xAxisPlacement: GriffPropTypes.axisPlacement,
   yAxisDisplayMode: axisDisplayModeType,
-  yAxisPlacement: axisPlacementType,
+  yAxisPlacement: GriffPropTypes.axisPlacement,
   // (e, seriesId) => void
   onAxisMouseEnter: PropTypes.func,
   // (e, seriesId) => void
@@ -93,6 +93,7 @@ const defaultProps = {
   width: 0,
   height: 0,
   subDomain: [],
+  xAxisPlacement: AxisPlacement.BOTTOM,
   yAxisDisplayMode: AxisDisplayMode.ALL,
   yAxisPlacement: AxisPlacement.RIGHT,
   onAxisMouseEnter: null,
@@ -117,6 +118,19 @@ class LineChartComponent extends Component {
     }
 
     return xAxisHeight + (contextChart.height || 100);
+  };
+
+  getXAxisHeight = height => {
+    const { xAxisPlacement } = this.props;
+    switch (xAxisPlacement) {
+      case AxisPlacement.BOTH:
+        return height * 2;
+      case AxisPlacement.TOP:
+      case AxisPlacement.BOTTOM:
+      case AxisPlacement.UNSPECIFIED:
+      default:
+        return height;
+    }
   };
 
   getYAxisCollectionWidth = placement => {
@@ -205,6 +219,7 @@ class LineChartComponent extends Component {
       subDomain,
       ruler,
       width: propWidth,
+      xAxisPlacement,
       yAxisDisplayMode,
       zoomable,
     } = this.props;
@@ -221,11 +236,12 @@ class LineChartComponent extends Component {
         width -
         this.getYAxisCollectionWidth(AxisPlacement.LEFT) -
         this.getYAxisCollectionWidth(AxisPlacement.RIGHT),
-      height: height - xAxisHeight - contextChartSpace,
+      height: height - this.getXAxisHeight(xAxisHeight) - contextChartSpace,
     };
 
     return (
       <Layout
+        xAxisPlacement={xAxisPlacement}
         yAxisPlacement={this.getYAxisPlacement()}
         lineChart={
           <svg width={chartSize.width} height={chartSize.height}>
@@ -264,7 +280,13 @@ class LineChartComponent extends Component {
             height={chartSize.height}
           />
         }
-        xAxis={<XAxis domain={subDomain} width={chartSize.width} />}
+        xAxis={
+          <XAxis
+            domain={subDomain}
+            width={chartSize.width}
+            xAxisPlacement={xAxisPlacement}
+          />
+        }
         contextChart={
           contextChart.visible && (
             <ScaledContextChart

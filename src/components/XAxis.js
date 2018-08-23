@@ -2,17 +2,21 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import { createXScale } from '../utils/scale-helpers';
+import GriffPropTypes from '../utils/proptypes';
+import AxisPlacement from './LineChart/AxisPlacement';
 
 const propTypes = {
   domain: PropTypes.arrayOf(PropTypes.number).isRequired,
   strokeColor: PropTypes.string,
   width: PropTypes.number.isRequired,
   height: PropTypes.number,
+  xAxisPlacement: GriffPropTypes.axisPlacement,
 };
 
 const defaultProps = {
   strokeColor: 'black',
   height: 50,
+  xAxisPlacement: AxisPlacement.BOTTOM,
 };
 
 const tickTransformer = v => `translate(${v}, 0)`;
@@ -46,6 +50,67 @@ function multiFormat(date) {
 }
 
 class Axis extends Component {
+  getLineProps = ({ tickSizeInner, strokeWidth }) => {
+    const { height, xAxisPlacement } = this.props;
+    switch (xAxisPlacement) {
+      case AxisPlacement.TOP:
+        return {
+          x1: strokeWidth / 2,
+          x2: strokeWidth / 2,
+          y1: height - tickSizeInner,
+          y2: height,
+        };
+      case AxisPlacement.BOTTOM:
+      case AxisPlacement.UNSPECIFIED:
+      default:
+        return {
+          x1: strokeWidth / 2,
+          x2: strokeWidth / 2,
+          y2: tickSizeInner,
+        };
+    }
+  };
+
+  getPathString = ({ range, strokeWidth, tickSizeOuter }) => {
+    const { height, xAxisPlacement } = this.props;
+    switch (xAxisPlacement) {
+      case AxisPlacement.TOP:
+        return [
+          `M${range[0]},${height - tickSizeOuter}`,
+          `V${height - strokeWidth / 2}`,
+          `H${range[1] - strokeWidth}`,
+          `V${height - tickSizeOuter}`,
+        ].join('');
+      case AxisPlacement.BOTTOM:
+      case AxisPlacement.UNSPECIFIED:
+      default:
+        return [
+          `M${range[0]},${tickSizeOuter}`,
+          `V${strokeWidth / 2}`,
+          `H${range[1] - strokeWidth}`,
+          `V${tickSizeOuter}`,
+        ].join('');
+    }
+  };
+
+  getTextProps = ({ tickSizeInner, tickPadding, strokeWidth }) => {
+    const { height, xAxisPlacement } = this.props;
+    switch (xAxisPlacement) {
+      case AxisPlacement.TOP:
+        return {
+          y: height - (Math.max(tickSizeInner, 0) + tickPadding) - 10,
+          x: strokeWidth / 2,
+        };
+      case AxisPlacement.BOTTOM:
+      case AxisPlacement.UNSPECIFIED:
+      default:
+        return {
+          y: Math.max(tickSizeInner, 0) + tickPadding,
+          x: strokeWidth / 2,
+        };
+    }
+  };
+
   renderAxis() {
     const { domain, width, strokeColor } = this.props;
     const scale = createXScale(domain, width);
@@ -62,15 +127,13 @@ class Axis extends Component {
     // regular 1280 display. So by dividing width by ~100
     // we can achieve appropriate amount of ticks for any width.
     const values = scale.ticks(Math.floor(width / 100) || 1);
-    const k = 1;
     const tickFormat = multiFormat;
     const range = scale.range().map(r => r + halfStrokeWidth);
-    const pathString = [
-      `M${range[0]},${k * tickSizeOuter}`,
-      `V${halfStrokeWidth}`,
-      `H${range[1] - strokeWidth}`,
-      `V${k * tickSizeOuter}`,
-    ].join('');
+    const pathString = this.getPathString({
+      range,
+      strokeWidth,
+      tickSizeOuter,
+    });
     return (
       <g
         className="x-axis"
@@ -81,20 +144,19 @@ class Axis extends Component {
       >
         <path stroke={strokeColor} d={pathString} />
         {values.map(v => {
-          const lineProps = { stroke: strokeColor };
-          lineProps.y2 = k * tickSizeInner;
-          lineProps.x1 = halfStrokeWidth;
-          lineProps.x2 = halfStrokeWidth;
+          const lineProps = {
+            stroke: strokeColor,
+            ...this.getLineProps({ strokeWidth, tickSizeInner }),
+          };
 
           const textProps = {
             fill: strokeColor,
             dy: '0.71em',
+            ...this.getTextProps({ strokeWidth, tickPadding, tickSizeInner }),
           };
-          textProps.y = k * Math.max(tickSizeInner, 0) + tickPadding;
-          textProps.x = halfStrokeWidth;
           return (
             <g key={+v} opacity={1} transform={tickTransformer(scale(v))}>
-              <line {...lineProps} />
+              <line stroke={strokeColor} {...lineProps} />
               <text {...textProps}>{tickFormat(v)}</text>
             </g>
           );
