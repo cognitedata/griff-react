@@ -172,6 +172,12 @@ export default class CombinedYAxis extends Component {
   }
 
   render() {
+    // TODO: Get zooming to work.
+    // Zooming a combined series doesn't work. Well, it works, but the zoom
+    // state does not remain synced between the axis and the Scaler. I'm not
+    // entirely sure what's going on (if I did, I'd fix it), so I'm just going
+    // to omit axis zooming for now.
+    // It's possible that the new collections interface can be used for this.
     return <g className="axis-y">{this.renderAxis()}</g>;
   }
 }
