@@ -48,22 +48,22 @@ const yAxisContainer = area => (axis, placement) => (
 );
 
 const XY_GRIDS = {
-  BOTH: {
-    BOTH: [
+  [AxisPlacement.BOTH]: {
+    [AxisPlacement.BOTH]: [
       // formatting for readability
       '. xaxis-top .',
       'yaxis-left chart yaxis-right',
       '. xaxis-bottom .',
       '. context .',
     ],
-    LEFT: [
+    [AxisPlacement.LEFT]: [
       // formatting for readability
       '. xaxis-top',
       'yaxis chart',
       '. xaxis-bottom',
       '. context',
     ],
-    RIGHT: [
+    [AxisPlacement.RIGHT]: [
       // formatting for readability
       'xaxis-top .',
       'chart yaxis',
@@ -71,40 +71,40 @@ const XY_GRIDS = {
       'context .',
     ],
   },
-  BOTTOM: {
-    BOTH: [
+  [AxisPlacement.BOTTOM]: {
+    [AxisPlacement.BOTH]: [
       // formatting for readability
       'yaxis-left chart yaxis-right',
       '. xaxis .',
       '. context .',
     ],
-    LEFT: [
+    [AxisPlacement.LEFT]: [
       // formatting for readability
       'yaxis chart',
       '. xaxis',
       '. context',
     ],
-    RIGHT: [
+    [AxisPlacement.RIGHT]: [
       // formatting for readability
       'chart yaxis',
       'xaxis .',
       'context .',
     ],
   },
-  TOP: {
-    BOTH: [
+  [AxisPlacement.TOP]: {
+    [AxisPlacement.BOTH]: [
       // formatting for readability
       '. xaxis .',
       'yaxis-left chart yaxis-right',
       '. context .',
     ],
-    LEFT: [
+    [AxisPlacement.LEFT]: [
       // formatting for readability
       '. xaxis',
       'yaxis chart',
       '. context',
     ],
-    RIGHT: [
+    [AxisPlacement.RIGHT]: [
       // formatting for readability
       'xaxis .',
       'chart yaxis',

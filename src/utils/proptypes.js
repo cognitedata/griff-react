@@ -54,8 +54,9 @@ export const rulerPropType = PropTypes.shape({
   yLabel: PropTypes.func.isRequired,
 });
 
-export const contextChartPropType = PropTypes.shape({
+const contextChart = PropTypes.shape({
   visible: PropTypes.bool,
+  // Height of the chart, *excluding* any axes that are rendered.
   height: PropTypes.number,
 });
 
@@ -188,6 +189,7 @@ export default {
   axisPlacement,
   collection,
   collections,
+  contextChart,
   grid,
   multipleSeries,
   singleSeries,

@@ -8,7 +8,6 @@ import ScalerContext from '../../context/Scaler';
 import { ScaledContextChart } from '../ContextChart';
 import GriffPropTypes, {
   areaPropType,
-  contextChartPropType,
   seriesPropType,
   annotationPropType,
   rulerPropType,
@@ -40,8 +39,9 @@ const propTypes = {
   // event => void
   onDoubleClick: PropTypes.func,
   subDomain: PropTypes.arrayOf(PropTypes.number),
+  xAxisHeight: PropTypes.number,
   yAxisWidth: PropTypes.number,
-  contextChart: contextChartPropType,
+  contextChart: GriffPropTypes.contextChart,
   ruler: rulerPropType,
   annotations: PropTypes.arrayOf(annotationPropType),
   xAxisPlacement: GriffPropTypes.axisPlacement,
@@ -75,6 +75,7 @@ const defaultProps = {
   contextChart: {
     visible: true,
     height: 100,
+    isDefault: true,
   },
   crosshair: true,
   onMouseMove: null,
@@ -89,6 +90,7 @@ const defaultProps = {
     xLabel: () => {},
     yLabel: () => {},
   },
+  xAxisHeight: 50,
   yAxisWidth: 50,
   width: 0,
   height: 0,
@@ -106,18 +108,18 @@ const defaultProps = {
 class LineChartComponent extends Component {
   state = {};
 
-  getContextChartHeight = ({ xAxisHeight, height }) => {
-    const { contextChart } = this.props;
-    if (!contextChart || contextChart.visible === false) {
+  getContextChartHeight = () => {
+    const { contextChart, xAxisHeight } = this.props;
+    if (
+      !contextChart ||
+      contextChart.visible === false ||
+      !contextChart.height
+    ) {
       // No context chart to show.
       return 0;
     }
 
-    if (contextChart.heightPct) {
-      return xAxisHeight + contextChart.heightPct * (height - xAxisHeight);
-    }
-
-    return xAxisHeight + (contextChart.height || 100);
+    return this.getXAxisHeight(xAxisHeight) + contextChart.height;
   };
 
   getXAxisHeight = height => {
@@ -219,6 +221,7 @@ class LineChartComponent extends Component {
       subDomain,
       ruler,
       width: propWidth,
+      xAxisHeight,
       xAxisPlacement,
       yAxisDisplayMode,
       zoomable,
@@ -226,11 +229,7 @@ class LineChartComponent extends Component {
 
     const width = propWidth || sizeWidth;
     const height = propHeight || sizeHeight;
-    const xAxisHeight = 50;
-    const contextChartSpace = this.getContextChartHeight({
-      xAxisHeight,
-      height,
-    });
+    const contextChartSpace = this.getContextChartHeight();
     const chartSize = {
       width:
         width -
@@ -284,16 +283,19 @@ class LineChartComponent extends Component {
           <XAxis
             domain={subDomain}
             width={chartSize.width}
+            height={xAxisHeight}
             xAxisPlacement={xAxisPlacement}
           />
         }
         contextChart={
           contextChart.visible && (
             <ScaledContextChart
-              height={contextChart.height || 100}
+              height={contextChartSpace}
               width={chartSize.width}
               zoomable={zoomable}
               annotations={annotations}
+              xAxisHeight={xAxisHeight}
+              xAxisPlacement={xAxisPlacement}
             />
           )
         }
