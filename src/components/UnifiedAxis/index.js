@@ -11,11 +11,13 @@ const propTypes = {
   height: PropTypes.number.isRequired,
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
+  ticks: PropTypes.number,
   yAxisPlacement: axisPlacementType,
 };
 const defaultProps = {
   onMouseEnter: null,
   onMouseLeave: null,
+  ticks: null,
   yAxisPlacement: AxisPlacement.RIGHT,
 };
 
@@ -29,6 +31,7 @@ class UnifiedAxis extends React.Component {
       height,
       onMouseEnter,
       onMouseLeave,
+      ticks,
       yAxisPlacement,
     } = this.props;
     return (
@@ -44,6 +47,7 @@ class UnifiedAxis extends React.Component {
           series={series.filter(s => !s.hidden)}
           width={width}
           height={height}
+          ticks={ticks}
           yAxisPlacement={yAxisPlacement}
         />
       </svg>

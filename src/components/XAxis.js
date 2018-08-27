@@ -41,12 +41,14 @@ const propTypes = {
   xScalerFactory: scalerFactoryFunc.isRequired,
   // Number => String
   tickFormatter: PropTypes.func,
+  ticks: PropTypes.number,
 };
 
 const defaultProps = {
   strokeColor: 'black',
   height: 50,
   tickFormatter: multiFormat,
+  ticks: null,
 };
 
 class Axis extends Component {
@@ -57,6 +59,7 @@ class Axis extends Component {
       strokeColor,
       xScalerFactory,
       tickFormatter = multiFormat,
+      ticks,
     } = this.props;
     const scale = xScalerFactory(domain, width);
     const axis = d3.axisBottom(scale);
@@ -71,7 +74,7 @@ class Axis extends Component {
     // Default amount of ticks is 10 which is sutable for a
     // regular 1280 display. So by dividing width by ~100
     // we can achieve appropriate amount of ticks for any width.
-    const values = scale.ticks(Math.floor(width / 100) || 1);
+    const values = scale.ticks(ticks || Math.floor(width / 100) || 1);
     const k = 1;
     const range = scale.range().map(r => r + halfStrokeWidth);
     const pathString = [

@@ -149,7 +149,9 @@ storiesOf('Scatterplot', module)
       >
         <Scatterplot
           zoomable
-          grid={{ x: { ticks: 0 }, y: { count: 9, seriesIds: ['1 2'] } }}
+          grid={{ x: { ticks: 5 }, y: { count: 5, seriesIds: ['1 2'] } }}
+          xAxisTicks={5}
+          yAxisTicks={5}
         />
       </DataProvider>
     </div>

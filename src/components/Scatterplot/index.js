@@ -26,16 +26,20 @@ const propTypes = {
   zoomable: PropTypes.bool,
   onClick: PropTypes.func,
   series: seriesPropType.isRequired,
+  xAxisTicks: PropTypes.number,
   xScalerFactory: scalerFactoryFunc.isRequired,
   subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
   yAxisPlacement: axisPlacementType,
+  yAxisTicks: PropTypes.number,
 };
 
 const defaultProps = {
   grid: null,
   zoomable: true,
   onClick: null,
+  xAxisTicks: null,
   yAxisPlacement: AxisPlacement.RIGHT,
+  yAxisTicks: null,
 };
 
 const Y_AXIS_WIDTH = 50;
@@ -47,8 +51,10 @@ const ScatterplotComponent = ({
   series,
   zoomable,
   onClick,
+  xAxisTicks,
   xScalerFactory,
   yAxisPlacement,
+  yAxisTicks,
   subDomain,
 }) => {
   const chartSize = {
@@ -89,6 +95,7 @@ const ScatterplotComponent = ({
           series={series}
           height={chartSize.height}
           width={Y_AXIS_WIDTH}
+          ticks={yAxisTicks}
         />
       }
       xAxis={
@@ -98,6 +105,7 @@ const ScatterplotComponent = ({
           height={X_AXIS_HEIGHT}
           xScalerFactory={xScalerFactory}
           tickFormatter={Number}
+          ticks={xAxisTicks}
         />
       }
       yAxisPlacement={yAxisPlacement}
