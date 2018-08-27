@@ -507,6 +507,44 @@ storiesOf('LineChart', module)
     }
     return <DynamicBaseDomain />;
   })
+  .add('ySubDomain', () => (
+    <React.Fragment>
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        ySubDomain={[0.25, 0.5]}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[
+          { id: 3, color: 'steelblue', ySubDomain: [0.25, 0.5] },
+          { id: 4, color: 'maroon' },
+        ]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        collections={[{ id: 'all', color: 'green', ySubDomain: [0.0, 0.5] }]}
+        series={[
+          {
+            id: 3,
+            collectionId: 'all',
+            color: 'steelblue',
+            ySubDomain: [0.25, 0.5],
+          },
+          { id: 4, collectionId: 'all', color: 'maroon' },
+        ]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+    </React.Fragment>
+  ))
   .add('Dynamic sub domain', () => {
     const subDomainFirst = [
       Date.now() - 1000 * 60 * 60 * 24 * 20,
