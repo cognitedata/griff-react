@@ -32,7 +32,7 @@ Area.propTypes = {
 Area.defaultProps = {
   color: '#000',
   opacity: 0.15,
-  end: { xpos: 0, ypos: 0 },
+  end: null,
 };
 
 export default Area;
