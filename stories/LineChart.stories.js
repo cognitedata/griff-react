@@ -509,6 +509,7 @@ storiesOf('LineChart', module)
   })
   .add('ySubDomain', () => (
     <React.Fragment>
+      <h1>Set on DataProvider</h1>
       <DataProvider
         defaultLoader={staticLoader}
         baseDomain={staticBaseDomain}
@@ -517,6 +518,7 @@ storiesOf('LineChart', module)
       >
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
+      <h1>Set on Series</h1>
       <DataProvider
         defaultLoader={staticLoader}
         baseDomain={staticBaseDomain}
@@ -527,6 +529,7 @@ storiesOf('LineChart', module)
       >
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
+      <h1>Set on Collection</h1>
       <DataProvider
         defaultLoader={staticLoader}
         baseDomain={staticBaseDomain}
@@ -539,6 +542,26 @@ storiesOf('LineChart', module)
             ySubDomain: [0.25, 0.5],
           },
           { id: 4, collectionId: 'all', color: 'maroon' },
+        ]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+      <h1>Set on Series with yDomain</h1>
+      <p>
+        The LineChart should be zoomed-in, but the context chart should be
+        zoomed-out
+      </p>
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[
+          {
+            id: 3,
+            color: 'steelblue',
+            ySubDomain: [0.25, 0.75],
+            yDomain: [-1, 2],
+          },
+          { id: 4, color: 'maroon' },
         ]}
       >
         <LineChart height={CHART_HEIGHT} />
