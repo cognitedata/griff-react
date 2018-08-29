@@ -90,6 +90,7 @@ storiesOf('LineChart', module)
           width: `${CHART_HEIGHT}px`,
           height: `${CHART_HEIGHT}px`,
           border: '2px solid red',
+          margin: '1em',
         }}
       >
         <DataProvider
@@ -98,6 +99,59 @@ storiesOf('LineChart', module)
           series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
         >
           <LineChart />
+        </DataProvider>
+      </div>
+      <div
+        style={{
+          width: `${CHART_HEIGHT}px`,
+          height: `${CHART_HEIGHT}px`,
+          border: '2px solid red',
+          margin: '1em',
+        }}
+      >
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 2, color: 'steelblue' }, { id: 3, color: 'maroon' }]}
+        >
+          <LineChart contextChart={{ visible: false }} />
+        </DataProvider>
+      </div>
+      <div
+        style={{
+          width: `${CHART_HEIGHT}px`,
+          height: `${CHART_HEIGHT}px`,
+          border: '2px solid red',
+          margin: '1em',
+        }}
+      >
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 3, color: 'steelblue' }, { id: 4, color: 'maroon' }]}
+        >
+          <LineChart
+            contextChart={{
+              visible: true,
+              height: 250,
+            }}
+          />
+        </DataProvider>
+      </div>
+      <div
+        style={{
+          width: `${CHART_HEIGHT}px`,
+          height: `${CHART_HEIGHT}px`,
+          border: '2px solid red',
+          margin: '1em',
+        }}
+      >
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 3, color: 'steelblue' }, { id: 4, color: 'maroon' }]}
+        >
+          <LineChart xAxisHeight={25} />
         </DataProvider>
       </div>
     </div>
@@ -507,6 +561,67 @@ storiesOf('LineChart', module)
     }
     return <DynamicBaseDomain />;
   })
+  .add('ySubDomain', () => (
+    <React.Fragment>
+      <h1>Set on DataProvider</h1>
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        ySubDomain={[0.25, 0.5]}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+      <h1>Set on Series</h1>
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[
+          { id: 3, color: 'steelblue', ySubDomain: [0.25, 0.5] },
+          { id: 4, color: 'maroon' },
+        ]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+      <h1>Set on Collection</h1>
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        collections={[{ id: 'all', color: 'green', ySubDomain: [0.0, 0.5] }]}
+        series={[
+          {
+            id: 3,
+            collectionId: 'all',
+            color: 'steelblue',
+            ySubDomain: [0.25, 0.5],
+          },
+          { id: 4, collectionId: 'all', color: 'maroon' },
+        ]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+      <h1>Set on Series with yDomain</h1>
+      <p>
+        The LineChart should be zoomed-in, but the context chart should be
+        zoomed-out
+      </p>
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[
+          {
+            id: 3,
+            color: 'steelblue',
+            ySubDomain: [0.25, 0.75],
+            yDomain: [-1, 2],
+          },
+          { id: 4, color: 'maroon' },
+        ]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+    </React.Fragment>
+  ))
   .add('Dynamic sub domain', () => {
     const subDomainFirst = [
       Date.now() - 1000 * 60 * 60 * 24 * 20,

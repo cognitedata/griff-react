@@ -18,7 +18,7 @@ const defaultProps = {};
 const PointCollection = ({ width, height, series, domain, xScalerFactory }) => {
   const xScale = xScalerFactory(domain, width);
   const points = series.filter(s => !s.hidden).map(s => {
-    const yScale = createYScale(s.yDomain, height);
+    const yScale = createYScale(s.ySubDomain, height);
     return <Points key={s.id} {...s} xScale={xScale} yScale={yScale} />;
   });
 

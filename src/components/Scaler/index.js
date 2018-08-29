@@ -27,29 +27,29 @@ class Scaler extends Component {
   };
 
   state = {
-    yDomains: {},
+    ySubDomains: {},
     subDomain:
       this.props.dataContext.subDomain || this.props.dataContext.baseDomain,
     yTransformations: {},
   };
 
   componentDidUpdate(prevProps, prevState) {
-    // Check every serie if its yDomain changed
+    // Check every serie if its ySubDomain changed
     // If so -- update the state
-    const yDomains = {};
+    const ySubDomains = {};
     this.props.dataContext.series.forEach(s => {
-      yDomains[s.id] = s.yDomain;
+      ySubDomains[s.id] = s.ySubDomain;
     });
     const transformUpdate = {};
     const domainUpdate = {};
     prevProps.dataContext.series.forEach(s => {
-      if (!isEqual(yDomains[s.id], s.yDomain)) {
+      if (!isEqual(ySubDomains[s.id], s.ySubDomain)) {
         transformUpdate[s.id] = d3.zoomIdentity;
-        domainUpdate[s.id] = yDomains[s.id];
+        domainUpdate[s.id] = ySubDomains[s.id];
 
         if (s.collectionId) {
           transformUpdate[s.collectionId] = d3.zoomIdentity;
-          domainUpdate[s.collectionId] = yDomains[s.id];
+          domainUpdate[s.collectionId] = ySubDomains[s.id];
         }
       }
     });
@@ -74,8 +74,8 @@ class Scaler extends Component {
           ...this.state.yTransformations,
           ...transformUpdate,
         },
-        yDomains: {
-          ...this.state.yDomains,
+        ySubDomains: {
+          ...this.state.ySubDomains,
           ...domainUpdate,
         },
       });
@@ -101,7 +101,7 @@ class Scaler extends Component {
       // eslint-disable-next-line
       this.setState({
         subDomain: nextExternalBaseDomain,
-        yDomains: {},
+        ySubDomains: {},
         yTransformations: {},
       });
       return;
@@ -170,22 +170,22 @@ class Scaler extends Component {
   updateYTransformation = (key, scaler, height) => {
     const { dataContext } = this.props;
 
-    const { yDomain } =
+    const { ySubDomain } =
       dataContext.series.find(s => s.id === key) ||
       dataContext.collections.find(c => c.id === key);
     const newSubDomain = scaler
-      .rescaleY(createYScale(yDomain, height))
+      .rescaleY(createYScale(ySubDomain, height))
       .domain()
       .map(Number);
 
     this.setState({
-      yDomains: { ...this.state.yDomains, [key]: newSubDomain },
+      ySubDomains: { ...this.state.ySubDomains, [key]: newSubDomain },
       yTransformations: { ...this.state.yTransformations, [key]: scaler },
     });
   };
 
   render() {
-    const { yDomains, yTransformations, subDomain } = this.state;
+    const { ySubDomains, yTransformations, subDomain } = this.state;
     const { dataContext, xScalerFactory } = this.props;
     const ownContext = {
       updateXTransformation: this.updateXTransformation,
@@ -196,12 +196,12 @@ class Scaler extends Component {
 
     const enrichedSeries = dataContext.series.map(s => ({
       ...s,
-      yDomain: yDomains[s.id] || s.yDomain,
+      ySubDomain: ySubDomains[s.id] || s.ySubDomain,
     }));
 
     const enrichedCollections = dataContext.collections.map(c => ({
       ...c,
-      yDomain: yDomains[c.id] || c.yDomain,
+      ySubDomain: ySubDomains[c.id] || c.ySubDomain,
     }));
 
     const enrichedContext = {

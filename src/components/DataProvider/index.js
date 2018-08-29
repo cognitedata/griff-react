@@ -63,13 +63,14 @@ export default class DataProvider extends Component {
     loaderConfig: {},
     contextSeries: {},
     yDomains: {},
+    ySubDomains: {},
   };
 
   static getDerivedStateFromProps(nextProps, prevState) {
     // Check if one of the series got removed from props
     // If so, delete the respective keys in contextSeries and loaderconfig
     // This is important so we don't cache the vales if it gets readded later
-    const { loaderConfig, contextSeries, yDomains } = prevState;
+    const { loaderConfig, contextSeries, yDomains, ySubDomains } = prevState;
     const { series } = nextProps;
     const seriesKeys = {};
     series.forEach(s => {
@@ -78,6 +79,7 @@ export default class DataProvider extends Component {
     const newContextSeries = { ...contextSeries };
     const newLoaderConfig = { ...loaderConfig };
     const newYDomains = { ...yDomains };
+    const newYSubDomains = { ...ySubDomains };
     let shouldUpdate = false;
     Object.keys(loaderConfig).forEach(key => {
       if (!seriesKeys[key]) {
@@ -93,6 +95,7 @@ export default class DataProvider extends Component {
         loaderConfig: newLoaderConfig,
         contextSeries: newContextSeries,
         yDomains: newYDomains,
+        ySubDomains: newYSubDomains,
       };
     }
     return null;
@@ -159,6 +162,7 @@ export default class DataProvider extends Component {
           loaderConfig: {},
           contextSeries: {},
           yDomains: {},
+          ySubDomains: {},
         },
         async () => {
           await Promise.map(this.props.series, s =>
@@ -234,8 +238,9 @@ export default class DataProvider extends Component {
       y0Accessor,
       y1Accessor,
       yAccessor,
+      ySubDomain,
     } = this.props;
-    const { loaderConfig, yDomains } = this.state;
+    const { loaderConfig, yDomains, ySubDomains } = this.state;
 
     const undefinedTruthiness = (a, b, c) => {
       if (a === undefined) {
@@ -246,6 +251,9 @@ export default class DataProvider extends Component {
       }
       return a;
     };
+    const yDomain = collection.yDomain ||
+      series.yDomain ||
+      yDomains[series.id] || [0, 0];
     return {
       drawPoints: collection.drawPoints,
       hidden: collection.hidden,
@@ -273,9 +281,6 @@ export default class DataProvider extends Component {
         y1Accessor
       ),
       yAxisDisplayMode: series.yAxisDisplayMode || collection.yAxisDisplayMode,
-      yDomain: collection.yDomain ||
-        series.yDomain ||
-        yDomains[series.id] || [0, 0],
       strokeWidthAccessor: undefinedTruthiness(
         series.strokeWidthAccessor,
         collection.strokeWidthAccessor,
@@ -292,6 +297,13 @@ export default class DataProvider extends Component {
         collection.opacityAccessor,
         opacityAccessor
       ),
+      yDomain,
+      ySubDomain:
+        collection.ySubDomain ||
+        series.ySubDomain ||
+        ySubDomains[series.id] ||
+        ySubDomain ||
+        yDomain,
     };
   };
 
@@ -328,7 +340,9 @@ export default class DataProvider extends Component {
         loaderConfig.y0Accessor || this.props.y0Accessor,
         loaderConfig.y1Accessor || this.props.y1Accessor
       );
+      const ySubDomain = yDomain;
       stateUpdates.yDomains = { ...this.state.yDomains, [id]: yDomain };
+      stateUpdates.ySubDomain = { ...this.state.ySubDomains, [id]: ySubDomain };
     }
     stateUpdates.loaderConfig = {
       ...this.state.loaderConfig,
@@ -381,6 +395,7 @@ export default class DataProvider extends Component {
     const collectionsWithDomains = collections
       .map(c => ({
         ...c,
+        // FIXME: This can be a single reduce call.
         yDomain: seriesObjects
           .filter(s => s.collectionId === c.id)
           .map(s => s.yDomain)
@@ -388,6 +403,17 @@ export default class DataProvider extends Component {
             (acc, yDomain) => [
               Math.min(acc[0], yDomain[0]),
               Math.max(acc[1], yDomain[1]),
+            ],
+            [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
+          ),
+        // FIXME: This can be a single reduce call.
+        ySubDomain: seriesObjects
+          .filter(s => s.collectionId === c.id)
+          .map(s => s.ySubDomain)
+          .reduce(
+            (acc, ySubDomain) => [
+              Math.min(acc[0], ySubDomain[0]),
+              Math.max(acc[1], ySubDomain[1]),
             ],
             [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
           ),
@@ -403,6 +429,10 @@ export default class DataProvider extends Component {
         s.collectionId !== undefined
           ? [...collectionsById[s.collectionId].yDomain]
           : s.yDomain,
+      ySubDomain:
+        s.collectionId !== undefined
+          ? [...collectionsById[s.collectionId].ySubDomain]
+          : s.ySubDomain,
     }));
 
     const context = {
@@ -438,6 +468,7 @@ DataProvider.propTypes = {
   y1Accessor: PropTypes.func,
   xAccessor: PropTypes.func,
   yAxisWidth: PropTypes.number,
+  ySubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   pointsPerSeries: PropTypes.number,
   children: PropTypes.node.isRequired,
   defaultLoader: PropTypes.func,
@@ -452,19 +483,20 @@ DataProvider.propTypes = {
 };
 
 DataProvider.defaultProps = {
-  updateInterval: 0,
-  xAccessor: d => d.timestamp,
-  yAccessor: d => d.value,
-  y0Accessor: null,
-  y1Accessor: null,
-  pointsPerSeries: 250,
-  yAxisWidth: 50,
-  defaultLoader: null,
-  subDomain: null,
-  onSubDomainChanged: null,
   collections: [],
+  defaultLoader: null,
+  onSubDomainChanged: null,
   opacity: 1.0,
   opacityAccessor: null,
+  pointsPerSeries: 250,
   strokeWidth: 3,
   strokeWidthAccessor: null,
+  subDomain: null,
+  updateInterval: 0,
+  xAccessor: d => d.timestamp,
+  y0Accessor: null,
+  y1Accessor: null,
+  yAccessor: d => d.value,
+  yAxisWidth: 50,
+  ySubDomain: null,
 };

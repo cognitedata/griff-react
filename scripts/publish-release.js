@@ -58,4 +58,4 @@ const newVersion = semver.prerelease(publishedVersion)
 shell.exec(`yarn publish --new-version "${newVersion}"`);
 
 // Push the version tag to GitHub.
-shell.exec('git push origin --tags');
+shell.exec(`${__dirname}/publish-release.sh "tags"`);

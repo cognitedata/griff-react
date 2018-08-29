@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { AxisDisplayMode } from '../';
+import AxisPlacement from '../components/AxisPlacement';
 
 const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
@@ -17,6 +18,7 @@ export const singleSeriePropType = PropTypes.shape({
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,
   yDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
+  ySubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   yAxisDisplayMode: PropTypes.shape({
     // See AxisDisplayMode
     id: PropTypes.string.isRequired,
@@ -58,8 +60,9 @@ export const rulerPropType = PropTypes.shape({
   yLabel: PropTypes.func.isRequired,
 });
 
-export const contextChartPropType = PropTypes.shape({
+const contextChart = PropTypes.shape({
   visible: PropTypes.bool,
+  // Height of the chart, *excluding* any axes that are rendered.
   height: PropTypes.number,
 });
 
@@ -77,10 +80,7 @@ export const accessorFuncPropType = PropTypes.func;
 // value => scaled value
 export const scaleFuncPropType = PropTypes.func;
 
-export const axisPlacementType = PropTypes.shape({
-  id: PropTypes.number.isRequired,
-  name: PropTypes.string.isRequired,
-});
+const axisPlacement = PropTypes.oneOf(Object.values(AxisPlacement));
 
 export const coordinatePropType = PropTypes.shape({
   xpos: PropTypes.number.isRequired,
@@ -107,7 +107,8 @@ const collection = PropTypes.shape({
   yAccessor: PropTypes.func,
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,
-  yDomain: PropTypes.arrayOf(PropTypes.number),
+  yDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
+  ySubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
 });
 
 const collections = PropTypes.arrayOf(collection);
@@ -201,8 +202,10 @@ const grid = PropTypes.shape({
 });
 
 export default {
+  axisPlacement,
   collection,
   collections,
+  contextChart,
   grid,
   multipleSeries,
   singleSeries,

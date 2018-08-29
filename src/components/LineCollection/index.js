@@ -9,7 +9,7 @@ import AxisDisplayMode from '../LineChart/AxisDisplayMode';
 const LineCollection = props => {
   const { series, width, height, domain, xScalerFactory } = props;
   const xScale = xScalerFactory(domain, width);
-  const clipPath = `clip-path-${series
+  const clipPath = `clip-path-${width}-${height}-${series
     .filter(s => !s.hidden)
     .map(
       s =>
@@ -19,7 +19,10 @@ const LineCollection = props => {
     )
     .join('/')}`;
   const lines = series.filter(s => !s.hidden).map(s => {
-    const yScale = createYScale(s.yDomain, height);
+    const yScale = createYScale(
+      props.scaleY ? s.ySubDomain : s.yDomain,
+      height
+    );
     return (
       <Line
         key={s.id}
@@ -46,11 +49,15 @@ LineCollection.propTypes = {
   series: seriesPropType,
   domain: PropTypes.arrayOf(PropTypes.number),
   xScalerFactory: scalerFactoryFunc.isRequired,
+  // Perform Y-scaling based on the current subdomain. If false, then use the
+  // static yDomain property.
+  scaleY: PropTypes.bool,
 };
 
 LineCollection.defaultProps = {
   series: [],
   domain: [0, 0],
+  scaleY: true,
 };
 
 export default LineCollection;

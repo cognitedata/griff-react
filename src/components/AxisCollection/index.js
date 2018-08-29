@@ -6,7 +6,6 @@ import ScalerContext from '../../context/Scaler';
 import GriffPropTypes, {
   seriesPropType,
   axisDisplayModeType,
-  axisPlacementType,
 } from '../../utils/proptypes';
 import AxisDisplayMode from '../LineChart/AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
@@ -28,7 +27,7 @@ const propTypes = {
   axisDisplayMode: axisDisplayModeType,
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
-  yAxisPlacement: axisPlacementType,
+  yAxisPlacement: GriffPropTypes.axisPlacement,
 };
 
 const defaultProps = {
