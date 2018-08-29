@@ -21,14 +21,14 @@ const defaultProps = {
 };
 
 export default class CombinedYAxis extends Component {
-  getDomain = seriesArray => {
-    const yDomain = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
-    seriesArray.forEach(s => {
-      yDomain[0] = Math.min(yDomain[0], s.yDomain[0]);
-      yDomain[1] = Math.max(yDomain[1], s.yDomain[1]);
-    });
-    return yDomain;
-  };
+  getDomain = seriesArray =>
+    seriesArray.reduce(
+      (domain, series) => [
+        Math.min(domain[0], series.ySubDomain[0]),
+        Math.max(domain[1], series.ySubDomain[1]),
+      ],
+      [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
+    );
 
   getLineProps = ({ tickSizeInner, strokeWidth }) => {
     const { width, yAxisPlacement } = this.props;
