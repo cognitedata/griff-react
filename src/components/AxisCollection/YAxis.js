@@ -243,7 +243,7 @@ export default class YAxis extends Component {
     const cursor = zoomable ? 'move' : 'inherit';
     return (
       <g
-        className={`axis-y ${this.getItem().id}`}
+        className="axis-y"
         transform={`translate(${offsetx}, 0)`}
         cursor={cursor}
         onMouseEnter={onMouseEnter}
