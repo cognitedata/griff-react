@@ -9,7 +9,6 @@ import { createLinearXScale } from '../../utils/scale-helpers';
 import GriffPropTypes, {
   seriesPropType,
   scalerFactoryFunc,
-  axisPlacementType,
 } from '../../utils/proptypes';
 import UnifiedAxis from '../UnifiedAxis';
 import XAxis from '../XAxis';
@@ -26,10 +25,11 @@ const propTypes = {
   zoomable: PropTypes.bool,
   onClick: PropTypes.func,
   series: seriesPropType.isRequired,
+  xAxisPlacement: GriffPropTypes.axisPlacement,
   xAxisTicks: PropTypes.number,
   xScalerFactory: scalerFactoryFunc.isRequired,
   subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-  yAxisPlacement: axisPlacementType,
+  yAxisPlacement: GriffPropTypes.axisPlacement,
   yAxisTicks: PropTypes.number,
 };
 
@@ -37,6 +37,7 @@ const defaultProps = {
   grid: null,
   zoomable: true,
   onClick: null,
+  xAxisPlacement: AxisPlacement.BOTTOM,
   xAxisTicks: null,
   yAxisPlacement: AxisPlacement.RIGHT,
   yAxisTicks: null,
@@ -51,6 +52,7 @@ const ScatterplotComponent = ({
   series,
   zoomable,
   onClick,
+  xAxisPlacement,
   xAxisTicks,
   xScalerFactory,
   yAxisPlacement,
@@ -59,18 +61,24 @@ const ScatterplotComponent = ({
 }) => {
   const chartSize = {
     width,
-    height: height - X_AXIS_HEIGHT,
+    height,
   };
 
   switch (yAxisPlacement) {
     case AxisPlacement.BOTH:
       chartSize.width -= 2 * Y_AXIS_WIDTH;
       break;
-    case AxisPlacement.LEFT:
-    case AxisPlacement.RIGHT:
-    case AxisPlacement.UNSPECIFIED:
     default:
       chartSize.width -= Y_AXIS_WIDTH;
+      break;
+  }
+
+  switch (xAxisPlacement) {
+    case AxisPlacement.BOTH:
+      chartSize.height -= 2 * X_AXIS_HEIGHT;
+      break;
+    default:
+      chartSize.height -= X_AXIS_HEIGHT;
       break;
   }
 
@@ -108,6 +116,7 @@ const ScatterplotComponent = ({
           ticks={xAxisTicks}
         />
       }
+      xAxisPlacement={xAxisPlacement}
       yAxisPlacement={yAxisPlacement}
     />
   );

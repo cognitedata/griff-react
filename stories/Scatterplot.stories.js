@@ -180,6 +180,50 @@ storiesOf('Scatterplot', module)
           </div>
         )
       )}
+      {[AxisPlacement.TOP, AxisPlacement.BOTH, AxisPlacement.BOTTOM].map(
+        placement => (
+          <div
+            style={{
+              width: '500px',
+              height: '500px',
+              outline: '1px solid red',
+              margin: '1em',
+            }}
+          >
+            <DataProvider
+              defaultLoader={scatterplotloader}
+              baseDomain={[0, 1]}
+              series={[{ id: '1 2', color: 'steelblue' }]}
+              xAccessor={d => +d.x}
+              yAccessor={d => +d.y}
+            >
+              <Scatterplot zoomable xAxisPlacement={placement} />
+            </DataProvider>
+          </div>
+        )
+      )}
+      <div
+        style={{
+          width: '500px',
+          height: '500px',
+          outline: '1px solid red',
+          margin: '1em',
+        }}
+      >
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          baseDomain={[0, 1]}
+          series={[{ id: '1 2', color: 'steelblue' }]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+        >
+          <Scatterplot
+            zoomable
+            xAxisPlacement={AxisPlacement.BOTH}
+            yAxisPlacement={AxisPlacement.BOTH}
+          />
+        </DataProvider>
+      </div>
     </React.Fragment>
   ))
   .add('Stroke width', () => (

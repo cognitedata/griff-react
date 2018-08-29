@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import PropTypes from 'prop-types';
 import { createYScale } from '../../utils/scale-helpers';
-import { seriesPropType, axisPlacementType } from '../../utils/proptypes';
+import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {
@@ -11,7 +11,7 @@ const propTypes = {
   width: PropTypes.number.isRequired,
   color: PropTypes.string,
   ticks: PropTypes.number,
-  yAxisPlacement: axisPlacementType,
+  yAxisPlacement: GriffPropTypes.axisPlacement,
 };
 
 const defaultProps = {

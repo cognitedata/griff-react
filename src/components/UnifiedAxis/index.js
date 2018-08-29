@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ScalerContext from '../../context/Scaler';
 import CombinedYAxis from './CombinedYAxis';
-import { seriesPropType, axisPlacementType } from '../../utils/proptypes';
+import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {
@@ -12,7 +12,7 @@ const propTypes = {
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
   ticks: PropTypes.number,
-  yAxisPlacement: axisPlacementType,
+  yAxisPlacement: GriffPropTypes.axisPlacement,
 };
 const defaultProps = {
   onMouseEnter: null,
