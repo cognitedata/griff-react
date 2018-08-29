@@ -71,6 +71,43 @@ storiesOf('Y-Axis Modes', module)
       />
     </DataProvider>
   ))
+  .add('Collapsed collection', () => (
+    <DataProvider
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      collections={[{ id: 'all', color: 'deepred' }]}
+      series={[
+        { id: 1, collectionId: 'all', color: 'steelblue' },
+        { id: 2, collectionId: 'all', color: 'maroon' },
+      ]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+      />
+    </DataProvider>
+  ))
+  .add('Collapsed collected series', () => (
+    <DataProvider
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      collections={[{ id: 'all', color: 'deepred' }]}
+      series={[
+        {
+          id: 1,
+          collectionId: 'all',
+          color: 'steelblue',
+          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+        },
+        { id: 2, collectionId: 'all', color: 'maroon' },
+      ]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+      />
+    </DataProvider>
+  ))
   .add('Some hidden', () => {
     // eslint-disable-next-line
     class SomeCollapsed extends React.Component {
@@ -182,7 +219,6 @@ storiesOf('Y-Axis Modes', module)
     // eslint-disable-next-line
     class SomeCollapsed extends React.Component {
       state = {
-        yAxisDisplayMode: AxisDisplayMode.ALL,
         series: [
           {
             id: 1,
@@ -197,6 +233,7 @@ storiesOf('Y-Axis Modes', module)
           },
           { id: 4, color: 'green' },
         ],
+        yAxisDisplayMode: AxisDisplayMode.ALL,
       };
 
       expandAll = (e, seriesId) => {
@@ -236,6 +273,107 @@ storiesOf('Y-Axis Modes', module)
             <DataProvider
               defaultLoader={staticLoader}
               baseDomain={staticBaseDomain}
+              series={series}
+            >
+              <LineChart
+                height={CHART_HEIGHT}
+                yAxisDisplayMode={yAxisDisplayMode}
+                onAxisMouseEnter={this.expandAll}
+                onAxisMouseLeave={this.collapseSome}
+              />
+            </DataProvider>
+          </React.Fragment>
+        );
+      }
+    }
+    return <SomeCollapsed />;
+  })
+  .add('Some collapsed (until hover) with collections', () => {
+    // eslint-disable-next-line
+    class SomeCollapsed extends React.Component {
+      state = {
+        collections: [
+          { id: 'default-expanded', color: 'red' },
+          {
+            id: 'default-collapsed',
+            color: 'blue',
+            yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+          },
+        ],
+        series: [
+          {
+            id: 1,
+            color: 'steelblue',
+            yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+          },
+          {
+            id: 2,
+            color: 'maroon',
+            collectionId: 'default-expanded',
+          },
+          {
+            id: 3,
+            color: 'orange',
+            collectionId: 'default-expanded',
+            yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+          },
+          {
+            id: 4,
+            color: 'green',
+            collectionId: 'default-collapsed',
+          },
+          {
+            id: 5,
+            color: 'gray',
+            collectionId: 'default-collapsed',
+            yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+          },
+        ],
+        yAxisDisplayMode: AxisDisplayMode.ALL,
+      };
+
+      expandAll = (e, seriesId) => {
+        if (seriesId === 'collapsed') {
+          const expand = s => ({ ...s, yAxisDisplayMode: AxisDisplayMode.ALL });
+          this.setState({
+            series: this.state.series.map(expand),
+            collections: this.state.collections.map(expand),
+          });
+        }
+        if (this.collapseTimer) {
+          clearTimeout(this.collapseTimer);
+        }
+      };
+
+      collapseSome = () => {
+        this.collapseTimer = setTimeout(() => {
+          this.setState({
+            series: this.state.series.map(s => ({
+              ...s,
+              yAxisDisplayMode:
+                s.id === 1 || s.id === 3 || s.id === 5
+                  ? AxisDisplayMode.COLLAPSED
+                  : AxisDisplayMode.ALL,
+            })),
+            collections: this.state.collections.map(s => ({
+              ...s,
+              yAxisDisplayMode:
+                s.id === 'default-collapsed'
+                  ? AxisDisplayMode.COLLAPSED
+                  : AxisDisplayMode.ALL,
+            })),
+          });
+        }, 50);
+      };
+
+      render() {
+        const { collections, series, yAxisDisplayMode } = this.state;
+        return (
+          <React.Fragment>
+            <DataProvider
+              defaultLoader={staticLoader}
+              baseDomain={staticBaseDomain}
+              collections={collections}
               series={series}
             >
               <LineChart
