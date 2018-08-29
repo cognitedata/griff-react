@@ -77,10 +77,12 @@ const Line = ({
           className="line-area"
           d={area(data)}
           style={{
-            stroke: 'none',
+            stroke: color,
+            strokeOpacity: 0,
             strokeWidth: `${strokeWidth}px`,
-            fill: `${color}`,
-            opacity: 0.25,
+            fill: color,
+            fillOpacity: 0.25,
+            opacity: 1,
             display: hidden ? 'none' : 'inherit',
           }}
         />
