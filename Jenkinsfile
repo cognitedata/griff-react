@@ -36,6 +36,9 @@ podTemplate(
     secretVolume(secretName: 'npm-credentials',
                   mountPath: '/npm-credentials',
                   readOnly: true),
+    secretVolume(secretName: 'cognite-cicd-ssh-dupe',
+                  mountPath: '/cognite-cicd-ssh',
+                  readOnly: true),
   ]) {
     properties([buildDiscarder(logRotator(daysToKeepStr: '30', numToKeepStr: '20'))])
     node(label) {
