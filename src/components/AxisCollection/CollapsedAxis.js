@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
-import { singleSeriePropType, axisPlacementType } from '../../utils/proptypes';
+import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
 import AxisPlacement from '../LineChart/AxisPlacement';
 
 export default class CollapsedAxis extends Component {
@@ -26,7 +26,7 @@ export default class CollapsedAxis extends Component {
     color: PropTypes.string,
     onMouseEnter: PropTypes.func,
     onMouseLeave: PropTypes.func,
-    yAxisPlacement: axisPlacementType,
+    yAxisPlacement: GriffPropTypes.axisPlacement,
   };
 
   static defaultProps = {

@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { AxisDisplayMode } from '../';
+import AxisPlacement from '../components/LineChart/AxisPlacement';
 
 const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
@@ -54,8 +55,9 @@ export const rulerPropType = PropTypes.shape({
   yLabel: PropTypes.func.isRequired,
 });
 
-export const contextChartPropType = PropTypes.shape({
+const contextChart = PropTypes.shape({
   visible: PropTypes.bool,
+  // Height of the chart, *excluding* any axes that are rendered.
   height: PropTypes.number,
 });
 
@@ -64,10 +66,7 @@ export const axisDisplayModeType = PropTypes.shape({
   width: PropTypes.func.isRequired,
 });
 
-export const axisPlacementType = PropTypes.shape({
-  id: PropTypes.number.isRequired,
-  name: PropTypes.string.isRequired,
-});
+const axisPlacement = PropTypes.oneOf(Object.values(AxisPlacement));
 
 export const coordinatePropType = PropTypes.shape({
   xpos: PropTypes.number.isRequired,
@@ -189,8 +188,10 @@ const grid = PropTypes.shape({
 });
 
 export default {
+  axisPlacement,
   collection,
   collections,
+  contextChart,
   grid,
   multipleSeries,
   singleSeries,

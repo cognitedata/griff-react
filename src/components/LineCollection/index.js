@@ -9,7 +9,7 @@ import AxisDisplayMode from '../LineChart/AxisDisplayMode';
 const LineCollection = props => {
   const { series, width, height, domain } = props;
   const xScale = createXScale(domain, width);
-  const clipPath = `clip-path-${series
+  const clipPath = `clip-path-${width}-${height}-${series
     .filter(s => !s.hidden)
     .map(
       s =>

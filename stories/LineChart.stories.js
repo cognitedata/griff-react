@@ -90,6 +90,7 @@ storiesOf('LineChart', module)
           width: `${CHART_HEIGHT}px`,
           height: `${CHART_HEIGHT}px`,
           border: '2px solid red',
+          margin: '1em',
         }}
       >
         <DataProvider
@@ -98,6 +99,59 @@ storiesOf('LineChart', module)
           series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
         >
           <LineChart />
+        </DataProvider>
+      </div>
+      <div
+        style={{
+          width: `${CHART_HEIGHT}px`,
+          height: `${CHART_HEIGHT}px`,
+          border: '2px solid red',
+          margin: '1em',
+        }}
+      >
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 2, color: 'steelblue' }, { id: 3, color: 'maroon' }]}
+        >
+          <LineChart contextChart={{ visible: false }} />
+        </DataProvider>
+      </div>
+      <div
+        style={{
+          width: `${CHART_HEIGHT}px`,
+          height: `${CHART_HEIGHT}px`,
+          border: '2px solid red',
+          margin: '1em',
+        }}
+      >
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 3, color: 'steelblue' }, { id: 4, color: 'maroon' }]}
+        >
+          <LineChart
+            contextChart={{
+              visible: true,
+              height: 250,
+            }}
+          />
+        </DataProvider>
+      </div>
+      <div
+        style={{
+          width: `${CHART_HEIGHT}px`,
+          height: `${CHART_HEIGHT}px`,
+          border: '2px solid red',
+          margin: '1em',
+        }}
+      >
+        <DataProvider
+          defaultLoader={staticLoader}
+          baseDomain={staticBaseDomain}
+          series={[{ id: 3, color: 'steelblue' }, { id: 4, color: 'maroon' }]}
+        >
+          <LineChart xAxisHeight={25} />
         </DataProvider>
       </div>
     </div>
