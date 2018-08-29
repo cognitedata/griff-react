@@ -29,7 +29,7 @@ const propTypes = {
 
 const defaultProps = {
   series: {},
-  collection: {},
+  collection: { id: 0, color: 'black' },
   zoomable: true,
   updateYTransformation: () => {},
   yTransformation: null,
@@ -54,8 +54,11 @@ export default class YAxis extends Component {
     }
     if (this.props.yTransformation) {
       if (
-        !isEqual(prevProps.series.yDomain, this.props.series.yDomain) ||
-        !isEqual(prevProps.collection.yDomain, this.props.collection.yDomain)
+        !isEqual(prevProps.series.ySubDomain, this.props.series.ySubDomain) ||
+        !isEqual(
+          prevProps.collection.ySubDomain,
+          this.props.collection.ySubDomain
+        )
       ) {
         this.selection.property('__zoom', this.props.yTransformation);
       }
@@ -191,7 +194,7 @@ export default class YAxis extends Component {
   renderAxis() {
     const { height } = this.props;
 
-    const scale = createYScale(this.getItem().yDomain, height);
+    const scale = createYScale(this.getItem().ySubDomain, height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;

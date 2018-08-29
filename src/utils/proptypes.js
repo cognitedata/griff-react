@@ -17,6 +17,7 @@ export const singleSeriePropType = PropTypes.shape({
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,
   yDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
+  ySubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   yAxisDisplayMode: PropTypes.shape({
     // See AxisDisplayMode
     id: PropTypes.string.isRequired,
@@ -93,7 +94,8 @@ const collection = PropTypes.shape({
   yAccessor: PropTypes.func,
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,
-  yDomain: PropTypes.arrayOf(PropTypes.number),
+  yDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
+  ySubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
 });
 
 const collections = PropTypes.arrayOf(collection);

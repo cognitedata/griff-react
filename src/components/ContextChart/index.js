@@ -57,6 +57,7 @@ export default class ContextChart extends Component {
             width={width}
             height={height}
             domain={baseDomain}
+            scaleY={false}
           />
           <Brush
             width={width}

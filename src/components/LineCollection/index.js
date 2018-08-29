@@ -19,7 +19,10 @@ const LineCollection = props => {
     )
     .join('/')}`;
   const lines = series.filter(s => !s.hidden).map(s => {
-    const yScale = createYScale(s.yDomain, height);
+    const yScale = createYScale(
+      props.scaleY ? s.ySubDomain : s.yDomain,
+      height
+    );
     return (
       <Line
         key={s.id}
@@ -45,11 +48,15 @@ LineCollection.propTypes = {
   height: PropTypes.number.isRequired,
   series: seriesPropType,
   domain: PropTypes.arrayOf(PropTypes.number),
+  // Perform Y-scaling based on the current subdomain. If false, then use the
+  // static yDomain property.
+  scaleY: PropTypes.bool,
 };
 
 LineCollection.defaultProps = {
   series: [],
   domain: [0, 0],
+  scaleY: true,
 };
 
 export default LineCollection;
