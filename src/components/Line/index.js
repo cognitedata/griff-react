@@ -15,6 +15,7 @@ const Line = ({
   hidden,
   drawPoints,
   strokeWidth,
+  pointWidth,
   clipPath,
 }) => {
   let line;
@@ -54,21 +55,23 @@ const Line = ({
   let circles = null;
   if (drawPoints) {
     const subDomain = xScale.domain().map(p => p.getTime());
-    circles = data
-      .filter(d => {
-        const x = xAccessor(d);
-        return x >= subDomain[0] && x <= subDomain[1];
-      })
-      .map(d => (
+    circles = data.reduce((points, d) => {
+      const x = xAccessor(d);
+      if (x < subDomain[0] || x > subDomain[1]) {
+        return points;
+      }
+      return [
+        ...points,
         <circle
           key={xAccessor(d)}
           className="line-circle"
-          r={3}
+          r={pointWidth / 2}
           cx={xScale(xAccessor(d))}
           cy={boundedSeries(yScale(yAccessor(d)))}
           fill={color}
-        />
-      ));
+        />,
+      ];
+    }, []);
   }
   return (
     <g clipPath={`url(#${clipPath})`}>
@@ -116,6 +119,7 @@ Line.propTypes = {
   step: PropTypes.bool,
   hidden: PropTypes.bool,
   drawPoints: PropTypes.bool,
+  pointWidth: PropTypes.number,
   strokeWidth: PropTypes.number,
   clipPath: PropTypes.string.isRequired,
 };
@@ -124,6 +128,7 @@ Line.defaultProps = {
   step: false,
   hidden: false,
   drawPoints: false,
+  pointWidth: 6,
   strokeWidth: 1,
   y0Accessor: null,
   y1Accessor: null,
