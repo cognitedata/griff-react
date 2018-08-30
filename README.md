@@ -7,7 +7,10 @@ Using the power of React to render, with event-handling and maths by d3.
 You provide a `loader` function which is in charge of fetching the data given input parameters.
 For instance, if the current domain is 1 year, you might want to fetch daily aggregates instead of the raw process values.
 
-### Storybook & demo: https://griff.surge.sh
+### Storybook & demo
+
+Griff uses living documentation through the use of [storybook](https://github.com/storybooks/storybook).
+The latest version is auto-deployed at [griff-master.surge.sh](https://griff-master.surge.sh/).
 
 ## Test locally
 
