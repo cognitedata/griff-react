@@ -7,7 +7,7 @@ import Line from '../Line';
 import AxisDisplayMode from '../LineChart/AxisDisplayMode';
 
 const LineCollection = props => {
-  const { series, width, height, domain, xScalerFactory } = props;
+  const { series, width, height, domain, xScalerFactory, pointWidth } = props;
   const xScale = xScalerFactory(domain, width);
   const clipPath = `clip-path-${width}-${height}-${series
     .filter(s => !s.hidden)
@@ -18,21 +18,26 @@ const LineCollection = props => {
         }`
     )
     .join('/')}`;
-  const lines = series.filter(s => !s.hidden).map(s => {
+  const lines = series.reduce((l, s) => {
+    if (s.hidden) {
+      return l;
+    }
     const yScale = createYScale(
       props.scaleY ? s.ySubDomain : s.yDomain,
       height
     );
-    return (
+    return [
+      ...l,
       <Line
         key={s.id}
         {...s}
         xScale={xScale}
         yScale={yScale}
         clipPath={clipPath}
-      />
-    );
-  });
+        pointWidth={s.pointWidth || pointWidth}
+      />,
+    ];
+  }, []);
   return (
     <g width={width} height={height}>
       <clipPath id={clipPath}>
@@ -49,6 +54,7 @@ LineCollection.propTypes = {
   series: seriesPropType,
   domain: PropTypes.arrayOf(PropTypes.number),
   xScalerFactory: scalerFactoryFunc.isRequired,
+  pointWidth: PropTypes.number,
   // Perform Y-scaling based on the current subdomain. If false, then use the
   // static yDomain property.
   scaleY: PropTypes.bool,
@@ -57,6 +63,7 @@ LineCollection.propTypes = {
 LineCollection.defaultProps = {
   series: [],
   domain: [0, 0],
+  pointWidth: 6,
   scaleY: true,
 };
 

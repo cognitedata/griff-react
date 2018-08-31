@@ -172,7 +172,10 @@ export default class CollapsedAxis extends Component {
   render() {
     const { zoomable, offsetx } = this.props;
     return (
-      <g className="axis-y" transform={`translate(${offsetx}, 0)`}>
+      <g
+        className="axis-y collapsed-axis-y"
+        transform={`translate(${offsetx}, 0)`}
+      >
         {this.renderAxis()}
         {zoomable && this.renderZoomRect()}
       </g>

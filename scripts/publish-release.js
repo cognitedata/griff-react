@@ -54,8 +54,5 @@ const newVersion = semver.prerelease(publishedVersion)
   ? semver.inc(publishedVersion, 'prerelease')
   : semver.inc(publishedVersion, 'patch');
 
-// Publish a new release with this version.
-shell.exec(`yarn publish --new-version "${newVersion}"`);
-
-// Push the version tag to GitHub.
-shell.exec(`${__dirname}/publish-release.sh "tags"`);
+// Publish the new release.
+shell.exec(`${__dirname}/publish-release.sh "${newVersion}"`);

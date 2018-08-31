@@ -450,17 +450,41 @@ storiesOf('LineChart', module)
     );
   })
   .add('Draw points', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
-      pointsPerSeries={100}
-      series={[
-        { id: 1, color: 'steelblue' },
-        { id: 2, color: 'maroon', drawPoints: true },
-      ]}
-    >
-      <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    <React.Fragment>
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        pointsPerSeries={100}
+        series={[
+          { id: 1, color: 'steelblue' },
+          { id: 2, color: 'maroon', drawPoints: true },
+        ]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        pointsPerSeries={100}
+        series={[
+          { id: 1, color: 'steelblue' },
+          { id: 2, color: 'maroon', drawPoints: true, pointWidth: 10 },
+        ]}
+      >
+        <LineChart height={CHART_HEIGHT} />
+      </DataProvider>
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        pointsPerSeries={100}
+        series={[
+          { id: 1, color: 'steelblue' },
+          { id: 2, color: 'maroon', drawPoints: true },
+        ]}
+      >
+        <LineChart height={CHART_HEIGHT} pointWidth={4} />
+      </DataProvider>
+    </React.Fragment>
   ))
   .add('Without context chart', () => (
     <DataProvider

@@ -17,6 +17,7 @@ const Line = ({
   hidden,
   drawPoints,
   strokeWidth,
+  pointWidth,
   clipPath,
 }) => {
   let line;
@@ -62,6 +63,7 @@ const Line = ({
         xScale={xScale}
         yScale={yScale}
         color={color}
+        pointWidth={pointWidth}
       />
     );
   }
@@ -111,6 +113,7 @@ Line.propTypes = {
   step: PropTypes.bool,
   hidden: PropTypes.bool,
   drawPoints: PropTypes.bool,
+  pointWidth: PropTypes.number,
   strokeWidth: PropTypes.number,
   clipPath: PropTypes.string.isRequired,
 };
@@ -119,6 +122,7 @@ Line.defaultProps = {
   step: false,
   hidden: false,
   drawPoints: false,
+  pointWidth: 6,
   strokeWidth: 1,
   y0Accessor: null,
   y1Accessor: null,

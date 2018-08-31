@@ -16,12 +16,14 @@ const propTypes = {
   color: PropTypes.string.isRequired,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
+  pointWidth: PropTypes.number,
   strokeWidth: PropTypes.number,
   strokeWidthAccessor: PropTypes.func,
 };
 const defaultProps = {
   opacity: 1,
   opacityAccessor: null,
+  pointWidth: null,
   strokeWidth: 3,
   strokeWidthAccessor: null,
 };
@@ -35,20 +37,29 @@ const Points = ({
   color,
   opacity,
   opacityAccessor,
+  pointWidth,
   strokeWidth,
   strokeWidthAccessor,
 }) => {
-  const points = data.map(d => (
-    <circle
-      key={`${xAccessor(d)}-${yAccessor(d)}`}
-      className="point"
-      r={strokeWidthAccessor ? strokeWidthAccessor(d) : strokeWidth}
-      opacity={opacityAccessor ? opacityAccessor(d) : opacity}
-      cx={boundedSeries(xScale(xAccessor(d)))}
-      cy={boundedSeries(yScale(yAccessor(d)))}
-      fill={color}
-    />
-  ));
+  const points = data.map(d => {
+    let width = 0;
+    if (strokeWidthAccessor) {
+      width = strokeWidthAccessor(d);
+    } else {
+      width = pointWidth || strokeWidth;
+    }
+    return (
+      <circle
+        key={`${xAccessor(d)}-${yAccessor(d)}`}
+        className="point"
+        r={width / 2}
+        opacity={opacityAccessor ? opacityAccessor(d) : opacity}
+        cx={boundedSeries(xScale(xAccessor(d)))}
+        cy={boundedSeries(yScale(yAccessor(d)))}
+        fill={color}
+      />
+    );
+  });
   return <g>{points}</g>;
 };
 

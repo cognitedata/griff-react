@@ -69,6 +69,7 @@ const propTypes = {
   onAreaDefined: PropTypes.func,
   // (area, xpos, ypos) => shouldContinue
   onAreaClicked: PropTypes.func,
+  pointWidth: PropTypes.number,
 };
 
 const defaultProps = {
@@ -105,6 +106,7 @@ const defaultProps = {
   areas: [],
   onAreaDefined: null,
   onAreaClicked: null,
+  pointWidth: 6,
 };
 
 class LineChartComponent extends Component {
@@ -219,6 +221,7 @@ class LineChartComponent extends Component {
       onClickAnnotation,
       onDoubleClick,
       onMouseMove,
+      pointWidth,
       size: { width: sizeWidth, height: sizeHeight },
       subDomain,
       ruler,
@@ -255,6 +258,7 @@ class LineChartComponent extends Component {
             <ScaledLineCollection
               height={chartSize.height}
               width={chartSize.width}
+              pointWidth={pointWidth}
             />
             <InteractionLayer
               height={chartSize.height}

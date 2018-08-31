@@ -50,13 +50,19 @@ class AxisCollection extends React.Component {
     this.props.onMouseLeave ? e => this.props.onMouseLeave(e, seriesId) : null;
 
   getAxisOffsets = () => {
-    const { series, yAxisPlacement, yAxisWidth } = this.props;
+    const { collections, series, yAxisPlacement, yAxisWidth } = this.props;
 
-    const numCollapsed = series.filter(
-      this.axisFilter(AxisDisplayMode.COLLAPSED)
-    ).length;
-    const numVisible = series.filter(this.axisFilter(AxisDisplayMode.ALL))
-      .length;
+    const numCollapsed = series
+      .concat(collections)
+      .filter(this.axisFilter(AxisDisplayMode.COLLAPSED)).length;
+    const axisFilter = this.axisFilter(AxisDisplayMode.ALL);
+    const numVisible =
+      series.reduce((count, s) => {
+        if (s.collectionId === undefined && axisFilter(s)) {
+          return count + 1;
+        }
+        return count;
+      }, 0) + collections.filter(this.axisFilter(AxisDisplayMode.ALL)).length;
 
     switch (yAxisPlacement) {
       case AxisPlacement.LEFT:
@@ -99,13 +105,6 @@ class AxisCollection extends React.Component {
     } = this.props;
     let axisOffsetX = offsetx - yAxisWidth;
 
-    const filteredSeries = series
-      .filter(this.axisFilter(AxisDisplayMode.ALL))
-      .filter(this.placementFilter);
-    if (yAxisPlacement === AxisPlacement.LEFT) {
-      filteredSeries.reverse();
-    }
-
     const filteredCollections = collections
       .filter(this.axisFilter(AxisDisplayMode.ALL))
       .filter(this.placementFilter);
@@ -113,9 +112,24 @@ class AxisCollection extends React.Component {
       filteredCollections.reverse();
     }
 
+    const collectionsById = filteredCollections.reduce(
+      (acc, c) => ({ ...acc, [c.id]: true }),
+      {}
+    );
+
+    const filteredSeries = series.filter(
+      s =>
+        this.axisFilter(AxisDisplayMode.ALL)(s) &&
+        this.placementFilter(s) &&
+        (s.collectionId === undefined || !collectionsById[s.collectionId])
+    );
+    if (yAxisPlacement === AxisPlacement.LEFT) {
+      filteredSeries.reverse();
+    }
+
     return []
       .concat(
-        filteredSeries.filter(s => s.collectionId === undefined).map(s => {
+        filteredSeries.map(s => {
           axisOffsetX += yAxisWidth;
           return (
             <YAxis
@@ -170,12 +184,19 @@ class AxisCollection extends React.Component {
   };
 
   renderPlaceholderAxis = offsetx => {
-    const { height, yAxisWidth, series, yAxisPlacement } = this.props;
-    const numCollapsed = series.filter(
-      this.axisFilter(AxisDisplayMode.COLLAPSED)
-    ).length;
+    const {
+      collections,
+      height,
+      yAxisWidth,
+      series,
+      yAxisPlacement,
+    } = this.props;
+    const collapsed = series
+      .filter(s => this.placementFilter(s))
+      .concat(collections)
+      .filter(this.axisFilter(AxisDisplayMode.COLLAPSED));
     // TODO: Should we only do this if there's more than 1?
-    if (numCollapsed) {
+    if (collapsed.length) {
       return (
         <CollapsedAxis
           key="y-axis--collapsed"

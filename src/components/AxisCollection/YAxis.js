@@ -25,8 +25,8 @@ const propTypes = {
 };
 
 const defaultProps = {
-  series: {},
-  collection: { id: 0, color: 'black' },
+  series: null,
+  collection: null,
   zoomable: true,
   updateYTransformation: () => {},
   yTransformation: null,
@@ -51,11 +51,16 @@ export default class YAxis extends Component {
     }
     if (this.props.yTransformation) {
       if (
-        !isEqual(prevProps.series.ySubDomain, this.props.series.ySubDomain) ||
-        !isEqual(
-          prevProps.collection.ySubDomain,
-          this.props.collection.ySubDomain
-        )
+        (!!prevProps.series !== !!this.props.series &&
+          !isEqual(
+            (prevProps.series || {}).ySubDomain,
+            (this.props.series || {}).ySubDomain
+          )) ||
+        (!!prevProps.collection !== !!this.props.collection &&
+          !isEqual(
+            (prevProps.collection || {}).ySubDomain,
+            (this.props.collection || {}).ySubDomain
+          ))
       ) {
         this.selection.property('__zoom', this.props.yTransformation);
       }
@@ -63,7 +68,7 @@ export default class YAxis extends Component {
   }
 
   getItem = () =>
-    this.props.series.id ? this.props.series : this.props.collection;
+    this.props.series ? this.props.series : this.props.collection;
 
   getLineProps = ({ tickSizeInner, strokeWidth }) => {
     const { width, yAxisPlacement } = this.props;
@@ -191,7 +196,8 @@ export default class YAxis extends Component {
   renderAxis() {
     const { height } = this.props;
 
-    const scale = createYScale(this.getItem().ySubDomain, height);
+    const item = this.getItem();
+    const scale = createYScale(item.ySubDomain, height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;
@@ -213,17 +219,17 @@ export default class YAxis extends Component {
         strokeWidth={strokeWidth}
       >
         <path
-          stroke={this.getItem().color}
+          stroke={item.color}
           d={this.getPathString({ tickSizeOuter, range, strokeWidth })}
         />
         {values.map(v => {
           const lineProps = {
-            stroke: this.getItem().color,
+            stroke: item.color,
             ...this.getLineProps({ tickSizeInner, strokeWidth }),
           };
 
           const textProps = {
-            fill: this.getItem().color,
+            fill: item.color,
             dy: '0.32em',
             ...this.getTextProps({ tickSizeInner, tickPadding, strokeWidth }),
           };
