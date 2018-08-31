@@ -18,6 +18,7 @@ const Line = ({
   drawPoints,
   strokeWidth,
   pointWidth,
+  pointWidthAccessor,
   clipPath,
 }) => {
   let line;
@@ -64,6 +65,7 @@ const Line = ({
         yScale={yScale}
         color={color}
         pointWidth={pointWidth}
+        pointWidthAccessor={pointWidthAccessor}
       />
     );
   }
@@ -114,6 +116,7 @@ Line.propTypes = {
   hidden: PropTypes.bool,
   drawPoints: PropTypes.bool,
   pointWidth: PropTypes.number,
+  pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
   clipPath: PropTypes.string.isRequired,
 };
@@ -123,6 +126,7 @@ Line.defaultProps = {
   hidden: false,
   drawPoints: false,
   pointWidth: 6,
+  pointWidthAccessor: null,
   strokeWidth: 1,
   y0Accessor: null,
   y1Accessor: null,

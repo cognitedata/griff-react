@@ -17,6 +17,7 @@ const propTypes = {
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
   pointWidth: PropTypes.number,
+  pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
   strokeWidthAccessor: PropTypes.func,
 };
@@ -24,7 +25,8 @@ const defaultProps = {
   opacity: 1,
   opacityAccessor: null,
   pointWidth: null,
-  strokeWidth: 3,
+  pointWidthAccessor: null,
+  strokeWidth: null,
   strokeWidthAccessor: null,
 };
 
@@ -38,6 +40,7 @@ const Points = ({
   opacity,
   opacityAccessor,
   pointWidth,
+  pointWidthAccessor,
   strokeWidth,
   strokeWidthAccessor,
 }) => {
@@ -45,8 +48,14 @@ const Points = ({
     let width = 0;
     if (strokeWidthAccessor) {
       width = strokeWidthAccessor(d);
+    } else if (pointWidthAccessor) {
+      width = pointWidthAccessor(d);
+    } else if (pointWidth !== undefined && pointWidth !== null) {
+      width = pointWidth;
+    } else if (strokeWidth !== undefined && strokeWidth !== null) {
+      width = strokeWidth;
     } else {
-      width = pointWidth || strokeWidth;
+      width = 6;
     }
     return (
       <circle

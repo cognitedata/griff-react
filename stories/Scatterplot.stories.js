@@ -161,6 +161,7 @@ storiesOf('Scatterplot', module)
       {[AxisPlacement.RIGHT, AxisPlacement.BOTH, AxisPlacement.LEFT].map(
         placement => (
           <div
+            key={placement}
             style={{
               width: '500px',
               height: '500px',
@@ -183,6 +184,7 @@ storiesOf('Scatterplot', module)
       {[AxisPlacement.TOP, AxisPlacement.BOTH, AxisPlacement.BOTTOM].map(
         placement => (
           <div
+            key={placement}
             style={{
               width: '500px',
               height: '500px',
@@ -234,7 +236,7 @@ storiesOf('Scatterplot', module)
           baseDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue', strokeWidth: 2 },
-            { id: '3 4', color: 'maroon', strokeWidth: 5 },
+            { id: '3 4', color: 'maroon', strokeWidth: 10 },
           ]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -252,7 +254,55 @@ storiesOf('Scatterplot', module)
           ]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
-          strokeWidthAccessor={d => ((+d.x + +d.y) / 2) * 8 + 1}
+          strokeWidthAccessor={d => ((+d.x + +d.y) / 2) * 16 + 1}
+        >
+          <Scatterplot zoomable />
+        </DataProvider>
+      </div>
+    </React.Fragment>
+  ))
+  .add('Point width', () => (
+    <React.Fragment>
+      <div style={{ height: '500px', width: '500px' }}>
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          baseDomain={[0, 1]}
+          series={[
+            { id: '1 2', color: 'steelblue', pointWidth: 2 },
+            { id: '3 4', color: 'maroon', pointWidth: 10 },
+          ]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+        >
+          <Scatterplot zoomable />
+        </DataProvider>
+      </div>
+      <div style={{ height: '500px', width: '500px' }}>
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          baseDomain={[0, 1]}
+          series={[
+            { id: '1 2', color: 'steelblue' },
+            { id: '3 4', color: 'maroon' },
+          ]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+          pointWidth={10}
+        >
+          <Scatterplot zoomable />
+        </DataProvider>
+      </div>
+      <div style={{ height: '500px', width: '500px' }}>
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          baseDomain={[0, 1]}
+          series={[
+            { id: '1 2', color: 'steelblue' },
+            { id: '3 4', color: 'maroon' },
+          ]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+          pointWidthAccessor={d => ((+d.x + +d.y) / 2) * 16 + 1}
         >
           <Scatterplot zoomable />
         </DataProvider>

@@ -233,6 +233,7 @@ export default class DataProvider extends Component {
       opacity,
       opacityAccessor,
       pointWidth,
+      pointWidthAccessor,
       strokeWidth,
       strokeWidthAccessor,
       xAccessor,
@@ -295,6 +296,11 @@ export default class DataProvider extends Component {
         series.pointWidth,
         collection.pointWidth,
         pointWidth
+      ),
+      pointWidthAccessor: undefinedTruthiness(
+        series.pointWidthAccessor,
+        collection.pointWidthAccessor,
+        pointWidthAccessor
       ),
       opacity: undefinedTruthiness(series.opacity, collection.opacity, opacity),
       opacityAccessor: undefinedTruthiness(
@@ -511,6 +517,7 @@ DataProvider.propTypes = {
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
   pointWidth: PropTypes.number,
+  pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
   strokeWidthAccessor: PropTypes.func,
 };
@@ -523,6 +530,7 @@ DataProvider.defaultProps = {
   opacityAccessor: null,
   pointsPerSeries: 250,
   pointWidth: 6,
+  pointWidthAccessor: null,
   strokeWidth: 1,
   strokeWidthAccessor: null,
   subDomain: null,
