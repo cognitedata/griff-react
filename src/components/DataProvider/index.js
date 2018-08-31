@@ -56,6 +56,18 @@ const getSubDomain = (baseDomain, subDomain) => {
   return [minDomain, maxDomain];
 };
 
+/**
+ * Return the first thing which is not `undefined`.
+ * @param {*} first
+ * @param  {...any} others
+ */
+const undefinedTruthiness = (first, ...others) => {
+  if (first !== undefined || others.length === 0) {
+    return first;
+  }
+  return undefinedTruthiness(others[0], ...others.splice(1));
+};
+
 export default class DataProvider extends Component {
   state = {
     subDomain: getSubDomain(this.props.baseDomain, this.props.subDomain),
@@ -237,16 +249,6 @@ export default class DataProvider extends Component {
       ySubDomain,
     } = this.props;
     const { loaderConfig, yDomains, ySubDomains } = this.state;
-
-    const undefinedTruthiness = (a, b, c) => {
-      if (a === undefined) {
-        if (b === undefined) {
-          return c;
-        }
-        return b;
-      }
-      return a;
-    };
     const yDomain = collection.yDomain ||
       series.yDomain ||
       yDomains[series.id] || [0, 0];
