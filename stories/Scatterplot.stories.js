@@ -254,7 +254,7 @@ storiesOf('Scatterplot', module)
           ]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
-          strokeWidthAccessor={d => ((+d.x + +d.y) / 2) * 16 + 1}
+          strokeWidth={10}
         >
           <Scatterplot zoomable />
         </DataProvider>
@@ -316,11 +316,12 @@ storiesOf('Scatterplot', module)
           defaultLoader={scatterplotloader}
           baseDomain={[0, 1]}
           series={[
-            { id: '1 2', color: 'steelblue', opacity: 0.25, strokeWidth: 5 },
-            { id: '3 4', color: 'maroon', opacity: 0.75, strokeWidth: 5 },
+            { id: '1 2', color: 'steelblue', opacity: 0.25 },
+            { id: '3 4', color: 'maroon', opacity: 0.75 },
           ]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
+          pointWidth={10}
         >
           <Scatterplot zoomable />
         </DataProvider>
@@ -330,12 +331,13 @@ storiesOf('Scatterplot', module)
           defaultLoader={scatterplotloader}
           baseDomain={[0, 1]}
           series={[
-            { id: '1 2', color: 'steelblue', strokeWidth: 5 },
-            { id: '3 4', color: 'maroon', strokeWidth: 5 },
+            { id: '1 2', color: 'steelblue' },
+            { id: '3 4', color: 'maroon' },
           ]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
           opacityAccessor={d => (+d.x + +d.y) / 2}
+          pointWidth={20}
         >
           <Scatterplot zoomable />
         </DataProvider>

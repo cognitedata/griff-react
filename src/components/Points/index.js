@@ -19,7 +19,6 @@ const propTypes = {
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
-  strokeWidthAccessor: PropTypes.func,
 };
 const defaultProps = {
   opacity: 1,
@@ -27,7 +26,6 @@ const defaultProps = {
   pointWidth: null,
   pointWidthAccessor: null,
   strokeWidth: null,
-  strokeWidthAccessor: null,
 };
 
 const Points = ({
@@ -42,13 +40,10 @@ const Points = ({
   pointWidth,
   pointWidthAccessor,
   strokeWidth,
-  strokeWidthAccessor,
 }) => {
   const points = data.map(d => {
     let width = 0;
-    if (strokeWidthAccessor) {
-      width = strokeWidthAccessor(d);
-    } else if (pointWidthAccessor) {
+    if (pointWidthAccessor) {
       width = pointWidthAccessor(d);
     } else if (pointWidth !== undefined && pointWidth !== null) {
       width = pointWidth;
