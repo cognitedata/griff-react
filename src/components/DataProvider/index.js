@@ -277,7 +277,10 @@ export default class DataProvider extends Component {
         collection.y1Accessor,
         y1Accessor
       ),
-      yAxisDisplayMode: series.yAxisDisplayMode || collection.yAxisDisplayMode,
+      yAxisDisplayMode:
+        (series.collectionId
+          ? collection.yAxisDisplayMode
+          : series.yAxisDisplayMode) || collection.yAxisDisplayMode,
       yDomain,
       ySubDomain:
         collection.ySubDomain ||
@@ -372,49 +375,72 @@ export default class DataProvider extends Component {
     }
     const seriesObjects = this.getSeriesObjects();
 
-    const collectionsById = {};
-    const collectionsWithDomains = collections
-      .map(c => ({
-        ...c,
-        // FIXME: This can be a single reduce call.
-        yDomain: seriesObjects
-          .filter(s => s.collectionId === c.id)
-          .map(s => s.yDomain)
-          .reduce(
-            (acc, yDomain) => [
-              Math.min(acc[0], yDomain[0]),
-              Math.max(acc[1], yDomain[1]),
+    // Compute the domains for all of the collections with one pass over all of
+    // the series objects.
+    const collectionDomains = seriesObjects.reduce(
+      (
+        acc,
+        { collectionId, yDomain: seriesDomain, ySubDomain: seriesSubDomain }
+      ) => {
+        if (!collectionId) {
+          return acc;
+        }
+        const { yDomain: existingDomain, ySubDomain: existingSubDomain } = acc[
+          collectionId
+        ] || {
+          yDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
+          ySubDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
+        };
+        return {
+          ...acc,
+          [collectionId]: {
+            yDomain: [
+              Math.min(existingDomain[0], seriesDomain[0]),
+              Math.max(existingDomain[1], seriesDomain[1]),
             ],
-            [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
-          ),
-        // FIXME: This can be a single reduce call.
-        ySubDomain: seriesObjects
-          .filter(s => s.collectionId === c.id)
-          .map(s => s.ySubDomain)
-          .reduce(
-            (acc, ySubDomain) => [
-              Math.min(acc[0], ySubDomain[0]),
-              Math.max(acc[1], ySubDomain[1]),
+            ySubDomain: [
+              Math.min(existingSubDomain[0], seriesSubDomain[0]),
+              Math.max(existingSubDomain[1], seriesSubDomain[1]),
             ],
-            [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
-          ),
-      }))
-      .map(c => {
-        collectionsById[c.id] = c;
-        return c;
-      });
+          },
+        };
+      },
+      {}
+    );
 
-    const collectedSeries = seriesObjects.map(s => ({
-      ...s,
-      yDomain:
-        s.collectionId !== undefined
-          ? [...collectionsById[s.collectionId].yDomain]
-          : s.yDomain,
-      ySubDomain:
-        s.collectionId !== undefined
-          ? [...collectionsById[s.collectionId].ySubDomain]
-          : s.ySubDomain,
-    }));
+    // Then we want to enrich the collection objects with their above-computed
+    // domains.
+    const collectionsById = {};
+    const collectionsWithDomains = [];
+    collections.forEach(c => {
+      if (collectionDomains[c.id]) {
+        const withDomain = {
+          ...c,
+          ...collectionDomains[c.id],
+        };
+        collectionsWithDomains.push(withDomain);
+        collectionsById[c.id] = withDomain;
+      }
+    });
+
+    // Then take a final pass over all of the series and replace their
+    // yDomain and ySubDomain arrays with the one from their collections (if
+    // they're a member of a collection).
+    const collectedSeries = seriesObjects.map(s => {
+      const copy = {
+        ...s,
+      };
+      if (copy.collectionId !== undefined) {
+        if (!collectionsById[copy.collectionId]) {
+          // It's pointing to a collection that doesn't exist.
+          copy.collectionId = undefined;
+          return copy;
+        }
+        copy.yDomain = [...collectionsById[copy.collectionId].yDomain];
+        copy.ySubDomain = [...collectionsById[copy.collectionId].ySubDomain];
+      }
+      return copy;
+    });
 
     const context = {
       series: collectedSeries,
