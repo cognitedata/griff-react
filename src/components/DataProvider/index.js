@@ -61,11 +61,11 @@ const getSubDomain = (baseDomain, subDomain) => {
  * @param {*} first
  * @param  {...any} others
  */
-const undefinedTruthiness = (first, ...others) => {
+const firstDefined = (first, ...others) => {
   if (first !== undefined || others.length === 0) {
     return first;
   }
-  return undefinedTruthiness(others[0], ...others.splice(1));
+  return firstDefined(others[0], ...others.splice(1));
 };
 
 export default class DataProvider extends Component {
@@ -259,22 +259,22 @@ export default class DataProvider extends Component {
       data: [],
       ...deleteUndefinedFromObject(series),
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
-      xAccessor: undefinedTruthiness(
+      xAccessor: firstDefined(
         series.xAccessor,
         collection.xAccessor,
         xAccessor
       ),
-      yAccessor: undefinedTruthiness(
+      yAccessor: firstDefined(
         series.yAccessor,
         collection.yAccessor,
         yAccessor
       ),
-      y0Accessor: undefinedTruthiness(
+      y0Accessor: firstDefined(
         series.y0Accessor,
         collection.y0Accessor,
         y0Accessor
       ),
-      y1Accessor: undefinedTruthiness(
+      y1Accessor: firstDefined(
         series.y1Accessor,
         collection.y1Accessor,
         y1Accessor
