@@ -1,11 +1,16 @@
 import 'react-select/dist/react-select.css';
 import { action } from '@storybook/addon-actions';
 
-const randomData = (baseDomain, n = 250, singleValue = undefined) => {
+const randomData = ({
+  baseDomain,
+  n = 250,
+  singleValue = undefined,
+  func = Math.random,
+}) => {
   const data = [];
   const dt = (baseDomain[1] - baseDomain[0]) / n;
   for (let i = baseDomain[0]; i <= baseDomain[1]; i += dt) {
-    const value = singleValue === undefined ? Math.random() : singleValue;
+    const value = singleValue === undefined ? func(i) : singleValue;
     data.push({
       timestamp: i,
       value,
@@ -32,15 +37,17 @@ export const monoLoader = singleValue => ({
 export const staticLoader = ({
   id,
   baseDomain,
-  pointsPerSeries,
+  n = 250,
+  multiplier = 1,
   oldSeries,
   reason,
 }) => {
   action('LOADER_REQUEST_DATA')(id, reason);
   if (reason === 'MOUNTED') {
     // Create dataset on mount
+    const func = typeof id === 'function' ? id : Math.random;
     return {
-      data: randomData(baseDomain, pointsPerSeries || 250),
+      data: randomData({ func, baseDomain, n, multiplier }),
     };
   }
   // Otherwise, return the existing dataset.
@@ -83,7 +90,7 @@ export const liveLoader = ({ oldSeries, baseDomain, reason }) => {
 export const customAccessorLoader = ({ baseDomain, oldSeries, reason }) => {
   if (reason === 'MOUNTED') {
     return {
-      data: randomData(baseDomain).map(d => [d.timestamp, d.value]),
+      data: randomData({ baseDomain }).map(d => [d.timestamp, d.value]),
     };
   }
   return {

@@ -4,8 +4,7 @@ import AxisPlacement from '../AxisPlacement';
 import GriffPropTypes from '../../utils/proptypes';
 
 const propTypes = {
-  contextChart: PropTypes.node,
-  lineChart: PropTypes.node.isRequired,
+  chart: PropTypes.node.isRequired,
   xAxis: PropTypes.node.isRequired,
   xAxisPlacement: GriffPropTypes.axisPlacement,
   yAxis: PropTypes.node.isRequired,
@@ -54,21 +53,18 @@ const XY_GRIDS = {
       '. xaxis-top .',
       'yaxis-left chart yaxis-right',
       '. xaxis-bottom .',
-      '. context .',
     ],
     [AxisPlacement.LEFT]: [
       // formatting for readability
       '. xaxis-top',
       'yaxis chart',
       '. xaxis-bottom',
-      '. context',
     ],
     [AxisPlacement.RIGHT]: [
       // formatting for readability
       'xaxis-top .',
       'chart yaxis',
       'xaxis-bottom .',
-      'context .',
     ],
   },
   [AxisPlacement.BOTTOM]: {
@@ -76,19 +72,16 @@ const XY_GRIDS = {
       // formatting for readability
       'yaxis-left chart yaxis-right',
       '. xaxis .',
-      '. context .',
     ],
     [AxisPlacement.LEFT]: [
       // formatting for readability
       'yaxis chart',
       '. xaxis',
-      '. context',
     ],
     [AxisPlacement.RIGHT]: [
       // formatting for readability
       'chart yaxis',
       'xaxis .',
-      'context .',
     ],
   },
   [AxisPlacement.TOP]: {
@@ -96,31 +89,21 @@ const XY_GRIDS = {
       // formatting for readability
       '. xaxis .',
       'yaxis-left chart yaxis-right',
-      '. context .',
     ],
     [AxisPlacement.LEFT]: [
       // formatting for readability
       '. xaxis',
       'yaxis chart',
-      '. context',
     ],
     [AxisPlacement.RIGHT]: [
       // formatting for readability
       'xaxis .',
       'chart yaxis',
-      'context .',
     ],
   },
 };
 
-const Layout = ({
-  contextChart,
-  lineChart,
-  xAxis,
-  xAxisPlacement,
-  yAxis,
-  yAxisPlacement,
-}) => {
+const Layout = ({ chart, xAxis, xAxisPlacement, yAxis, yAxisPlacement }) => {
   const xAxes = [];
   const yAxes = [];
   const areas = (
@@ -157,10 +140,9 @@ const Layout = ({
       xAxes.push(xAxisContainer('xaxis')(xAxis, xAxisPlacement));
       break;
   }
-
   return (
     <div
-      className="linechart-container"
+      className="scatterplot-container"
       style={{
         display: 'grid',
         gridTemplateAreas: areas,
@@ -168,27 +150,14 @@ const Layout = ({
       }}
     >
       <div
-        className="lines-container"
+        className="chart-container"
         style={{ gridArea: 'chart', height: '100%' }}
       >
-        {lineChart}
+        {chart}
       </div>
 
       {yAxes}
       {xAxes}
-      <div style={{ gridArea: 'spacer' }} />
-      {contextChart && (
-        <div
-          className="context-container"
-          style={{
-            gridArea: 'context',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          {contextChart}
-        </div>
-      )}
     </div>
   );
 };

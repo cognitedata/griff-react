@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { AxisDisplayMode } from '../';
-import AxisPlacement from '../components/LineChart/AxisPlacement';
+import AxisPlacement from '../components/AxisPlacement';
 
 const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
@@ -28,6 +28,8 @@ export const singleSeriePropType = PropTypes.shape({
 
 export const seriesPropType = PropTypes.arrayOf(singleSeriePropType);
 
+export const domainPropType = PropTypes.arrayOf(PropTypes.number.isRequired);
+
 export const annotationShape = {
   data: PropTypes.arrayOf(PropTypes.number),
   xScale: PropTypes.func,
@@ -49,6 +51,9 @@ export const pointPropType = PropTypes.shape({
   y: PropTypes.number,
 });
 
+// TODO: Do we have any required fields on this?
+export const dataPointPropType = PropTypes.shape({});
+
 export const rulerPropType = PropTypes.shape({
   visible: PropTypes.bool,
   xLabel: PropTypes.func.isRequired,
@@ -65,6 +70,15 @@ export const axisDisplayModeType = PropTypes.shape({
   // (axisWidth, numAxes) => (width of all of the axes)
   width: PropTypes.func.isRequired,
 });
+
+// (domain, [width|height]) => [number, number]
+export const scalerFactoryFunc = PropTypes.func;
+
+// datapoint => value
+export const accessorFuncPropType = PropTypes.func;
+
+// value => scaled value
+export const scaleFuncPropType = PropTypes.func;
 
 const axisPlacement = PropTypes.oneOf(Object.values(AxisPlacement));
 

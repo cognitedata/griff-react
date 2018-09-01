@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
+import Points from '../Points';
+import { boundedSeries } from '../../utils/boundedseries';
 
 const Line = ({
   data,
@@ -16,15 +18,11 @@ const Line = ({
   drawPoints,
   strokeWidth,
   pointWidth,
+  pointWidthAccessor,
   clipPath,
 }) => {
   let line;
   let area;
-  // HTML has an issue with drawing points somewhere in the 30-35M range.
-  // There's no point in drawing pixels more than 30k pixels outside of the range
-  // so this hack will work for a while.
-  // Without this, when zoomed far enough in the line will disappear.
-  const boundedSeries = value => Math.min(Math.max(value, -30000), 30000);
   if (step) {
     line = d3
       .line()
@@ -55,23 +53,21 @@ const Line = ({
   let circles = null;
   if (drawPoints) {
     const subDomain = xScale.domain().map(p => p.getTime());
-    circles = data.reduce((points, d) => {
-      const x = xAccessor(d);
-      if (x < subDomain[0] || x > subDomain[1]) {
-        return points;
-      }
-      return [
-        ...points,
-        <circle
-          key={xAccessor(d)}
-          className="line-circle"
-          r={pointWidth / 2}
-          cx={xScale(xAccessor(d))}
-          cy={boundedSeries(yScale(yAccessor(d)))}
-          fill={color}
-        />,
-      ];
-    }, []);
+    circles = (
+      <Points
+        data={data.filter(d => {
+          const x = xAccessor(d);
+          return x >= subDomain[0] && x <= subDomain[1];
+        })}
+        xAccessor={xAccessor}
+        yAccessor={yAccessor}
+        xScale={xScale}
+        yScale={yScale}
+        color={color}
+        pointWidth={pointWidth}
+        pointWidthAccessor={pointWidthAccessor}
+      />
+    );
   }
   return (
     <g clipPath={`url(#${clipPath})`}>
@@ -120,6 +116,7 @@ Line.propTypes = {
   hidden: PropTypes.bool,
   drawPoints: PropTypes.bool,
   pointWidth: PropTypes.number,
+  pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
   clipPath: PropTypes.string.isRequired,
 };
@@ -129,6 +126,7 @@ Line.defaultProps = {
   hidden: false,
   drawPoints: false,
   pointWidth: 6,
+  pointWidthAccessor: null,
   strokeWidth: 1,
   y0Accessor: null,
   y1Accessor: null,

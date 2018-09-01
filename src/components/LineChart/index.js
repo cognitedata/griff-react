@@ -12,12 +12,13 @@ import GriffPropTypes, {
   annotationPropType,
   rulerPropType,
   axisDisplayModeType,
+  scalerFactoryFunc,
 } from '../../utils/proptypes';
 import { ScaledLineCollection } from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
 import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
-import AxisPlacement from './AxisPlacement';
+import AxisPlacement from '../AxisPlacement';
 import Layout from './Layout';
 
 const propTypes = {
@@ -51,6 +52,7 @@ const propTypes = {
   onAxisMouseEnter: PropTypes.func,
   // (e, seriesId) => void
   onAxisMouseLeave: PropTypes.func,
+  xScalerFactory: scalerFactoryFunc.isRequired,
   areas: PropTypes.arrayOf(areaPropType),
   /**
    * Pass in a callback function which will be given a defined area when the
@@ -224,6 +226,7 @@ class LineChartComponent extends Component {
       subDomain,
       ruler,
       width: propWidth,
+      xScalerFactory,
       xAxisHeight,
       xAxisPlacement,
       yAxisDisplayMode,
@@ -287,6 +290,7 @@ class LineChartComponent extends Component {
           <XAxis
             domain={subDomain}
             width={chartSize.width}
+            xScalerFactory={xScalerFactory}
             height={xAxisHeight}
             xAxisPlacement={xAxisPlacement}
           />
@@ -317,12 +321,13 @@ const SizedLineChartComponent = sizeMe({ monitorHeight: true })(
 const LineChart = props => (
   <Scaler>
     <ScalerContext.Consumer>
-      {({ collections, series, subDomain, yAxisWidth }) => (
+      {({ collections, series, subDomain, xScalerFactory, yAxisWidth }) => (
         <SizedLineChartComponent
           {...props}
           collections={collections}
           series={series}
           subDomain={subDomain}
+          xScalerFactory={xScalerFactory}
           yAxisWidth={yAxisWidth}
         />
       )}

@@ -1,23 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
-import { createXScale } from '../utils/scale-helpers';
-import GriffPropTypes from '../utils/proptypes';
-import AxisPlacement from './LineChart/AxisPlacement';
-
-const propTypes = {
-  domain: PropTypes.arrayOf(PropTypes.number).isRequired,
-  strokeColor: PropTypes.string,
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number,
-  xAxisPlacement: GriffPropTypes.axisPlacement,
-};
-
-const defaultProps = {
-  strokeColor: 'black',
-  height: 50,
-  xAxisPlacement: AxisPlacement.BOTTOM,
-};
+import GriffPropTypes, { scalerFactoryFunc } from '../utils/proptypes';
+import AxisPlacement from './AxisPlacement';
 
 const tickTransformer = v => `translate(${v}, 0)`;
 
@@ -48,6 +33,26 @@ function multiFormat(date) {
               ? formatMonth
               : formatYear)(date);
 }
+
+const propTypes = {
+  domain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  strokeColor: PropTypes.string,
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number,
+  // Number => String
+  tickFormatter: PropTypes.func,
+  ticks: PropTypes.number,
+  xAxisPlacement: GriffPropTypes.axisPlacement,
+  xScalerFactory: scalerFactoryFunc.isRequired,
+};
+
+const defaultProps = {
+  strokeColor: 'black',
+  height: 50,
+  tickFormatter: multiFormat,
+  ticks: null,
+  xAxisPlacement: AxisPlacement.BOTTOM,
+};
 
 class Axis extends Component {
   getLineProps = ({ tickSizeInner, strokeWidth }) => {
@@ -112,8 +117,15 @@ class Axis extends Component {
   };
 
   renderAxis() {
-    const { domain, width, strokeColor } = this.props;
-    const scale = createXScale(domain, width);
+    const {
+      domain,
+      width,
+      strokeColor,
+      xScalerFactory,
+      tickFormatter = multiFormat,
+      ticks,
+    } = this.props;
+    const scale = xScalerFactory(domain, width);
     const axis = d3.axisBottom(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;
@@ -126,8 +138,7 @@ class Axis extends Component {
     // Default amount of ticks is 10 which is sutable for a
     // regular 1280 display. So by dividing width by ~100
     // we can achieve appropriate amount of ticks for any width.
-    const values = scale.ticks(Math.floor(width / 100) || 1);
-    const tickFormat = multiFormat;
+    const values = scale.ticks(ticks || Math.floor(width / 100) || 1);
     const range = scale.range().map(r => r + halfStrokeWidth);
     const pathString = this.getPathString({
       range,
@@ -157,7 +168,7 @@ class Axis extends Component {
           return (
             <g key={+v} opacity={1} transform={tickTransformer(scale(v))}>
               <line stroke={strokeColor} {...lineProps} />
-              <text {...textProps}>{tickFormat(v)}</text>
+              <text {...textProps}>{tickFormatter(v)}</text>
             </g>
           );
         })}

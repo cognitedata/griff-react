@@ -18,6 +18,12 @@ class Scaler extends Component {
       series: seriesPropType.isRequired,
       collections: GriffPropTypes.collections.isRequired,
     }).isRequired,
+    // (domain, width) => [number, number]
+    xScalerFactory: PropTypes.func,
+  };
+
+  static defaultProps = {
+    xScalerFactory: createXScale,
   };
 
   state = {
@@ -136,8 +142,11 @@ class Scaler extends Component {
 
   updateXTransformation = (xTransformation, width) => {
     const { baseDomain } = this.props.dataContext;
+    const { xScalerFactory } = this.props;
     // Get the new rescaled axis
-    const newScale = xTransformation.rescaleX(createXScale(baseDomain, width));
+    const newScale = xTransformation.rescaleX(
+      xScalerFactory(baseDomain, width)
+    );
     // Calculate new domain, map to timestamps (not dates)
     const newDomain = newScale.domain().map(Number);
     // Update dataproviders subdomains changed
@@ -177,7 +186,7 @@ class Scaler extends Component {
 
   render() {
     const { ySubDomains, yTransformations, subDomain } = this.state;
-    const { dataContext } = this.props;
+    const { dataContext, xScalerFactory } = this.props;
     const ownContext = {
       updateXTransformation: this.updateXTransformation,
       updateSubDomain: this.updateSubDomain,
@@ -196,9 +205,10 @@ class Scaler extends Component {
     }));
 
     const enrichedContext = {
-      subDomain: subDomain || dataContext.subDomain,
-      series: enrichedSeries,
       collections: enrichedCollections,
+      series: enrichedSeries,
+      subDomain: subDomain || dataContext.subDomain,
+      xScalerFactory,
     };
 
     const finalContext = {

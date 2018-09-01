@@ -230,6 +230,11 @@ export default class DataProvider extends Component {
 
   enrichSeries = (series, collection = {}) => {
     const {
+      opacity,
+      opacityAccessor,
+      pointWidth,
+      pointWidthAccessor,
+      strokeWidth,
       xAccessor,
       y0Accessor,
       y1Accessor,
@@ -252,7 +257,6 @@ export default class DataProvider extends Component {
       yDomains[series.id] || [0, 0];
     return {
       drawPoints: collection.drawPoints,
-      strokeWidth: collection.strokeWidth,
       hidden: collection.hidden,
       data: [],
       ...deleteUndefinedFromObject(series),
@@ -276,6 +280,27 @@ export default class DataProvider extends Component {
         series.y1Accessor,
         collection.y1Accessor,
         y1Accessor
+      ),
+      strokeWidth: undefinedTruthiness(
+        series.strokeWidth,
+        collection.strokeWidth,
+        strokeWidth
+      ),
+      pointWidth: undefinedTruthiness(
+        series.pointWidth,
+        collection.pointWidth,
+        pointWidth
+      ),
+      pointWidthAccessor: undefinedTruthiness(
+        series.pointWidthAccessor,
+        collection.pointWidthAccessor,
+        pointWidthAccessor
+      ),
+      opacity: undefinedTruthiness(series.opacity, collection.opacity, opacity),
+      opacityAccessor: undefinedTruthiness(
+        series.opacityAccessor,
+        collection.opacityAccessor,
+        opacityAccessor
       ),
       yAxisDisplayMode:
         (series.collectionId
@@ -483,13 +508,23 @@ DataProvider.propTypes = {
   collections: GriffPropTypes.collections,
   // (subDomain) => null
   onSubDomainChanged: PropTypes.func,
+  opacity: PropTypes.number,
+  opacityAccessor: PropTypes.func,
+  pointWidth: PropTypes.number,
+  pointWidthAccessor: PropTypes.func,
+  strokeWidth: PropTypes.number,
 };
 
 DataProvider.defaultProps = {
   collections: [],
   defaultLoader: null,
   onSubDomainChanged: null,
+  opacity: 1.0,
+  opacityAccessor: null,
   pointsPerSeries: 250,
+  pointWidth: null,
+  pointWidthAccessor: null,
+  strokeWidth: null,
   subDomain: null,
   updateInterval: 0,
   xAccessor: d => d.timestamp,

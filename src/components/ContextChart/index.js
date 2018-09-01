@@ -4,13 +4,13 @@ import ScalerContext from '../../context/Scaler';
 import LineCollection from '../LineCollection';
 import XAxis from '../XAxis';
 import Annotation from '../Annotation';
-import { createXScale } from '../../utils/scale-helpers';
 import GriffPropTypes, {
   seriesPropType,
   annotationPropType,
+  scalerFactoryFunc,
 } from '../../utils/proptypes';
 import Brush from '../Brush';
-import AxisPlacement from '../LineChart/AxisPlacement';
+import AxisPlacement from '../AxisPlacement';
 
 export default class ContextChart extends Component {
   static propTypes = {
@@ -22,6 +22,7 @@ export default class ContextChart extends Component {
     subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     updateSubDomain: PropTypes.func.isRequired,
     zoomable: PropTypes.bool,
+    xScalerFactory: scalerFactoryFunc.isRequired,
     xAxisHeight: PropTypes.number,
     xAxisPlacement: GriffPropTypes.axisPlacement,
   };
@@ -35,8 +36,8 @@ export default class ContextChart extends Component {
   };
 
   onUpdateSelection = selection => {
-    const { baseDomain, width } = this.props;
-    const xScale = createXScale(baseDomain, width);
+    const { baseDomain, width, xScalerFactory } = this.props;
+    const xScale = xScalerFactory(baseDomain, width);
     const subDomain = selection.map(xScale.invert).map(Number);
     this.props.updateSubDomain(subDomain);
   };
@@ -70,10 +71,11 @@ export default class ContextChart extends Component {
       contextSeries,
       xAxisHeight,
       xAxisPlacement,
+      xScalerFactory,
       zoomable,
     } = this.props;
     const height = this.getChartHeight();
-    const xScale = createXScale(baseDomain, width);
+    const xScale = xScalerFactory(baseDomain, width);
     const selection = subDomain.map(xScale);
     const annotations = this.props.annotations.map(a => (
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
@@ -85,6 +87,7 @@ export default class ContextChart extends Component {
         height={xAxisHeight}
         domain={baseDomain}
         xAxisPlacement={xAxisPlacement}
+        xScalerFactory={xScalerFactory}
       />
     );
 
@@ -98,6 +101,7 @@ export default class ContextChart extends Component {
             width={width}
             height={height}
             domain={baseDomain}
+            xScalerFactory={xScalerFactory}
             scaleY={false}
           />
           <Brush
@@ -116,13 +120,20 @@ export default class ContextChart extends Component {
 
 export const ScaledContextChart = props => (
   <ScalerContext.Consumer>
-    {({ subDomain, baseDomain, updateSubDomain, contextSeries }) => (
+    {({
+      subDomain,
+      baseDomain,
+      updateSubDomain,
+      contextSeries,
+      xScalerFactory,
+    }) => (
       <ContextChart
         {...props}
         baseDomain={baseDomain}
         contextSeries={contextSeries}
         subDomain={subDomain}
         updateSubDomain={updateSubDomain}
+        xScalerFactory={xScalerFactory}
       />
     )}
   </ScalerContext.Consumer>

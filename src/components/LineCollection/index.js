@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createYScale, createXScale } from '../../utils/scale-helpers';
-import { seriesPropType } from '../../utils/proptypes';
+import { createYScale } from '../../utils/scale-helpers';
+import { seriesPropType, scalerFactoryFunc } from '../../utils/proptypes';
 import ScalerContext from '../../context/Scaler';
 import Line from '../Line';
 import AxisDisplayMode from '../LineChart/AxisDisplayMode';
 
 const LineCollection = props => {
-  const { series, width, height, domain, pointWidth } = props;
-  const xScale = createXScale(domain, width);
+  const { series, width, height, domain, xScalerFactory, pointWidth } = props;
+  const xScale = xScalerFactory(domain, width);
   const clipPath = `clip-path-${width}-${height}-${series
     .filter(s => !s.hidden)
     .map(
@@ -53,6 +53,7 @@ LineCollection.propTypes = {
   height: PropTypes.number.isRequired,
   series: seriesPropType,
   domain: PropTypes.arrayOf(PropTypes.number),
+  xScalerFactory: scalerFactoryFunc.isRequired,
   pointWidth: PropTypes.number,
   // Perform Y-scaling based on the current subdomain. If false, then use the
   // static yDomain property.
@@ -70,8 +71,13 @@ export default LineCollection;
 
 export const ScaledLineCollection = props => (
   <ScalerContext.Consumer>
-    {({ subDomain, series }) => (
-      <LineCollection {...props} series={series} domain={subDomain} />
+    {({ subDomain, series, xScalerFactory }) => (
+      <LineCollection
+        {...props}
+        series={series}
+        domain={subDomain}
+        xScalerFactory={xScalerFactory}
+      />
     )}
   </ScalerContext.Consumer>
 );

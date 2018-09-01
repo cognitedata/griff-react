@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
-import AxisPlacement from '../LineChart/AxisPlacement';
+import AxisPlacement from '../AxisPlacement';
 
 export default class CollapsedAxis extends Component {
   static propTypes = {

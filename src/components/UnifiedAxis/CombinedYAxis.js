@@ -1,74 +1,34 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 import PropTypes from 'prop-types';
-import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
-import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
+import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {
-  zoomable: PropTypes.bool,
-  offsetx: PropTypes.number.isRequired,
-  series: singleSeriePropType,
-  collection: GriffPropTypes.collection,
+  series: seriesPropType.isRequired,
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
-  updateYTransformation: PropTypes.func,
-  yTransformation: PropTypes.shape({
-    y: PropTypes.number.isRequired,
-    k: PropTypes.number.isRequired,
-    rescaleY: PropTypes.func.isRequired,
-  }),
-  onMouseEnter: PropTypes.func,
-  onMouseLeave: PropTypes.func,
+  color: PropTypes.string,
+  ticks: PropTypes.number,
   yAxisPlacement: GriffPropTypes.axisPlacement,
 };
 
 const defaultProps = {
-  series: null,
-  collection: null,
-  zoomable: true,
-  updateYTransformation: () => {},
-  yTransformation: null,
-  onMouseEnter: null,
-  onMouseLeave: null,
+  color: '#000',
+  ticks: null,
   yAxisPlacement: AxisPlacement.RIGHT,
 };
 
-export default class YAxis extends Component {
-  componentWillMount() {
-    this.zoom = d3.zoom().on('zoom', this.didZoom);
-  }
-
-  componentDidMount() {
-    this.selection = d3.select(this.zoomNode);
-    this.syncZoomingState();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.zoomable !== this.props.zoomable) {
-      this.syncZoomingState();
-    }
-    if (this.props.yTransformation) {
-      if (
-        (!!prevProps.series !== !!this.props.series &&
-          !isEqual(
-            (prevProps.series || {}).ySubDomain,
-            (this.props.series || {}).ySubDomain
-          )) ||
-        (!!prevProps.collection !== !!this.props.collection &&
-          !isEqual(
-            (prevProps.collection || {}).ySubDomain,
-            (this.props.collection || {}).ySubDomain
-          ))
-      ) {
-        this.selection.property('__zoom', this.props.yTransformation);
-      }
-    }
-  }
-
-  getItem = () =>
-    this.props.series ? this.props.series : this.props.collection;
+export default class CombinedYAxis extends Component {
+  getDomain = seriesArray =>
+    seriesArray.reduce(
+      (domain, series) => [
+        Math.min(domain[0], series.ySubDomain[0]),
+        Math.max(domain[1], series.ySubDomain[1]),
+      ],
+      [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
+    );
 
   getLineProps = ({ tickSizeInner, strokeWidth }) => {
     const { width, yAxisPlacement } = this.props;
@@ -164,40 +124,9 @@ export default class YAxis extends Component {
     }
   };
 
-  syncZoomingState = () => {
-    if (this.props.zoomable) {
-      this.selection.call(this.zoom);
-    } else {
-      this.selection.on('.zoom', null);
-    }
-  };
-
-  didZoom = () => {
-    const { height } = this.props;
-    const t = d3.event.transform;
-    this.props.updateYTransformation(this.getItem().id, t, height);
-  };
-
-  renderZoomRect() {
-    const { height, width } = this.props;
-    return (
-      <rect
-        width={width}
-        height={height}
-        fill="none"
-        pointerEvents="all"
-        ref={ref => {
-          this.zoomNode = ref;
-        }}
-      />
-    );
-  }
-
   renderAxis() {
-    const { height } = this.props;
-
-    const item = this.getItem();
-    const scale = createYScale(item.ySubDomain, height);
+    const { series, height, color, ticks } = this.props;
+    const scale = createYScale(this.getDomain(series), height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;
@@ -206,7 +135,7 @@ export default class YAxis extends Component {
     const tickSizeInner = axis.tickSizeInner();
     const tickPadding = axis.tickPadding();
     // same as for xAxis but consider height of the screen ~two times smaller
-    const nTicks = Math.floor(height / 50) || 1;
+    const nTicks = ticks || Math.floor(height / 50) || 1;
     const values = scale.ticks(nTicks);
     const tickFormat = scale.tickFormat(nTicks);
     const range = scale.range().map(r => r + halfStrokeWidth);
@@ -219,17 +148,17 @@ export default class YAxis extends Component {
         strokeWidth={strokeWidth}
       >
         <path
-          stroke={item.color}
+          stroke={series.color || color}
           d={this.getPathString({ tickSizeOuter, range, strokeWidth })}
         />
         {values.map(v => {
           const lineProps = {
-            stroke: item.color,
-            ...this.getLineProps({ tickSizeInner, strokeWidth }),
+            stroke: series.color || color,
+            ...this.getLineProps({ tickSizeInner, range, strokeWidth }),
           };
 
           const textProps = {
-            fill: item.color,
+            fill: series.color || color,
             dy: '0.32em',
             ...this.getTextProps({ tickSizeInner, tickPadding, strokeWidth }),
           };
@@ -245,22 +174,15 @@ export default class YAxis extends Component {
   }
 
   render() {
-    const { offsetx, zoomable, onMouseEnter, onMouseLeave } = this.props;
-    const cursor = zoomable ? 'move' : 'inherit';
-    return (
-      <g
-        className="axis-y"
-        transform={`translate(${offsetx}, 0)`}
-        cursor={cursor}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
-      >
-        {this.renderAxis()}
-        {this.renderZoomRect()}
-      </g>
-    );
+    // TODO: Get zooming to work.
+    // Zooming a combined series doesn't work. Well, it works, but the zoom
+    // state does not remain synced between the axis and the Scaler. I'm not
+    // entirely sure what's going on (if I did, I'd fix it), so I'm just going
+    // to omit axis zooming for now.
+    // It's possible that the new collections interface can be used for this.
+    return <g className="axis-y">{this.renderAxis()}</g>;
   }
 }
 
-YAxis.propTypes = propTypes;
-YAxis.defaultProps = defaultProps;
+CombinedYAxis.propTypes = propTypes;
+CombinedYAxis.defaultProps = defaultProps;
