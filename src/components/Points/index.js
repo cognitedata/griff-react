@@ -14,6 +14,8 @@ const propTypes = {
   xScale: scaleFuncPropType.isRequired,
   yScale: scaleFuncPropType.isRequired,
   color: PropTypes.string.isRequired,
+  // (nullableData, e) => void
+  onPointHover: PropTypes.func,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
   pointWidth: PropTypes.number,
@@ -21,6 +23,7 @@ const propTypes = {
   strokeWidth: PropTypes.number,
 };
 const defaultProps = {
+  onPointHover: null,
   opacity: 1,
   opacityAccessor: null,
   pointWidth: null,
@@ -29,17 +32,18 @@ const defaultProps = {
 };
 
 const Points = ({
-  data,
-  xAccessor,
-  yAccessor,
-  xScale,
-  yScale,
   color,
+  data,
+  onPointHover,
   opacity,
   opacityAccessor,
   pointWidth,
   pointWidthAccessor,
   strokeWidth,
+  xAccessor,
+  xScale,
+  yAccessor,
+  yScale,
 }) => {
   const points = data.map(d => {
     let width = 0;
@@ -61,6 +65,10 @@ const Points = ({
         cx={boundedSeries(xScale(xAccessor(d)))}
         cy={boundedSeries(yScale(yAccessor(d)))}
         fill={color}
+        onMouseEnter={onPointHover ? e => onPointHover(d, e) : null}
+        onMouseLeave={onPointHover ? e => onPointHover(null, e) : null}
+        onFocus={onPointHover ? e => onPointHover(d, e) : null}
+        onBlur={onPointHover ? e => onPointHover(null, e) : null}
       />
     );
   });

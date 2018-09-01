@@ -12,6 +12,8 @@ export const singleSeriePropType = PropTypes.shape({
   strokeWidth: PropTypes.number,
   drawPoints: PropTypes.bool,
   loader: PropTypes.func,
+  // (data, e) => void
+  onPointHover: PropTypes.func,
   step: PropTypes.bool,
   xAccessor: PropTypes.func,
   yAccessor: PropTypes.func,

@@ -87,7 +87,6 @@ const ScatterplotComponent = ({
       chart={
         <svg style={{ width: '100%', height: '100%' }}>
           <GridLines grid={grid} {...chartSize} />
-          <ScaledPointCollection {...chartSize} />
           <InteractionLayer
             {...chartSize}
             zoomable={zoomable}
@@ -95,6 +94,7 @@ const ScatterplotComponent = ({
             zoomMode={ZoomMode.BOTH}
             xScalerFactory={xScalerFactory}
           />
+          <ScaledPointCollection {...chartSize} />
         </svg>
       }
       yAxis={
