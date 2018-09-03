@@ -56,6 +56,18 @@ const getSubDomain = (baseDomain, subDomain) => {
   return [minDomain, maxDomain];
 };
 
+/**
+ * Return the first thing which is not `undefined`.
+ * @param {*} first
+ * @param  {...any} others
+ */
+const firstDefined = (first, ...others) => {
+  if (first !== undefined || others.length === 0) {
+    return first;
+  }
+  return firstDefined(others[0], ...others.splice(1));
+};
+
 export default class DataProvider extends Component {
   state = {
     subDomain: getSubDomain(this.props.baseDomain, this.props.subDomain),
@@ -242,16 +254,6 @@ export default class DataProvider extends Component {
       ySubDomain,
     } = this.props;
     const { loaderConfig, yDomains, ySubDomains } = this.state;
-
-    const undefinedTruthiness = (a, b, c) => {
-      if (a === undefined) {
-        if (b === undefined) {
-          return c;
-        }
-        return b;
-      }
-      return a;
-    };
     const yDomain = collection.yDomain ||
       series.yDomain ||
       yDomains[series.id] || [0, 0];
@@ -261,22 +263,22 @@ export default class DataProvider extends Component {
       data: [],
       ...deleteUndefinedFromObject(series),
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
-      xAccessor: undefinedTruthiness(
+      xAccessor: firstDefined(
         series.xAccessor,
         collection.xAccessor,
         xAccessor
       ),
-      yAccessor: undefinedTruthiness(
+      yAccessor: firstDefined(
         series.yAccessor,
         collection.yAccessor,
         yAccessor
       ),
-      y0Accessor: undefinedTruthiness(
+      y0Accessor: firstDefined(
         series.y0Accessor,
         collection.y0Accessor,
         y0Accessor
       ),
-      y1Accessor: undefinedTruthiness(
+      y1Accessor: firstDefined(
         series.y1Accessor,
         collection.y1Accessor,
         y1Accessor
