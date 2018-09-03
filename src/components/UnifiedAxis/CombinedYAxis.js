@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 import PropTypes from 'prop-types';
-import { createYScale } from '../../utils/scale-helpers';
+import { createYScale, tickFormat } from '../../utils/scale-helpers';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
 
@@ -137,7 +137,6 @@ export default class CombinedYAxis extends Component {
     // same as for xAxis but consider height of the screen ~two times smaller
     const nTicks = ticks || Math.floor(height / 50) || 1;
     const values = scale.ticks(nTicks);
-    const tickFormat = scale.tickFormat(nTicks);
     const range = scale.range().map(r => r + halfStrokeWidth);
     return (
       <g

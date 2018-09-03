@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import numeral from 'numeral';
 
 export const createYScale = (domain, height) =>
   d3
@@ -17,3 +18,5 @@ export const createLinearXScale = (domain, width) =>
     .scaleLinear()
     .domain(domain)
     .range([0, width]);
+
+export const tickFormat = v => numeral(v).format('0.[00]a');
