@@ -412,6 +412,7 @@ class InteractionLayer extends React.Component {
           color: s.color,
           timestamp: ts,
           value,
+          rawTimestamp,
           x: xScale(ts),
           y: yScale(value),
         });
