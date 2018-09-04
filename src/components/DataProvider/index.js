@@ -283,23 +283,23 @@ export default class DataProvider extends Component {
         collection.y1Accessor,
         y1Accessor
       ),
-      strokeWidth: undefinedTruthiness(
+      strokeWidth: firstDefined(
         series.strokeWidth,
         collection.strokeWidth,
         strokeWidth
       ),
-      pointWidth: undefinedTruthiness(
+      pointWidth: firstDefined(
         series.pointWidth,
         collection.pointWidth,
         pointWidth
       ),
-      pointWidthAccessor: undefinedTruthiness(
+      pointWidthAccessor: firstDefined(
         series.pointWidthAccessor,
         collection.pointWidthAccessor,
         pointWidthAccessor
       ),
-      opacity: undefinedTruthiness(series.opacity, collection.opacity, opacity),
-      opacityAccessor: undefinedTruthiness(
+      opacity: firstDefined(series.opacity, collection.opacity, opacity),
+      opacityAccessor: firstDefined(
         series.opacityAccessor,
         collection.opacityAccessor,
         opacityAccessor
