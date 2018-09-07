@@ -4,6 +4,7 @@ import { annotationShape } from '../../utils/proptypes';
 const Annotation = ({ data, xScale, height, color, fillOpacity, id }) => (
   <rect
     key={id}
+    className={`id-${id}`}
     x={xScale(data[0])}
     y={0}
     height={height}

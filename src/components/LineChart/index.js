@@ -39,6 +39,7 @@ const propTypes = {
   onClickAnnotation: PropTypes.func,
   // event => void
   onDoubleClick: PropTypes.func,
+  onZoomXAxis: PropTypes.func,
   subDomain: PropTypes.arrayOf(PropTypes.number),
   xAxisHeight: PropTypes.number,
   yAxisWidth: PropTypes.number,
@@ -85,6 +86,7 @@ const defaultProps = {
   onClick: null,
   onClickAnnotation: null,
   onDoubleClick: null,
+  onZoomXAxis: null,
   series: [],
   collections: [],
   annotations: [],
@@ -218,6 +220,7 @@ class LineChartComponent extends Component {
       onAxisMouseEnter,
       onAxisMouseLeave,
       onClick,
+      onZoomXAxis,
       onClickAnnotation,
       onDoubleClick,
       onMouseMove,
@@ -273,6 +276,7 @@ class LineChartComponent extends Component {
               onClick={onClick}
               areas={areas}
               onAreaDefined={onAreaDefined}
+              onZoomXAxis={onZoomXAxis}
               onAreaClicked={onAreaClicked}
             />
           </svg>
