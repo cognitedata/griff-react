@@ -86,6 +86,7 @@ const defaultProps = {
   onClick: null,
   onClickAnnotation: null,
   onDoubleClick: null,
+  // ({ subDomain, transformation }) => void
   onZoomXAxis: null,
   series: [],
   collections: [],
