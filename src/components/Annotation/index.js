@@ -4,7 +4,7 @@ import { annotationShape } from '../../utils/proptypes';
 const Annotation = ({ data, xScale, height, color, fillOpacity, id }) => (
   <rect
     key={id}
-    className={`id-${id}`}
+    className={`griff-annotation griff-annotation-${id}`}
     x={xScale(data[0])}
     y={0}
     height={height}

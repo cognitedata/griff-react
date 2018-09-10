@@ -148,12 +148,12 @@ class Scaler extends Component {
       xScalerFactory(baseDomain, width)
     );
     // Calculate new domain, map to timestamps (not dates)
-    const newDomain = newScale.domain().map(Number);
+    const newSubDomain = newScale.domain().map(Number);
     // Update dataproviders subdomains changed
     this.setState({
-      subDomain: newDomain,
+      subDomain: newSubDomain,
     });
-    this.props.dataContext.subDomainChanged(newDomain);
+    this.props.dataContext.subDomainChanged(newSubDomain);
   };
 
   updateSubDomain = subDomain => {
@@ -182,6 +182,8 @@ class Scaler extends Component {
       ySubDomains: { ...this.state.ySubDomains, [key]: newSubDomain },
       yTransformations: { ...this.state.yTransformations, [key]: scaler },
     });
+
+    return newSubDomain;
   };
 
   render() {
