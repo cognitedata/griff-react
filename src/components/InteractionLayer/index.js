@@ -32,6 +32,8 @@ class InteractionLayer extends React.Component {
     onClickAnnotation: PropTypes.func,
     onMouseMove: PropTypes.func,
     onMouseOut: PropTypes.func,
+    // ({ subDomain, transformation }) => void
+    onZoomXAxis: PropTypes.func,
     updateXTransformation: PropTypes.func,
     series: seriesPropType,
     areas: PropTypes.arrayOf(areaPropType),
@@ -52,6 +54,7 @@ class InteractionLayer extends React.Component {
     onClickAnnotation: null,
     onMouseMove: null,
     onMouseOut: null,
+    onZoomXAxis: null,
     updateXTransformation: () => {},
     series: [],
     zoomable: true,
@@ -442,12 +445,16 @@ class InteractionLayer extends React.Component {
   };
 
   zoomed = () => {
-    const { ruler } = this.props;
+    const { ruler, onZoomXAxis } = this.props;
     if (ruler && ruler.visible) {
       this.processMouseMove(this.state.touchX, this.state.touchY);
     }
     const t = d3.event.transform;
-    this.props.updateXTransformation(t, this.props.width);
+    const newDomain = this.props.updateXTransformation(t, this.props.width);
+
+    if (onZoomXAxis) {
+      onZoomXAxis({ subDomain: newDomain, transformation: t });
+    }
   };
 
   render() {

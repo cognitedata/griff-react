@@ -32,6 +32,8 @@ const propTypes = {
   onClick: PropTypes.func,
   // (annotation, x, y) => null
   onClickAnnotation: PropTypes.func,
+  // ({ subDomain, transformation }) => void
+  onZoomXAxis: PropTypes.func,
   subDomain: PropTypes.arrayOf(PropTypes.number),
   yAxisWidth: PropTypes.number,
   contextChart: contextChartPropType,
@@ -70,6 +72,7 @@ const defaultProps = {
   onMouseMove: null,
   onClick: null,
   onClickAnnotation: null,
+  onZoomXAxis: null,
   series: [],
   annotations: [],
   ruler: {
@@ -136,6 +139,7 @@ class LineChartComponent extends Component {
       crosshair,
       onMouseMove,
       onClick,
+      onZoomXAxis,
       onClickAnnotation,
       zoomable,
       yAxisDisplayMode,
@@ -193,6 +197,7 @@ class LineChartComponent extends Component {
               onClick={onClick}
               areas={areas}
               onAreaDefined={onAreaDefined}
+              onZoomXAxis={onZoomXAxis}
               onAreaClicked={onAreaClicked}
             />
           </svg>
