@@ -154,6 +154,7 @@ class Scaler extends Component {
       subDomain: newSubDomain,
     });
     this.props.dataContext.subDomainChanged(newSubDomain);
+    return newSubDomain;
   };
 
   updateSubDomain = subDomain => {
