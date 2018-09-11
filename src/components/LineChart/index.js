@@ -39,6 +39,7 @@ const propTypes = {
   onClickAnnotation: PropTypes.func,
   // event => void
   onDoubleClick: PropTypes.func,
+  // ({ subDomain, transformation }) => void
   onZoomXAxis: PropTypes.func,
   subDomain: PropTypes.arrayOf(PropTypes.number),
   xAxisHeight: PropTypes.number,
@@ -86,7 +87,6 @@ const defaultProps = {
   onClick: null,
   onClickAnnotation: null,
   onDoubleClick: null,
-  // ({ subDomain, transformation }) => void
   onZoomXAxis: null,
   series: [],
   collections: [],
