@@ -14,7 +14,11 @@ storiesOf('Grid Lines', module)
       baseDomain={staticBaseDomain}
       series={[{ id: 1, color: 'steelblue' }]}
     >
-      <LineChart height={CHART_HEIGHT} grid={{ y: { pixels: 35 } }} />
+      <LineChart
+        height={CHART_HEIGHT}
+        grid={{ y: { pixels: 35 } }}
+        onZoomXAxis={t => console.log(t)}
+      />
     </DataProvider>
   ))
   .add('3 static horizontal lines', () => (
