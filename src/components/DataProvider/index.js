@@ -216,8 +216,8 @@ export default class DataProvider extends Component {
     const { loaderConfig, yDomains } = this.state;
     return {
       data: [],
-      ...deleteUndefinedFromObject(series),
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
+      ...deleteUndefinedFromObject(series),
       xAccessor: series.xAccessor || xAccessor,
       yAccessor: series.yAccessor || yAccessor,
       y0Accessor: series.y0Accessor || y0Accessor,
