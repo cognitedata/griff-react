@@ -133,7 +133,7 @@ export default class DataProvider extends Component {
     }
 
     // check if pointsPerSeries changed in props -- if so fetch new data
-    if (!isEqual(this.props.pointsPerSeries, prevProps.pointsPerSeries)) {
+    if (this.props.pointsPerSeries !== prevProps.pointsPerSeries) {
       await Promise.map(this.props.series, s =>
         this.fetchData(s.id, 'UPDATE_POINTS_PER_SERIES')
       );
