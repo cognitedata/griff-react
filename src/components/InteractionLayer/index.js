@@ -9,8 +9,10 @@ import {
   seriesPropType,
   annotationPropType,
   rulerPropType,
+  barrierPropType,
 } from '../../utils/proptypes';
 import Annotation from '../Annotation';
+import Barrier from '../Barrier';
 import Ruler from '../Ruler';
 import Area from '../Area';
 
@@ -36,6 +38,7 @@ class InteractionLayer extends React.Component {
     series: seriesPropType,
     areas: PropTypes.arrayOf(areaPropType),
     annotations: PropTypes.arrayOf(annotationPropType),
+    barriers: PropTypes.arrayOf(barrierPropType),
     width: PropTypes.number.isRequired,
     subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
@@ -45,6 +48,7 @@ class InteractionLayer extends React.Component {
   static defaultProps = {
     areas: [],
     annotations: [],
+    barriers: [],
     crosshair: false,
     onAreaDefined: null,
     onAreaClicked: null,
@@ -519,6 +523,16 @@ class InteractionLayer extends React.Component {
         />
       );
     });
+
+    const barriers = this.props.barriers.map(b => {
+      let s = null;
+      if (b.seriesId) {
+        s = series.find(s1 => s1.id === b.seriesId);
+      }
+      const yScale = createYScale(s.yDomain, height);
+      return <Barrier key={b.id} width={width} yScale={yScale} {...b} />;
+    });
+
     const areaBeingDefined = area ? (
       <Area key="user" {...area} color="#999" />
     ) : null;
@@ -526,6 +540,7 @@ class InteractionLayer extends React.Component {
       <React.Fragment>
         {lines}
         {annotations}
+        {barriers}
         {ruler.visible &&
           points.length && (
             <Ruler

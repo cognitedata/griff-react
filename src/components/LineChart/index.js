@@ -12,6 +12,7 @@ import {
   annotationPropType,
   rulerPropType,
   axisDisplayModeType,
+  barrierPropType,
 } from '../../utils/proptypes';
 import { ScaledLineCollection } from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
@@ -37,6 +38,7 @@ const propTypes = {
   contextChart: contextChartPropType,
   ruler: rulerPropType,
   annotations: PropTypes.arrayOf(annotationPropType),
+  barriers: PropTypes.arrayOf(barrierPropType),
   yAxisDisplayMode: axisDisplayModeType,
   // (e, seriesId) => null
   onAxisMouseEnter: PropTypes.func,
@@ -72,6 +74,7 @@ const defaultProps = {
   onClickAnnotation: null,
   series: [],
   annotations: [],
+  barriers: [],
   ruler: {
     visible: false,
     xLabel: () => {},
@@ -147,6 +150,7 @@ class LineChartComponent extends Component {
       areas,
       onAreaDefined,
       onAreaClicked,
+      barriers,
     } = this.props;
 
     const width = propWidth || sizeWidth;
@@ -190,6 +194,7 @@ class LineChartComponent extends Component {
               zoomable={zoomable}
               ruler={ruler}
               annotations={annotations}
+              barriers={barriers}
               onClick={onClick}
               areas={areas}
               onAreaDefined={onAreaDefined}

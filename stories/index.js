@@ -1602,7 +1602,8 @@ storiesOf('InteractionLayer', module)
                   onAreaDefined={onAreaDefined}
                 />
               </DataProvider>
-              onAreaDefined={onAreaDefined ? 'function' : 'null'}
+              onAreaDefined=
+              {onAreaDefined ? 'function' : 'null'}
               <h2>Test</h2>
               <ol>
                 <li>
@@ -1623,4 +1624,58 @@ storiesOf('InteractionLayer', module)
       }
       return <OnMouseUp />;
     })
+  )
+  .add(
+    'Barriers',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          barriers={[
+            {
+              id: 1,
+              seriesId: 1,
+              color: 'red',
+              fillOpacity: 0.5,
+              yMax: 0.3,
+              yMin: 0.1,
+            },
+          ]}
+        />
+      </DataProvider>
+    ))
+  )
+  .add(
+    'Barriers (no limit)',
+    withInfo()(() => (
+      <DataProvider
+        defaultLoader={staticLoader}
+        baseDomain={staticBaseDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          barriers={[
+            {
+              id: 1,
+              seriesId: 1,
+              color: 'red',
+              fillOpacity: 0.5,
+              yMin: 0.8,
+            },
+            {
+              id: 2,
+              seriesId: 2,
+              color: 'green',
+              fillOpacity: 0.5,
+              yMax: 0.1,
+            },
+          ]}
+        />
+      </DataProvider>
+    ))
   );

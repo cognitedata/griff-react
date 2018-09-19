@@ -35,6 +35,19 @@ export const annotationShape = {
 
 export const annotationPropType = PropTypes.shape(annotationShape);
 
+export const barrierShape = {
+  yMax: PropTypes.number,
+  yMin: PropTypes.number,
+  yScale: PropTypes.func,
+  width: PropTypes.number,
+  id: PropTypes.number,
+  color: PropTypes.string,
+  fillOpacity: PropTypes.number,
+  seriesId: idPropType,
+};
+
+export const barrierPropType = PropTypes.shape(barrierShape);
+
 export const pointPropType = PropTypes.shape({
   id: idPropType,
   name: PropTypes.string,
