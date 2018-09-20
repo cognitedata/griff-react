@@ -548,29 +548,30 @@ class InteractionLayer extends React.Component {
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
     ));
     const areas = this.props.areas.map(a => {
-      let scaledArea;
+      const scaledArea = {
+        ...a,
+      };
+
       let s = null;
+
+      if (a.start.xval) {
+        scaledArea.start.xpos = xScale(a.start.xval);
+      }
+      if (a.end.xval) {
+        scaledArea.end.xpos = xScale(a.end.xval);
+      }
+
       if (a.seriesId) {
         s = series.find(s1 => s1.id === a.seriesId);
-      }
-      if (a.start.xval && a.end.xval) {
-        const yScale = createYScale(s.yDomain, height);
-        scaledArea = {
-          ...a,
-          start: {
-            ...a.start,
-            xpos: xScale(a.start.xval),
-            ypos: yScale(a.start.yval),
-          },
-          end: {
-            ...a.end,
-            xpos: xScale(a.end.xval),
-            ypos: yScale(a.end.yval),
-          },
-        };
-      } else {
-        // This area does not need any scaling.
-        scaledArea = a;
+        if (s) {
+          const yScale = createYScale(s.ySubDomain, height);
+          if (a.start.yval) {
+            scaledArea.start.ypos = yScale(a.start.yval);
+          }
+          if (a.end.yval) {
+            scaledArea.end.ypos = yScale(a.end.yval);
+          }
+        }
       }
       const color = scaledArea.color || (s ? s.color : null);
       return (
