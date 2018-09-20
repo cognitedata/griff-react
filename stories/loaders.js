@@ -26,7 +26,7 @@ export const monoLoader = singleValue => ({
 }) => {
   if (reason === 'MOUNTED') {
     return {
-      data: randomData(baseDomain, 250, singleValue),
+      data: randomData({ baseDomain, singleValue }),
     };
   }
   return {
