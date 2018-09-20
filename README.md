@@ -43,7 +43,7 @@ DataProvider.propTypes = {
   yAccessor: PropTypes.func,
   xAccessor: PropTypes.func,
   yAxisWidth: PropTypes.number,
-  pointPerSeries: PropTypes.number,
+  pointsPerSeries: PropTypes.number,
   children: PropTypes.node.isRequired,
   defaultLoader: PropTypes.func,
   series: seriesPropType.isRequired,
@@ -77,6 +77,7 @@ INTERVAL, // If you specify an update interval, it will be called every n second
 NEW_LOADER, // The loader function changed
 NEW_DOMAIN, // The outer domain changed,
 NEW_SUBDOMAIN, // The user zoomed to a new subdomain.
+UPDATE_POINTS_PER_SERIES, // The pointsPerSeries prop has changed
 ```
 
 The simplest loader simply delivers static data and would look like this:
