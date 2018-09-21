@@ -52,7 +52,7 @@ export const staticLoader = ({
   }
   // Otherwise, return the existing dataset.
   return {
-    data: oldSeries.data,
+    ...oldSeries,
   };
 };
 
