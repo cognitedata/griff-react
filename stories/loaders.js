@@ -19,6 +19,25 @@ const randomData = ({
   return data;
 };
 
+export const minMaxLoader = (min, max) => ({
+  baseDomain,
+  oldSeries,
+  reason,
+}) => {
+  if (reason === 'MOUNTED') {
+    return {
+      data: randomData({
+        baseDomain,
+        n: 250,
+        func: i => Math.random(i) * (max - min) + min,
+      }),
+    };
+  }
+  return {
+    data: oldSeries.data,
+  };
+};
+
 export const monoLoader = singleValue => ({
   baseDomain,
   oldSeries,

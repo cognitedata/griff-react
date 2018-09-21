@@ -13,6 +13,7 @@ import {
   monoLoader,
   customAccessorLoader,
   liveLoader,
+  minMaxLoader,
 } from './loaders';
 
 const staticBaseDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
@@ -29,6 +30,15 @@ storiesOf('LineChart', module)
   .add('Basic', () => (
     <DataProvider
       defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>
+  ))
+  .add('Big numbers', () => (
+    <DataProvider
+      defaultLoader={minMaxLoader(0, 500000)}
       baseDomain={staticBaseDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
