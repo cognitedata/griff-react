@@ -34,6 +34,7 @@ function findVersionToBump(currentVersion, versions) {
     major: semver.major(currentVersion),
     minor: semver.minor(currentVersion),
     patch: semver.patch(currentVersion),
+    prerelease: semver.prerelease(currentVersion),
   };
   const valid = (versions || getPublishedVersions())
     .filter(v => semver.major(v) === current.major)
@@ -44,7 +45,11 @@ function findVersionToBump(currentVersion, versions) {
         (semver.prerelease(b) || [semver.patch(b)])[0] -
         (semver.prerelease(a) || [semver.patch(a)])[0]
     );
-  return valid.length ? valid[0] : currentVersion;
+  const publishedVersion = valid.length ? valid[0] : currentVersion;
+  if (!!current.prerelease !== !!semver.prerelease(publishedVersion)) {
+    return currentVersion;
+  }
+  return publishedVersion;
 }
 
 const publishedVersion = findVersionToBump(pkg.version);
