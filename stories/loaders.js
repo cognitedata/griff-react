@@ -61,7 +61,7 @@ export const liveLoader = ({ oldSeries, baseDomain, reason }) => {
   if (reason === 'MOUNTED') {
     // Create dataset on mount
     return {
-      data: randomData(baseDomain, 25),
+      data: randomData({ baseDomain, n: 25 }),
     };
   }
   if (reason === 'INTERVAL') {
