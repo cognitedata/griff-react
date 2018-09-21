@@ -6,41 +6,13 @@ import AxisPlacement from './AxisPlacement';
 
 const tickTransformer = v => `translate(${v}, 0)`;
 
-const formatMillisecond = d3.timeFormat('.%L');
-const formatSecond = d3.timeFormat(':%S');
-const formatMinute = d3.timeFormat('%H:%M');
-const formatHour = d3.timeFormat('%H:00');
-const formatDay = d3.timeFormat('%d/%m');
-const formatWeek = d3.timeFormat('%d/%m');
-const formatMonth = d3.timeFormat('%d/%m');
-const formatYear = d3.timeFormat('%b %Y');
-
-function multiFormat(date) {
-  /* eslint-disable no-nested-ternary */
-  return (d3.timeSecond(date) < date
-    ? formatMillisecond
-    : d3.timeMinute(date) < date
-      ? formatSecond
-      : d3.timeHour(date) < date
-        ? formatMinute
-        : d3.timeDay(date) < date
-          ? formatHour
-          : d3.timeMonth(date) < date
-            ? d3.timeWeek(date) < date
-              ? formatDay
-              : formatWeek
-            : d3.timeYear(date) < date
-              ? formatMonth
-              : formatYear)(date);
-}
-
 const propTypes = {
   domain: PropTypes.arrayOf(PropTypes.number).isRequired,
   strokeColor: PropTypes.string,
   width: PropTypes.number.isRequired,
   height: PropTypes.number,
   // Number => String
-  tickFormatter: PropTypes.func,
+  tickFormatter: PropTypes.func.isRequired,
   ticks: PropTypes.number,
   xAxisPlacement: GriffPropTypes.axisPlacement,
   xScalerFactory: scalerFactoryFunc.isRequired,
@@ -49,7 +21,6 @@ const propTypes = {
 const defaultProps = {
   strokeColor: 'black',
   height: 50,
-  tickFormatter: multiFormat,
   ticks: null,
   xAxisPlacement: AxisPlacement.BOTTOM,
 };
@@ -122,7 +93,7 @@ class Axis extends Component {
       width,
       strokeColor,
       xScalerFactory,
-      tickFormatter = multiFormat,
+      tickFormatter,
       ticks,
     } = this.props;
     const scale = xScalerFactory(domain, width);
@@ -147,7 +118,7 @@ class Axis extends Component {
     });
     return (
       <g
-        className="x-axis"
+        className="axis x-axis"
         fill="none"
         fontSize={tickFontSize}
         textAnchor="middle"
@@ -168,7 +139,9 @@ class Axis extends Component {
           return (
             <g key={+v} opacity={1} transform={tickTransformer(scale(v))}>
               <line stroke={strokeColor} {...lineProps} />
-              <text {...textProps}>{tickFormatter(v)}</text>
+              <text className="tick-value" {...textProps}>
+                {tickFormatter(v)}
+              </text>
             </g>
           );
         })}

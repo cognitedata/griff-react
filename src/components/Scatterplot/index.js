@@ -25,10 +25,14 @@ const propTypes = {
   zoomable: PropTypes.bool,
   onClick: PropTypes.func,
   series: seriesPropType.isRequired,
+  // Number => String
+  xAxisFormatter: PropTypes.func,
   xAxisPlacement: GriffPropTypes.axisPlacement,
   xAxisTicks: PropTypes.number,
   xScalerFactory: scalerFactoryFunc.isRequired,
   subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  // Number => String
+  yAxisFormatter: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
   yAxisTicks: PropTypes.number,
 };
@@ -37,8 +41,10 @@ const defaultProps = {
   grid: null,
   zoomable: true,
   onClick: null,
+  xAxisFormatter: Number,
   xAxisPlacement: AxisPlacement.BOTTOM,
   xAxisTicks: null,
+  yAxisFormatter: Number,
   yAxisPlacement: AxisPlacement.RIGHT,
   yAxisTicks: null,
 };
@@ -52,9 +58,11 @@ const ScatterplotComponent = ({
   series,
   zoomable,
   onClick,
+  xAxisFormatter,
   xAxisPlacement,
   xAxisTicks,
   xScalerFactory,
+  yAxisFormatter,
   yAxisPlacement,
   yAxisTicks,
   subDomain,
@@ -99,6 +107,7 @@ const ScatterplotComponent = ({
       }
       yAxis={
         <UnifiedAxis
+          tickFormatter={yAxisFormatter}
           yAxisPlacement={yAxisPlacement}
           series={series}
           height={chartSize.height}
@@ -112,7 +121,7 @@ const ScatterplotComponent = ({
           width={chartSize.width}
           height={X_AXIS_HEIGHT}
           xScalerFactory={xScalerFactory}
-          tickFormatter={Number}
+          tickFormatter={xAxisFormatter}
           ticks={xAxisTicks}
         />
       }

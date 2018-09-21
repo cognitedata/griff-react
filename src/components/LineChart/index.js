@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
+import * as d3 from 'd3';
 import AxisCollection from '../AxisCollection';
 import GridLines from '../GridLines';
 import Scaler from '../Scaler';
@@ -20,6 +21,34 @@ import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
 import Layout from './Layout';
+
+const formatMillisecond = d3.timeFormat('.%L');
+const formatSecond = d3.timeFormat(':%S');
+const formatMinute = d3.timeFormat('%H:%M');
+const formatHour = d3.timeFormat('%H:00');
+const formatDay = d3.timeFormat('%d/%m');
+const formatWeek = d3.timeFormat('%d/%m');
+const formatMonth = d3.timeFormat('%d/%m');
+const formatYear = d3.timeFormat('%b %Y');
+
+function multiFormat(date) {
+  /* eslint-disable no-nested-ternary */
+  return (d3.timeSecond(date) < date
+    ? formatMillisecond
+    : d3.timeMinute(date) < date
+      ? formatSecond
+      : d3.timeHour(date) < date
+        ? formatMinute
+        : d3.timeDay(date) < date
+          ? formatHour
+          : d3.timeMonth(date) < date
+            ? d3.timeWeek(date) < date
+              ? formatDay
+              : formatWeek
+            : d3.timeYear(date) < date
+              ? formatMonth
+              : formatYear)(date);
+}
 
 const propTypes = {
   size: PropTypes.shape({
@@ -47,6 +76,8 @@ const propTypes = {
   contextChart: GriffPropTypes.contextChart,
   ruler: rulerPropType,
   annotations: PropTypes.arrayOf(annotationPropType),
+  // Number => String
+  yAxisFormatter: PropTypes.func,
   xAxisPlacement: GriffPropTypes.axisPlacement,
   yAxisDisplayMode: axisDisplayModeType,
   yAxisPlacement: GriffPropTypes.axisPlacement,
@@ -72,6 +103,8 @@ const propTypes = {
   // (area, xpos, ypos) => shouldContinue
   onAreaClicked: PropTypes.func,
   pointWidth: PropTypes.number,
+  // Number => String
+  xAxisFormatter: PropTypes.func,
 };
 
 const defaultProps = {
@@ -101,8 +134,10 @@ const defaultProps = {
   width: 0,
   height: 0,
   subDomain: [],
+  xAxisFormatter: multiFormat,
   xAxisPlacement: AxisPlacement.BOTTOM,
   yAxisDisplayMode: AxisDisplayMode.ALL,
+  yAxisFormatter: Number,
   yAxisPlacement: AxisPlacement.RIGHT,
   onAxisMouseEnter: null,
   onAxisMouseLeave: null,
@@ -232,8 +267,10 @@ class LineChartComponent extends Component {
       width: propWidth,
       xScalerFactory,
       xAxisHeight,
+      xAxisFormatter,
       xAxisPlacement,
       yAxisDisplayMode,
+      yAxisFormatter,
       zoomable,
     } = this.props;
 
@@ -289,6 +326,7 @@ class LineChartComponent extends Component {
             onMouseEnter={onAxisMouseEnter}
             onMouseLeave={onAxisMouseLeave}
             height={chartSize.height}
+            tickFormatter={yAxisFormatter}
           />
         }
         xAxis={
@@ -298,6 +336,7 @@ class LineChartComponent extends Component {
             xScalerFactory={xScalerFactory}
             height={xAxisHeight}
             xAxisPlacement={xAxisPlacement}
+            tickFormatter={xAxisFormatter}
           />
         }
         contextChart={
@@ -307,6 +346,7 @@ class LineChartComponent extends Component {
               width={chartSize.width}
               zoomable={zoomable}
               annotations={annotations}
+              xAxisFormatter={xAxisFormatter}
               xAxisHeight={xAxisHeight}
               xAxisPlacement={xAxisPlacement}
             />

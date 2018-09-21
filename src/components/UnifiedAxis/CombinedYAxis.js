@@ -11,6 +11,8 @@ const propTypes = {
   width: PropTypes.number.isRequired,
   color: PropTypes.string,
   ticks: PropTypes.number,
+  // Number => String
+  tickFormatter: PropTypes.func.isRequired,
   yAxisPlacement: GriffPropTypes.axisPlacement,
 };
 
@@ -125,7 +127,7 @@ export default class CombinedYAxis extends Component {
   };
 
   renderAxis() {
-    const { series, height, color, ticks } = this.props;
+    const { series, height, color, ticks, tickFormatter } = this.props;
     const scale = createYScale(this.getDomain(series), height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
@@ -137,7 +139,6 @@ export default class CombinedYAxis extends Component {
     // same as for xAxis but consider height of the screen ~two times smaller
     const nTicks = ticks || Math.floor(height / 50) || 1;
     const values = scale.ticks(nTicks);
-    const tickFormat = scale.tickFormat(nTicks);
     const range = scale.range().map(r => r + halfStrokeWidth);
     return (
       <g
@@ -165,7 +166,7 @@ export default class CombinedYAxis extends Component {
           return (
             <g key={+v} opacity={1} transform={`translate(0, ${scale(v)})`}>
               <line {...lineProps} />
-              <text {...textProps}>{tickFormat(v)}</text>
+              <text {...textProps}>{tickFormatter(v)}</text>
             </g>
           );
         })}

@@ -138,6 +138,25 @@ storiesOf('Scatterplot', module)
       </div>
     </React.Fragment>
   ))
+  .add('Custom tick formatting', () => (
+    <React.Fragment>
+      <div style={{ height: '500px', width: '100%' }}>
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          baseDomain={[0, 1]}
+          series={[{ id: '1 2', color: 'steelblue' }]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+        >
+          <Scatterplot
+            zoomable
+            xAxisFormatter={n => n.toFixed(3)}
+            yAxisFormatter={n => n.toFixed(2)}
+          />
+        </DataProvider>
+      </div>
+    </React.Fragment>
+  ))
   .add('Grid', () => (
     <div style={{ height: '500px', width: '500px' }}>
       <DataProvider

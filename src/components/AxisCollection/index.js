@@ -28,6 +28,8 @@ const propTypes = {
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
+  // Number => String
+  tickFormatter: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -98,6 +100,7 @@ class AxisCollection extends React.Component {
       series,
       zoomable,
       height,
+      tickFormatter,
       updateYTransformation,
       yAxisPlacement,
       yAxisWidth,
@@ -143,6 +146,7 @@ class AxisCollection extends React.Component {
               yTransformation={yTransformations[s.id]}
               onMouseEnter={this.onAxisMouseEnter(s.id)}
               onMouseLeave={this.onAxisMouseLeave(s.id)}
+              tickFormatter={tickFormatter}
               yAxisPlacement={yAxisPlacement}
             />
           );
@@ -176,6 +180,7 @@ class AxisCollection extends React.Component {
               yTransformation={yTransformations[c.id]}
               onMouseEnter={this.onAxisMouseEnter(c.id)}
               onMouseLeave={this.onAxisMouseLeave(c.id)}
+              tickFormatter={tickFormatter}
               yAxisPlacement={yAxisPlacement}
             />
           );

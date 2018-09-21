@@ -35,6 +35,19 @@ storiesOf('LineChart', module)
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
+  .add('Custom tick formatting', () => (
+    <DataProvider
+      defaultLoader={staticLoader}
+      baseDomain={staticBaseDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        xAxisFormatter={n => n / 1000}
+        yAxisFormatter={n => n * 1000}
+      />
+    </DataProvider>
+  ))
   .add('Multiple', () => (
     <React.Fragment>
       <DataProvider

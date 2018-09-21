@@ -22,6 +22,8 @@ const propTypes = {
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
+  // Number => String
+  tickFormatter: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
@@ -194,7 +196,7 @@ export default class YAxis extends Component {
   }
 
   renderAxis() {
-    const { height } = this.props;
+    const { height, tickFormatter } = this.props;
 
     const item = this.getItem();
     const scale = createYScale(item.ySubDomain, height);
@@ -208,11 +210,10 @@ export default class YAxis extends Component {
     // same as for xAxis but consider height of the screen ~two times smaller
     const nTicks = Math.floor(height / 50) || 1;
     const values = scale.ticks(nTicks);
-    const tickFormat = scale.tickFormat(nTicks);
     const range = scale.range().map(r => r + halfStrokeWidth);
     return (
       <g
-        className="axis"
+        className="axis y-axis"
         fill="none"
         fontSize={tickFontSize}
         textAnchor={this.getTextAnchor()}
@@ -236,7 +237,9 @@ export default class YAxis extends Component {
           return (
             <g key={+v} opacity={1} transform={`translate(0, ${scale(v)})`}>
               <line {...lineProps} />
-              <text {...textProps}>{tickFormat(v)}</text>
+              <text className="tick-value" {...textProps}>
+                {tickFormatter(v)}
+              </text>
             </g>
           );
         })}
