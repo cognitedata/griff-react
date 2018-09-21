@@ -21,6 +21,7 @@ import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
 import Layout from './Layout';
+import { createXScale } from '../../utils/scale-helpers';
 
 const formatMillisecond = d3.timeFormat('.%L');
 const formatSecond = d3.timeFormat(':%S');
@@ -51,10 +52,14 @@ function multiFormat(date) {
 }
 
 const propTypes = {
+  // Disable the ESLinter for this because they'll show up from react-sizeme.
+  // They'll show up in time, and we set a defaultProp, then react-sizeme
+  // doesn't work. So here we go!
+  // eslint-disable-next-line react/require-default-props
   size: PropTypes.shape({
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
-  }).isRequired,
+  }),
   grid: GriffPropTypes.grid,
   width: PropTypes.number,
   height: PropTypes.number,
@@ -85,7 +90,7 @@ const propTypes = {
   onAxisMouseEnter: PropTypes.func,
   // (e, seriesId) => void
   onAxisMouseLeave: PropTypes.func,
-  xScalerFactory: scalerFactoryFunc.isRequired,
+  xScalerFactory: scalerFactoryFunc,
   areas: PropTypes.arrayOf(areaPropType),
   /**
    * Pass in a callback function which will be given a defined area when the
@@ -136,6 +141,7 @@ const defaultProps = {
   subDomain: [],
   xAxisFormatter: multiFormat,
   xAxisPlacement: AxisPlacement.BOTTOM,
+  xScalerFactory: createXScale,
   yAxisDisplayMode: AxisDisplayMode.ALL,
   yAxisFormatter: Number,
   yAxisPlacement: AxisPlacement.RIGHT,
@@ -261,7 +267,7 @@ class LineChartComponent extends Component {
       onDoubleClick,
       onMouseMove,
       pointWidth,
-      size: { width: sizeWidth, height: sizeHeight },
+      size,
       subDomain,
       ruler,
       width: propWidth,
@@ -273,6 +279,14 @@ class LineChartComponent extends Component {
       yAxisFormatter,
       zoomable,
     } = this.props;
+
+    if (!size) {
+      // Can't proceed without a size; just abort until react-sizeme feeds it
+      // to the component.
+      return null;
+    }
+
+    const { width: sizeWidth, height: sizeHeight } = size;
 
     const width = propWidth || sizeWidth;
     const height = propHeight || sizeHeight;
