@@ -56,7 +56,7 @@ class GridLines extends React.Component {
         );
         series.filter(s => seriesIdMap[s.id]).forEach(s => {
           // This is heavily inspired by YAxis -- maybe we could consolidate?
-          const scale = createYScale(s.yDomain, height);
+          const scale = createYScale(s.ySubDomain, height);
           const nTicks = y.count || Math.floor(height / 50) || 1;
           const values = scale.ticks(nTicks);
 
