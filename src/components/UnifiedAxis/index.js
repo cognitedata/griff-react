@@ -12,6 +12,8 @@ const propTypes = {
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
   ticks: PropTypes.number,
+  // Number => String
+  tickFormatter: PropTypes.func.isRequired,
   yAxisPlacement: GriffPropTypes.axisPlacement,
 };
 const defaultProps = {
@@ -32,6 +34,7 @@ class UnifiedAxis extends React.Component {
       onMouseEnter,
       onMouseLeave,
       ticks,
+      tickFormatter,
       yAxisPlacement,
     } = this.props;
     return (
@@ -48,6 +51,7 @@ class UnifiedAxis extends React.Component {
           width={width}
           height={height}
           ticks={ticks}
+          tickFormatter={tickFormatter}
           yAxisPlacement={yAxisPlacement}
         />
       </svg>

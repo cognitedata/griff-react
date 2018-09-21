@@ -23,6 +23,8 @@ export default class ContextChart extends Component {
     updateSubDomain: PropTypes.func.isRequired,
     zoomable: PropTypes.bool,
     xScalerFactory: scalerFactoryFunc.isRequired,
+    // Number => String
+    xAxisFormatter: PropTypes.func,
     xAxisHeight: PropTypes.number,
     xAxisPlacement: GriffPropTypes.axisPlacement,
   };
@@ -31,6 +33,7 @@ export default class ContextChart extends Component {
     annotations: [],
     contextSeries: [],
     zoomable: true,
+    xAxisFormatter: null,
     xAxisHeight: 50,
     xAxisPlacement: AxisPlacement.BOTTOM,
   };
@@ -69,6 +72,7 @@ export default class ContextChart extends Component {
       baseDomain,
       subDomain,
       contextSeries,
+      xAxisFormatter,
       xAxisHeight,
       xAxisPlacement,
       xScalerFactory,
@@ -86,6 +90,7 @@ export default class ContextChart extends Component {
         width={width}
         height={xAxisHeight}
         domain={baseDomain}
+        tickFormatter={xAxisFormatter}
         xAxisPlacement={xAxisPlacement}
         xScalerFactory={xScalerFactory}
       />
