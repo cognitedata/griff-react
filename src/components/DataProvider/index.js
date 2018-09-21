@@ -261,8 +261,8 @@ export default class DataProvider extends Component {
       drawPoints: collection.drawPoints,
       hidden: collection.hidden,
       data: [],
-      ...deleteUndefinedFromObject(series),
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
+      ...deleteUndefinedFromObject(series),
       xAccessor: firstDefined(
         series.xAccessor,
         collection.xAccessor,
