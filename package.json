@@ -23,7 +23,7 @@
     "demo:build": "nwb build-react-component src/index.js",
     "lint": "eslint src",
     "prepush": "yarn lint",
-    "release": "yarn build && node scripts/publish-release.js"
+    "release": "rm -f .babelrc && yarn build && node scripts/publish-release.js"
   },
   "dependencies": {
     "antd": "^3.4.1",

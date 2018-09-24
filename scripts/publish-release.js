@@ -39,17 +39,15 @@ function findVersionToBump(currentVersion, versions) {
   const valid = (versions || getPublishedVersions())
     .filter(v => semver.major(v) === current.major)
     .filter(v => semver.minor(v) === current.minor)
+    .filter(v => !!semver.prerelease(v) === !!current.prerelease)
     .sort((a, b) => semver.patch(b) - semver.patch(a))
-    .sort(
-      (a, b) =>
-        (semver.prerelease(b) || [semver.patch(b)])[0] -
-        (semver.prerelease(a) || [semver.patch(a)])[0]
-    );
-  const publishedVersion = valid.length ? valid[0] : currentVersion;
-  if (!!current.prerelease !== !!semver.prerelease(publishedVersion)) {
-    return currentVersion;
-  }
-  return publishedVersion;
+    .sort((a, b) => {
+      if (semver.prerelease(b) && semver.prerelease(a)) {
+        return Number(semver.prerelease(b)) - Number(semver.prerelease(a));
+      }
+      return Number(semver.patch(b)) - Number(semver.patch(b));
+    });
+  return valid.length ? valid[0] : currentVersion;
 }
 
 const publishedVersion = findVersionToBump(pkg.version);
