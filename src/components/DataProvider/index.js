@@ -51,9 +51,10 @@ const getSubDomain = (baseDomain, subDomain) => {
   if (!subDomain) {
     return baseDomain;
   }
-  const minDomain = Math.max(subDomain[0], baseDomain[0]);
-  const maxDomain = Math.min(subDomain[1], baseDomain[1]);
-  return [minDomain, maxDomain];
+  const subDomainLength = subDomain[1] - subDomain[0];
+  const end = Math.min(subDomain[1], baseDomain[1]);
+  const start = Math.max(end - subDomainLength, baseDomain[0]);
+  return [start, end];
 };
 
 /**
@@ -239,6 +240,9 @@ export default class DataProvider extends Component {
             baseDomain: baseDomain.map(d => d + updateInterval),
           },
           () => {
+            if (this.props.onBaseDomainChanged) {
+              this.props.onBaseDomainChanged(this.state.baseDomain);
+            }
             Promise.map(this.props.series, s =>
               this.fetchData(s.id, 'INTERVAL')
             );
@@ -404,6 +408,7 @@ export default class DataProvider extends Component {
       subDomain: externalSubDomain,
       collections,
     } = this.props;
+
     if (Object.keys(loaderConfig).length === 0) {
       // Do not bother, loader hasn't given any data yet.
       return null;
@@ -518,6 +523,7 @@ DataProvider.propTypes = {
   collections: GriffPropTypes.collections,
   // (subDomain) => null
   onSubDomainChanged: PropTypes.func,
+  onBaseDomainChanged: PropTypes.func,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
   pointWidth: PropTypes.number,
@@ -529,6 +535,7 @@ DataProvider.defaultProps = {
   collections: [],
   defaultLoader: null,
   onSubDomainChanged: null,
+  onBaseDomainChanged: null,
   opacity: 1.0,
   opacityAccessor: null,
   pointsPerSeries: 250,
