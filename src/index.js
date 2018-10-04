@@ -1,4 +1,7 @@
-export { default as DataProvider } from './components/DataProvider';
+export {
+  default as DataProvider,
+  getSubDomain,
+} from './components/DataProvider';
 export { default as ContextChart } from './components/ContextChart';
 export { default as LineChart } from './components/LineChart';
 export {
