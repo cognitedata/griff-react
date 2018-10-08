@@ -202,6 +202,9 @@ export default class DataProvider extends Component {
       if (this.props.onSubDomainChanged) {
         this.props.onSubDomainChanged(newSubDomain);
       }
+      if (this.props.onBaseDomainChanged) {
+        this.props.onBaseDomainChanged(this.props.baseDomain);
+      }
       if (this.fetchInterval) {
         clearInterval(this.fetchInterval);
       }
