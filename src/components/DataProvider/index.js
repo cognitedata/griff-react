@@ -46,25 +46,6 @@ const deleteUndefinedFromObject = obj => {
   return newObject;
 };
 
-// make sure that passed subDomain is part of baseDomain
-export const getSubDomain = (baseDomain, subDomain) => {
-  if (!subDomain) {
-    return baseDomain;
-  }
-  const baseDomainLength = baseDomain[1] - baseDomain[0];
-  const subDomainLength = subDomain[1] - subDomain[0];
-  if (baseDomainLength < subDomainLength) {
-    return baseDomain;
-  }
-  if (subDomain[0] < baseDomain[0]) {
-    return [baseDomain[0], baseDomain[0] + subDomainLength];
-  }
-  if (subDomain[1] > baseDomain[1]) {
-    return [baseDomain[1] - subDomainLength, baseDomain[1]];
-  }
-  return subDomain;
-};
-
 /**
  * Return the first thing which is not `undefined`.
  * @param {*} first
@@ -79,7 +60,10 @@ const firstDefined = (first, ...others) => {
 
 export default class DataProvider extends Component {
   state = {
-    subDomain: getSubDomain(this.props.baseDomain, this.props.subDomain),
+    subDomain: DataProvider.getSubDomain(
+      this.props.baseDomain,
+      this.props.subDomain
+    ),
     baseDomain: this.props.baseDomain,
     loaderConfig: {},
     contextSeries: {},
@@ -179,7 +163,7 @@ export default class DataProvider extends Component {
 
     // Check if basedomain changed in props -- if so reset state.
     if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
-      const newSubDomain = getSubDomain(
+      const newSubDomain = DataProvider.getSubDomain(
         this.props.baseDomain,
         this.props.subDomain
       );
@@ -212,6 +196,24 @@ export default class DataProvider extends Component {
   componentWillUnmount() {
     clearInterval(this.fetchInterval);
   }
+
+  static getSubDomain = (baseDomain, subDomain) => {
+    if (!subDomain) {
+      return baseDomain;
+    }
+    const baseDomainLength = baseDomain[1] - baseDomain[0];
+    const subDomainLength = subDomain[1] - subDomain[0];
+    if (baseDomainLength < subDomainLength) {
+      return baseDomain;
+    }
+    if (subDomain[0] < baseDomain[0]) {
+      return [baseDomain[0], baseDomain[0] + subDomainLength];
+    }
+    if (subDomain[1] > baseDomain[1]) {
+      return [baseDomain[1] - subDomainLength, baseDomain[1]];
+    }
+    return subDomain;
+  };
 
   getSeriesObjects = () => {
     const collectionsById = {};
