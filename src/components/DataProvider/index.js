@@ -46,16 +46,6 @@ const deleteUndefinedFromObject = obj => {
   return newObject;
 };
 
-// make sure that passed subDomain is part of baseDomain
-const getSubDomain = (baseDomain, subDomain) => {
-  if (!subDomain) {
-    return baseDomain;
-  }
-  const minDomain = Math.max(subDomain[0], baseDomain[0]);
-  const maxDomain = Math.min(subDomain[1], baseDomain[1]);
-  return [minDomain, maxDomain];
-};
-
 /**
  * Return the first thing which is not `undefined`.
  * @param {*} first
@@ -70,7 +60,10 @@ const firstDefined = (first, ...others) => {
 
 export default class DataProvider extends Component {
   state = {
-    subDomain: getSubDomain(this.props.baseDomain, this.props.subDomain),
+    subDomain: DataProvider.getSubDomain(
+      this.props.baseDomain,
+      this.props.subDomain
+    ),
     baseDomain: this.props.baseDomain,
     loaderConfig: {},
     contextSeries: {},
@@ -170,7 +163,7 @@ export default class DataProvider extends Component {
 
     // Check if basedomain changed in props -- if so reset state.
     if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
-      const newSubDomain = getSubDomain(
+      const newSubDomain = DataProvider.getSubDomain(
         this.props.baseDomain,
         this.props.subDomain
       );
@@ -193,6 +186,9 @@ export default class DataProvider extends Component {
       if (this.props.onSubDomainChanged) {
         this.props.onSubDomainChanged(newSubDomain);
       }
+      if (this.props.onBaseDomainChanged) {
+        this.props.onBaseDomainChanged(this.props.baseDomain);
+      }
       if (this.fetchInterval) {
         clearInterval(this.fetchInterval);
       }
@@ -203,6 +199,24 @@ export default class DataProvider extends Component {
   componentWillUnmount() {
     clearInterval(this.fetchInterval);
   }
+
+  static getSubDomain = (baseDomain, subDomain) => {
+    if (!subDomain) {
+      return baseDomain;
+    }
+    const baseDomainLength = baseDomain[1] - baseDomain[0];
+    const subDomainLength = subDomain[1] - subDomain[0];
+    if (baseDomainLength < subDomainLength) {
+      return baseDomain;
+    }
+    if (subDomain[0] < baseDomain[0]) {
+      return [baseDomain[0], baseDomain[0] + subDomainLength];
+    }
+    if (subDomain[1] > baseDomain[1]) {
+      return [baseDomain[1] - subDomainLength, baseDomain[1]];
+    }
+    return subDomain;
+  };
 
   getSeriesObjects = () => {
     const collectionsById = {};
@@ -239,6 +253,9 @@ export default class DataProvider extends Component {
             baseDomain: baseDomain.map(d => d + updateInterval),
           },
           () => {
+            if (this.props.onBaseDomainChanged) {
+              this.props.onBaseDomainChanged(this.state.baseDomain);
+            }
             Promise.map(this.props.series, s =>
               this.fetchData(s.id, 'INTERVAL')
             );
@@ -404,6 +421,7 @@ export default class DataProvider extends Component {
       subDomain: externalSubDomain,
       collections,
     } = this.props;
+
     if (Object.keys(loaderConfig).length === 0) {
       // Do not bother, loader hasn't given any data yet.
       return null;
@@ -518,6 +536,7 @@ DataProvider.propTypes = {
   collections: GriffPropTypes.collections,
   // (subDomain) => null
   onSubDomainChanged: PropTypes.func,
+  onBaseDomainChanged: PropTypes.func,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
   pointWidth: PropTypes.number,
@@ -529,6 +548,7 @@ DataProvider.defaultProps = {
   collections: [],
   defaultLoader: null,
   onSubDomainChanged: null,
+  onBaseDomainChanged: null,
   opacity: 1.0,
   opacityAccessor: null,
   pointsPerSeries: 250,

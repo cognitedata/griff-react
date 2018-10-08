@@ -1,38 +1,36 @@
 import expect from 'expect';
-import React from 'react';
-import { render, unmountComponentAtNode } from 'react-dom';
+import { DataProvider } from 'src/';
 
-import { DataProvider, ChartContainer } from 'src/';
+const { getSubDomain } = DataProvider;
 
-describe('Component', () => {
-  let node;
-
-  beforeEach(() => {
-    node = document.createElement('div');
+describe('getSubDomain', () => {
+  it('handles the base case', () => {
+    const baseDomain = [0, 100];
+    const subDomain = [25, 75];
+    expect(getSubDomain(baseDomain, subDomain)).toMatch(subDomain);
   });
 
-  afterEach(() => {
-    unmountComponentAtNode(node);
+  it('handles when the subdomain goes longer', () => {
+    const baseDomain = [50, 100];
+    const subDomain = [95, 105];
+    expect(getSubDomain(baseDomain, subDomain)).toMatch([90, 100]);
   });
 
-  it('Renders dataprovider', () => {
-    const config = {
-      yAxis: {
-        width: 50,
-        mode: 'every',
-        accessor: d => d.value
-      },
-      xAxis: {
-        accessor: d => d.timestamp
-      },
-      baseDomain: [Date.now() - 1000, Date.now()]
-    };
-    render(
-      <DataProvider config={config} width={1000} height={500}>
-        <ChartContainer />
-      </DataProvider>,
-      node,
-      console.log
-    );
+  it('handles when the subdomain goes shorter', () => {
+    const baseDomain = [50, 100];
+    const subDomain = [45, 55];
+    expect(getSubDomain(baseDomain, subDomain)).toMatch([50, 60]);
+  });
+
+  it('handles when the subdomain is outside', () => {
+    const baseDomain = [50, 100];
+    const subDomain = [150, 160];
+    expect(getSubDomain(baseDomain, subDomain)).toMatch([90, 100]);
+  });
+
+  it('handles when the subdomain is longer than the domain', () => {
+    const baseDomain = [50, 100];
+    const subDomain = [25, 125];
+    expect(getSubDomain(baseDomain, subDomain)).toMatch([50, 100]);
   });
 });
