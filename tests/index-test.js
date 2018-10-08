@@ -1,5 +1,7 @@
 import expect from 'expect';
-import { getSubDomain } from 'src/';
+import { DataProvider } from 'src/';
+
+const { getSubDomain } = DataProvider;
 
 describe('getSubDomain', () => {
   it('handles the base case', () => {
