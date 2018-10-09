@@ -113,7 +113,10 @@ class Scaler extends Component {
       // The internal baseDomain changed
       // Keep existing subdomain
       const { subDomain } = prevState;
-      if (subDomain && subDomain[1] === prevBaseDomain[1]) {
+      if (
+        (subDomain && subDomain[1] === prevBaseDomain[1]) ||
+        subDomain[1] >= prevBaseDomain[1]
+      ) {
         // You are looking at the end of the window
         // and the baseDomain is updated
         // Lock the subDomain to the end of the window
