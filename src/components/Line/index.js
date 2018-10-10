@@ -52,12 +52,12 @@ const Line = ({
   }
   let circles = null;
   if (drawPoints) {
-    const subDomain = xScale.domain().map(p => p.getTime());
+    const xSubDomain = xScale.domain().map(p => p.getTime());
     circles = (
       <Points
         data={data.filter(d => {
           const x = xAccessor(d);
-          return x >= subDomain[0] && x <= subDomain[1];
+          return x >= xSubDomain[0] && x <= xSubDomain[1];
         })}
         xAccessor={xAccessor}
         yAccessor={yAccessor}

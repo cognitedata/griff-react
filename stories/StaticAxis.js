@@ -26,7 +26,7 @@ const baseConfig = {
     accessor: d => d.timestamp,
     calculateDomain: data => d3.extent(d => d.timestamp),
   },
-  baseDomain: d3.extent(randomData(), d => d.timestamp),
+  xDomain: d3.extent(randomData(), d => d.timestamp),
 };
 
 const loader = () => {

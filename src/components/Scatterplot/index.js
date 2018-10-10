@@ -30,7 +30,7 @@ const propTypes = {
   xAxisPlacement: GriffPropTypes.axisPlacement,
   xAxisTicks: PropTypes.number,
   xScalerFactory: scalerFactoryFunc.isRequired,
-  subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
   // Number => String
   yAxisFormatter: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
@@ -65,7 +65,7 @@ const ScatterplotComponent = ({
   yAxisFormatter,
   yAxisPlacement,
   yAxisTicks,
-  subDomain,
+  xSubDomain,
 }) => {
   const chartSize = {
     width,
@@ -117,7 +117,7 @@ const ScatterplotComponent = ({
       }
       xAxis={
         <XAxis
-          domain={subDomain}
+          domain={xSubDomain}
           width={chartSize.width}
           height={X_AXIS_HEIGHT}
           xScalerFactory={xScalerFactory}
@@ -141,11 +141,11 @@ const SizedScatterplotComponent = sizeMe({
 const Scatterplot = props => (
   <Scaler xScalerFactory={createLinearXScale}>
     <ScalerContext.Consumer>
-      {({ series, subDomain, xScalerFactory }) => (
+      {({ series, xSubDomain, xScalerFactory }) => (
         <SizedScatterplotComponent
           {...props}
           series={series}
-          subDomain={subDomain}
+          xSubDomain={xSubDomain}
           xScalerFactory={xScalerFactory}
         />
       )}

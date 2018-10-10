@@ -38,7 +38,7 @@ The outermost component in the hierarchy. The DataProvider is in charge of handl
 
 ```js
 DataProvider.propTypes = {
-  baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
   updateInterval: PropTypes.number,
   yAccessor: PropTypes.func,
   xAccessor: PropTypes.func,
