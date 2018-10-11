@@ -23,20 +23,20 @@ const formatDate = date => moment(date).format('YYYY-MM-DD');
 
 export default async ({
   id,
-  baseDomain,
-  subDomain,
+  xDomain,
+  xSubDomain,
   pointsPerSeries,
   oldSeries,
   reason,
 }) => {
-  const granularity = calculateGranularity(subDomain, pointsPerSeries);
+  const granularity = calculateGranularity(xSubDomain, pointsPerSeries);
   action(`Loader requested data for id ${id}. Reason: ${reason}`)(
     reason,
-    baseDomain,
-    subDomain,
+    xDomain,
+    xSubDomain,
     granularity
   );
-  const domain = reason === 'MOUNTED' ? baseDomain : subDomain;
+  const domain = reason === 'MOUNTED' ? xDomain : xSubDomain;
   const result = await axios.get(
     `https://www.quandl.com/api/v3/datasets/${id}.json?start_date=${formatDate(
       domain[0]

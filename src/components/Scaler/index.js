@@ -11,10 +11,10 @@ class Scaler extends Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
     dataContext: PropTypes.shape({
-      baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-      subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-      externalSubDomain: PropTypes.arrayOf(PropTypes.number),
-      subDomainChanged: PropTypes.func.isRequired,
+      xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+      xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+      externalXSubDomain: PropTypes.arrayOf(PropTypes.number),
+      xSubDomainChanged: PropTypes.func.isRequired,
       series: seriesPropType.isRequired,
       collections: GriffPropTypes.collections.isRequired,
     }).isRequired,
@@ -28,8 +28,8 @@ class Scaler extends Component {
 
   state = {
     ySubDomains: {},
-    subDomain:
-      this.props.dataContext.subDomain || this.props.dataContext.baseDomain,
+    xSubDomain:
+      this.props.dataContext.xSubDomain || this.props.dataContext.xDomain,
     yTransformations: {},
   };
 
@@ -55,13 +55,13 @@ class Scaler extends Component {
     });
     if (
       !isEqual(
-        prevProps.dataContext.externalSubDomain,
-        this.props.dataContext.externalSubDomain
+        prevProps.dataContext.externalXSubDomain,
+        this.props.dataContext.externalXSubDomain
       )
     ) {
       // eslint-disable-next-line
       this.setState({
-        subDomain: this.props.dataContext.externalSubDomain,
+        xSubDomain: this.props.dataContext.externalXSubDomain,
       });
     }
     if (
@@ -84,89 +84,87 @@ class Scaler extends Component {
     // Handle changes in the base domain of the DataProvider
     const {
       dataContext: {
-        baseDomain: nextPropsDomain,
-        externalBaseDomain: nextExternalBaseDomain,
+        xDomain: nextPropsDomain,
+        externalXDomain: nextExternalXDomain,
       },
     } = this.props;
     const {
       dataContext: {
-        baseDomain: prevBaseDomain,
-        externalBaseDomain: prevExternalBaseDomain,
+        xDomain: prevXDomain,
+        externalXDomain: prevExternalXDomain,
       },
     } = prevProps;
-    if (!isEqual(prevExternalBaseDomain, nextExternalBaseDomain)) {
+    if (!isEqual(prevExternalXDomain, nextExternalXDomain)) {
       // External base domain changed (props on DataProvider)
       // Reset state
 
       // eslint-disable-next-line
       this.setState({
-        subDomain: nextExternalBaseDomain,
+        xSubDomain: nextExternalXDomain,
         ySubDomains: {},
         yTransformations: {},
       });
       return;
     }
     if (
-      nextPropsDomain[0] !== prevBaseDomain[0] ||
-      nextPropsDomain[1] !== prevBaseDomain[1]
+      nextPropsDomain[0] !== prevXDomain[0] ||
+      nextPropsDomain[1] !== prevXDomain[1]
     ) {
-      // The internal baseDomain changed
+      // The internal xDomain changed
       // Keep existing subdomain
-      const { subDomain } = prevState;
+      const { xSubDomain } = prevState;
       if (
-        (subDomain && subDomain[1] === prevBaseDomain[1]) ||
-        subDomain[1] >= prevBaseDomain[1]
+        (xSubDomain && xSubDomain[1] === prevXDomain[1]) ||
+        xSubDomain[1] >= prevXDomain[1]
       ) {
         // You are looking at the end of the window
-        // and the baseDomain is updated
-        // Lock the subDomain to the end of the window
-        const dt = subDomain[1] - subDomain[0];
+        // and the xDomain is updated
+        // Lock the xSubDomain to the end of the window
+        const dt = xSubDomain[1] - xSubDomain[0];
         // eslint-disable-next-line
         this.setState({
-          subDomain: [nextPropsDomain[1] - dt, nextPropsDomain[1]],
+          xSubDomain: [nextPropsDomain[1] - dt, nextPropsDomain[1]],
         });
       }
       if (
-        subDomain &&
-        (subDomain[0] === prevBaseDomain[0] ||
-          subDomain[0] <= nextPropsDomain[0])
+        xSubDomain &&
+        (xSubDomain[0] === prevXDomain[0] ||
+          xSubDomain[0] <= nextPropsDomain[0])
       ) {
         // You are looking at the front of the window
         // and the base domain is updated.
         // Lock the sub domain to the start of the window
-        const dt = subDomain[1] - subDomain[0];
+        const dt = xSubDomain[1] - xSubDomain[0];
         // eslint-disable-next-line
         this.setState({
-          subDomain: [nextPropsDomain[0], nextPropsDomain[0] + dt],
+          xSubDomain: [nextPropsDomain[0], nextPropsDomain[0] + dt],
         });
       }
     }
   }
 
   updateXTransformation = (xTransformation, width) => {
-    const { baseDomain } = this.props.dataContext;
+    const { xDomain } = this.props.dataContext;
     const { xScalerFactory } = this.props;
     // Get the new rescaled axis
-    const newScale = xTransformation.rescaleX(
-      xScalerFactory(baseDomain, width)
-    );
+    const newScale = xTransformation.rescaleX(xScalerFactory(xDomain, width));
     // Calculate new domain, map to timestamps (not dates)
-    const newSubDomain = newScale.domain().map(Number);
+    const newXSubDomain = newScale.domain().map(Number);
     // Update dataproviders subdomains changed
     this.setState({
-      subDomain: newSubDomain,
+      xSubDomain: newXSubDomain,
     });
-    this.props.dataContext.subDomainChanged(newSubDomain);
-    return newSubDomain;
+    this.props.dataContext.xSubDomainChanged(newXSubDomain);
+    return newXSubDomain;
   };
 
-  updateSubDomain = subDomain => {
+  updateXSubDomain = xSubDomain => {
     this.setState(
       {
-        subDomain,
+        xSubDomain,
       },
       () => {
-        this.props.dataContext.subDomainChanged(subDomain);
+        this.props.dataContext.xSubDomainChanged(xSubDomain);
       }
     );
   };
@@ -177,25 +175,25 @@ class Scaler extends Component {
     const { ySubDomain } =
       dataContext.series.find(s => s.id === key) ||
       dataContext.collections.find(c => c.id === key);
-    const newSubDomain = scaler
+    const newXSubDomain = scaler
       .rescaleY(createYScale(ySubDomain, height))
       .domain()
       .map(Number);
 
     this.setState({
-      ySubDomains: { ...this.state.ySubDomains, [key]: newSubDomain },
+      ySubDomains: { ...this.state.ySubDomains, [key]: newXSubDomain },
       yTransformations: { ...this.state.yTransformations, [key]: scaler },
     });
 
-    return newSubDomain;
+    return newXSubDomain;
   };
 
   render() {
-    const { ySubDomains, yTransformations, subDomain } = this.state;
+    const { ySubDomains, yTransformations, xSubDomain } = this.state;
     const { dataContext, xScalerFactory } = this.props;
     const ownContext = {
       updateXTransformation: this.updateXTransformation,
-      updateSubDomain: this.updateSubDomain,
+      updateXSubDomain: this.updateXSubDomain,
       updateYTransformation: this.updateYTransformation,
       yTransformations,
     };
@@ -213,7 +211,7 @@ class Scaler extends Component {
     const enrichedContext = {
       collections: enrichedCollections,
       series: enrichedSeries,
-      subDomain: subDomain || dataContext.subDomain,
+      xSubDomain: xSubDomain || dataContext.xSubDomain,
       xScalerFactory,
     };
 

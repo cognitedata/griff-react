@@ -71,11 +71,11 @@ export default LineCollection;
 
 export const ScaledLineCollection = props => (
   <ScalerContext.Consumer>
-    {({ subDomain, series, xScalerFactory }) => (
+    {({ xSubDomain, series, xScalerFactory }) => (
       <LineCollection
         {...props}
         series={series}
-        domain={subDomain}
+        domain={xSubDomain}
         xScalerFactory={xScalerFactory}
       />
     )}

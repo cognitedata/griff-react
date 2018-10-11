@@ -4,14 +4,14 @@ import { storiesOf } from '@storybook/react';
 import { DataProvider, LineChart } from '../src';
 import { staticLoader } from './loaders';
 
-const staticBaseDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
+const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
 storiesOf('Grid Lines', module)
   .add('Static horizontal lines every 35 pixels', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }]}
     >
       <LineChart
@@ -24,7 +24,7 @@ storiesOf('Grid Lines', module)
   .add('3 static horizontal lines', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }]}
     >
       <LineChart height={CHART_HEIGHT} grid={{ y: { count: 3 } }} />
@@ -33,7 +33,7 @@ storiesOf('Grid Lines', module)
   .add('Static vertical lines every 35 pixels', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }]}
     >
       <LineChart height={CHART_HEIGHT} grid={{ x: { pixels: 35 } }} />
@@ -42,7 +42,7 @@ storiesOf('Grid Lines', module)
   .add('3 static vertical lines', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }]}
     >
       <LineChart height={CHART_HEIGHT} grid={{ x: { count: 3 } }} />
@@ -51,7 +51,7 @@ storiesOf('Grid Lines', module)
   .add('Static grid lines every 75 pixels', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }]}
     >
       <LineChart
@@ -63,7 +63,7 @@ storiesOf('Grid Lines', module)
   .add('3 grid lines', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }]}
     >
       <LineChart
@@ -75,7 +75,7 @@ storiesOf('Grid Lines', module)
   .add('Dynamic horizontal lines', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }]}
     >
       <LineChart height={CHART_HEIGHT} grid={{ y: { seriesIds: [1] } }} />
@@ -84,7 +84,7 @@ storiesOf('Grid Lines', module)
   .add('Dynamic vertical lines', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }]}
     >
       <LineChart height={CHART_HEIGHT} grid={{ x: { ticks: 3 } }} />
@@ -93,7 +93,7 @@ storiesOf('Grid Lines', module)
   .add('Dynamic grid lines', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }]}
     >
       <LineChart
@@ -105,7 +105,7 @@ storiesOf('Grid Lines', module)
   .add('Dynamic grid lines (multiple series)', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -118,7 +118,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="y-dimension"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -129,7 +129,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="x-dimension"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -140,7 +140,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="grid-object"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -151,7 +151,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="different"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -168,7 +168,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="y-dimension"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart height={CHART_HEIGHT} grid={{ y: { count: 5, opacity: 1 } }} />
@@ -176,7 +176,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="x-dimension"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart height={CHART_HEIGHT} grid={{ x: { count: 5, opacity: 1 } }} />
@@ -184,7 +184,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="grid-object"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -195,7 +195,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="different"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -212,7 +212,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="y-dimension"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -223,7 +223,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="x-dimension"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -234,7 +234,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="grid-object"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -245,7 +245,7 @@ storiesOf('Grid Lines', module)
     <DataProvider
       key="different"
       defaultLoader={staticLoader}
-      baseDomain={staticBaseDomain}
+      xDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart

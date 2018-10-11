@@ -30,6 +30,7 @@ const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
         reason,
         oldSeries,
         ...params,
+        xDomain: [0, 1],
       }),
       y: staticLoader({
         id: pair.y,
@@ -37,6 +38,7 @@ const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
         reason,
         oldSeries,
         ...params,
+        xDomain: [0, 1],
       }),
     };
 
@@ -86,7 +88,7 @@ storiesOf('Scatterplot', module)
         <div style={{ height: '500px', width: '100%' }}>
           <DataProvider
             defaultLoader={scatterplotloader}
-            baseDomain={[0, 1]}
+            xDomain={[0, 1]}
             series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -100,7 +102,7 @@ storiesOf('Scatterplot', module)
         <div style={{ height: '500px', width: '100%' }}>
           <DataProvider
             defaultLoader={scatterplotloader}
-            baseDomain={[0, 1]}
+            xDomain={[0, 1]}
             series={[
               { id: 'sincos', color: '#ACF39D' },
               { id: 'sintan', color: '#E85F5C' },
@@ -118,7 +120,7 @@ storiesOf('Scatterplot', module)
         <div style={{ height: '500px', width: '100%' }}>
           <DataProvider
             defaultLoader={scatterplotloader}
-            baseDomain={[0, 1]}
+            xDomain={[0, 1]}
             series={[
               { id: '1 2', color: '#ACF39D' },
               { id: '2 3', color: '#E85F5C' },
@@ -138,12 +140,87 @@ storiesOf('Scatterplot', module)
       </div>
     </React.Fragment>
   ))
+  .add('Domains', () => (
+    <React.Fragment>
+      <div>
+        <h3>Specified domains</h3>
+        <div style={{ height: '500px', width: '100%' }}>
+          <DataProvider
+            defaultLoader={scatterplotloader}
+            xDomain={[-1, 2]}
+            yDomain={[-1, 2]}
+            series={[{ id: '1 2', color: 'steelblue' }]}
+            xAccessor={d => +d.x}
+            yAccessor={d => +d.y}
+          >
+            <Scatterplot zoomable />
+          </DataProvider>
+        </div>
+      </div>
+      <div>
+        <h3>Specified x domain</h3>
+        <div style={{ height: '500px', width: '100%' }}>
+          <DataProvider
+            defaultLoader={scatterplotloader}
+            xDomain={[-1, 2]}
+            series={[{ id: '1 2', color: 'steelblue' }]}
+            xAccessor={d => +d.x}
+            yAccessor={d => +d.y}
+          >
+            <Scatterplot zoomable />
+          </DataProvider>
+        </div>
+      </div>
+      <div>
+        <h3>Specified y domain</h3>
+        <div style={{ height: '500px', width: '100%' }}>
+          <DataProvider
+            defaultLoader={scatterplotloader}
+            yDomain={[-1, 2]}
+            series={[{ id: '1 2', color: 'steelblue' }]}
+            xAccessor={d => +d.x}
+            yAccessor={d => +d.y}
+          >
+            <Scatterplot zoomable />
+          </DataProvider>
+        </div>
+      </div>
+      <div>
+        <h3>Calculated domains</h3>
+        <div style={{ height: '500px', width: '100%' }}>
+          <DataProvider
+            defaultLoader={scatterplotloader}
+            series={[{ id: '1 2', color: 'steelblue' }]}
+            xAccessor={d => +d.x}
+            yAccessor={d => +d.y}
+          >
+            <Scatterplot zoomable />
+          </DataProvider>
+        </div>
+      </div>
+      <div>
+        <h3>Smaller domains</h3>
+        <div style={{ height: '500px', width: '100%' }}>
+          <DataProvider
+            defaultLoader={scatterplotloader}
+            xDomain={[0.25, 0.75]}
+            yDomain={[0.25, 0.75]}
+            series={[{ id: '1 2', color: 'steelblue' }]}
+            xAccessor={d => +d.x}
+            yAccessor={d => +d.y}
+          >
+            <Scatterplot zoomable />
+          </DataProvider>
+        </div>
+      </div>
+    </React.Fragment>
+  ))
   .add('Custom tick formatting', () => (
     <React.Fragment>
       <div style={{ height: '500px', width: '100%' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
+          xDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -161,7 +238,7 @@ storiesOf('Scatterplot', module)
     <div style={{ height: '500px', width: '500px' }}>
       <DataProvider
         defaultLoader={scatterplotloader}
-        baseDomain={[0, 1]}
+        xDomain={[0, 1]}
         series={[{ id: '1 2', color: 'steelblue' }]}
         xAccessor={d => +d.x}
         yAccessor={d => +d.y}
@@ -190,7 +267,7 @@ storiesOf('Scatterplot', module)
           >
             <DataProvider
               defaultLoader={scatterplotloader}
-              baseDomain={[0, 1]}
+              xDomain={[0, 1]}
               series={[{ id: '1 2', color: 'steelblue' }]}
               xAccessor={d => +d.x}
               yAccessor={d => +d.y}
@@ -213,7 +290,7 @@ storiesOf('Scatterplot', module)
           >
             <DataProvider
               defaultLoader={scatterplotloader}
-              baseDomain={[0, 1]}
+              xDomain={[0, 1]}
               series={[{ id: '1 2', color: 'steelblue' }]}
               xAccessor={d => +d.x}
               yAccessor={d => +d.y}
@@ -233,7 +310,7 @@ storiesOf('Scatterplot', module)
       >
         <DataProvider
           defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
+          xDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -252,7 +329,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
+          xDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue', strokeWidth: 2 },
             { id: '3 4', color: 'maroon', strokeWidth: 10 },
@@ -266,7 +343,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
+          xDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue' },
             { id: '3 4', color: 'maroon' },
@@ -285,7 +362,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
+          xDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue', pointWidth: 2 },
             { id: '3 4', color: 'maroon', pointWidth: 10 },
@@ -299,7 +376,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
+          xDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue' },
             { id: '3 4', color: 'maroon' },
@@ -314,7 +391,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
+          xDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue' },
             { id: '3 4', color: 'maroon' },
@@ -333,7 +410,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
+          xDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue', opacity: 0.25 },
             { id: '3 4', color: 'maroon', opacity: 0.75 },
@@ -348,7 +425,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          baseDomain={[0, 1]}
+          xDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue' },
             { id: '3 4', color: 'maroon' },

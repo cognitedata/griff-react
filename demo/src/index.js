@@ -16,7 +16,7 @@ const randomData = () => {
   return data;
 };
 
-const _baseDomain = d3.extent(randomData(), d => d.timestamp);
+const _xDomain = d3.extent(randomData(), d => d.timestamp);
 const loader = async ({ oldSeries, reason }) => {
   if (reason === 'MOUNTED') {
     return {
@@ -42,7 +42,7 @@ class App extends Component {
         strokeWidth: 1.5,
       },
     ],
-    baseDomain: _baseDomain,
+    xDomain: _xDomain,
     zoomable: true,
   };
 
@@ -61,7 +61,7 @@ class App extends Component {
   };
 
   render() {
-    const { series, baseDomain, zoomable, dataProps, lineProps } = this.state;
+    const { series, xDomain, zoomable, dataProps, lineProps } = this.state;
     return (
       <div>
         <p>
@@ -75,7 +75,7 @@ class App extends Component {
           yAccessor={d => d.value}
           xAccessor={d => d.timestamp}
           yAxisWidth={50}
-          baseDomain={baseDomain}
+          xDomain={xDomain}
           {...dataProps}
         >
           <LineChart

@@ -73,9 +73,9 @@ const propTypes = {
   onClickAnnotation: PropTypes.func,
   // event => void
   onDoubleClick: PropTypes.func,
-  // ({ subDomain, transformation }) => void
+  // ({ xSubDomain, transformation }) => void
   onZoomXAxis: PropTypes.func,
-  subDomain: PropTypes.arrayOf(PropTypes.number),
+  xSubDomain: PropTypes.arrayOf(PropTypes.number),
   xAxisHeight: PropTypes.number,
   yAxisWidth: PropTypes.number,
   contextChart: GriffPropTypes.contextChart,
@@ -138,7 +138,7 @@ const defaultProps = {
   yAxisWidth: 50,
   width: 0,
   height: 0,
-  subDomain: [],
+  xSubDomain: [],
   xAxisFormatter: multiFormat,
   xAxisPlacement: AxisPlacement.BOTTOM,
   xScalerFactory: createXScale,
@@ -268,7 +268,7 @@ class LineChartComponent extends Component {
       onMouseMove,
       pointWidth,
       size,
-      subDomain,
+      xSubDomain,
       ruler,
       width: propWidth,
       xScalerFactory,
@@ -345,7 +345,7 @@ class LineChartComponent extends Component {
         }
         xAxis={
           <XAxis
-            domain={subDomain}
+            domain={xSubDomain}
             width={chartSize.width}
             xScalerFactory={xScalerFactory}
             height={xAxisHeight}
@@ -380,12 +380,12 @@ const SizedLineChartComponent = sizeMe({ monitorHeight: true })(
 const LineChart = props => (
   <Scaler>
     <ScalerContext.Consumer>
-      {({ collections, series, subDomain, xScalerFactory, yAxisWidth }) => (
+      {({ collections, series, xSubDomain, xScalerFactory, yAxisWidth }) => (
         <SizedLineChartComponent
           {...props}
           collections={collections}
           series={series}
-          subDomain={subDomain}
+          xSubDomain={xSubDomain}
           xScalerFactory={xScalerFactory}
           yAxisWidth={yAxisWidth}
         />

@@ -12,7 +12,7 @@ const propTypes = {
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   series: seriesPropType.isRequired,
-  subDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
   xScalerFactory: scalerFactoryFunc,
 };
 
@@ -33,7 +33,7 @@ class GridLines extends React.Component {
       height,
       width,
       series,
-      subDomain,
+      xSubDomain,
       xScalerFactory,
     } = this.props;
 
@@ -158,7 +158,7 @@ class GridLines extends React.Component {
         }
       } else if (x.ticks !== undefined) {
         // This heavily inspired by XAxis -- maybe we can consolidate them?
-        const scale = xScalerFactory(subDomain, width);
+        const scale = xScalerFactory(xSubDomain, width);
         const values = scale.ticks(x.ticks || Math.floor(width / 100) || 1);
         values.forEach(v => {
           lines.push(
@@ -215,11 +215,11 @@ GridLines.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ series, subDomain, xScalerFactory, yTransformations }) => (
+    {({ series, xSubDomain, xScalerFactory, yTransformations }) => (
       <GridLines
         {...props}
         series={series}
-        subDomain={subDomain}
+        xSubDomain={xSubDomain}
         xScalerFactory={xScalerFactory}
         yTransformations={yTransformations}
       />
