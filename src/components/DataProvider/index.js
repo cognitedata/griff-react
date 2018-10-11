@@ -9,12 +9,12 @@ import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 const calculateDomainFromData = (
   data,
   accessor,
-  y0Accessor = null,
-  y1Accessor = null
+  minAccessor = null,
+  maxAccessor = null
 ) => {
   let extent;
-  if (y0Accessor && y1Accessor) {
-    extent = [d3.min(data, y0Accessor), d3.max(data, y1Accessor)];
+  if (minAccessor && maxAccessor) {
+    extent = [d3.min(data, minAccessor), d3.max(data, maxAccessor)];
   } else {
     extent = d3.extent(data, accessor);
   }
@@ -60,11 +60,11 @@ const firstDefined = (first, ...others) => {
 
 export default class DataProvider extends Component {
   state = {
-    subDomain: DataProvider.getSubDomain(
-      this.props.baseDomain,
-      this.props.subDomain
+    xSubDomain: DataProvider.getXSubDomain(
+      this.props.xDomain,
+      this.props.xSubDomain
     ),
-    baseDomain: this.props.baseDomain,
+    xDomain: this.props.xDomain,
     loaderConfig: {},
     contextSeries: {},
     yDomains: {},
@@ -137,10 +137,10 @@ export default class DataProvider extends Component {
       return;
     }
     const { series } = this.props;
-    const { subDomain, baseDomain } = this.state;
+    const { xSubDomain, xDomain } = this.state;
 
-    if (!isEqual(this.props.subDomain, prevProps.subDomain)) {
-      this.subDomainChanged(this.props.subDomain);
+    if (!isEqual(this.props.xSubDomain, prevProps.xSubDomain)) {
+      this.xSubDomainChanged(this.props.xSubDomain);
     }
 
     const currentSeriesKeys = {};
@@ -154,24 +154,24 @@ export default class DataProvider extends Component {
     const newSeries = series.filter(s => prevSeriesKeys[s.id] !== true);
     await Promise.map(newSeries, async ({ id }) => {
       await this.fetchData(id, 'MOUNTED');
-      if (!isEqual(subDomain, baseDomain)) {
+      if (!isEqual(xSubDomain, xDomain)) {
         // The series got added when zoomed in,
         // Need to also fetch a higher-granularity version on mount
         await this.fetchData(id, 'UPDATE_SUBDOMAIN');
       }
     });
 
-    // Check if basedomain changed in props -- if so reset state.
-    if (!isEqual(this.props.baseDomain, prevProps.baseDomain)) {
-      const newSubDomain = DataProvider.getSubDomain(
-        this.props.baseDomain,
-        this.props.subDomain
+    // Check if xDomain changed in props -- if so reset state.
+    if (!isEqual(this.props.xDomain, prevProps.xDomain)) {
+      const newXSubDomain = DataProvider.getXSubDomain(
+        this.props.xDomain,
+        this.props.xSubDomain
       );
       // eslint-disable-next-line
       this.setState(
         {
-          baseDomain: this.props.baseDomain,
-          subDomain: newSubDomain,
+          xDomain: this.props.xDomain,
+          xSubDomain: newXSubDomain,
           loaderConfig: {},
           contextSeries: {},
           yDomains: {},
@@ -183,8 +183,8 @@ export default class DataProvider extends Component {
           );
         }
       );
-      if (this.props.onSubDomainChanged) {
-        this.props.onSubDomainChanged(newSubDomain);
+      if (this.props.onXSubDomainChanged) {
+        this.props.onXSubDomainChanged(newXSubDomain);
       }
       if (this.fetchInterval) {
         clearInterval(this.fetchInterval);
@@ -197,22 +197,22 @@ export default class DataProvider extends Component {
     clearInterval(this.fetchInterval);
   }
 
-  static getSubDomain = (baseDomain, subDomain) => {
-    if (!subDomain) {
-      return baseDomain;
+  static getXSubDomain = (xDomain, xSubDomain) => {
+    if (!xSubDomain) {
+      return xDomain;
     }
-    const baseDomainLength = baseDomain[1] - baseDomain[0];
-    const subDomainLength = subDomain[1] - subDomain[0];
-    if (baseDomainLength < subDomainLength) {
-      return baseDomain;
+    const xDomainLength = xDomain[1] - xDomain[0];
+    const xSubDomainLength = xSubDomain[1] - xSubDomain[0];
+    if (xDomainLength < xSubDomainLength) {
+      return xDomain;
     }
-    if (subDomain[0] < baseDomain[0]) {
-      return [baseDomain[0], baseDomain[0] + subDomainLength];
+    if (xSubDomain[0] < xDomain[0]) {
+      return [xDomain[0], xDomain[0] + xSubDomainLength];
     }
-    if (subDomain[1] > baseDomain[1]) {
-      return [baseDomain[1] - subDomainLength, baseDomain[1]];
+    if (xSubDomain[1] > xDomain[1]) {
+      return [xDomain[1] - xSubDomainLength, xDomain[1]];
     }
-    return subDomain;
+    return xSubDomain;
   };
 
   getSeriesObjects = () => {
@@ -273,11 +273,13 @@ export default class DataProvider extends Component {
       y0Accessor,
       y1Accessor,
       yAccessor,
+      yDomain: propYDomain,
       ySubDomain,
     } = this.props;
     const { loaderConfig, yDomains, ySubDomains } = this.state;
     const yDomain = collection.yDomain ||
       series.yDomain ||
+      propYDomain ||
       yDomains[series.id] || [0, 0];
     return {
       drawPoints: collection.drawPoints,
@@ -342,7 +344,7 @@ export default class DataProvider extends Component {
 
   fetchData = async (id, reason) => {
     const { pointsPerSeries, defaultLoader } = this.props;
-    const { subDomain, baseDomain } = this.state;
+    const { xSubDomain, xDomain } = this.state;
     const seriesObject = this.getSingleSeriesObject(id);
     const loader = seriesObject.loader || defaultLoader;
     if (!loader) {
@@ -350,8 +352,8 @@ export default class DataProvider extends Component {
     }
     const loaderResult = await loader({
       id,
-      baseDomain,
-      subDomain,
+      xDomain,
+      xSubDomain,
       pointsPerSeries,
       oldSeries: seriesObject,
       reason,
@@ -367,6 +369,25 @@ export default class DataProvider extends Component {
     };
     const stateUpdates = {};
     if (reason === 'MOUNTED') {
+      if (!this.props.xDomain) {
+        // We were not given an xDomain, so we need to calculate one based on
+        // the loaded data.
+        const calculatedXDomain = calculateDomainFromData(
+          loaderConfig.data,
+          loaderConfig.xAccessor || this.props.xAccessor,
+          loaderConfig.x0Accessor || this.props.x0Accessor,
+          loaderConfig.x1Accessor || this.props.x1Accessor
+        );
+        // The calculated xDomain needs to be big enough to encompass all of
+        // the data, so they're all going to be merged.
+        const mergedXDomain = [
+          Math.min(calculatedXDomain[0], (xDomain || [0])[0]),
+          Math.max(calculatedXDomain[1], (xDomain || [0, 0])[1]),
+        ];
+        stateUpdates.xDomain = mergedXDomain;
+        stateUpdates.xSubDomain = mergedXDomain;
+      }
+
       const yDomain = calculateDomainFromData(
         loaderConfig.data,
         loaderConfig.yAccessor || this.props.yAccessor,
@@ -408,7 +429,6 @@ export default class DataProvider extends Component {
         ),
       250
     );
-
     if (this.props.onXSubDomainChanged) {
       this.props.onXSubDomainChanged(newXSubDomain);
     }
@@ -416,12 +436,12 @@ export default class DataProvider extends Component {
   };
 
   render() {
-    const { loaderConfig, contextSeries, baseDomain, subDomain } = this.state;
+    const { loaderConfig, contextSeries, xDomain, xSubDomain } = this.state;
     const {
       yAxisWidth,
       children,
-      baseDomain: externalBaseDomain,
-      subDomain: externalSubDomain,
+      xDomain: externalXDomain,
+      xSubDomain: externalXSubDomain,
       collections,
     } = this.props;
 
@@ -436,12 +456,12 @@ export default class DataProvider extends Component {
     const collectionDomains = seriesObjects.reduce(
       (
         acc,
-        { collectionId, yDomain: seriesDomain, ySubDomain: seriesSubDomain }
+        { collectionId, yDomain: seriesDomain, ySubDomain: seriesXSubDomain }
       ) => {
         if (!collectionId) {
           return acc;
         }
-        const { yDomain: existingDomain, ySubDomain: existingSubDomain } = acc[
+        const { yDomain: existingDomain, ySubDomain: existingXSubDomain } = acc[
           collectionId
         ] || {
           yDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
@@ -455,8 +475,8 @@ export default class DataProvider extends Component {
               Math.max(existingDomain[1], seriesDomain[1]),
             ],
             ySubDomain: [
-              Math.min(existingSubDomain[0], seriesSubDomain[0]),
-              Math.max(existingSubDomain[1], seriesSubDomain[1]),
+              Math.min(existingXSubDomain[0], seriesXSubDomain[0]),
+              Math.max(existingXSubDomain[1], seriesXSubDomain[1]),
             ],
           },
         };
@@ -501,14 +521,14 @@ export default class DataProvider extends Component {
     const context = {
       series: collectedSeries,
       collections: collectionsWithDomains,
-      baseDomain,
+      xDomain,
       // This is used to signal external changes vs internal changes
-      externalBaseDomain,
-      subDomain,
+      externalXDomain,
+      xSubDomain,
       // This is used to signal external changes vs internal changes
-      externalSubDomain,
+      externalXSubDomain,
       yAxisWidth,
-      subDomainChanged: this.subDomainChanged,
+      xSubDomainChanged: this.xSubDomainChanged,
       contextSeries: seriesObjects.map(s => ({
         ...contextSeries[s.id],
         ...s,
@@ -523,22 +543,25 @@ export default class DataProvider extends Component {
 }
 
 DataProvider.propTypes = {
-  baseDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-  subDomain: PropTypes.arrayOf(PropTypes.number),
+  xDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
+  xSubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   updateInterval: PropTypes.number,
+  xAccessor: PropTypes.func,
+  x0Accessor: PropTypes.func,
+  x1Accessor: PropTypes.func,
   yAccessor: PropTypes.func,
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,
-  xAccessor: PropTypes.func,
   yAxisWidth: PropTypes.number,
+  yDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   ySubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   pointsPerSeries: PropTypes.number,
   children: PropTypes.node.isRequired,
   defaultLoader: PropTypes.func,
   series: seriesPropType.isRequired,
   collections: GriffPropTypes.collections,
-  // (subDomain) => null
-  onSubDomainChanged: PropTypes.func,
+  // xSubDomain => void
+  onXSubDomainChanged: PropTypes.func,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
   pointWidth: PropTypes.number,
@@ -551,20 +574,24 @@ DataProvider.propTypes = {
 DataProvider.defaultProps = {
   collections: [],
   defaultLoader: null,
-  onSubDomainChanged: null,
+  onXSubDomainChanged: null,
   opacity: 1.0,
   opacityAccessor: null,
   pointsPerSeries: 250,
   pointWidth: null,
   pointWidthAccessor: null,
   strokeWidth: null,
-  subDomain: null,
+  xDomain: null,
+  xSubDomain: null,
   updateInterval: 0,
+  x0Accessor: null,
+  x1Accessor: null,
   xAccessor: d => d.timestamp,
   y0Accessor: null,
   y1Accessor: null,
   yAccessor: d => d.value,
   yAxisWidth: 50,
+  yDomain: null,
   ySubDomain: null,
   isXSubDomainSticky: false,
   limitXSubDomain: null,

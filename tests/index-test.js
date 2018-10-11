@@ -1,36 +1,36 @@
 import expect from 'expect';
 import { DataProvider } from 'src/';
 
-const { getSubDomain } = DataProvider;
+const { getXSubDomain } = DataProvider;
 
-describe('getSubDomain', () => {
+describe('getXSubDomain', () => {
   it('handles the base case', () => {
-    const baseDomain = [0, 100];
-    const subDomain = [25, 75];
-    expect(getSubDomain(baseDomain, subDomain)).toMatch(subDomain);
+    const xDomain = [0, 100];
+    const xSubDomain = [25, 75];
+    expect(getXSubDomain(xDomain, xSubDomain)).toMatch(xSubDomain);
   });
 
   it('handles when the subdomain goes longer', () => {
-    const baseDomain = [50, 100];
-    const subDomain = [95, 105];
-    expect(getSubDomain(baseDomain, subDomain)).toMatch([90, 100]);
+    const xDomain = [50, 100];
+    const xSubDomain = [95, 105];
+    expect(getXSubDomain(xDomain, xSubDomain)).toMatch([90, 100]);
   });
 
   it('handles when the subdomain goes shorter', () => {
-    const baseDomain = [50, 100];
-    const subDomain = [45, 55];
-    expect(getSubDomain(baseDomain, subDomain)).toMatch([50, 60]);
+    const xDomain = [50, 100];
+    const xSubDomain = [45, 55];
+    expect(getXSubDomain(xDomain, xSubDomain)).toMatch([50, 60]);
   });
 
   it('handles when the subdomain is outside', () => {
-    const baseDomain = [50, 100];
-    const subDomain = [150, 160];
-    expect(getSubDomain(baseDomain, subDomain)).toMatch([90, 100]);
+    const xDomain = [50, 100];
+    const xSubDomain = [150, 160];
+    expect(getXSubDomain(xDomain, xSubDomain)).toMatch([90, 100]);
   });
 
   it('handles when the subdomain is longer than the domain', () => {
-    const baseDomain = [50, 100];
-    const subDomain = [25, 125];
-    expect(getSubDomain(baseDomain, subDomain)).toMatch([50, 100]);
+    const xDomain = [50, 100];
+    const xSubDomain = [25, 125];
+    expect(getXSubDomain(xDomain, xSubDomain)).toMatch([50, 100]);
   });
 });

@@ -39,11 +39,11 @@ export default PointCollection;
 
 export const ScaledPointCollection = props => (
   <ScalerContext.Consumer>
-    {({ subDomain, series, xScalerFactory }) => (
+    {({ xSubDomain, series, xScalerFactory }) => (
       <PointCollection
         {...props}
         series={series}
-        domain={subDomain}
+        domain={xSubDomain}
         xScalerFactory={xScalerFactory}
       />
     )}
