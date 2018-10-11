@@ -43,7 +43,10 @@ function findVersionToBump(currentVersion, versions) {
     .sort((a, b) => semver.patch(b) - semver.patch(a))
     .sort((a, b) => {
       if (semver.prerelease(b) && semver.prerelease(a)) {
-        return Number(semver.prerelease(b)) - Number(semver.prerelease(a));
+        return (
+          Number(semver.prerelease(b).pop()) -
+          Number(semver.prerelease(a).pop())
+        );
       }
       return Number(semver.patch(b)) - Number(semver.patch(b));
     });
