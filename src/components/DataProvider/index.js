@@ -186,9 +186,6 @@ export default class DataProvider extends Component {
       if (this.props.onSubDomainChanged) {
         this.props.onSubDomainChanged(newSubDomain);
       }
-      if (this.props.onBaseDomainChanged) {
-        this.props.onBaseDomainChanged(this.props.baseDomain);
-      }
       if (this.fetchInterval) {
         clearInterval(this.fetchInterval);
       }
@@ -247,15 +244,15 @@ export default class DataProvider extends Component {
     const { updateInterval } = this.props;
     if (updateInterval) {
       this.fetchInterval = setInterval(() => {
-        const { baseDomain } = this.state;
+        const { baseDomain, subDomain } = this.state;
         this.setState(
           {
             baseDomain: baseDomain.map(d => d + updateInterval),
+            subDomain: this.props.isSubDomainSticky
+              ? subDomain.map(d => d + updateInterval)
+              : subDomain,
           },
           () => {
-            if (this.props.onBaseDomainChanged) {
-              this.props.onBaseDomainChanged(this.state.baseDomain);
-            }
             Promise.map(this.props.series, s =>
               this.fetchData(s.id, 'INTERVAL')
             );
@@ -395,9 +392,14 @@ export default class DataProvider extends Component {
 
   subDomainChanged = subDomain => {
     const current = this.state.subDomain;
-    if (subDomain[0] === current[0] && subDomain[1] === current[1]) {
+    const newSubDomain = this.props.limitSubDomain
+      ? this.props.limitSubDomain(subDomain)
+      : subDomain;
+
+    if (newSubDomain[0] === current[0] && newSubDomain[1] === current[1]) {
       return;
     }
+
     clearTimeout(this.subDomainChangedTimeout);
     this.subDomainChangedTimeout = setTimeout(
       () =>
@@ -406,10 +408,11 @@ export default class DataProvider extends Component {
         ),
       250
     );
+
     if (this.props.onSubDomainChanged) {
-      this.props.onSubDomainChanged(subDomain);
+      this.props.onSubDomainChanged(newSubDomain);
     }
-    this.setState({ subDomain });
+    this.setState({ subDomain: newSubDomain });
   };
 
   render() {
@@ -536,19 +539,19 @@ DataProvider.propTypes = {
   collections: GriffPropTypes.collections,
   // (subDomain) => null
   onSubDomainChanged: PropTypes.func,
-  onBaseDomainChanged: PropTypes.func,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
+  isSubDomainSticky: PropTypes.bool,
+  limitSubDomain: PropTypes.func,
 };
 
 DataProvider.defaultProps = {
   collections: [],
   defaultLoader: null,
   onSubDomainChanged: null,
-  onBaseDomainChanged: null,
   opacity: 1.0,
   opacityAccessor: null,
   pointsPerSeries: 250,
@@ -563,4 +566,6 @@ DataProvider.defaultProps = {
   yAccessor: d => d.value,
   yAxisWidth: 50,
   ySubDomain: null,
+  isSubDomainSticky: false,
+  limitSubDomain: null,
 };

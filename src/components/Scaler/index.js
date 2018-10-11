@@ -53,6 +53,16 @@ class Scaler extends Component {
         }
       }
     });
+
+    if (
+      !isEqual(
+        prevProps.dataContext.subDomain,
+        this.props.dataContext.subDomain
+      )
+    ) {
+      // eslint-disable-next-line
+      this.setState({ subDomain: this.props.dataContext.subDomain });
+    }
     if (
       !isEqual(
         prevProps.dataContext.externalSubDomain,
@@ -64,6 +74,7 @@ class Scaler extends Component {
         subDomain: this.props.dataContext.externalSubDomain,
       });
     }
+
     if (
       Object.keys(domainUpdate).length ||
       Object.keys(transformUpdate).length
@@ -97,7 +108,6 @@ class Scaler extends Component {
     if (!isEqual(prevExternalBaseDomain, nextExternalBaseDomain)) {
       // External base domain changed (props on DataProvider)
       // Reset state
-
       // eslint-disable-next-line
       this.setState({
         subDomain: nextExternalBaseDomain,
@@ -152,10 +162,9 @@ class Scaler extends Component {
     );
     // Calculate new domain, map to timestamps (not dates)
     const newSubDomain = newScale.domain().map(Number);
-    // Update dataproviders subdomains changed
-    this.setState({
-      subDomain: newSubDomain,
-    });
+    // Update DataProvider's subDomain
+    // No need to set new subDomain state here since we
+    // listen for subDomain change in componentDidUpdate.
     this.props.dataContext.subDomainChanged(newSubDomain);
     return newSubDomain;
   };
