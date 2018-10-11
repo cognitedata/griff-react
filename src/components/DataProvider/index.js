@@ -244,13 +244,13 @@ export default class DataProvider extends Component {
     const { updateInterval } = this.props;
     if (updateInterval) {
       this.fetchInterval = setInterval(() => {
-        const { baseDomain, subDomain } = this.state;
+        const { xDomain, xSubDomain } = this.state;
         this.setState(
           {
-            baseDomain: baseDomain.map(d => d + updateInterval),
-            subDomain: this.props.isSubDomainSticky
-              ? subDomain.map(d => d + updateInterval)
-              : subDomain,
+            xDomain: xDomain.map(d => d + updateInterval),
+            xSubDomain: this.props.isXSubDomainSticky
+              ? xSubDomain.map(d => d + updateInterval)
+              : xSubDomain,
           },
           () => {
             Promise.map(this.props.series, s =>
@@ -390,18 +390,18 @@ export default class DataProvider extends Component {
     this.setState(stateUpdates);
   };
 
-  subDomainChanged = subDomain => {
-    const current = this.state.subDomain;
-    const newSubDomain = this.props.limitSubDomain
-      ? this.props.limitSubDomain(subDomain)
-      : subDomain;
+  xSubDomainChanged = xSubDomain => {
+    const current = this.state.xSubDomain;
+    const newXSubDomain = this.props.limitXSubDomain
+      ? this.props.limitXSubDomain(xSubDomain)
+      : xSubDomain;
 
-    if (newSubDomain[0] === current[0] && newSubDomain[1] === current[1]) {
+    if (newXSubDomain[0] === current[0] && newXSubDomain[1] === current[1]) {
       return;
     }
 
-    clearTimeout(this.subDomainChangedTimeout);
-    this.subDomainChangedTimeout = setTimeout(
+    clearTimeout(this.xSubDomainChangedTimeout);
+    this.xSubDomainChangedTimeout = setTimeout(
       () =>
         Promise.map(this.props.series, s =>
           this.fetchData(s.id, 'UPDATE_SUBDOMAIN')
@@ -409,10 +409,10 @@ export default class DataProvider extends Component {
       250
     );
 
-    if (this.props.onSubDomainChanged) {
-      this.props.onSubDomainChanged(newSubDomain);
+    if (this.props.onXSubDomainChanged) {
+      this.props.onXSubDomainChanged(newXSubDomain);
     }
-    this.setState({ subDomain: newSubDomain });
+    this.setState({ xSubDomain: newXSubDomain });
   };
 
   render() {
@@ -544,8 +544,8 @@ DataProvider.propTypes = {
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
-  isSubDomainSticky: PropTypes.bool,
-  limitSubDomain: PropTypes.func,
+  isXSubDomainSticky: PropTypes.bool,
+  limitXSubDomain: PropTypes.func,
 };
 
 DataProvider.defaultProps = {
@@ -566,6 +566,6 @@ DataProvider.defaultProps = {
   yAccessor: d => d.value,
   yAxisWidth: 50,
   ySubDomain: null,
-  isSubDomainSticky: false,
-  limitSubDomain: null,
+  isXSubDomainSticky: false,
+  limitXSubDomain: null,
 };

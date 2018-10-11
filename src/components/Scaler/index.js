@@ -56,12 +56,12 @@ class Scaler extends Component {
 
     if (
       !isEqual(
-        prevProps.dataContext.subDomain,
-        this.props.dataContext.subDomain
+        prevProps.dataContext.xSubDomain,
+        this.props.dataContext.xSubDomain
       )
     ) {
       // eslint-disable-next-line
-      this.setState({ subDomain: this.props.dataContext.subDomain });
+      this.setState({ xSubDomain: this.props.dataContext.xSubDomain });
     }
     if (
       !isEqual(
@@ -162,9 +162,9 @@ class Scaler extends Component {
     );
     // Calculate new domain, map to timestamps (not dates)
     const newSubDomain = newScale.domain().map(Number);
-    // Update DataProvider's subDomain
-    // No need to set new subDomain state here since we
-    // listen for subDomain change in componentDidUpdate.
+    // Update DataProvider's xSubDomain
+    // No need to set new xSubDomain state here since we
+    // listen for xSubDomain change in componentDidUpdate.
     this.props.dataContext.subDomainChanged(newSubDomain);
     return newSubDomain;
   };
