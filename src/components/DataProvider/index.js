@@ -568,6 +568,9 @@ DataProvider.propTypes = {
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
   isXSubDomainSticky: PropTypes.bool,
+  // xSubDomain => newXSubDomain
+  // function to allow limitation of the value of
+  // xSubDomain on manual change (e.g. by zoom or pan)
   limitXSubDomain: PropTypes.func,
 };
 
