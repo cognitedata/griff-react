@@ -117,17 +117,17 @@ class InteractionLayer extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const { xSubDomain: prevSuDomain, ruler, xScalerFactory } = this.props;
+    const { xSubDomain: prevXSubDomain, ruler, xScalerFactory } = this.props;
     const { xSubDomain: curXSubDomain, width } = nextProps;
     const { touchX, touchY } = this.state;
     if (
       ruler &&
       ruler.visible &&
       touchX !== null &&
-      !isEqual(prevSuDomain, curXSubDomain)
+      !isEqual(prevXSubDomain, curXSubDomain)
     ) {
       // keep track on ruler on subdomain update
-      const prevXScale = xScalerFactory(prevSuDomain, width);
+      const prevXScale = xScalerFactory(prevXSubDomain, width);
       const curXScale = xScalerFactory(curXSubDomain, width);
       const ts = prevXScale.invert(touchX).getTime();
       const newXPos = curXScale(ts);
