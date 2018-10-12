@@ -383,9 +383,13 @@ export default class DataProvider extends Component {
         );
         // The calculated xDomain needs to be big enough to encompass all of
         // the data, so they're all going to be merged.
+        const defaultXDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ];
         const mergedXDomain = [
-          Math.min(calculatedXDomain[0], (xDomain || [0])[0]),
-          Math.max(calculatedXDomain[1], (xDomain || [0, 0])[1]),
+          Math.min(calculatedXDomain[0], (xDomain || defaultXDomain)[0]),
+          Math.max(calculatedXDomain[1], (xDomain || defaultXDomain)[1]),
         ];
         stateUpdates.xDomain = mergedXDomain;
         stateUpdates.xSubDomain = mergedXDomain;
