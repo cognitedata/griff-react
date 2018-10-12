@@ -589,7 +589,6 @@ storiesOf('LineChart', module)
                 { id: 2, color: 'maroon' },
               ]}
               xDomain={xDomain}
-              onXDomainChanged={action('base domain changed')}
             >
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
