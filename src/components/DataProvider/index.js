@@ -413,11 +413,8 @@ export default class DataProvider extends Component {
 
   xSubDomainChanged = xSubDomain => {
     const current = this.state.xSubDomain;
-    const newXSubDomain = this.props.limitXSubDomain
-      ? this.props.limitXSubDomain(xSubDomain)
-      : xSubDomain;
-
-    if (newXSubDomain[0] === current[0] && newXSubDomain[1] === current[1]) {
+    const newXSubDomain = this.props.limitXSubDomain(xSubDomain);
+    if (isEqual(newXSubDomain, current)) {
       return;
     }
 
@@ -567,6 +564,8 @@ DataProvider.propTypes = {
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
+  // if set to true and an updateInterval is provided, xSubDomain
+  // will be increased at every interval (similarly to xDomain)
   isXSubDomainSticky: PropTypes.bool,
   // xSubDomain => newXSubDomain
   // function to allow limitation of the value of
@@ -597,5 +596,5 @@ DataProvider.defaultProps = {
   yDomain: null,
   ySubDomain: null,
   isXSubDomainSticky: false,
-  limitXSubDomain: null,
+  limitXSubDomain: xSubDomain => xSubDomain,
 };
