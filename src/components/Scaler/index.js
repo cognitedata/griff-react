@@ -60,7 +60,7 @@ class Scaler extends Component {
         this.props.dataContext.xSubDomain
       )
     ) {
-      // eslint-disable-next-line
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ xSubDomain: this.props.dataContext.xSubDomain });
     }
     if (
@@ -69,7 +69,7 @@ class Scaler extends Component {
         this.props.dataContext.externalXSubDomain
       )
     ) {
-      // eslint-disable-next-line
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({
         xSubDomain: this.props.dataContext.externalXSubDomain,
       });
@@ -79,7 +79,7 @@ class Scaler extends Component {
       Object.keys(domainUpdate).length ||
       Object.keys(transformUpdate).length
     ) {
-      // eslint-disable-next-line
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({
         yTransformations: {
           ...this.state.yTransformations,
@@ -108,7 +108,7 @@ class Scaler extends Component {
     if (!isEqual(prevExternalXDomain, nextExternalXDomain)) {
       // External base domain changed (props on DataProvider)
       // Reset state
-      // eslint-disable-next-line
+      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({
         xSubDomain: nextExternalXDomain,
         ySubDomains: {},
@@ -131,7 +131,7 @@ class Scaler extends Component {
         // and the xDomain is updated
         // Lock the xSubDomain to the end of the window
         const dt = xSubDomain[1] - xSubDomain[0];
-        // eslint-disable-next-line
+        // eslint-disable-next-line react/no-did-update-set-state
         this.setState({
           xSubDomain: [nextPropsDomain[1] - dt, nextPropsDomain[1]],
         });
@@ -145,7 +145,7 @@ class Scaler extends Component {
         // and the base domain is updated.
         // Lock the sub domain to the start of the window
         const dt = xSubDomain[1] - xSubDomain[0];
-        // eslint-disable-next-line
+        // eslint-disable-next-line react/no-did-update-set-state
         this.setState({
           xSubDomain: [nextPropsDomain[0], nextPropsDomain[0] + dt],
         });
