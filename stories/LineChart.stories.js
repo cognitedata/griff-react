@@ -589,7 +589,6 @@ storiesOf('LineChart', module)
                 { id: 2, color: 'maroon' },
               ]}
               xDomain={xDomain}
-              onXDomainChanged={action('base domain changed')}
             >
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
@@ -824,4 +823,56 @@ storiesOf('LineChart', module)
       }
     }
     return <BrushComponent />;
+  })
+  .add('Sticky x subdomain', () => (
+    <DataProvider
+      defaultLoader={liveLoader}
+      xDomain={liveXDomain}
+      xSubDomain={[Date.now() - 1000 * 20, Date.now() - 1000 * 10]}
+      updateInterval={33}
+      yAxisWidth={50}
+      series={[
+        { id: 1, color: 'steelblue', name: 'name1' },
+        { id: 2, color: 'maroon', name: 'name2' },
+      ]}
+      isXSubDomainSticky
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>
+  ))
+  .add('Limit x subdomain', () => {
+    class LimitXSubDomain extends React.Component {
+      limitXSubDomain = subDomain => {
+        const subDomainLength = subDomain[1] - subDomain[0];
+        const subDomainEnd = Math.min(
+          subDomain[1],
+          Date.now() - 1000 * 60 * 60 * 24 * 5
+        );
+        const subDomainStart = subDomainEnd - subDomainLength;
+        return [subDomainStart, subDomainEnd];
+      };
+
+      render() {
+        return (
+          <div>
+            <DataProvider
+              defaultLoader={staticLoader}
+              series={[
+                { id: 1, color: 'steelblue' },
+                { id: 2, color: 'maroon' },
+              ]}
+              xDomain={staticXDomain}
+              xSubDomain={[
+                Date.now() - 1000 * 60 * 60 * 24 * 15,
+                Date.now() - 1000 * 60 * 60 * 24 * 10,
+              ]}
+              limitXSubDomain={this.limitXSubDomain}
+            >
+              <LineChart height={CHART_HEIGHT} />
+            </DataProvider>
+          </div>
+        );
+      }
+    }
+    return <LimitXSubDomain />;
   });

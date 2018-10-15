@@ -186,9 +186,6 @@ export default class DataProvider extends Component {
       if (this.props.onXSubDomainChanged) {
         this.props.onXSubDomainChanged(newXSubDomain);
       }
-      if (this.props.onXDomainChanged) {
-        this.props.onXDomainChanged(this.props.xDomain);
-      }
       if (this.fetchInterval) {
         clearInterval(this.fetchInterval);
       }
@@ -247,15 +244,15 @@ export default class DataProvider extends Component {
     const { updateInterval } = this.props;
     if (updateInterval) {
       this.fetchInterval = setInterval(() => {
-        const { xDomain } = this.state;
+        const { xDomain, xSubDomain } = this.state;
         this.setState(
           {
             xDomain: xDomain.map(d => d + updateInterval),
+            xSubDomain: this.props.isXSubDomainSticky
+              ? xSubDomain.map(d => d + updateInterval)
+              : xSubDomain,
           },
           () => {
-            if (this.props.onXDomainChanged) {
-              this.props.onXDomainChanged(this.state.xDomain);
-            }
             Promise.map(this.props.series, s =>
               this.fetchData(s.id, 'INTERVAL')
             );
@@ -420,9 +417,11 @@ export default class DataProvider extends Component {
 
   xSubDomainChanged = xSubDomain => {
     const current = this.state.xSubDomain;
-    if (xSubDomain[0] === current[0] && xSubDomain[1] === current[1]) {
+    const newXSubDomain = this.props.limitXSubDomain(xSubDomain);
+    if (isEqual(newXSubDomain, current)) {
       return;
     }
+
     clearTimeout(this.xSubDomainChangedTimeout);
     this.xSubDomainChangedTimeout = setTimeout(
       () =>
@@ -432,9 +431,9 @@ export default class DataProvider extends Component {
       250
     );
     if (this.props.onXSubDomainChanged) {
-      this.props.onXSubDomainChanged(xSubDomain);
+      this.props.onXSubDomainChanged(newXSubDomain);
     }
-    this.setState({ xSubDomain });
+    this.setState({ xSubDomain: newXSubDomain });
   };
 
   render() {
@@ -564,20 +563,24 @@ DataProvider.propTypes = {
   collections: GriffPropTypes.collections,
   // xSubDomain => void
   onXSubDomainChanged: PropTypes.func,
-  // xDomain => void
-  onXDomainChanged: PropTypes.func,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
+  // if set to true and an updateInterval is provided, xSubDomain
+  // will be increased at every interval (similarly to xDomain)
+  isXSubDomainSticky: PropTypes.bool,
+  // xSubDomain => newXSubDomain
+  // function to allow limitation of the value of
+  // xSubDomain on manual change (e.g. by zoom or pan)
+  limitXSubDomain: PropTypes.func,
 };
 
 DataProvider.defaultProps = {
   collections: [],
   defaultLoader: null,
   onXSubDomainChanged: null,
-  onXDomainChanged: null,
   opacity: 1.0,
   opacityAccessor: null,
   pointsPerSeries: 250,
@@ -596,4 +599,6 @@ DataProvider.defaultProps = {
   yAxisWidth: 50,
   yDomain: null,
   ySubDomain: null,
+  isXSubDomainSticky: false,
+  limitXSubDomain: xSubDomain => xSubDomain,
 };
