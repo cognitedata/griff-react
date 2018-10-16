@@ -394,4 +394,40 @@ storiesOf('Series Collections', module)
     >
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
+  ])
+  .add('colors', () => [
+    <DataProvider
+      key="default"
+      xDomain={staticXDomain}
+      defaultLoader={staticLoader}
+      xAccessor={d => d.timestamp}
+      yAccessor={d => d.value}
+      series={[
+        { id: 1, collectionId: '1+2', color: 'steelblue', name: 'name1' },
+        { id: 2, collectionId: '1+2', color: 'maroon', name: 'name2' },
+      ]}
+      collections={[{ id: '1+2', color: 'red' }]}
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>,
+    // No color is specified; YAxis should use its default color.
+    <DataProvider
+      key="override"
+      xDomain={staticXDomain}
+      defaultLoader={staticLoader}
+      xAccessor={d => d.timestamp}
+      yAccessor={d => d.value}
+      series={[
+        { id: 1, collectionId: '1+2', color: 'steelblue', name: 'name1' },
+        {
+          id: 2,
+          collectionId: '1+2',
+          color: 'maroon',
+          name: 'name2',
+        },
+      ]}
+      collections={[{ id: '1+2' }]}
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>,
   ]);
