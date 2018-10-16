@@ -202,6 +202,7 @@ export default class DataProvider extends Component {
   static getXSubDomain = (
     xDomain,
     xSubDomain,
+    // eslint-disable-next-line no-shadow
     limitXSubDomain = xSubDomain => xSubDomain
   ) => {
     if (!xSubDomain) {
