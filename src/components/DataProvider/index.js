@@ -199,7 +199,11 @@ export default class DataProvider extends Component {
     clearInterval(this.fetchInterval);
   }
 
-  static getXSubDomain = (xDomain, xSubDomain, limitXSubDomain) => {
+  static getXSubDomain = (
+    xDomain,
+    xSubDomain,
+    limitXSubDomain = xSubDomain => xSubDomain
+  ) => {
     if (!xSubDomain) {
       return xDomain;
     }
