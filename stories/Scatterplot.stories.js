@@ -16,6 +16,10 @@ const mapping = {
   sincos: { x: Math.sin, y: Math.cos },
   sintan: { x: Math.sin, y: Math.tan },
   pow: { x: v => v, y: v => v * 10 },
+  'pow-y': { x: () => Math.random(), y: () => Math.random() * 10 },
+  'sum-y': { x: () => Math.random(), y: () => Math.random() + 19 },
+  'pow-x': { y: () => Math.random(), x: () => Math.random() * 10 },
+  'sum-x': { y: () => Math.random(), x: () => Math.random() + 9 },
 };
 
 const NUM_POINTS = 50;
@@ -104,10 +108,11 @@ storiesOf('Scatterplot', module)
             defaultLoader={scatterplotloader}
             xDomain={[0, 1]}
             series={[
-              { id: 'sincos', color: '#ACF39D' },
-              { id: 'sintan', color: '#E85F5C' },
-              { id: 'pow', color: '#9CFFFA' },
+              { id: 'sincos', color: '#ACF39D', collectionId: 'scatter' },
+              { id: 'sintan', color: '#E85F5C', collectionId: 'scatter' },
+              { id: 'pow', color: '#9CFFFA', collectionId: 'scatter' },
             ]}
+            collections={[{ id: 'scatter' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
           >
@@ -131,6 +136,28 @@ storiesOf('Scatterplot', module)
               { id: '7 8', color: '#2E0219' },
               { id: '8 9', color: '#2E0219' },
             ]}
+            xAccessor={d => +d.x}
+            yAccessor={d => +d.y}
+          >
+            <Scatterplot zoomable />
+          </DataProvider>
+        </div>
+      </div>
+    </React.Fragment>
+  ))
+  .add('Different domains', () => (
+    <React.Fragment>
+      <div>
+        <h3>Different Y domains</h3>
+        <div style={{ height: '500px', width: '100%' }}>
+          <DataProvider
+            defaultLoader={scatterplotloader}
+            xDomain={[0, 1]}
+            series={[
+              { id: '1 2', color: 'steelblue', collectionId: 'scatter' },
+              { id: 'sum-y', color: 'maroon', collectionId: 'scatter' },
+            ]}
+            collections={[{ id: 'scatter' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
           >
