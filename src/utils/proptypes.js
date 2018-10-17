@@ -98,7 +98,7 @@ export const areaPropType = PropTypes.shape({
 const collection = PropTypes.shape({
   id: idPropType.isRequired,
   // This the color used when referencing the collection (eg, the common axis)
-  color: PropTypes.string.isRequired,
+  color: PropTypes.string,
   drawPoints: PropTypes.bool,
   hidden: PropTypes.bool,
   strokeWidth: PropTypes.number,

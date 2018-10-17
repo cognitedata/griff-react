@@ -24,6 +24,7 @@ const propTypes = {
   yAxisPlacement: GriffPropTypes.axisPlacement,
   // Number => String
   tickFormatter: PropTypes.func.isRequired,
+  defaultColor: PropTypes.string,
 };
 
 const defaultProps = {
@@ -35,6 +36,7 @@ const defaultProps = {
   onMouseEnter: null,
   onMouseLeave: null,
   yAxisPlacement: AxisPlacement.RIGHT,
+  defaultColor: '#000',
 };
 
 export default class YAxis extends Component {
@@ -196,9 +198,10 @@ export default class YAxis extends Component {
   }
 
   renderAxis() {
-    const { height, tickFormatter } = this.props;
+    const { defaultColor, height, tickFormatter } = this.props;
 
     const item = this.getItem();
+    const color = item.color || defaultColor;
     const scale = createYScale(item.ySubDomain, height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
@@ -220,17 +223,17 @@ export default class YAxis extends Component {
         strokeWidth={strokeWidth}
       >
         <path
-          stroke={item.color}
+          stroke={color}
           d={this.getPathString({ tickSizeOuter, range, strokeWidth })}
         />
         {values.map(v => {
           const lineProps = {
-            stroke: item.color,
+            stroke: color,
             ...this.getLineProps({ tickSizeInner, strokeWidth }),
           };
 
           const textProps = {
-            fill: item.color,
+            fill: color,
             dy: '0.32em',
             ...this.getTextProps({ tickSizeInner, tickPadding, strokeWidth }),
           };
