@@ -62,7 +62,8 @@ export default class DataProvider extends Component {
   state = {
     xSubDomain: DataProvider.getXSubDomain(
       this.props.xDomain,
-      this.props.xSubDomain
+      this.props.xSubDomain,
+      this.props.limitXSubDomain
     ),
     xDomain: this.props.xDomain,
     loaderConfig: {},
@@ -165,7 +166,8 @@ export default class DataProvider extends Component {
     if (!isEqual(this.props.xDomain, prevProps.xDomain)) {
       const newXSubDomain = DataProvider.getXSubDomain(
         this.props.xDomain,
-        this.props.xSubDomain
+        this.props.xSubDomain,
+        this.props.limitXSubDomain
       );
       // eslint-disable-next-line
       this.setState(
@@ -197,22 +199,28 @@ export default class DataProvider extends Component {
     clearInterval(this.fetchInterval);
   }
 
-  static getXSubDomain = (xDomain, xSubDomain) => {
+  static getXSubDomain = (
+    xDomain,
+    xSubDomain,
+    // eslint-disable-next-line no-shadow
+    limitXSubDomain = xSubDomain => xSubDomain
+  ) => {
     if (!xSubDomain) {
       return xDomain;
     }
+    const newXSubDomain = limitXSubDomain(xSubDomain);
     const xDomainLength = xDomain[1] - xDomain[0];
-    const xSubDomainLength = xSubDomain[1] - xSubDomain[0];
+    const xSubDomainLength = newXSubDomain[1] - newXSubDomain[0];
     if (xDomainLength < xSubDomainLength) {
       return xDomain;
     }
-    if (xSubDomain[0] < xDomain[0]) {
+    if (newXSubDomain[0] < xDomain[0]) {
       return [xDomain[0], xDomain[0] + xSubDomainLength];
     }
-    if (xSubDomain[1] > xDomain[1]) {
+    if (newXSubDomain[1] > xDomain[1]) {
       return [xDomain[1] - xSubDomainLength, xDomain[1]];
     }
-    return xSubDomain;
+    return newXSubDomain;
   };
 
   getSeriesObjects = () => {
@@ -245,12 +253,18 @@ export default class DataProvider extends Component {
     if (updateInterval) {
       this.fetchInterval = setInterval(() => {
         const { xDomain, xSubDomain } = this.state;
+        const newXDomain = xDomain.map(d => d + updateInterval);
+        const newXSubDomain = this.props.isXSubDomainSticky
+          ? DataProvider.getXSubDomain(
+              newXDomain,
+              xSubDomain.map(d => d + updateInterval),
+              this.props.limitXSubDomain
+            )
+          : xSubDomain;
         this.setState(
           {
-            xDomain: xDomain.map(d => d + updateInterval),
-            xSubDomain: this.props.isXSubDomainSticky
-              ? xSubDomain.map(d => d + updateInterval)
-              : xSubDomain,
+            xDomain: newXDomain,
+            xSubDomain: newXSubDomain,
           },
           () => {
             Promise.map(this.props.series, s =>
@@ -417,7 +431,11 @@ export default class DataProvider extends Component {
 
   xSubDomainChanged = xSubDomain => {
     const current = this.state.xSubDomain;
-    const newXSubDomain = this.props.limitXSubDomain(xSubDomain);
+    const newXSubDomain = DataProvider.getXSubDomain(
+      this.state.xDomain,
+      xSubDomain,
+      this.props.limitXSubDomain
+    );
     if (isEqual(newXSubDomain, current)) {
       return;
     }
@@ -572,8 +590,7 @@ DataProvider.propTypes = {
   // will be increased at every interval (similarly to xDomain)
   isXSubDomainSticky: PropTypes.bool,
   // xSubDomain => newXSubDomain
-  // function to allow limitation of the value of
-  // xSubDomain on manual change (e.g. by zoom or pan)
+  // function to allow limitation of the value of xSubDomain
   limitXSubDomain: PropTypes.func,
 };
 
