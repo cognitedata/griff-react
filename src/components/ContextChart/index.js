@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { SizeMe } from 'react-sizeme';
 import ScalerContext from '../../context/Scaler';
 import LineCollection from '../LineCollection';
 import XAxis from '../XAxis';
@@ -11,29 +12,37 @@ import GriffPropTypes, {
 } from '../../utils/proptypes';
 import Brush from '../Brush';
 import AxisPlacement from '../AxisPlacement';
+import Scaler from '../Scaler';
+import { createLinearXScale } from '../../utils/scale-helpers';
+import multiFormat from '../../utils/multiFormat';
+import NoGapContainer from '../NoGapContainer';
 
-export default class ContextChart extends Component {
+class ContextChart extends Component {
   static propTypes = {
-    width: PropTypes.number.isRequired,
+    height: PropTypes.number,
     annotations: PropTypes.arrayOf(annotationPropType),
-    height: PropTypes.number.isRequired,
-    contextSeries: seriesPropType,
-    xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-    xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-    updateXSubDomain: PropTypes.func.isRequired,
     zoomable: PropTypes.bool,
-    xScalerFactory: scalerFactoryFunc.isRequired,
     // Number => String
     xAxisFormatter: PropTypes.func,
     xAxisHeight: PropTypes.number,
     xAxisPlacement: GriffPropTypes.axisPlacement,
+
+    // These are all provided by Griff.
+    contextSeries: seriesPropType,
+    updateXSubDomain: PropTypes.func.isRequired,
+    width: PropTypes.number,
+    xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    xScalerFactory: scalerFactoryFunc.isRequired,
+    xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
   };
 
   static defaultProps = {
+    width: 1,
+    height: 150,
     annotations: [],
     contextSeries: [],
     zoomable: true,
-    xAxisFormatter: null,
+    xAxisFormatter: multiFormat,
     xAxisHeight: 50,
     xAxisPlacement: AxisPlacement.BOTTOM,
   };
@@ -87,19 +96,17 @@ export default class ContextChart extends Component {
 
     const xAxis = (
       <XAxis
-        width={width}
         height={xAxisHeight}
         domain={xDomain}
         tickFormatter={xAxisFormatter}
-        xAxisPlacement={xAxisPlacement}
-        xScalerFactory={xScalerFactory}
+        placement={xAxisPlacement}
       />
     );
 
     return (
-      <React.Fragment>
+      <NoGapContainer>
         {this.renderXAxis(AxisPlacement.TOP, xAxis)}
-        <svg height={height} width={width}>
+        <svg height={height} width={width} style={{ width: '100%' }}>
           {annotations}
           <LineCollection
             series={contextSeries}
@@ -118,28 +125,35 @@ export default class ContextChart extends Component {
           />
         </svg>
         {this.renderXAxis(AxisPlacement.BOTTOM, xAxis)}
-      </React.Fragment>
+      </NoGapContainer>
     );
   }
 }
 
-export const ScaledContextChart = props => (
-  <ScalerContext.Consumer>
-    {({
-      xSubDomain,
-      xDomain,
-      updateXSubDomain,
-      contextSeries,
-      xScalerFactory,
-    }) => (
-      <ContextChart
-        {...props}
-        xDomain={xDomain}
-        contextSeries={contextSeries}
-        xSubDomain={xSubDomain}
-        updateXSubDomain={updateXSubDomain}
-        xScalerFactory={xScalerFactory}
-      />
-    )}
-  </ScalerContext.Consumer>
+export default props => (
+  <Scaler xScalerFactory={createLinearXScale}>
+    <ScalerContext.Consumer>
+      {({
+        xSubDomain,
+        xDomain,
+        updateXSubDomain,
+        contextSeries,
+        xScalerFactory,
+      }) => (
+        <SizeMe monitorWidth>
+          {({ size }) => (
+            <ContextChart
+              width={size.width}
+              {...props}
+              xDomain={xDomain}
+              contextSeries={contextSeries}
+              xSubDomain={xSubDomain}
+              updateXSubDomain={updateXSubDomain}
+              xScalerFactory={xScalerFactory}
+            />
+          )}
+        </SizeMe>
+      )}
+    </ScalerContext.Consumer>
+  </Scaler>
 );

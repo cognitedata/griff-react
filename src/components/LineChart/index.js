@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
-import * as d3 from 'd3';
 import AxisCollection from '../AxisCollection';
 import GridLines from '../GridLines';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
-import { ScaledContextChart } from '../ContextChart';
+import ContextChart from '../ContextChart';
 import GriffPropTypes, {
   areaPropType,
   seriesPropType,
@@ -22,34 +21,7 @@ import AxisDisplayMode from './AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
 import Layout from './Layout';
 import { createXScale } from '../../utils/scale-helpers';
-
-const formatMillisecond = d3.timeFormat('.%L');
-const formatSecond = d3.timeFormat(':%S');
-const formatMinute = d3.timeFormat('%H:%M');
-const formatHour = d3.timeFormat('%H:00');
-const formatDay = d3.timeFormat('%d/%m');
-const formatWeek = d3.timeFormat('%d/%m');
-const formatMonth = d3.timeFormat('%d/%m');
-const formatYear = d3.timeFormat('%b %Y');
-
-function multiFormat(date) {
-  /* eslint-disable no-nested-ternary */
-  return (d3.timeSecond(date) < date
-    ? formatMillisecond
-    : d3.timeMinute(date) < date
-      ? formatSecond
-      : d3.timeHour(date) < date
-        ? formatMinute
-        : d3.timeDay(date) < date
-          ? formatHour
-          : d3.timeMonth(date) < date
-            ? d3.timeWeek(date) < date
-              ? formatDay
-              : formatWeek
-            : d3.timeYear(date) < date
-              ? formatMonth
-              : formatYear)(date);
-}
+import multiFormat from '../../utils/multiFormat';
 
 const propTypes = {
   // Disable the ESLinter for this because they'll show up from react-sizeme.
@@ -346,18 +318,16 @@ class LineChartComponent extends Component {
         xAxis={
           <XAxis
             domain={xSubDomain}
-            width={chartSize.width}
             xScalerFactory={xScalerFactory}
             height={xAxisHeight}
-            xAxisPlacement={xAxisPlacement}
+            placement={xAxisPlacement}
             tickFormatter={xAxisFormatter}
           />
         }
         contextChart={
           contextChart.visible && (
-            <ScaledContextChart
+            <ContextChart
               height={contextChartSpace}
-              width={chartSize.width}
               zoomable={zoomable}
               annotations={annotations}
               xAxisFormatter={xAxisFormatter}
