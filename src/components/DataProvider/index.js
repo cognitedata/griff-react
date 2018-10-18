@@ -251,6 +251,7 @@ export default class DataProvider extends Component {
   startUpdateInterval = () => {
     const { updateInterval } = this.props;
     if (updateInterval) {
+      clearInterval(this.fetchInterval);
       this.fetchInterval = setInterval(() => {
         const { xDomain, xSubDomain } = this.state;
         const newXDomain = xDomain.map(d => d + updateInterval);
