@@ -14,6 +14,8 @@ export const singleSeriePropType = PropTypes.shape({
   loader: PropTypes.func,
   step: PropTypes.bool,
   xAccessor: PropTypes.func,
+  x0Accessor: PropTypes.func,
+  x1Accessor: PropTypes.func,
   yAccessor: PropTypes.func,
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,

@@ -466,4 +466,26 @@ storiesOf('Scatterplot', module)
         </DataProvider>
       </div>
     </React.Fragment>
+  ))
+  .add('Min/Max', () => (
+    <React.Fragment>
+      <div style={{ height: '500px', width: '500px' }}>
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          xDomain={[0, 1]}
+          series={[
+            { id: '1 2', color: 'steelblue' },
+            { id: '3 4', color: 'maroon' },
+          ]}
+          xAccessor={d => +d.x}
+          x0Accessor={d => +d.x * 0.9}
+          x1Accessor={d => +d.x * 1.1}
+          yAccessor={d => +d.y}
+          y0Accessor={d => +d.y * 0.9}
+          y1Accessor={d => +d.y * 1.1}
+        >
+          <Scatterplot zoomable />
+        </DataProvider>
+      </div>
+    </React.Fragment>
   ));
