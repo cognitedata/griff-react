@@ -379,7 +379,11 @@ storiesOf('InteractionLayer', module)
       state = { onAreaDefined: null };
 
       componentDidMount() {
-        window.setInterval(this.toggleOnAreaDefined, 1000);
+        this.interval = setInterval(this.toggleOnAreaDefined, 1000);
+      }
+
+      componentWillUnmount() {
+        clearInterval(this.interval);
       }
 
       toggleOnAreaDefined = () => {
@@ -402,7 +406,8 @@ storiesOf('InteractionLayer', module)
             >
               <LineChart height={CHART_HEIGHT} onAreaDefined={onAreaDefined} />
             </DataProvider>
-            onAreaDefined={onAreaDefined ? 'function' : 'null'}
+            onAreaDefined:
+            {onAreaDefined ? 'function' : 'null'}
             <h2>Test</h2>
             <ol>
               <li>
