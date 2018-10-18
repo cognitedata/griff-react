@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
-import { DataProvider, ChartContainer, LineChart, ContextChart } from '../src';
+import { DataProvider, ChartContainer, LineChart } from '../src';
 import { Map } from 'immutable';
 
 const randomData = () => {

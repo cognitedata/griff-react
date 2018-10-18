@@ -28,7 +28,7 @@ const xAxisContainer = area => (axis, placement) => (
       width: '100%',
     }}
   >
-    {React.cloneElement(axis, { xAxisPlacement: placement })}
+    {React.cloneElement(axis, { placement })}
   </div>
 );
 

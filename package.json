@@ -32,7 +32,7 @@
     "immutable": "^3.8.2",
     "lodash.isequal": "^4.5.0",
     "react-select": "^1.2.1",
-    "react-sizeme": "2.4.4"
+    "react-sizeme": "^2.5.2"
   },
   "peerDependencies": {
     "react": "16.x"

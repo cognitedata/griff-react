@@ -1,34 +1,40 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
-import GriffPropTypes, { scalerFactoryFunc } from '../utils/proptypes';
-import AxisPlacement from './AxisPlacement';
+import { SizeMe } from 'react-sizeme';
+import GriffPropTypes, { scalerFactoryFunc } from '../../utils/proptypes';
+import AxisPlacement from '../AxisPlacement';
+import Scaler from '../Scaler';
+import ScalerContext from '../../context/Scaler';
+import { createLinearXScale } from '../../utils/scale-helpers';
 
 const tickTransformer = v => `translate(${v}, 0)`;
 
 const propTypes = {
   domain: PropTypes.arrayOf(PropTypes.number).isRequired,
-  strokeColor: PropTypes.string,
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number,
-  // Number => String
-  tickFormatter: PropTypes.func.isRequired,
-  ticks: PropTypes.number,
-  xAxisPlacement: GriffPropTypes.axisPlacement,
   xScalerFactory: scalerFactoryFunc.isRequired,
+  width: PropTypes.number,
+  height: PropTypes.number,
+  stroke: PropTypes.string,
+  // Number => String
+  tickFormatter: PropTypes.func,
+  ticks: PropTypes.number,
+  placement: GriffPropTypes.axisPlacement,
 };
 
 const defaultProps = {
-  strokeColor: 'black',
+  stroke: 'black',
+  width: 1,
   height: 50,
-  ticks: null,
-  xAxisPlacement: AxisPlacement.BOTTOM,
+  ticks: 0,
+  placement: AxisPlacement.BOTTOM,
+  tickFormatter: Number,
 };
 
-class Axis extends Component {
+class XAxis extends Component {
   getLineProps = ({ tickSizeInner, strokeWidth }) => {
-    const { height, xAxisPlacement } = this.props;
-    switch (xAxisPlacement) {
+    const { height, placement } = this.props;
+    switch (placement) {
       case AxisPlacement.TOP:
         return {
           x1: strokeWidth / 2,
@@ -48,8 +54,8 @@ class Axis extends Component {
   };
 
   getPathString = ({ range, strokeWidth, tickSizeOuter }) => {
-    const { height, xAxisPlacement } = this.props;
-    switch (xAxisPlacement) {
+    const { height, placement } = this.props;
+    switch (placement) {
       case AxisPlacement.TOP:
         return [
           `M${range[0]},${height - tickSizeOuter}`,
@@ -70,8 +76,8 @@ class Axis extends Component {
   };
 
   getTextProps = ({ tickSizeInner, tickPadding, strokeWidth }) => {
-    const { height, xAxisPlacement } = this.props;
-    switch (xAxisPlacement) {
+    const { height, placement } = this.props;
+    switch (placement) {
       case AxisPlacement.TOP:
         return {
           y: height - (Math.max(tickSizeInner, 0) + tickPadding) - 10,
@@ -91,7 +97,7 @@ class Axis extends Component {
     const {
       domain,
       width,
-      strokeColor,
+      stroke,
       xScalerFactory,
       tickFormatter,
       ticks,
@@ -124,21 +130,21 @@ class Axis extends Component {
         textAnchor="middle"
         strokeWidth={strokeWidth}
       >
-        <path stroke={strokeColor} d={pathString} />
+        <path stroke={stroke} d={pathString} />
         {values.map(v => {
           const lineProps = {
-            stroke: strokeColor,
+            stroke,
             ...this.getLineProps({ strokeWidth, tickSizeInner }),
           };
 
           const textProps = {
-            fill: strokeColor,
+            fill: stroke,
             dy: '0.71em',
             ...this.getTextProps({ strokeWidth, tickPadding, tickSizeInner }),
           };
           return (
             <g key={+v} opacity={1} transform={tickTransformer(scale(v))}>
-              <line stroke={strokeColor} {...lineProps} />
+              <line stroke={stroke} {...lineProps} />
               <text className="tick-value" {...textProps}>
                 {tickFormatter(v)}
               </text>
@@ -152,14 +158,35 @@ class Axis extends Component {
   render() {
     const { width, height } = this.props;
     return (
-      <svg width={width} height={height}>
+      <svg
+        width={width}
+        style={{ width: '100%', display: 'block' }}
+        height={height}
+      >
         {this.renderAxis()}
       </svg>
     );
   }
 }
 
-Axis.propTypes = propTypes;
-Axis.defaultProps = defaultProps;
+XAxis.propTypes = propTypes;
+XAxis.defaultProps = defaultProps;
 
-export default Axis;
+export default props => (
+  <Scaler xScalerFactory={createLinearXScale}>
+    <ScalerContext.Consumer>
+      {({ xSubDomain, xScalerFactory }) => (
+        <SizeMe monitorWidth>
+          {({ size }) => (
+            <XAxis
+              xScalerFactory={xScalerFactory}
+              {...props}
+              width={size.width}
+              domain={xSubDomain}
+            />
+          )}
+        </SizeMe>
+      )}
+    </ScalerContext.Consumer>
+  </Scaler>
+);
