@@ -198,28 +198,41 @@ class LineChartComponent extends Component {
     const filteredItems = []
       .concat(series)
       .concat(collections)
-      .filter(item => !item.hidden)
-      .filter(item => item.collectionId === undefined)
-      .filter(
-        item =>
-          (item.yAxisPlacement || yAxisPlacement) &&
-          ((item.yAxisPlacement || yAxisPlacement) === AxisPlacement.BOTH ||
-            (item.yAxisPlacement || yAxisPlacement) === placement)
-      );
+      .reduce((items, item) => {
+        if (item.hidden) {
+          return items;
+        }
+        if (item.collectionId === undefined) {
+          return items;
+        }
+        if (
+          !(
+            (item.yAxisPlacement || yAxisPlacement) &&
+            ((item.yAxisPlacement || yAxisPlacement) === AxisPlacement.BOTH ||
+              (item.yAxisPlacement || yAxisPlacement) === placement)
+          )
+        ) {
+          return items;
+        }
+        return [...items, item];
+      }, []);
 
     const hasCollapsed =
       filteredItems.filter(displayModeFilter(AxisDisplayMode.COLLAPSED))
         .length > 0;
 
-    return filteredItems
-      .filter(displayModeFilter(AxisDisplayMode.ALL))
-      .reduce((acc, item) => {
-        // COLLAPSED items are already accounted-for with the initial value.
-        if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
-          return acc;
-        }
-        return acc + yAxisWidth;
-      }, hasCollapsed ? yAxisWidth : 0);
+    const isDisplayModeALL = displayModeFilter(AxisDisplayMode.ALL);
+
+    return filteredItems.reduce((totalWidth, item) => {
+      if (!isDisplayModeALL(item)) {
+        return totalWidth;
+      }
+      // COLLAPSED items are already accounted-for with the initial value.
+      if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+        return totalWidth;
+      }
+      return totalWidth + yAxisWidth;
+    }, hasCollapsed ? yAxisWidth : 0);
   };
 
   getYAxisPlacement = () => {
