@@ -198,24 +198,14 @@ class LineChartComponent extends Component {
     const filteredItems = []
       .concat(series)
       .concat(collections)
-      .reduce((items, item) => {
-        if (item.hidden) {
-          return items;
-        }
-        if (item.collectionId === undefined) {
-          return items;
-        }
-        if (
-          !(
-            (item.yAxisPlacement || yAxisPlacement) &&
+      .filter(
+        item =>
+          !item.hidden &&
+          item.collectionId === undefined &&
+          ((item.yAxisPlacement || yAxisPlacement) &&
             ((item.yAxisPlacement || yAxisPlacement) === AxisPlacement.BOTH ||
-              (item.yAxisPlacement || yAxisPlacement) === placement)
-          )
-        ) {
-          return items;
-        }
-        return [...items, item];
-      }, []);
+              (item.yAxisPlacement || yAxisPlacement) === placement))
+      );
 
     const hasCollapsed =
       filteredItems.filter(displayModeFilter(AxisDisplayMode.COLLAPSED))
