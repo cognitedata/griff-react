@@ -71,30 +71,30 @@ const Points = ({
     const cx = getX(xAccessor(d));
     const cy = getY(yAccessor(d));
 
-    if (x0Accessor && x1Accessor && y0Accessor && y1Accessor) {
-      const [x0, x1, y0, y1] = [
-        x0Accessor,
-        x1Accessor,
-        y0Accessor,
-        y1Accessor,
-      ].map(f => f(d));
-      const polygon = [
-        // left
-        `${getX(x0)},${cy}`,
-        // top
-        `${cx},${getY(y1)}`,
-        // right
-        `${getX(x1)},${cy}`,
-        // bottom
-        `${cx},${getY(y0)}`,
-      ].join(' ');
+    if (x0Accessor && x1Accessor) {
+      const [x0, x1] = [x0Accessor, x1Accessor].map(f => f(d));
       uiElements.push(
-        <polygon
-          key={`${x0},${y0}-${x1},${y1}`}
-          className="point-area"
-          points={polygon}
-          fill={color}
-          fillOpacity={0.25}
+        <line
+          key={`${x0},${cy}-${x1},${cy}`}
+          x1={getX(x0)}
+          y1={cy}
+          x2={getX(x1)}
+          y2={cy}
+          stroke={color}
+          strokeWidth={1}
+        />
+      );
+    }
+
+    if (y0Accessor && y1Accessor) {
+      const [y0, y1] = [y0Accessor, y1Accessor].map(f => f(d));
+      uiElements.push(
+        <line
+          key={`${cx},${y0}-${cx},${y1}`}
+          x1={cx}
+          y1={getY(y0)}
+          x2={cx}
+          y2={getY(y1)}
           stroke={color}
           strokeWidth={1}
         />
