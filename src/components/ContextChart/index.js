@@ -15,7 +15,6 @@ import AxisPlacement from '../AxisPlacement';
 import Scaler from '../Scaler';
 import { createLinearXScale } from '../../utils/scale-helpers';
 import multiFormat from '../../utils/multiFormat';
-import NoGapContainer from '../NoGapContainer';
 
 class ContextChart extends Component {
   static propTypes = {
@@ -104,9 +103,13 @@ class ContextChart extends Component {
     );
 
     return (
-      <NoGapContainer>
+      <React.Fragment>
         {this.renderXAxis(AxisPlacement.TOP, xAxis)}
-        <svg height={height} width={width} style={{ width: '100%' }}>
+        <svg
+          height={height}
+          width={width}
+          style={{ width: '100%', display: 'block' }}
+        >
           {annotations}
           <LineCollection
             series={contextSeries}
@@ -125,7 +128,7 @@ class ContextChart extends Component {
           />
         </svg>
         {this.renderXAxis(AxisPlacement.BOTTOM, xAxis)}
-      </NoGapContainer>
+      </React.Fragment>
     );
   }
 }

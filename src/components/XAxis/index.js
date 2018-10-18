@@ -7,7 +7,6 @@ import AxisPlacement from '../AxisPlacement';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import { createLinearXScale } from '../../utils/scale-helpers';
-import NoGapContainer from '../NoGapContainer';
 
 const tickTransformer = v => `translate(${v}, 0)`;
 
@@ -159,11 +158,13 @@ class XAxis extends Component {
   render() {
     const { width, height } = this.props;
     return (
-      <NoGapContainer>
-        <svg width={width} style={{ width: '100%' }} height={height}>
-          {this.renderAxis()}
-        </svg>
-      </NoGapContainer>
+      <svg
+        width={width}
+        style={{ width: '100%', display: 'block' }}
+        height={height}
+      >
+        {this.renderAxis()}
+      </svg>
     );
   }
 }
