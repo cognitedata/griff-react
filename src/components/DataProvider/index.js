@@ -285,6 +285,8 @@ export default class DataProvider extends Component {
       pointWidthAccessor,
       strokeWidth,
       xAccessor,
+      x0Accessor,
+      x1Accessor,
       y0Accessor,
       y1Accessor,
       yAccessor,
@@ -306,6 +308,16 @@ export default class DataProvider extends Component {
         series.xAccessor,
         collection.xAccessor,
         xAccessor
+      ),
+      x0Accessor: firstDefined(
+        series.x0Accessor,
+        collection.x0Accessor,
+        x0Accessor
+      ),
+      x1Accessor: firstDefined(
+        series.x1Accessor,
+        collection.x1Accessor,
+        x1Accessor
       ),
       yAccessor: firstDefined(
         series.yAccessor,
