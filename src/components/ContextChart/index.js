@@ -76,7 +76,7 @@ class ContextChart extends Component {
 
   render() {
     const {
-      domainsByItemId,
+      subDomainsByItemId,
       width,
       xDomain,
       xSubDomain,
@@ -119,7 +119,7 @@ class ContextChart extends Component {
             domain={xDomain}
             xScalerFactory={xScalerFactory}
             scaleY={false}
-            domainsByItemId={domainsByItemId}
+            subDomainsByItemId={subDomainsByItemId}
           />
           <Brush
             width={width}
@@ -143,7 +143,7 @@ export default props => (
       updateXSubDomain,
       contextSeries,
       xScalerFactory,
-      domainsByItemId,
+      subDomainsByItemId,
     }) => (
       <SizeMe monitorWidth>
         {({ size }) => (
@@ -155,7 +155,7 @@ export default props => (
             xSubDomain={xSubDomain}
             updateXSubDomain={updateXSubDomain}
             xScalerFactory={xScalerFactory}
-            domainsByItemId={domainsByItemId}
+            subDomainsByItemId={subDomainsByItemId}
           />
         )}
       </SizeMe>

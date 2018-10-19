@@ -95,7 +95,6 @@ class InteractionLayer extends React.Component {
     const { width, height, xScalerFactory } = this.props;
     this.zoom = d3
       .zoom()
-      .scaleExtent([1, Infinity])
       .translateExtent([[0, 0], [width, height]])
       .extent([[0, 0], [width, height]]);
     this.rectSelection = d3.select(this.zoomNode);
@@ -495,7 +494,10 @@ class InteractionLayer extends React.Component {
           [s.id]: {
             x: t
               .rescaleX(
-                createXScale((this.props.domainsByItemId[s.id] || {}).x, width)
+                createXScale(
+                  (this.props.subDomainsByItemId[s.id] || {}).x,
+                  width
+                )
               )
               .domain()
               .map(Number),
@@ -645,7 +647,7 @@ export default props => (
       updateXTransformation,
       updateYTransformation,
       xScalerFactory,
-      domainsByItemId,
+      subDomainsByItemId,
       updateDomains,
     }) => (
       <InteractionLayer
@@ -656,7 +658,7 @@ export default props => (
         updateXTransformation={updateXTransformation}
         updateYTransformation={updateYTransformation}
         xScalerFactory={xScalerFactory}
-        domainsByItemId={domainsByItemId}
+        subDomainsByItemId={subDomainsByItemId}
         updateDomains={updateDomains}
       />
     )}

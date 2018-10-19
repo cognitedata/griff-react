@@ -149,7 +149,7 @@ class AxisCollection extends React.Component {
               tickFormatter={tickFormatter}
               yAxisPlacement={yAxisPlacement}
               updateDomains={this.props.updateDomains}
-              domainsByItemId={this.props.domainsByItemId}
+              subDomainsByItemId={this.props.subDomainsByItemId}
             />
           );
         })
@@ -263,7 +263,7 @@ export default props => (
       updateYTransformation,
       yTransformations,
       updateDomains,
-      domainsByItemId,
+      subDomainsByItemId,
     }) => (
       <AxisCollection
         {...props}
@@ -273,7 +273,7 @@ export default props => (
         updateYTransformation={updateYTransformation}
         yTransformations={yTransformations}
         updateDomains={updateDomains}
-        domainsByItemId={domainsByItemId}
+        subDomainsByItemId={subDomainsByItemId}
       />
     )}
   </ScalerContext.Consumer>

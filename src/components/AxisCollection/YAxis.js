@@ -158,7 +158,7 @@ export default class YAxis extends Component {
       event: { transform },
     } = d3;
     const { y: ySubDomain } =
-      this.props.domainsByItemId[this.getItem().id] || {};
+      this.props.subDomainsByItemId[this.getItem().id] || {};
     this.props.updateDomains(
       {
         [this.getItem().id]: {
@@ -188,11 +188,16 @@ export default class YAxis extends Component {
   }
 
   renderAxis() {
-    const { defaultColor, domainsByItemId, height, tickFormatter } = this.props;
+    const {
+      defaultColor,
+      subDomainsByItemId,
+      height,
+      tickFormatter,
+    } = this.props;
 
     const item = this.getItem();
     const color = item.color || defaultColor;
-    const scale = createYScale(domainsByItemId[item.id].y, height);
+    const scale = createYScale(subDomainsByItemId[item.id].y, height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;

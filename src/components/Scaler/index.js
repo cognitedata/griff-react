@@ -33,25 +33,25 @@ class Scaler extends Component {
     yTransformations: {},
 
     // Map from item (collection, series) to their respective domains.
-    domainsByItemId: {},
+    subDomainsByItemId: {},
   };
 
   static getDerivedStateFromProps(props, state) {
     const { dataContext } = props;
-    const domainsByItemId = []
+    const subDomainsByItemId = []
       .concat(dataContext.series.filter(s => s.collectionId === undefined))
       .concat(dataContext.collections)
       .reduce(
         (acc, item) => ({
           ...acc,
-          [item.id]: state.domainsByItemId[item.id] || {
+          [item.id]: state.subDomainsByItemId[item.id] || {
             x: [...dataContext.xSubDomain],
             y: [...item.ySubDomain],
           },
         }),
         {}
       );
-    return { domainsByItemId };
+    return { subDomainsByItemId };
   }
 
   componentDidUpdate_old(prevProps, prevState) {
@@ -220,25 +220,25 @@ class Scaler extends Component {
   };
 
   updateDomains = (changedDomainsById, callback) => {
-    const domainsByItemId = Object.keys(changedDomainsById).reduce(
+    const subDomainsByItemId = Object.keys(changedDomainsById).reduce(
       (changes, itemId) => ({
         ...changes,
         [itemId]: {
-          ...this.state.domainsByItemId[itemId],
+          ...this.state.subDomainsByItemId[itemId],
           ...changedDomainsById[itemId],
         },
       }),
-      {}
+      this.state.subDomainsByItemId
     );
     this.setState(
-      { domainsByItemId },
+      { subDomainsByItemId },
       callback ? () => callback(changedDomainsById) : undefined
     );
   };
 
   render() {
     const {
-      domainsByItemId,
+      subDomainsByItemId,
       ySubDomains,
       yTransformations,
       xSubDomain,
@@ -250,7 +250,7 @@ class Scaler extends Component {
       updateYTransformation: this.updateYTransformation,
       yTransformations,
       updateDomains: this.updateDomains,
-      domainsByItemId,
+      subDomainsByItemId,
     };
 
     const enrichedSeries = dataContext.series.map(s => ({
