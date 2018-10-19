@@ -179,7 +179,21 @@ export default class YAxis extends Component {
   didZoom = () => {
     const { height } = this.props;
     const t = d3.event.transform;
+    console.log(
+      'current',
+      (this.props.domainsByItemId[this.getItem().id] || {}).y
+    );
     this.props.updateYTransformation(this.getItem().id, t, height);
+    this.props.updateDomains(
+      this.getItem().id,
+      {
+        x: [0, 1],
+        y: [1, 2],
+        time: [2, 3],
+      },
+      () =>
+        console.log('updated', this.props.domainsByItemId[this.getItem().id].y)
+    );
   };
 
   renderZoomRect() {

@@ -148,6 +148,8 @@ class AxisCollection extends React.Component {
               onMouseLeave={this.onAxisMouseLeave(s.id)}
               tickFormatter={tickFormatter}
               yAxisPlacement={yAxisPlacement}
+              updateDomains={this.props.updateDomains}
+              domainsByItemId={this.props.domainsByItemId}
             />
           );
         })
@@ -260,6 +262,8 @@ export default props => (
       yAxisWidth,
       updateYTransformation,
       yTransformations,
+      updateDomains,
+      domainsByItemId,
     }) => (
       <AxisCollection
         {...props}
@@ -268,6 +272,8 @@ export default props => (
         yAxisWidth={yAxisWidth}
         updateYTransformation={updateYTransformation}
         yTransformations={yTransformations}
+        updateDomains={updateDomains}
+        domainsByItemId={domainsByItemId}
       />
     )}
   </ScalerContext.Consumer>

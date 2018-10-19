@@ -31,7 +31,26 @@ class Scaler extends Component {
     xSubDomain:
       this.props.dataContext.xSubDomain || this.props.dataContext.xDomain,
     yTransformations: {},
+
+    // Map from item (collection, series) to their respective domains.
+    domainsByItemId: {},
   };
+
+  static getDerivedStateFromProps(props) {
+    const { dataContext } = props;
+    const domainsByItemId = []
+      .concat(dataContext.series.filter(s => s.collectionId === undefined))
+      .concat(dataContext.collections)
+      .reduce(
+        (acc, item) => ({
+          ...acc,
+          [item.id]: { x: item.xSubDomain, y: item.ySubDomain },
+        }),
+        {}
+      );
+    console.log(domainsByItemId);
+    return { domainsByItemId };
+  }
 
   componentDidUpdate(prevProps, prevState) {
     // Check every serie if its ySubDomain changed
@@ -63,6 +82,7 @@ class Scaler extends Component {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ xSubDomain: this.props.dataContext.xSubDomain });
     }
+
     if (
       !isEqual(
         prevProps.dataContext.externalXSubDomain,
@@ -197,14 +217,36 @@ class Scaler extends Component {
     return newXSubDomain;
   };
 
+  updateDomains = (itemId, domains, callback) =>
+    console.log(itemId, domains) ||
+    this.setState(
+      {
+        domainsByItemId: {
+          ...this.state.domainsByItemId,
+          [itemId]: {
+            ...this.state.domainsByItemId[itemId],
+            ...domains,
+          },
+        },
+      },
+      callback
+    );
+
   render() {
-    const { ySubDomains, yTransformations, xSubDomain } = this.state;
+    const {
+      domainsByItemId,
+      ySubDomains,
+      yTransformations,
+      xSubDomain,
+    } = this.state;
     const { dataContext, xScalerFactory } = this.props;
     const ownContext = {
       updateXTransformation: this.updateXTransformation,
       updateXSubDomain: this.updateXSubDomain,
       updateYTransformation: this.updateYTransformation,
       yTransformations,
+      updateDomains: this.updateDomains,
+      domainsByItemId,
     };
 
     const enrichedSeries = dataContext.series.map(s => ({
