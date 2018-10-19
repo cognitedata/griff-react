@@ -294,7 +294,7 @@ export default class DataProvider extends Component {
     const yDomain = collection.yDomain ||
       series.yDomain ||
       propYDomain ||
-      yDomains[series.id] || [0, 0];
+      yDomains[series.id] || [0, 1];
     return {
       drawPoints: collection.drawPoints,
       hidden: collection.hidden,

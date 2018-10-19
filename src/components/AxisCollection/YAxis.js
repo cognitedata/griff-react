@@ -13,12 +13,6 @@ const propTypes = {
   collection: GriffPropTypes.collection,
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
-  updateYTransformation: PropTypes.func,
-  yTransformation: PropTypes.shape({
-    y: PropTypes.number.isRequired,
-    k: PropTypes.number.isRequired,
-    rescaleY: PropTypes.func.isRequired,
-  }),
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
@@ -31,8 +25,6 @@ const defaultProps = {
   series: null,
   collection: null,
   zoomable: true,
-  updateYTransformation: () => {},
-  yTransformation: null,
   onMouseEnter: null,
   onMouseLeave: null,
   yAxisPlacement: AxisPlacement.RIGHT,
@@ -52,22 +44,6 @@ export default class YAxis extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.zoomable !== this.props.zoomable) {
       this.syncZoomingState();
-    }
-    if (this.props.yTransformation) {
-      if (
-        (!!prevProps.series !== !!this.props.series &&
-          !isEqual(
-            (prevProps.series || {}).ySubDomain,
-            (this.props.series || {}).ySubDomain
-          )) ||
-        (!!prevProps.collection !== !!this.props.collection &&
-          !isEqual(
-            (prevProps.collection || {}).ySubDomain,
-            (this.props.collection || {}).ySubDomain
-          ))
-      ) {
-        this.selection.property('__zoom', this.props.yTransformation);
-      }
     }
   }
 
@@ -178,21 +154,21 @@ export default class YAxis extends Component {
 
   didZoom = () => {
     const { height } = this.props;
-    const t = d3.event.transform;
-    console.log(
-      'current',
-      (this.props.domainsByItemId[this.getItem().id] || {}).y
-    );
-    this.props.updateYTransformation(this.getItem().id, t, height);
+    const {
+      event: { transform },
+    } = d3;
+    const { y: ySubDomain } =
+      this.props.domainsByItemId[this.getItem().id] || {};
     this.props.updateDomains(
-      this.getItem().id,
       {
-        x: [0, 1],
-        y: [1, 2],
-        time: [2, 3],
+        [this.getItem().id]: {
+          y: transform
+            .rescaleY(createYScale(ySubDomain, height))
+            .domain()
+            .map(Number),
+        },
       },
-      () =>
-        console.log('updated', this.props.domainsByItemId[this.getItem().id].y)
+      () => this.selection.property('__zoom', d3.zoomIdentity)
     );
   };
 
@@ -212,11 +188,11 @@ export default class YAxis extends Component {
   }
 
   renderAxis() {
-    const { defaultColor, height, tickFormatter } = this.props;
+    const { defaultColor, domainsByItemId, height, tickFormatter } = this.props;
 
     const item = this.getItem();
     const color = item.color || defaultColor;
-    const scale = createYScale(item.ySubDomain, height);
+    const scale = createYScale(domainsByItemId[item.id].y, height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;

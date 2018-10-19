@@ -36,7 +36,7 @@ class Scaler extends Component {
     domainsByItemId: {},
   };
 
-  static getDerivedStateFromProps(props) {
+  static getDerivedStateFromProps(props, state) {
     const { dataContext } = props;
     const domainsByItemId = []
       .concat(dataContext.series.filter(s => s.collectionId === undefined))
@@ -44,15 +44,17 @@ class Scaler extends Component {
       .reduce(
         (acc, item) => ({
           ...acc,
-          [item.id]: { x: item.xSubDomain, y: item.ySubDomain },
+          [item.id]: state.domainsByItemId[item.id] || {
+            x: [...dataContext.xSubDomain],
+            y: [...item.ySubDomain],
+          },
         }),
         {}
       );
-    console.log(domainsByItemId);
     return { domainsByItemId };
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate_old(prevProps, prevState) {
     // Check every serie if its ySubDomain changed
     // If so -- update the state
     const ySubDomains = {};
@@ -217,20 +219,22 @@ class Scaler extends Component {
     return newXSubDomain;
   };
 
-  updateDomains = (itemId, domains, callback) =>
-    console.log(itemId, domains) ||
-    this.setState(
-      {
-        domainsByItemId: {
-          ...this.state.domainsByItemId,
-          [itemId]: {
-            ...this.state.domainsByItemId[itemId],
-            ...domains,
-          },
+  updateDomains = (changedDomainsById, callback) => {
+    const domainsByItemId = Object.keys(changedDomainsById).reduce(
+      (changes, itemId) => ({
+        ...changes,
+        [itemId]: {
+          ...this.state.domainsByItemId[itemId],
+          ...changedDomainsById[itemId],
         },
-      },
-      callback
+      }),
+      {}
     );
+    this.setState(
+      { domainsByItemId },
+      callback ? () => callback(changedDomainsById) : undefined
+    );
+  };
 
   render() {
     const {

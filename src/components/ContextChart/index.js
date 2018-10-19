@@ -76,6 +76,7 @@ class ContextChart extends Component {
 
   render() {
     const {
+      domainsByItemId,
       width,
       xDomain,
       xSubDomain,
@@ -118,6 +119,7 @@ class ContextChart extends Component {
             domain={xDomain}
             xScalerFactory={xScalerFactory}
             scaleY={false}
+            domainsByItemId={domainsByItemId}
           />
           <Brush
             width={width}
@@ -134,29 +136,29 @@ class ContextChart extends Component {
 }
 
 export default props => (
-  <Scaler xScalerFactory={createLinearXScale}>
-    <ScalerContext.Consumer>
-      {({
-        xSubDomain,
-        xDomain,
-        updateXSubDomain,
-        contextSeries,
-        xScalerFactory,
-      }) => (
-        <SizeMe monitorWidth>
-          {({ size }) => (
-            <ContextChart
-              width={size.width}
-              {...props}
-              xDomain={xDomain}
-              contextSeries={contextSeries}
-              xSubDomain={xSubDomain}
-              updateXSubDomain={updateXSubDomain}
-              xScalerFactory={xScalerFactory}
-            />
-          )}
-        </SizeMe>
-      )}
-    </ScalerContext.Consumer>
-  </Scaler>
+  <ScalerContext.Consumer>
+    {({
+      xSubDomain,
+      xDomain,
+      updateXSubDomain,
+      contextSeries,
+      xScalerFactory,
+      domainsByItemId,
+    }) => (
+      <SizeMe monitorWidth>
+        {({ size }) => (
+          <ContextChart
+            width={size.width}
+            {...props}
+            xDomain={xDomain}
+            contextSeries={contextSeries}
+            xSubDomain={xSubDomain}
+            updateXSubDomain={updateXSubDomain}
+            xScalerFactory={xScalerFactory}
+            domainsByItemId={domainsByItemId}
+          />
+        )}
+      </SizeMe>
+    )}
+  </ScalerContext.Consumer>
 );

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import ScalerContext from '../../context/Scaler';
-import { createYScale } from '../../utils/scale-helpers';
+import { createYScale, createXScale } from '../../utils/scale-helpers';
 import {
   areaPropType,
   seriesPropType,
@@ -480,7 +480,7 @@ class InteractionLayer extends React.Component {
   };
 
   zoomed = () => {
-    const { ruler, zoomMode, onZoomXAxis } = this.props;
+    const { ruler, zoomMode, onZoomXAxis, series, width } = this.props;
     if (ruler && ruler.visible) {
       this.processMouseMove(this.state.touchX, this.state.touchY);
     }
@@ -489,14 +489,29 @@ class InteractionLayer extends React.Component {
       (zoomMode === ZoomMode.X || zoomMode === ZoomMode.BOTH) &&
       this.props.updateXTransformation
     ) {
-      const newDomain = this.props.updateXTransformation(t, this.props.width);
+      const changes = series.reduce(
+        (c, s) => ({
+          ...c,
+          [s.id]: {
+            x: t
+              .rescaleX(
+                createXScale((this.props.domainsByItemId[s.id] || {}).x, width)
+              )
+              .domain()
+              .map(Number),
+          },
+        }),
+        {}
+      );
+      this.props.updateDomains(changes, () =>
+        this.rectSelection.property('__zoom', d3.zoomIdentity)
+      );
 
       if (onZoomXAxis) {
         onZoomXAxis({ xSubDomain: newDomain, transformation: t });
       }
     }
     if (zoomMode === ZoomMode.Y || zoomMode === ZoomMode.BOTH) {
-      const { series } = this.props;
       series.forEach(s => {
         this.props.updateYTransformation(s.id, t, this.props.height);
       });
@@ -630,6 +645,8 @@ export default props => (
       updateXTransformation,
       updateYTransformation,
       xScalerFactory,
+      domainsByItemId,
+      updateDomains,
     }) => (
       <InteractionLayer
         {...props}
@@ -639,6 +656,8 @@ export default props => (
         updateXTransformation={updateXTransformation}
         updateYTransformation={updateYTransformation}
         xScalerFactory={xScalerFactory}
+        domainsByItemId={domainsByItemId}
+        updateDomains={updateDomains}
       />
     )}
   </ScalerContext.Consumer>
