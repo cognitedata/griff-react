@@ -124,8 +124,8 @@ class Scaler extends Component {
       // Keep existing subdomain
       const { xSubDomain } = prevState;
       if (
-        (xSubDomain && xSubDomain[1] === prevXDomain[1]) ||
-        xSubDomain[1] >= prevXDomain[1]
+        xSubDomain &&
+        (xSubDomain[1] === prevXDomain[1] || xSubDomain[1] >= prevXDomain[1])
       ) {
         // You are looking at the end of the window
         // and the xDomain is updated
