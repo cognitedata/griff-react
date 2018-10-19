@@ -108,8 +108,8 @@ export default class DataProvider extends Component {
   }
 
   async componentDidMount() {
-    await Promise.map(this.props.series, s => this.fetchData(s.id, 'MOUNTED'));
     this.startUpdateInterval();
+    await Promise.map(this.props.series, s => this.fetchData(s.id, 'MOUNTED'));
   }
 
   async componentDidUpdate(prevProps) {
@@ -118,9 +118,6 @@ export default class DataProvider extends Component {
     const { updateInterval } = this.props;
     const { updateInterval: prevUpdateInterval } = prevProps;
     if (updateInterval !== prevUpdateInterval) {
-      if (prevUpdateInterval) {
-        clearInterval(this.fetchInterval);
-      }
       if (updateInterval) {
         this.startUpdateInterval();
       }
@@ -187,9 +184,6 @@ export default class DataProvider extends Component {
       );
       if (this.props.onXSubDomainChanged) {
         this.props.onXSubDomainChanged(newXSubDomain);
-      }
-      if (this.fetchInterval) {
-        clearInterval(this.fetchInterval);
       }
       this.startUpdateInterval();
     }
