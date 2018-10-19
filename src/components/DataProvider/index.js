@@ -118,6 +118,9 @@ export default class DataProvider extends Component {
     const { updateInterval } = this.props;
     const { updateInterval: prevUpdateInterval } = prevProps;
     if (updateInterval !== prevUpdateInterval) {
+      if (prevUpdateInterval) {
+        clearInterval(this.fetchInterval);
+      }
       if (updateInterval) {
         this.startUpdateInterval();
       }
