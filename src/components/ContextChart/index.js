@@ -76,10 +76,10 @@ class ContextChart extends Component {
 
   render() {
     const {
+      contextSeries: series,
+      domainsByItemId,
       subDomainsByItemId,
       width,
-      xDomain,
-      xSubDomain,
       contextSeries,
       xAxisFormatter,
       xAxisHeight,
@@ -87,6 +87,8 @@ class ContextChart extends Component {
       xScalerFactory,
       zoomable,
     } = this.props;
+    const xDomain = domainsByItemId[series[0].id].x;
+    const xSubDomain = subDomainsByItemId[series[0].id].x;
     const height = this.getChartHeight();
     const xScale = xScalerFactory(xDomain, width);
     const selection = xSubDomain.map(xScale);
@@ -139,12 +141,13 @@ class ContextChart extends Component {
 export default props => (
   <ScalerContext.Consumer>
     {({
+      domainsByItemId,
+      subDomainsByItemId,
       xSubDomain,
       xDomain,
       updateXSubDomain,
       contextSeries,
       xScalerFactory,
-      subDomainsByItemId,
     }) => (
       <SizeMe monitorWidth>
         {({ size }) => (
@@ -157,6 +160,7 @@ export default props => (
             updateXSubDomain={updateXSubDomain}
             xScalerFactory={xScalerFactory}
             subDomainsByItemId={subDomainsByItemId}
+            domainsByItemId={domainsByItemId}
           />
         )}
       </SizeMe>
