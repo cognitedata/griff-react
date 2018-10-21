@@ -191,17 +191,6 @@ class Scaler extends Component {
     }
   }
 
-  updateXSubDomain = xSubDomain => {
-    this.setState(
-      {
-        xSubDomain,
-      },
-      () => {
-        this.props.dataContext.xSubDomainChanged(xSubDomain);
-      }
-    );
-  };
-
   updateYTransformation = (key, scaler, height) => {
     const { dataContext } = this.props;
 
@@ -274,7 +263,6 @@ class Scaler extends Component {
     } = this.state;
     const { dataContext, xScalerFactory } = this.props;
     const ownContext = {
-      updateXSubDomain: this.updateXSubDomain,
       updateYTransformation: this.updateYTransformation,
       yTransformations,
       updateDomains: this.updateDomains,
