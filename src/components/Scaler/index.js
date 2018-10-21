@@ -191,20 +191,6 @@ class Scaler extends Component {
     }
   }
 
-  updateXTransformation = (xTransformation, width) => {
-    const { xDomain } = this.props.dataContext;
-    const { xScalerFactory } = this.props;
-    // Get the new rescaled axis
-    const newScale = xTransformation.rescaleX(xScalerFactory(xDomain, width));
-    // Calculate new domain, map to timestamps (not dates)
-    const newXSubDomain = newScale.domain().map(Number);
-    // Update DataProvider's xSubDomain
-    // No need to set new xSubDomain state here since we
-    // listen for xSubDomain change in componentDidUpdate.
-    this.props.dataContext.xSubDomainChanged(newXSubDomain);
-    return newXSubDomain;
-  };
-
   updateXSubDomain = xSubDomain => {
     this.setState(
       {
@@ -288,7 +274,6 @@ class Scaler extends Component {
     } = this.state;
     const { dataContext, xScalerFactory } = this.props;
     const ownContext = {
-      updateXTransformation: this.updateXTransformation,
       updateXSubDomain: this.updateXSubDomain,
       updateYTransformation: this.updateYTransformation,
       yTransformations,

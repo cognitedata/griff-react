@@ -42,7 +42,6 @@ class InteractionLayer extends React.Component {
     onMouseOut: PropTypes.func,
     // ({ xSubDomain, transformation }) => void
     onZoomXAxis: PropTypes.func,
-    updateXTransformation: PropTypes.func,
     updateYTransformation: PropTypes.func,
     series: seriesPropType,
     areas: PropTypes.arrayOf(areaPropType),
@@ -68,7 +67,6 @@ class InteractionLayer extends React.Component {
     onMouseMove: null,
     onMouseOut: null,
     onZoomXAxis: null,
-    updateXTransformation: () => {},
     updateYTransformation: () => {},
     series: [],
     zoomable: true,
@@ -670,7 +668,6 @@ export default props => (
       xSubDomain,
       xDomain,
       series,
-      updateXTransformation,
       updateYTransformation,
       xScalerFactory,
       subDomainsByItemId,
@@ -681,7 +678,6 @@ export default props => (
         xSubDomain={xSubDomain}
         xDomain={xDomain}
         series={series}
-        updateXTransformation={updateXTransformation}
         updateYTransformation={updateYTransformation}
         xScalerFactory={xScalerFactory}
         subDomainsByItemId={subDomainsByItemId}
