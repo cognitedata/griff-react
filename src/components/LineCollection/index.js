@@ -13,7 +13,6 @@ const LineCollection = props => {
     series,
     width,
     height,
-    domain,
     xScalerFactory,
     pointWidth,
     scaleX,
@@ -35,12 +34,13 @@ const LineCollection = props => {
     if (s.hidden) {
       return l;
     }
+    const { id } = s;
     const xScale = xScalerFactory(
-      scaleX ? subDomainsByItemId[s.id].x : domainsByItemId[s.id].x,
+      scaleX ? subDomainsByItemId[id].x : domainsByItemId[id].x,
       width
     );
     const yScale = createYScale(
-      scaleY ? subDomainsByItemId[s.id].y : s.yDomain,
+      scaleY ? subDomainsByItemId[s.collectionId || s.id].y : s.yDomain,
       height
     );
     return [

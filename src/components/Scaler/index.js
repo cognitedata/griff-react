@@ -42,7 +42,7 @@ class Scaler extends Component {
   static getDerivedStateFromProps(props, state) {
     const { dataContext } = props;
     const subDomainsByItemId = []
-      .concat(dataContext.series.filter(s => s.collectionId === undefined))
+      .concat(dataContext.series)
       .concat(dataContext.collections)
       .reduce(
         (acc, item) => ({
@@ -55,7 +55,7 @@ class Scaler extends Component {
         {}
       );
     const domainsByItemId = []
-      .concat(dataContext.series.filter(s => s.collectionId === undefined))
+      .concat(dataContext.series)
       .concat(dataContext.collections)
       .reduce(
         (acc, item) => ({

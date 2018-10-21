@@ -485,8 +485,9 @@ class InteractionLayer extends React.Component {
       event: { sourceEvent, transform },
     } = d3;
     if (zoomMode === ZoomMode.X || zoomMode === ZoomMode.BOTH) {
+      const firstItemId = series[0].id;
       const { x: xSubDomain } =
-        this.props.subDomainsByItemId[series[0].id] || {};
+        this.props.subDomainsByItemId[firstItemId] || {};
       const xSubDomainRange = xSubDomain[1] - xSubDomain[0];
       let newSubDomain = null;
       if (sourceEvent.deltaY) {
