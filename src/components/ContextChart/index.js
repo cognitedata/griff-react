@@ -12,8 +12,6 @@ import GriffPropTypes, {
 } from '../../utils/proptypes';
 import Brush from '../Brush';
 import AxisPlacement from '../AxisPlacement';
-import Scaler from '../Scaler';
-import { createLinearXScale } from '../../utils/scale-helpers';
 import multiFormat from '../../utils/multiFormat';
 
 class ContextChart extends Component {
@@ -28,11 +26,13 @@ class ContextChart extends Component {
 
     // These are all provided by Griff.
     contextSeries: seriesPropType,
-    updateXSubDomain: PropTypes.func.isRequired,
     width: PropTypes.number,
     xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     xScalerFactory: scalerFactoryFunc.isRequired,
     xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    updateDomains: GriffPropTypes.updateDomainsFunc.isRequired,
+    subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
+    domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
   };
 
   static defaultProps = {
@@ -55,7 +55,6 @@ class ContextChart extends Component {
     } = this.props;
     const xScale = xScalerFactory(xDomain, width);
     const xSubDomain = selection.map(xScale.invert).map(Number);
-    // this.props.updateXSubDomain(xSubDomain);
     this.props.updateDomains(
       series.reduce(
         (changes, s) => ({
@@ -161,7 +160,6 @@ export default props => (
       subDomainsByItemId,
       xSubDomain,
       xDomain,
-      updateXSubDomain,
       contextSeries,
       xScalerFactory,
       updateDomains,
@@ -174,7 +172,6 @@ export default props => (
             xDomain={xDomain}
             contextSeries={contextSeries}
             xSubDomain={xSubDomain}
-            updateXSubDomain={updateXSubDomain}
             xScalerFactory={xScalerFactory}
             subDomainsByItemId={subDomainsByItemId}
             domainsByItemId={domainsByItemId}

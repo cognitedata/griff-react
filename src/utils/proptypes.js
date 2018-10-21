@@ -203,6 +203,15 @@ const grid = PropTypes.shape({
   }),
 });
 
+const updateDomainsFunc = PropTypes.func;
+
+const domainsByItemId = PropTypes.objectOf(
+  PropTypes.shape({
+    x: domainPropType,
+    y: domainPropType,
+  })
+);
+
 export default {
   axisPlacement,
   collection,
@@ -211,4 +220,7 @@ export default {
   grid,
   multipleSeries,
   singleSeries,
+  updateDomainsFunc,
+  domainsByItemId,
+  subDomainsByItemId: domainsByItemId,
 };
