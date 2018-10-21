@@ -155,21 +155,57 @@ export default class YAxis extends Component {
   didZoom = () => {
     const { height } = this.props;
     const {
-      event: { transform },
+      event: { sourceEvent, transform },
     } = d3;
     const { y: ySubDomain } =
       this.props.subDomainsByItemId[this.getItem().id] || {};
-    this.props.updateDomains(
-      {
-        [this.getItem().id]: {
-          y: transform
-            .rescaleY(createYScale(ySubDomain, height))
-            .domain()
-            .map(Number),
+    const ySubDomainRange = ySubDomain[1] - ySubDomain[0];
+    let newSubDomain = null;
+    if (sourceEvent.deltaY) {
+      // This is a zoom event.
+      const { deltaMode, deltaY, offsetY } = sourceEvent;
+
+      // This was borrowed from d3-zoom.
+      const zoomFactor = (deltaY * (deltaMode ? 120 : 1)) / 500;
+
+      // Invert the event coordinates for sanity, since they're measured from
+      // the top-left, but we want to go from the bottom-left.
+      const percentFromBottom = (height - offsetY) / height;
+
+      // Figure out the value on the scale where the mouse is so that the new
+      // subdomain does not shift.
+      const valueAtMouse = ySubDomain[0] + ySubDomainRange * percentFromBottom;
+
+      // How big the next subdomain is going to be
+      const newSpan = ySubDomainRange * (1 + zoomFactor);
+
+      // Finally, place this new span into the subdomain, centered about the
+      // mouse, and correctly (proportionately) split above & below so that the
+      // axis is stable.
+      newSubDomain = [
+        valueAtMouse - newSpan * percentFromBottom,
+        valueAtMouse + newSpan * (1 - percentFromBottom),
+      ];
+    } else if (sourceEvent.movementY) {
+      // This is a drag event.
+      const percentMovement =
+        ySubDomainRange * (sourceEvent.movementY / height);
+      newSubDomain = ySubDomain.map(bound => bound + percentMovement);
+    } else if (sourceEvent.type === 'touchmove') {
+      // This is a drag event from touch.
+      const percentMovement = ySubDomainRange * (transform.y / height);
+      newSubDomain = ySubDomain.map(bound => bound + percentMovement);
+    }
+    if (newSubDomain) {
+      this.props.updateDomains(
+        {
+          [this.getItem().id]: {
+            y: newSubDomain,
+          },
         },
-      },
-      () => this.selection.property('__zoom', d3.zoomIdentity)
-    );
+        () => this.selection.property('__zoom', d3.zoomIdentity)
+      );
+    }
   };
 
   renderZoomRect() {

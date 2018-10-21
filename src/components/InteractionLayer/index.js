@@ -483,39 +483,65 @@ class InteractionLayer extends React.Component {
     if (ruler && ruler.visible) {
       this.processMouseMove(this.state.touchX, this.state.touchY);
     }
-    const t = d3.event.transform;
-    if (
-      (zoomMode === ZoomMode.X || zoomMode === ZoomMode.BOTH) &&
-      this.props.updateXTransformation
-    ) {
-      const changes = series.reduce(
-        (c, s) => ({
-          ...c,
-          [s.id]: {
-            x: t
-              .rescaleX(
-                createXScale(
-                  (this.props.subDomainsByItemId[s.id] || {}).x,
-                  width
-                )
-              )
-              .domain()
-              .map(Number),
-          },
-        }),
-        {}
-      );
-      this.props.updateDomains(changes, () =>
-        this.rectSelection.property('__zoom', d3.zoomIdentity)
-      );
+    const {
+      event: { sourceEvent, transform },
+    } = d3;
+    if (zoomMode === ZoomMode.X || zoomMode === ZoomMode.BOTH) {
+      const { x: xSubDomain } =
+        this.props.subDomainsByItemId[series[0].id] || {};
+      const xSubDomainRange = xSubDomain[1] - xSubDomain[0];
+      let newSubDomain = null;
+      if (sourceEvent.deltaY) {
+        // This is a zoom event.
+        const { deltaMode, deltaY, offsetX } = sourceEvent;
 
-      if (onZoomXAxis) {
-        onZoomXAxis({ xSubDomain: newDomain, transformation: t });
+        // This was borrowed from d3-zoom.
+        const zoomFactor = (deltaY * (deltaMode ? 120 : 1)) / 500;
+        const percentFromLeft = offsetX / width;
+
+        // Figure out the value on the scale where the mouse is so that the new
+        // subdomain does not shift.
+        const valueAtMouse = xSubDomain[0] + xSubDomainRange * percentFromLeft;
+
+        // How big the next subdomain is going to be
+        const newSpan = xSubDomainRange * (1 + zoomFactor);
+
+        // Finally, place this new span into the subdomain, centered about the
+        // mouse, and correctly (proportionately) split above & below so that the
+        // axis is stable.
+        newSubDomain = [
+          valueAtMouse - newSpan * percentFromLeft,
+          valueAtMouse + newSpan * (1 - percentFromLeft),
+        ];
+      } else if (sourceEvent.movementX) {
+        // This is a drag event.
+        const percentMovement =
+          xSubDomainRange * (-sourceEvent.movementX / width);
+        newSubDomain = xSubDomain.map(bound => bound + percentMovement);
+      } else if (sourceEvent.type === 'touchmove') {
+        // This is a drag event from touch.
+        const percentMovement = xSubDomainRange * (-transform.x / width);
+        newSubDomain = xSubDomain.map(bound => bound + percentMovement);
       }
+      if (newSubDomain) {
+        this.props.updateDomains(
+          series.reduce(
+            (changes, s) => ({
+              ...changes,
+              [s.id]: { x: newSubDomain },
+            }),
+            {}
+          )
+          // () => this.selection.property('__zoom', d3.zoomIdentity)
+        );
+      }
+      // if (onZoomXAxis) {
+      //   onZoomXAxis({ xSubDomain: newDomain, transformation: t });
+      // }
     }
     if (zoomMode === ZoomMode.Y || zoomMode === ZoomMode.BOTH) {
       series.forEach(s => {
-        this.props.updateYTransformation(s.id, t, this.props.height);
+        this.props.updateYTransformation(s.id, transform, this.props.height);
       });
     }
   };
