@@ -13,6 +13,7 @@ import {
 import Annotation from '../Annotation';
 import Ruler from '../Ruler';
 import Area from '../Area';
+import ZoomRect from '../ZoomRect';
 
 export const ZoomMode = {
   X: 0,
@@ -89,30 +90,6 @@ class InteractionLayer extends React.Component {
     touchY: null,
   };
 
-  componentDidMount() {
-    const { width, height, xScalerFactory } = this.props;
-    this.zoom = d3
-      .zoom()
-      .translateExtent([[0, 0], [width, height]])
-      .extent([[0, 0], [width, height]]);
-    this.rectSelection = d3.select(this.zoomNode);
-    this.syncZoomingState();
-
-    if (this.rectSelection.property('__zoom')) {
-      const { xSubDomain, xDomain } = this.props;
-      // if xSubDomain differs from xDomain on componentDidMount step that
-      // means it has been specified by a user and we need to update internals
-      if (!isEqual(xSubDomain, xDomain)) {
-        const scale = xScalerFactory(xDomain, width);
-        const selection = xSubDomain.map(scale);
-        const transform = d3.zoomIdentity
-          .scale(width / (selection[1] - selection[0]))
-          .translate(-selection[0], 0);
-        this.rectSelection.property('__zoom', transform);
-      }
-    }
-  }
-
   componentWillReceiveProps(nextProps) {
     const { xSubDomain: prevXSubDomain, ruler, xScalerFactory } = this.props;
     const { xSubDomain: curXSubDomain, width } = nextProps;
@@ -160,33 +137,7 @@ class InteractionLayer extends React.Component {
       // to the zooming state.
       this.props.onAreaDefined !== prevProps.onAreaDefined
     ) {
-      this.syncZoomingState();
-    }
-    const { xSubDomain: p, xDomain: prevXDomain } = prevProps;
-    const { xSubDomain: c, xDomain: curXDomain } = this.props;
-    if (this.rectSelection.property('__zoom')) {
-      // Checking if the existing selection has a current zoom state.
-      const { width, xSubDomain, xDomain, xScalerFactory } = this.props;
-      const newXDomain = !isEqual(prevXDomain, curXDomain);
-      if (!isEqual(p, c) || width !== prevProps.width || newXDomain) {
-        const scale = xScalerFactory(xDomain, width);
-        const selection = xSubDomain.map(scale);
-        const transform = d3.zoomIdentity
-          .scale(width / (selection[1] - selection[0]))
-          .translate(-selection[0], 0);
-        const prev = this.rectSelection.property('__zoom');
-        // Checking if the difference in x transform is significant.
-        // This means that something else has zoomed (brush) and we need to
-        // update the internals.
-        // TODO: This should be optimized
-        if (
-          Math.abs(prev.k - transform.k) > 0.5 ||
-          Math.abs(prev.x - transform.x) > 50 ||
-          newXDomain
-        ) {
-          this.rectSelection.property('__zoom', transform);
-        }
-      }
+      // this.syncZoomingState();
     }
     if (prevProps.onAreaDefined && !this.props.onAreaDefined) {
       // They no longer care about areas; if we're building one, then remove it.
@@ -396,18 +347,6 @@ class InteractionLayer extends React.Component {
     return output;
   };
 
-  syncZoomingState = () => {
-    const { onAreaDefined, onDoubleClick, zoomable } = this.props;
-    if (zoomable && !onAreaDefined) {
-      this.rectSelection.call(this.zoom.on('zoom', this.zoomed));
-      if (onDoubleClick) {
-        this.rectSelection.on('dblclick.zoom', null);
-      }
-    } else {
-      this.rectSelection.on('.zoom', null);
-    }
-  };
-
   processMouseMove = (xpos, ypos) => {
     const {
       series,
@@ -473,75 +412,6 @@ class InteractionLayer extends React.Component {
 
     if (onMouseMove) {
       onMouseMove({ points: newPoints, xpos, ypos });
-    }
-  };
-
-  zoomed = () => {
-    const { ruler, zoomMode, onZoomXAxis, series, width } = this.props;
-    if (ruler && ruler.visible) {
-      this.processMouseMove(this.state.touchX, this.state.touchY);
-    }
-    const {
-      event: { sourceEvent, transform },
-    } = d3;
-    if (zoomMode === ZoomMode.X || zoomMode === ZoomMode.BOTH) {
-      const firstItemId = series[0].id;
-      const { x: xSubDomain } =
-        this.props.subDomainsByItemId[firstItemId] || {};
-      const xSubDomainRange = xSubDomain[1] - xSubDomain[0];
-      let newSubDomain = null;
-      if (sourceEvent.deltaY) {
-        // This is a zoom event.
-        const { deltaMode, deltaY, offsetX } = sourceEvent;
-
-        // This was borrowed from d3-zoom.
-        const zoomFactor = (deltaY * (deltaMode ? 120 : 1)) / 500;
-        const percentFromLeft = offsetX / width;
-
-        // Figure out the value on the scale where the mouse is so that the new
-        // subdomain does not shift.
-        const valueAtMouse = xSubDomain[0] + xSubDomainRange * percentFromLeft;
-
-        // How big the next subdomain is going to be
-        const newSpan = xSubDomainRange * (1 + zoomFactor);
-
-        // Finally, place this new span into the subdomain, centered about the
-        // mouse, and correctly (proportionately) split above & below so that the
-        // axis is stable.
-        newSubDomain = [
-          valueAtMouse - newSpan * percentFromLeft,
-          valueAtMouse + newSpan * (1 - percentFromLeft),
-        ];
-      } else if (sourceEvent.movementX) {
-        // This is a drag event.
-        const percentMovement =
-          xSubDomainRange * (-sourceEvent.movementX / width);
-        newSubDomain = xSubDomain.map(bound => bound + percentMovement);
-      } else if (sourceEvent.type === 'touchmove') {
-        // This is a drag event from touch.
-        const percentMovement = xSubDomainRange * (-transform.x / width);
-        newSubDomain = xSubDomain.map(bound => bound + percentMovement);
-      }
-      if (newSubDomain) {
-        this.props.updateDomains(
-          series.reduce(
-            (changes, s) => ({
-              ...changes,
-              [s.id]: { x: newSubDomain },
-            }),
-            {}
-          )
-          // () => this.selection.property('__zoom', d3.zoomIdentity)
-        );
-      }
-      // if (onZoomXAxis) {
-      //   onZoomXAxis({ xSubDomain: newDomain, transformation: t });
-      // }
-    }
-    if (zoomMode === ZoomMode.Y || zoomMode === ZoomMode.BOTH) {
-      series.forEach(s => {
-        this.props.updateYTransformation(s.id, transform, this.props.height);
-      });
     }
   };
 
@@ -642,22 +512,23 @@ class InteractionLayer extends React.Component {
           )}
         {areas}
         {areaBeingDefined}
-        <rect
-          ref={ref => {
-            this.zoomNode = ref;
-          }}
-          width={width}
-          height={height}
-          pointerEvents="all"
-          fill="none"
-          onClick={this.onClick}
-          onMouseMove={this.onMouseMove}
-          onBlur={this.onMouseMove}
-          onMouseOut={this.onMouseOut}
-          onMouseDown={this.onMouseDown}
-          onMouseUp={this.onMouseUp}
-          onDoubleClick={this.onDoubleClick}
-        />
+        {this.props.zoomable && (
+          <ZoomRect
+            zoomAxes={{ x: true }}
+            width={width}
+            height={height}
+            pointerEvents="all"
+            fill="none"
+            onClick={this.onClick}
+            onMouseMove={this.onMouseMove}
+            onBlur={this.onMouseMove}
+            onMouseOut={this.onMouseOut}
+            onMouseDown={this.onMouseDown}
+            onMouseUp={this.onMouseUp}
+            onDoubleClick={this.onDoubleClick}
+            itemIds={series.map(s => s.id)}
+          />
+        )}
       </React.Fragment>
     );
   }

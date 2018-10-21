@@ -5,6 +5,7 @@ import { createYScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
 import ScalerContext from '../../context/Scaler';
+import ZoomRect from '../ZoomRect';
 
 const propTypes = {
   zoomable: PropTypes.bool,
@@ -36,21 +37,6 @@ const defaultProps = {
 };
 
 class YAxis extends Component {
-  componentWillMount() {
-    this.zoom = d3.zoom().on('zoom', this.didZoom);
-  }
-
-  componentDidMount() {
-    this.selection = d3.select(this.zoomNode);
-    this.syncZoomingState();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.zoomable !== this.props.zoomable) {
-      this.syncZoomingState();
-    }
-  }
-
   getItem = () =>
     this.props.series ? this.props.series : this.props.collection;
 
@@ -148,84 +134,16 @@ class YAxis extends Component {
     }
   };
 
-  syncZoomingState = () => {
-    if (this.props.zoomable) {
-      this.selection.call(this.zoom);
-    } else {
-      this.selection.on('.zoom', null);
-    }
-  };
-
-  didZoom = () => {
-    const { height } = this.props;
-    const {
-      event: { sourceEvent, transform },
-    } = d3;
-    const { y: ySubDomain } =
-      this.props.subDomainsByItemId[this.getItem().id] || {};
-    const ySubDomainRange = ySubDomain[1] - ySubDomain[0];
-    let newSubDomain = null;
-    if (sourceEvent.deltaY) {
-      // This is a zoom event.
-      const { deltaMode, deltaY, offsetY } = sourceEvent;
-
-      // This was borrowed from d3-zoom.
-      const zoomFactor = (deltaY * (deltaMode ? 120 : 1)) / 500;
-
-      // Invert the event coordinates for sanity, since they're measured from
-      // the top-left, but we want to go from the bottom-left.
-      const percentFromBottom = (height - offsetY) / height;
-
-      // Figure out the value on the scale where the mouse is so that the new
-      // subdomain does not shift.
-      const valueAtMouse = ySubDomain[0] + ySubDomainRange * percentFromBottom;
-
-      // How big the next subdomain is going to be
-      const newSpan = ySubDomainRange * (1 + zoomFactor);
-
-      // Finally, place this new span into the subdomain, centered about the
-      // mouse, and correctly (proportionately) split above & below so that the
-      // axis is stable.
-      newSubDomain = [
-        valueAtMouse - newSpan * percentFromBottom,
-        valueAtMouse + newSpan * (1 - percentFromBottom),
-      ];
-    } else if (sourceEvent.movementY) {
-      // This is a drag event.
-      const percentMovement =
-        ySubDomainRange * (sourceEvent.movementY / height);
-      newSubDomain = ySubDomain.map(bound => bound + percentMovement);
-    } else if (sourceEvent.type === 'touchmove') {
-      // This is a drag event from touch.
-      const percentMovement = ySubDomainRange * (transform.y / height);
-      newSubDomain = ySubDomain.map(bound => bound + percentMovement);
-    }
-    if (newSubDomain) {
-      this.props.updateDomains(
-        {
-          [this.getItem().id]: {
-            y: newSubDomain,
-          },
-        },
-        () => this.selection.property('__zoom', d3.zoomIdentity)
-      );
-    }
-  };
-
-  renderZoomRect() {
-    const { height, width } = this.props;
-    return (
-      <rect
-        width={width}
-        height={height}
-        fill="none"
-        pointerEvents="all"
-        ref={ref => {
-          this.zoomNode = ref;
-        }}
-      />
-    );
-  }
+  renderZoomRect = () => (
+    <ZoomRect
+      width={this.props.width}
+      height={this.props.height}
+      fill="none"
+      pointerEvents="all"
+      zoomAxes={{ y: true }}
+      itemIds={[this.getItem().id]}
+    />
+  );
 
   renderAxis() {
     const {
@@ -297,7 +215,7 @@ class YAxis extends Component {
         onMouseLeave={onMouseLeave}
       >
         {this.renderAxis()}
-        {this.renderZoomRect()}
+        {zoomable && this.renderZoomRect()}
       </g>
     );
   }
