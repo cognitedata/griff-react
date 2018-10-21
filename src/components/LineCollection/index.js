@@ -8,6 +8,7 @@ import AxisDisplayMode from '../LineChart/AxisDisplayMode';
 
 const LineCollection = props => {
   const {
+    domainsByItemId,
     subDomainsByItemId,
     series,
     width,
@@ -15,6 +16,8 @@ const LineCollection = props => {
     domain,
     xScalerFactory,
     pointWidth,
+    scaleX,
+    scaleY,
   } = props;
   if (!subDomainsByItemId) {
     return null;
@@ -32,9 +35,12 @@ const LineCollection = props => {
     if (s.hidden) {
       return l;
     }
-    const xScale = xScalerFactory(subDomainsByItemId[s.id].x, width);
+    const xScale = xScalerFactory(
+      scaleX ? subDomainsByItemId[s.id].x : domainsByItemId[s.id].x,
+      width
+    );
     const yScale = createYScale(
-      props.scaleY ? subDomainsByItemId[s.id].y : s.yDomain,
+      scaleY ? subDomainsByItemId[s.id].y : s.yDomain,
       height
     );
     return [
@@ -66,6 +72,7 @@ LineCollection.propTypes = {
   domain: PropTypes.arrayOf(PropTypes.number),
   xScalerFactory: scalerFactoryFunc.isRequired,
   pointWidth: PropTypes.number,
+  scaleX: PropTypes.bool,
   // Perform Y-scaling based on the current subdomain. If false, then use the
   // static yDomain property.
   scaleY: PropTypes.bool,
@@ -75,6 +82,7 @@ LineCollection.defaultProps = {
   series: [],
   domain: [0, 0],
   pointWidth: 6,
+  scaleX: true,
   scaleY: true,
 };
 
@@ -82,12 +90,19 @@ export default LineCollection;
 
 export const ScaledLineCollection = props => (
   <ScalerContext.Consumer>
-    {({ xSubDomain, series, xScalerFactory, subDomainsByItemId }) => (
+    {({
+      domainsByItemId,
+      subDomainsByItemId,
+      xSubDomain,
+      series,
+      xScalerFactory,
+    }) => (
       <LineCollection
         {...props}
         series={series}
         domain={xSubDomain}
         xScalerFactory={xScalerFactory}
+        domainsByItemId={domainsByItemId}
         subDomainsByItemId={subDomainsByItemId}
       />
     )}

@@ -33,6 +33,9 @@ class Scaler extends Component {
     yTransformations: {},
 
     // Map from item (collection, series) to their respective domains.
+    domainsByItemId: {},
+
+    // Map from item (collection, series) to their respective subdomains.
     subDomainsByItemId: {},
   };
 
@@ -51,7 +54,20 @@ class Scaler extends Component {
         }),
         {}
       );
-    return { subDomainsByItemId };
+    const domainsByItemId = []
+      .concat(dataContext.series.filter(s => s.collectionId === undefined))
+      .concat(dataContext.collections)
+      .reduce(
+        (acc, item) => ({
+          ...acc,
+          [item.id]: state.domainsByItemId[item.id] || {
+            x: [...dataContext.xDomain],
+            y: [...item.yDomain],
+          },
+        }),
+        {}
+      );
+    return { subDomainsByItemId, domainsByItemId };
   }
 
   componentDidUpdate_old(prevProps, prevState) {
@@ -238,6 +254,7 @@ class Scaler extends Component {
 
   render() {
     const {
+      domainsByItemId,
       subDomainsByItemId,
       ySubDomains,
       yTransformations,
@@ -250,6 +267,7 @@ class Scaler extends Component {
       updateYTransformation: this.updateYTransformation,
       yTransformations,
       updateDomains: this.updateDomains,
+      domainsByItemId,
       subDomainsByItemId,
     };
 

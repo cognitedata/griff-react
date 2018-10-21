@@ -7,4 +7,6 @@ export default React.createContext({
   yTransformations: {},
   series: [],
   collections: [],
+  domainsByItemId: {},
+  subDomainsByItemId: {},
 });

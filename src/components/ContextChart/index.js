@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { SizeMe } from 'react-sizeme';
 import ScalerContext from '../../context/Scaler';
-import LineCollection from '../LineCollection';
+import { ScaledLineCollection as LineCollection } from '../LineCollection';
 import XAxis from '../XAxis';
 import Annotation from '../Annotation';
 import GriffPropTypes, {
@@ -119,6 +119,7 @@ class ContextChart extends Component {
             domain={xDomain}
             xScalerFactory={xScalerFactory}
             scaleY={false}
+            scaleX={false}
             subDomainsByItemId={subDomainsByItemId}
           />
           <Brush
