@@ -70,7 +70,7 @@ class Scaler extends Component {
     return { subDomainsByItemId, domainsByItemId };
   }
 
-  componentDidUpdate_old(prevProps, prevState) {
+  componentDidUpdateOld(prevProps, prevState) {
     // Check every serie if its ySubDomain changed
     // If so -- update the state
     const ySubDomains = {};
@@ -236,18 +236,44 @@ class Scaler extends Component {
   };
 
   updateDomains = (changedDomainsById, callback) => {
-    const subDomainsByItemId = Object.keys(changedDomainsById).reduce(
-      (changes, itemId) => ({
-        ...changes,
-        [itemId]: {
-          ...this.state.subDomainsByItemId[itemId],
-          ...changedDomainsById[itemId],
-        },
-      }),
-      this.state.subDomainsByItemId
-    );
+    const { domainsById, subDomainsByItemId } = this.state;
+    const newSubDomains = { ...subDomainsByItemId };
+    Object.keys(changedDomainsById).forEach(itemId => {
+      newSubDomains[itemId] = { ...(subDomainsByItemId[itemId] || {}) };
+      Object.keys(changedDomainsById[itemId]).forEach(axis => {
+        let newSubDomain = changedDomainsById[itemId][axis];
+        const newSpan = newSubDomain[1] - newSubDomain[0];
+
+        const existingSubDomain =
+          subDomainsByItemId[itemId][axis] || newSubDomain;
+        const existingSpan = existingSubDomain[1] - existingSubDomain[0];
+
+        const limits =
+          ((domainsById || {})[itemId] || {})[axis] || axis === 'x'
+            ? // FIXME: Phase out this xDomain thing.
+              this.props.dataContext.xDomain
+            : undefined || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
+
+        if (newSpan === existingSpan) {
+          // This is a translation; check the bounds.
+          if (newSubDomain[0] <= limits[0]) {
+            newSubDomain = [limits[0], limits[0] + newSpan];
+          }
+          if (newSubDomain[1] >= limits[1]) {
+            newSubDomain = [limits[1] - newSpan, limits[1]];
+          }
+        } else {
+          newSubDomain = [
+            Math.max(limits[0], newSubDomain[0]),
+            Math.min(limits[1], newSubDomain[1]),
+          ];
+        }
+
+        newSubDomains[itemId][axis] = newSubDomain;
+      });
+    });
     this.setState(
-      { subDomainsByItemId },
+      { subDomainsByItemId: newSubDomains },
       callback ? () => callback(changedDomainsById) : undefined
     );
   };
