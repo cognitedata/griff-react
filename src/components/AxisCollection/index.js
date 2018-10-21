@@ -142,14 +142,10 @@ class AxisCollection extends React.Component {
               series={s}
               height={height}
               width={yAxisWidth}
-              updateYTransformation={updateYTransformation}
-              yTransformation={yTransformations[s.id]}
               onMouseEnter={this.onAxisMouseEnter(s.id)}
               onMouseLeave={this.onAxisMouseLeave(s.id)}
               tickFormatter={tickFormatter}
               yAxisPlacement={yAxisPlacement}
-              updateDomains={this.props.updateDomains}
-              subDomainsByItemId={this.props.subDomainsByItemId}
             />
           );
         })
@@ -178,8 +174,6 @@ class AxisCollection extends React.Component {
               collection={c}
               height={height}
               width={yAxisWidth}
-              updateYTransformation={updateCollectionYTransformation}
-              yTransformation={yTransformations[c.id]}
               onMouseEnter={this.onAxisMouseEnter(c.id)}
               onMouseLeave={this.onAxisMouseLeave(c.id)}
               tickFormatter={tickFormatter}

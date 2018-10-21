@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 import PropTypes from 'prop-types';
-import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
+import ScalerContext from '../../context/Scaler';
 
 const propTypes = {
   zoomable: PropTypes.bool,
@@ -19,6 +19,10 @@ const propTypes = {
   // Number => String
   tickFormatter: PropTypes.func.isRequired,
   defaultColor: PropTypes.string,
+
+  // These are populated by Griff.
+  updateDomains: GriffPropTypes.updateDomainsFunc.isRequired,
+  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
 
 const defaultProps = {
@@ -31,7 +35,7 @@ const defaultProps = {
   defaultColor: '#000',
 };
 
-export default class YAxis extends Component {
+class YAxis extends Component {
   componentWillMount() {
     this.zoom = d3.zoom().on('zoom', this.didZoom);
   }
@@ -301,3 +305,15 @@ export default class YAxis extends Component {
 
 YAxis.propTypes = propTypes;
 YAxis.defaultProps = defaultProps;
+
+export default props => (
+  <ScalerContext.Consumer>
+    {({ subDomainsByItemId, updateDomains }) => (
+      <YAxis
+        {...props}
+        subDomainsByItemId={subDomainsByItemId}
+        updateDomains={updateDomains}
+      />
+    )}
+  </ScalerContext.Consumer>
+);
