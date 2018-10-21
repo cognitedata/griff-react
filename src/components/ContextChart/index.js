@@ -47,10 +47,26 @@ class ContextChart extends Component {
   };
 
   onUpdateSelection = selection => {
-    const { xDomain, width, xScalerFactory } = this.props;
+    const {
+      contextSeries: series,
+      xDomain,
+      width,
+      xScalerFactory,
+    } = this.props;
     const xScale = xScalerFactory(xDomain, width);
     const xSubDomain = selection.map(xScale.invert).map(Number);
-    this.props.updateXSubDomain(xSubDomain);
+    // this.props.updateXSubDomain(xSubDomain);
+    this.props.updateDomains(
+      series.reduce(
+        (changes, s) => ({
+          ...changes,
+          [s.id]: {
+            x: xSubDomain,
+          },
+        }),
+        {}
+      )
+    );
   };
 
   getChartHeight = () => {
@@ -148,6 +164,7 @@ export default props => (
       updateXSubDomain,
       contextSeries,
       xScalerFactory,
+      updateDomains,
     }) => (
       <SizeMe monitorWidth>
         {({ size }) => (
@@ -161,6 +178,7 @@ export default props => (
             xScalerFactory={xScalerFactory}
             subDomainsByItemId={subDomainsByItemId}
             domainsByItemId={domainsByItemId}
+            updateDomains={updateDomains}
           />
         )}
       </SizeMe>
