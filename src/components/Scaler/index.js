@@ -63,6 +63,26 @@ class Scaler extends Component {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ subDomainsByItemId });
     }
+
+    if (!isEqual(prevProps.dataContext.series, this.props.dataContext.series)) {
+      const subDomainsByItemId = {};
+      []
+        .concat(this.props.dataContext.series)
+        .concat(this.props.dataContext.collections)
+        .forEach(item => {
+          subDomainsByItemId[item.id] = {
+            ...this.state.subDomainsByItemId[item.id],
+            x: [
+              ...(item.xSubDomain || this.state.subDomainsByItemId[item.id].x),
+            ],
+            y: [
+              ...(item.ySubDomain || this.state.subDomainsByItemId[item.id].y),
+            ],
+          };
+        });
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ subDomainsByItemId });
+    }
   }
 
   getDomainsByItemId = () => {
