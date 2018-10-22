@@ -16,7 +16,7 @@ const propTypes = {
   tickFormatter: PropTypes.func,
   ticks: PropTypes.number,
   placement: GriffPropTypes.axisPlacement,
-  scaleX: PropTypes.bool,
+  scaled: PropTypes.bool,
 
   // These are provided by Griff.
   xScalerFactory: scalerFactoryFunc.isRequired,
@@ -31,7 +31,7 @@ const defaultProps = {
   ticks: 0,
   placement: AxisPlacement.BOTTOM,
   tickFormatter: Number,
-  scaleX: true,
+  scaled: true,
 };
 
 class XAxis extends Component {
@@ -105,10 +105,10 @@ class XAxis extends Component {
       ticks,
       domainsByItemId,
       subDomainsByItemId,
-      scaleX,
+      scaled,
     } = this.props;
     const scale = xScalerFactory(
-      (scaleX ? subDomainsByItemId : domainsByItemId)[
+      (scaled ? subDomainsByItemId : domainsByItemId)[
         Object.keys(domainsByItemId)[0]
       ].x,
       width

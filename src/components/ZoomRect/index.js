@@ -27,7 +27,6 @@ const propTypes = {
   // These are provided by Griff.
   updateDomains: GriffPropTypes.updateDomains.isRequired,
   subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
-  xScalerFactory: PropTypes.func.isRequired,
 };
 
 const defaultProps = {

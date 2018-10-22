@@ -118,7 +118,7 @@ class ContextChart extends Component {
         domain={xDomain}
         tickFormatter={xAxisFormatter}
         placement={xAxisPlacement}
-        scaleX={false}
+        scaled={false}
       />
     );
 
