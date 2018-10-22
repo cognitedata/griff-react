@@ -47,7 +47,6 @@ class InteractionLayer extends React.Component {
     areas: PropTypes.arrayOf(areaPropType),
     annotations: PropTypes.arrayOf(annotationPropType),
     width: PropTypes.number.isRequired,
-    zoomable: PropTypes.bool,
     zoomAxes: GriffPropTypes.zoomAxes.isRequired,
 
     // These are all populated by Griff.
@@ -71,7 +70,6 @@ class InteractionLayer extends React.Component {
     onMouseOut: null,
     onZoomXAxis: null,
     series: [],
-    zoomable: true,
     ruler: {
       visible: false,
       xLabel: () => {},
@@ -139,17 +137,6 @@ class InteractionLayer extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    // This is only updating internals -- but could still slow down performance.
-    // Look into this.
-    if (
-      this.props.zoomable !== prevProps.zoomable ||
-      // Since onAreaDefined *also* controls whether zooming is enabled, then
-      // we need to treat changes in this property just like we treat changes
-      // to the zooming state.
-      this.props.onAreaDefined !== prevProps.onAreaDefined
-    ) {
-      // this.syncZoomingState();
-    }
     if (prevProps.onAreaDefined && !this.props.onAreaDefined) {
       // They no longer care about areas; if we're building one, then remove it.
       // eslint-disable-next-line react/no-did-update-set-state

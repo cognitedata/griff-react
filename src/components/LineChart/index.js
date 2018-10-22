@@ -296,7 +296,6 @@ class LineChartComponent extends Component {
               onMouseMove={onMouseMove}
               onClickAnnotation={onClickAnnotation}
               onDoubleClick={onDoubleClick}
-              zoomable={zoomable}
               ruler={ruler}
               annotations={annotations}
               onClick={onClick}
@@ -304,7 +303,7 @@ class LineChartComponent extends Component {
               onAreaDefined={onAreaDefined}
               onZoomXAxis={onZoomXAxis}
               onAreaClicked={onAreaClicked}
-              zoomAxes={{ time: true }}
+              zoomAxes={{ time: zoomable }}
             />
           </svg>
         }
