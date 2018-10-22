@@ -4,14 +4,11 @@ import * as d3 from 'd3';
 import { SizeMe } from 'react-sizeme';
 import GriffPropTypes, { scalerFactoryFunc } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
-import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
-import { createLinearXScale } from '../../utils/scale-helpers';
 
 const tickTransformer = v => `translate(${v}, 0)`;
 
 const propTypes = {
-  xScalerFactory: scalerFactoryFunc.isRequired,
   width: PropTypes.number,
   height: PropTypes.number,
   stroke: PropTypes.string,
@@ -19,6 +16,12 @@ const propTypes = {
   tickFormatter: PropTypes.func,
   ticks: PropTypes.number,
   placement: GriffPropTypes.axisPlacement,
+  scaleX: PropTypes.bool,
+
+  // These are provided by Griff.
+  xScalerFactory: scalerFactoryFunc.isRequired,
+  domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
+  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
 
 const defaultProps = {
@@ -28,6 +31,7 @@ const defaultProps = {
   ticks: 0,
   placement: AxisPlacement.BOTTOM,
   tickFormatter: Number,
+  scaleX: true,
 };
 
 class XAxis extends Component {
@@ -101,9 +105,12 @@ class XAxis extends Component {
       ticks,
       domainsByItemId,
       subDomainsByItemId,
+      scaleX,
     } = this.props;
     const scale = xScalerFactory(
-      subDomainsByItemId[Object.keys(domainsByItemId)[0]],
+      (scaleX ? subDomainsByItemId : domainsByItemId)[
+        Object.keys(domainsByItemId)[0]
+      ].x,
       width
     );
     const axis = d3.axisBottom(scale);
