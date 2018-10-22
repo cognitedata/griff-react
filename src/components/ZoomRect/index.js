@@ -65,12 +65,12 @@ class ZoomRect extends React.Component {
     } = d3;
     // FIXME: Once we have separate X axis zooming, we can remove this whole
     // special case.
-    if (zoomAxes.x && itemIds.length > 0) {
+    if (zoomAxes.time && itemIds.length > 0) {
       // TODO: Support separate X axis zooming
       const firstItemId = itemIds[0];
-      const { x: xSubDomain } =
+      const { time: timeSubDomain } =
         this.props.subDomainsByItemId[firstItemId] || {};
-      const xSubDomainRange = xSubDomain[1] - xSubDomain[0];
+      const timeSubDomainRange = timeSubDomain[1] - timeSubDomain[0];
       let newSubDomain = null;
       if (sourceEvent.deltaY) {
         // This is a zoom event.
@@ -82,10 +82,11 @@ class ZoomRect extends React.Component {
 
         // Figure out the value on the scale where the mouse is so that the new
         // subdomain does not shift.
-        const valueAtMouse = xSubDomain[0] + xSubDomainRange * percentFromLeft;
+        const valueAtMouse =
+          timeSubDomain[0] + timeSubDomainRange * percentFromLeft;
 
         // How big the next subdomain is going to be
-        const newSpan = xSubDomainRange * (1 + zoomFactor);
+        const newSpan = timeSubDomainRange * (1 + zoomFactor);
 
         // Finally, place this new span into the subdomain, centered about the
         // mouse, and correctly (proportionately) split above & below so that the
@@ -97,19 +98,19 @@ class ZoomRect extends React.Component {
       } else if (sourceEvent.movementX) {
         // This is a drag event.
         const percentMovement =
-          xSubDomainRange * (-sourceEvent.movementX / width);
-        newSubDomain = xSubDomain.map(bound => bound + percentMovement);
+          timeSubDomainRange * (-sourceEvent.movementX / width);
+        newSubDomain = timeSubDomain.map(bound => bound + percentMovement);
       } else if (sourceEvent.type === 'touchmove') {
         // This is a drag event from touch.
-        const percentMovement = xSubDomainRange * (-transform.x / width);
-        newSubDomain = xSubDomain.map(bound => bound + percentMovement);
+        const percentMovement = timeSubDomainRange * (-transform.x / width);
+        newSubDomain = timeSubDomain.map(bound => bound + percentMovement);
       }
       if (newSubDomain) {
         this.props.updateDomains(
           itemIds.reduce(
             (changes, itemId) => ({
               ...changes,
-              [itemId]: { x: newSubDomain },
+              [itemId]: { time: newSubDomain },
             }),
             {}
           )
@@ -117,10 +118,10 @@ class ZoomRect extends React.Component {
         );
       }
       // if (onZoomXAxis) {
-      //   onZoomXAxis({ xSubDomain: newDomain, transformation: t });
+      //   onZoomXAxis({ timeSubDomain: newDomain, transformation: t });
       // }
     }
-    if (zoomAxes.y || zoomAxes.time) {
+    if (zoomAxes.y || zoomAxes.x) {
       const updates = itemIds.reduce((changes, itemId) => {
         const { y: ySubDomain } = this.props.subDomainsByItemId[itemId] || {};
         const ySubDomainRange = ySubDomain[1] - ySubDomain[0];

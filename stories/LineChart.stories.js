@@ -35,6 +35,18 @@ storiesOf('LineChart', module)
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
+  .add('New Basic', () => (
+    <DataProvider
+      defaultLoader={staticLoader}
+      timeDomain={staticXDomain}
+      series={[
+        { id: 1, color: 'steelblue', ySubDomain: [0, 2] },
+        { id: 2, color: 'maroon', ySubDomain: [-1, 1] },
+      ]}
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>
+  ))
   .add('Custom tick formatting', () => (
     <DataProvider
       defaultLoader={staticLoader}

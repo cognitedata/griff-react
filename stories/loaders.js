@@ -32,7 +32,7 @@ export const monoLoader = singleValue => ({ xDomain, oldSeries, reason }) => {
 
 export const staticLoader = ({
   id,
-  xDomain,
+  timeDomain: xDomain,
   n = 250,
   multiplier = 1,
   oldSeries,
@@ -52,7 +52,7 @@ export const staticLoader = ({
   };
 };
 
-export const liveLoader = ({ oldSeries, xDomain, reason }) => {
+export const liveLoader = ({ oldSeries, timeDomain: xDomain, reason }) => {
   // action('LOADER_REQUEST_DATA')(id, reason);
   if (reason === 'MOUNTED') {
     // Create dataset on mount

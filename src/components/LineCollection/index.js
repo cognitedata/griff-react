@@ -39,7 +39,7 @@ const LineCollection = props => {
     }
     const { id } = s;
     const xScale = xScalerFactory(
-      scaleX ? subDomainsByItemId[id].x : domainsByItemId[id].x,
+      scaleX ? subDomainsByItemId[id].time : domainsByItemId[id].time,
       width
     );
     const yScale = createYScale(
@@ -97,8 +97,8 @@ export const ScaledLineCollection = props => (
   <ScalerContext.Consumer>
     {({ domainsByItemId, subDomainsByItemId, series, xScalerFactory }) => (
       <LineCollection
-        {...props}
         series={series}
+        {...props}
         xScalerFactory={xScalerFactory}
         domainsByItemId={domainsByItemId}
         subDomainsByItemId={subDomainsByItemId}

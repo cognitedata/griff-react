@@ -27,9 +27,9 @@ class ContextChart extends Component {
     // These are all provided by Griff.
     contextSeries: seriesPropType,
     width: PropTypes.number,
-    xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     xScalerFactory: scalerFactoryFunc.isRequired,
-    xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     updateDomains: GriffPropTypes.updateDomains.isRequired,
     subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
     domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
@@ -49,18 +49,18 @@ class ContextChart extends Component {
   onUpdateSelection = selection => {
     const {
       contextSeries: series,
-      xDomain,
+      timeDomain,
       width,
       xScalerFactory,
     } = this.props;
-    const xScale = xScalerFactory(xDomain, width);
-    const xSubDomain = selection.map(xScale.invert).map(Number);
+    const xScale = xScalerFactory(timeDomain, width);
+    const timeSubDomain = selection.map(xScale.invert).map(Number);
     this.props.updateDomains(
       series.reduce(
         (changes, s) => ({
           ...changes,
           [s.id]: {
-            x: xSubDomain,
+            time: timeSubDomain,
           },
         }),
         {}
@@ -103,11 +103,11 @@ class ContextChart extends Component {
       zoomable,
     } = this.props;
     const firstItemId = series[0].id;
-    const xDomain = domainsByItemId[firstItemId].x;
-    const xSubDomain = subDomainsByItemId[firstItemId].x;
+    const timeDomain = domainsByItemId[firstItemId].time;
+    const timeSubDomain = subDomainsByItemId[firstItemId].time;
     const height = this.getChartHeight();
-    const xScale = xScalerFactory(xDomain, width);
-    const selection = xSubDomain.map(xScale);
+    const xScale = xScalerFactory(timeDomain, width);
+    const selection = timeSubDomain.map(xScale);
     const annotations = this.props.annotations.map(a => (
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
     ));
@@ -115,10 +115,11 @@ class ContextChart extends Component {
     const xAxis = (
       <XAxis
         height={xAxisHeight}
-        domain={xDomain}
+        domain={timeDomain}
         tickFormatter={xAxisFormatter}
         placement={xAxisPlacement}
         scaled={false}
+        axis="time"
       />
     );
 
@@ -135,7 +136,6 @@ class ContextChart extends Component {
             series={contextSeries}
             width={width}
             height={height}
-            domain={xDomain}
             xScalerFactory={xScalerFactory}
             scaleY={false}
             scaleX={false}
@@ -160,8 +160,8 @@ export default props => (
     {({
       domainsByItemId,
       subDomainsByItemId,
-      xSubDomain,
-      xDomain,
+      timeSubDomain,
+      timeDomain,
       contextSeries,
       xScalerFactory,
       updateDomains,
@@ -171,9 +171,9 @@ export default props => (
           <ContextChart
             width={size.width}
             {...props}
-            xDomain={xDomain}
+            timeDomain={timeDomain}
             contextSeries={contextSeries}
-            xSubDomain={xSubDomain}
+            timeSubDomain={timeSubDomain}
             xScalerFactory={xScalerFactory}
             subDomainsByItemId={subDomainsByItemId}
             domainsByItemId={domainsByItemId}

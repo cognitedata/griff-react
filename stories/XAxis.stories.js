@@ -4,6 +4,8 @@ import { storiesOf } from '@storybook/react';
 import { DataProvider, XAxis, AxisPlacement } from '../src';
 
 import { staticLoader } from './loaders';
+import Scaler from '../src/components/Scaler';
+import { createXScale } from '../src/utils/scale-helpers';
 
 storiesOf('XAxis', module)
   .addDecorator(story => (
@@ -16,7 +18,7 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -32,7 +34,9 @@ storiesOf('XAxis', module)
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
         >
-          <XAxis />
+          <Scaler xScalerFactory={createXScale}>
+            <XAxis />
+          </Scaler>
         </DataProvider>
       </div>
     </React.Fragment>

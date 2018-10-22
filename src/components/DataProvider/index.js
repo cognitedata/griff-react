@@ -60,14 +60,16 @@ const firstDefined = (first, ...others) => {
 
 export default class DataProvider extends Component {
   state = {
-    xSubDomain: DataProvider.getXSubDomain(
-      this.props.xDomain,
-      this.props.xSubDomain,
+    timeSubDomain: DataProvider.getXSubDomain(
+      this.props.timeDomain,
+      this.props.timeSubDomain,
       this.props.limitXSubDomain
     ),
-    xDomain: this.props.xDomain,
+    timeDomain: this.props.timeDomain,
     loaderConfig: {},
     contextSeries: {},
+    xDomains: {},
+    xSubDomains: {},
     yDomains: {},
     ySubDomains: {},
   };
@@ -138,10 +140,10 @@ export default class DataProvider extends Component {
       return;
     }
     const { series } = this.props;
-    const { xSubDomain, xDomain } = this.state;
+    const { timeSubDomain, timeDomain } = this.state;
 
-    if (!isEqual(this.props.xSubDomain, prevProps.xSubDomain)) {
-      this.xSubDomainChanged(this.props.xSubDomain);
+    if (!isEqual(this.props.timeSubDomain, prevProps.timeSubDomain)) {
+      this.timeSubDomainChanged(this.props.timeSubDomain);
     }
 
     const currentSeriesKeys = {};
@@ -155,25 +157,25 @@ export default class DataProvider extends Component {
     const newSeries = series.filter(s => prevSeriesKeys[s.id] !== true);
     await Promise.map(newSeries, async ({ id }) => {
       await this.fetchData(id, 'MOUNTED');
-      if (!isEqual(xSubDomain, xDomain)) {
+      if (!isEqual(timeSubDomain, timeDomain)) {
         // The series got added when zoomed in,
         // Need to also fetch a higher-granularity version on mount
         await this.fetchData(id, 'UPDATE_SUBDOMAIN');
       }
     });
 
-    // Check if xDomain changed in props -- if so reset state.
-    if (!isEqual(this.props.xDomain, prevProps.xDomain)) {
+    // Check if timeDomain changed in props -- if so reset state.
+    if (!isEqual(this.props.timeDomain, prevProps.timeDomain)) {
       const newXSubDomain = DataProvider.getXSubDomain(
-        this.props.xDomain,
-        this.props.xSubDomain,
+        this.props.timeDomain,
+        this.props.timeSubDomain,
         this.props.limitXSubDomain
       );
       // eslint-disable-next-line
       this.setState(
         {
-          xDomain: this.props.xDomain,
-          xSubDomain: newXSubDomain,
+          timeDomain: this.props.timeDomain,
+          timeSubDomain: newXSubDomain,
           loaderConfig: {},
           contextSeries: {},
           yDomains: {},
@@ -197,25 +199,25 @@ export default class DataProvider extends Component {
   }
 
   static getXSubDomain = (
-    xDomain,
-    xSubDomain,
+    timeDomain,
+    timeSubDomain,
     // eslint-disable-next-line no-shadow
-    limitXSubDomain = xSubDomain => xSubDomain
+    limitXSubDomain = timeSubDomain => timeSubDomain
   ) => {
-    if (!xSubDomain) {
-      return xDomain;
+    if (!timeSubDomain) {
+      return timeDomain;
     }
-    const newXSubDomain = limitXSubDomain(xSubDomain);
-    const xDomainLength = xDomain[1] - xDomain[0];
-    const xSubDomainLength = newXSubDomain[1] - newXSubDomain[0];
-    if (xDomainLength < xSubDomainLength) {
-      return xDomain;
+    const newXSubDomain = limitXSubDomain(timeSubDomain);
+    const timeDomainLength = timeDomain[1] - timeDomain[0];
+    const timeSubDomainLength = newXSubDomain[1] - newXSubDomain[0];
+    if (timeDomainLength < timeSubDomainLength) {
+      return timeDomain;
     }
-    if (newXSubDomain[0] < xDomain[0]) {
-      return [xDomain[0], xDomain[0] + xSubDomainLength];
+    if (newXSubDomain[0] < timeDomain[0]) {
+      return [timeDomain[0], timeDomain[0] + timeSubDomainLength];
     }
-    if (newXSubDomain[1] > xDomain[1]) {
-      return [xDomain[1] - xSubDomainLength, xDomain[1]];
+    if (newXSubDomain[1] > timeDomain[1]) {
+      return [timeDomain[1] - timeSubDomainLength, timeDomain[1]];
     }
     return newXSubDomain;
   };
@@ -250,19 +252,19 @@ export default class DataProvider extends Component {
     if (updateInterval) {
       clearInterval(this.fetchInterval);
       this.fetchInterval = setInterval(() => {
-        const { xDomain, xSubDomain } = this.state;
-        const newXDomain = xDomain.map(d => d + updateInterval);
+        const { timeDomain, timeSubDomain } = this.state;
+        const newXDomain = timeDomain.map(d => d + updateInterval);
         const newXSubDomain = this.props.isXSubDomainSticky
           ? DataProvider.getXSubDomain(
               newXDomain,
-              xSubDomain.map(d => d + updateInterval),
+              timeSubDomain.map(d => d + updateInterval),
               this.props.limitXSubDomain
             )
-          : xSubDomain;
+          : timeSubDomain;
         this.setState(
           {
-            xDomain: newXDomain,
-            xSubDomain: newXSubDomain,
+            timeDomain: newXDomain,
+            timeSubDomain: newXSubDomain,
           },
           () => {
             Promise.map(this.props.series, s =>
@@ -281,26 +283,44 @@ export default class DataProvider extends Component {
       pointWidth,
       pointWidthAccessor,
       strokeWidth,
+      timeAccessor,
       xAccessor,
       x0Accessor,
       x1Accessor,
+      xDomain: propXDomain,
+      xSubDomain,
       y0Accessor,
       y1Accessor,
       yAccessor,
       yDomain: propYDomain,
       ySubDomain,
     } = this.props;
-    const { loaderConfig, yDomains, ySubDomains } = this.state;
+    const {
+      loaderConfig,
+      xDomains,
+      xSubDomains,
+      yDomains,
+      ySubDomains,
+    } = this.state;
     const yDomain = collection.yDomain ||
       series.yDomain ||
       propYDomain ||
       yDomains[series.id] || [0, 1];
+    const xDomain = collection.xDomain ||
+      series.xDomain ||
+      propXDomain ||
+      xDomains[series.id] || [0, 1];
     return {
       drawPoints: collection.drawPoints,
       hidden: collection.hidden,
       data: [],
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
       ...deleteUndefinedFromObject(series),
+      timeAccessor: firstDefined(
+        series.timeAccessor,
+        collection.timeAccessor,
+        timeAccessor
+      ),
       xAccessor: firstDefined(
         series.xAccessor,
         collection.xAccessor,
@@ -356,6 +376,13 @@ export default class DataProvider extends Component {
         (series.collectionId
           ? collection.yAxisDisplayMode
           : series.yAxisDisplayMode) || collection.yAxisDisplayMode,
+      xDomain,
+      xSubDomain:
+        collection.xSubDomain ||
+        series.xSubDomain ||
+        xSubDomains[series.id] ||
+        xSubDomain ||
+        xDomain,
       yDomain,
       ySubDomain:
         collection.ySubDomain ||
@@ -368,7 +395,7 @@ export default class DataProvider extends Component {
 
   fetchData = async (id, reason) => {
     const { pointsPerSeries, defaultLoader } = this.props;
-    const { xSubDomain, xDomain } = this.state;
+    const { timeSubDomain, timeDomain } = this.state;
     const seriesObject = this.getSingleSeriesObject(id);
     const loader = seriesObject.loader || defaultLoader;
     if (!loader) {
@@ -376,8 +403,8 @@ export default class DataProvider extends Component {
     }
     const loaderResult = await loader({
       id,
-      xDomain,
-      xSubDomain,
+      timeDomain,
+      timeSubDomain,
       pointsPerSeries,
       oldSeries: seriesObject,
       reason,
@@ -396,24 +423,18 @@ export default class DataProvider extends Component {
       if (!this.props.xDomain) {
         // We were not given an xDomain, so we need to calculate one based on
         // the loaded data.
-        const calculatedXDomain = calculateDomainFromData(
+        const xDomain = calculateDomainFromData(
           loaderConfig.data,
           loaderConfig.xAccessor || this.props.xAccessor,
           loaderConfig.x0Accessor || this.props.x0Accessor,
           loaderConfig.x1Accessor || this.props.x1Accessor
         );
-        // The calculated xDomain needs to be big enough to encompass all of
-        // the data, so they're all going to be merged.
-        const defaultXDomain = [
-          Number.MAX_SAFE_INTEGER,
-          Number.MIN_SAFE_INTEGER,
-        ];
-        const mergedXDomain = [
-          Math.min(calculatedXDomain[0], (xDomain || defaultXDomain)[0]),
-          Math.max(calculatedXDomain[1], (xDomain || defaultXDomain)[1]),
-        ];
-        stateUpdates.xDomain = mergedXDomain;
-        stateUpdates.xSubDomain = mergedXDomain;
+        const xSubDomain = xDomain;
+        stateUpdates.xDomains = { ...this.state.xDomains, [id]: xDomain };
+        stateUpdates.xSubDomain = {
+          ...this.state.xSubDomains,
+          [id]: xSubDomain,
+        };
       }
 
       const yDomain = calculateDomainFromData(
@@ -424,7 +445,10 @@ export default class DataProvider extends Component {
       );
       const ySubDomain = yDomain;
       stateUpdates.yDomains = { ...this.state.yDomains, [id]: yDomain };
-      stateUpdates.ySubDomain = { ...this.state.ySubDomains, [id]: ySubDomain };
+      stateUpdates.ySubDomains = {
+        ...this.state.ySubDomains,
+        [id]: ySubDomain,
+      };
     }
     stateUpdates.loaderConfig = {
       ...this.state.loaderConfig,
@@ -439,19 +463,19 @@ export default class DataProvider extends Component {
     this.setState(stateUpdates);
   };
 
-  xSubDomainChanged = xSubDomain => {
-    const current = this.state.xSubDomain;
-    const newXSubDomain = DataProvider.getXSubDomain(
-      this.state.xDomain,
-      xSubDomain,
+  timeSubDomainChanged = timeSubDomain => {
+    const current = this.state.timeSubDomain;
+    const newTimeSubDomain = DataProvider.getXSubDomain(
+      this.state.timeDomain,
+      timeSubDomain,
       this.props.limitXSubDomain
     );
-    if (isEqual(newXSubDomain, current)) {
+    if (isEqual(newTimeSubDomain, current)) {
       return;
     }
 
-    clearTimeout(this.xSubDomainChangedTimeout);
-    this.xSubDomainChangedTimeout = setTimeout(
+    clearTimeout(this.timeSubDomainChangedTimeout);
+    this.timeSubDomainChangedTimeout = setTimeout(
       () =>
         Promise.map(this.props.series, s =>
           this.fetchData(s.id, 'UPDATE_SUBDOMAIN')
@@ -459,18 +483,23 @@ export default class DataProvider extends Component {
       250
     );
     if (this.props.onXSubDomainChanged) {
-      this.props.onXSubDomainChanged(newXSubDomain);
+      this.props.onXSubDomainChanged(newTimeSubDomain);
     }
-    this.setState({ xSubDomain: newXSubDomain });
+    this.setState({ timeSubDomain: newTimeSubDomain });
   };
 
   render() {
-    const { loaderConfig, contextSeries, xDomain, xSubDomain } = this.state;
+    const {
+      loaderConfig,
+      contextSeries,
+      timeDomain,
+      timeSubDomain,
+    } = this.state;
     const {
       yAxisWidth,
       children,
-      xDomain: externalXDomain,
-      xSubDomain: externalXSubDomain,
+      timeDomain: externalXDomain,
+      timeSubDomain: externalXSubDomain,
       collections,
     } = this.props;
 
@@ -550,14 +579,14 @@ export default class DataProvider extends Component {
     const context = {
       series: collectedSeries,
       collections: collectionsWithDomains,
-      xDomain,
+      timeDomain,
       // This is used to signal external changes vs internal changes
       externalXDomain,
-      xSubDomain,
+      timeSubDomain,
       // This is used to signal external changes vs internal changes
       externalXSubDomain,
       yAxisWidth,
-      xSubDomainChanged: this.xSubDomainChanged,
+      timeSubDomainChanged: this.timeSubDomainChanged,
       contextSeries: seriesObjects.map(s => ({
         ...contextSeries[s.id],
         ...s,
@@ -572,9 +601,12 @@ export default class DataProvider extends Component {
 }
 
 DataProvider.propTypes = {
+  timeDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
+  timeSubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   xDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   xSubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   updateInterval: PropTypes.number,
+  timeAccessor: PropTypes.func,
   xAccessor: PropTypes.func,
   x0Accessor: PropTypes.func,
   x1Accessor: PropTypes.func,
@@ -614,9 +646,12 @@ DataProvider.defaultProps = {
   pointWidth: null,
   pointWidthAccessor: null,
   strokeWidth: null,
+  timeDomain: null,
+  timeSubDomain: null,
   xDomain: null,
   xSubDomain: null,
   updateInterval: 0,
+  timeAccessor: d => d.timestamp,
   x0Accessor: null,
   x1Accessor: null,
   xAccessor: d => d.timestamp,

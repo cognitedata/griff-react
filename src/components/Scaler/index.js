@@ -9,10 +9,10 @@ class Scaler extends Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
     dataContext: PropTypes.shape({
-      xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-      xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+      timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+      timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+      timeSubDomainChanged: PropTypes.func.isRequired,
       externalXSubDomain: PropTypes.arrayOf(PropTypes.number),
-      xSubDomainChanged: PropTypes.func.isRequired,
       series: seriesPropType.isRequired,
       collections: GriffPropTypes.collections.isRequired,
     }).isRequired,
@@ -25,9 +25,10 @@ class Scaler extends Component {
   };
 
   state = {
+    xSubDomains: {},
     ySubDomains: {},
-    xSubDomain:
-      this.props.dataContext.xSubDomain || this.props.dataContext.xDomain,
+    timeSubDomain:
+      this.props.dataContext.timeSubDomain || this.props.dataContext.timeDomain,
 
     // Map from item (collection, series) to their respective domains.
     domainsByItemId: {},
@@ -45,7 +46,8 @@ class Scaler extends Component {
         (acc, item) => ({
           ...acc,
           [item.id]: state.subDomainsByItemId[item.id] || {
-            x: [...dataContext.xSubDomain],
+            time: [...dataContext.timeSubDomain],
+            x: [...item.xSubDomain],
             y: [...item.ySubDomain],
           },
         }),
@@ -58,7 +60,8 @@ class Scaler extends Component {
         (acc, item) => ({
           ...acc,
           [item.id]: state.domainsByItemId[item.id] || {
-            x: [...dataContext.xDomain],
+            time: [...dataContext.timeDomain],
+            x: [...item.xDomain],
             y: [...item.yDomain],
           },
         }),
@@ -69,7 +72,7 @@ class Scaler extends Component {
 
   updateDomains = (changedDomainsById, callback) => {
     // FIXME: This is not multi-series aware.
-    let newXSubDomain = null;
+    let newTimeSubDomain = null;
 
     const { domainsById, subDomainsByItemId } = this.state;
     const newSubDomains = { ...subDomainsByItemId };
@@ -83,11 +86,11 @@ class Scaler extends Component {
           subDomainsByItemId[itemId][axis] || newSubDomain;
         const existingSpan = existingSubDomain[1] - existingSubDomain[0];
 
-        const limits =
-          ((domainsById || {})[itemId] || {})[axis] || axis === 'x'
-            ? // FIXME: Phase out this xDomain thing.
-              this.props.dataContext.xDomain
-            : undefined || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
+        const limits = ((domainsById || {})[itemId] || {})[axis] ||
+          (axis === 'time'
+            ? // FIXME: Phase out this timeDomain thing.
+              this.props.dataContext.timeDomain
+            : undefined) || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
 
         if (newSpan === existingSpan) {
           // This is a translation; check the bounds.
@@ -106,9 +109,8 @@ class Scaler extends Component {
 
         newSubDomains[itemId][axis] = newSubDomain;
 
-        // FIXME: Operate only on time
-        if (axis === 'x' || axis === 'time') {
-          newXSubDomain = newSubDomain;
+        if (axis === 'time') {
+          newTimeSubDomain = newSubDomain;
         }
       });
     });
@@ -116,8 +118,8 @@ class Scaler extends Component {
       { subDomainsByItemId: newSubDomains },
       callback ? () => callback(changedDomainsById) : undefined
     );
-    if (newXSubDomain) {
-      this.props.dataContext.xSubDomainChanged(newXSubDomain);
+    if (newTimeSubDomain) {
+      this.props.dataContext.timeSubDomainChanged(newTimeSubDomain);
     }
   };
 
@@ -125,8 +127,9 @@ class Scaler extends Component {
     const {
       domainsByItemId,
       subDomainsByItemId,
+      timeSubDomain,
+      xSubDomains,
       ySubDomains,
-      xSubDomain,
     } = this.state;
     const { dataContext, xScalerFactory } = this.props;
     const ownContext = {
@@ -137,18 +140,20 @@ class Scaler extends Component {
 
     const enrichedSeries = dataContext.series.map(s => ({
       ...s,
+      xSubDomain: xSubDomains[s.id] || s.xSubDomain,
       ySubDomain: ySubDomains[s.id] || s.ySubDomain,
     }));
 
     const enrichedCollections = dataContext.collections.map(c => ({
       ...c,
+      xSubDomain: xSubDomains[c.id] || c.xSubDomain,
       ySubDomain: ySubDomains[c.id] || c.ySubDomain,
     }));
 
     const enrichedContext = {
       collections: enrichedCollections,
       series: enrichedSeries,
-      xSubDomain: xSubDomain || dataContext.xSubDomain,
+      timeSubDomain: timeSubDomain || dataContext.timeSubDomain,
       xScalerFactory,
     };
 

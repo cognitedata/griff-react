@@ -17,6 +17,7 @@ const propTypes = {
   ticks: PropTypes.number,
   placement: GriffPropTypes.axisPlacement,
   scaled: PropTypes.bool,
+  axis: PropTypes.oneOf(['time', 'x', 'y']),
 
   // These are provided by Griff.
   xScalerFactory: scalerFactoryFunc.isRequired,
@@ -32,6 +33,7 @@ const defaultProps = {
   placement: AxisPlacement.BOTTOM,
   tickFormatter: Number,
   scaled: true,
+  axis: 'time',
 };
 
 class XAxis extends Component {
@@ -98,6 +100,7 @@ class XAxis extends Component {
 
   renderAxis() {
     const {
+      axis: a,
       width,
       stroke,
       xScalerFactory,
@@ -110,7 +113,7 @@ class XAxis extends Component {
     const scale = xScalerFactory(
       (scaled ? subDomainsByItemId : domainsByItemId)[
         Object.keys(domainsByItemId)[0]
-      ].x,
+      ][a],
       width
     );
     const axis = d3.axisBottom(scale);

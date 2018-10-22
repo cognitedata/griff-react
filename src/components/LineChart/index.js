@@ -305,6 +305,7 @@ class LineChartComponent extends Component {
               onAreaDefined={onAreaDefined}
               onZoomXAxis={onZoomXAxis}
               onAreaClicked={onAreaClicked}
+              zoomAxes={{ time: true }}
             />
           </svg>
         }

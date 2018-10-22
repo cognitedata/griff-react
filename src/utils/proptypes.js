@@ -212,6 +212,12 @@ const domainsByItemId = PropTypes.objectOf(
   })
 );
 
+const zoomAxes = PropTypes.shape({
+  time: PropTypes.bool,
+  x: PropTypes.bool,
+  y: PropTypes.bool,
+});
+
 export default {
   axisPlacement,
   collection,
@@ -223,4 +229,5 @@ export default {
   updateDomains,
   domainsByItemId,
   subDomainsByItemId: domainsByItemId,
+  zoomAxes,
 };

@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import ScalerContext from '../../context/Scaler';
 import { createYScale } from '../../utils/scale-helpers';
-import {
+import GriffPropTypes, {
   areaPropType,
   seriesPropType,
   annotationPropType,
@@ -49,10 +49,12 @@ class InteractionLayer extends React.Component {
     width: PropTypes.number.isRequired,
     xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     zoomable: PropTypes.bool,
     // (domain, width) => [number, number]
     xScalerFactory: PropTypes.func.isRequired,
-    zoomMode: PropTypes.oneOf(Object.keys(ZoomMode).map(k => ZoomMode[k])),
+    zoomAxes: GriffPropTypes.zoomAxes.isRequired,
   };
 
   static defaultProps = {
@@ -74,7 +76,6 @@ class InteractionLayer extends React.Component {
       xLabel: () => {},
       yLabel: () => {},
     },
-    zoomMode: ZoomMode.X,
   };
 
   state = {
@@ -350,12 +351,12 @@ class InteractionLayer extends React.Component {
       series,
       height,
       width,
-      xSubDomain,
+      timeSubDomain,
       onMouseMove,
       ruler,
       xScalerFactory,
     } = this.props;
-    const xScale = xScalerFactory(xSubDomain, width);
+    const xScale = xScalerFactory(timeSubDomain, width);
     const rawTimestamp = xScale.invert(xpos).getTime();
     const newPoints = [];
     series.forEach(s => {
@@ -418,12 +419,11 @@ class InteractionLayer extends React.Component {
       width,
       height,
       crosshair,
-      onAreaDefined,
       ruler,
       series,
-      xSubDomain,
+      timeSubDomain,
       xScalerFactory,
-      zoomable,
+      zoomAxes,
     } = this.props;
     const {
       crosshair: { x, y },
@@ -455,7 +455,7 @@ class InteractionLayer extends React.Component {
         </React.Fragment>
       );
     }
-    const xScale = xScalerFactory(xSubDomain, width);
+    const xScale = xScalerFactory(timeSubDomain, width);
     const annotations = this.props.annotations.map(a => (
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
     ));
@@ -513,7 +513,7 @@ class InteractionLayer extends React.Component {
         {areas}
         {areaBeingDefined}
         <ZoomRect
-          zoomAxes={{ x: zoomable && !onAreaDefined }}
+          zoomAxes={zoomAxes}
           width={width}
           height={height}
           onClick={this.onClick}
@@ -533,8 +533,8 @@ class InteractionLayer extends React.Component {
 export default props => (
   <ScalerContext.Consumer>
     {({
-      xSubDomain,
-      xDomain,
+      timeSubDomain,
+      timeDomain,
       series,
       xScalerFactory,
       subDomainsByItemId,
@@ -542,8 +542,8 @@ export default props => (
     }) => (
       <InteractionLayer
         {...props}
-        xSubDomain={xSubDomain}
-        xDomain={xDomain}
+        timeSubDomain={timeSubDomain}
+        timeDomain={timeDomain}
         series={series}
         xScalerFactory={xScalerFactory}
         subDomainsByItemId={subDomainsByItemId}
