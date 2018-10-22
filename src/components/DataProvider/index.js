@@ -420,22 +420,20 @@ export default class DataProvider extends Component {
     };
     const stateUpdates = {};
     if (reason === 'MOUNTED') {
-      if (!this.props.xDomain) {
-        // We were not given an xDomain, so we need to calculate one based on
-        // the loaded data.
-        const xDomain = calculateDomainFromData(
-          loaderConfig.data,
-          loaderConfig.xAccessor || this.props.xAccessor,
-          loaderConfig.x0Accessor || this.props.x0Accessor,
-          loaderConfig.x1Accessor || this.props.x1Accessor
-        );
-        const xSubDomain = xDomain;
-        stateUpdates.xDomains = { ...this.state.xDomains, [id]: xDomain };
-        stateUpdates.xSubDomain = {
-          ...this.state.xSubDomains,
-          [id]: xSubDomain,
-        };
-      }
+      // We were not given an xDomain, so we need to calculate one based on
+      // the loaded data.
+      const xDomain = calculateDomainFromData(
+        loaderConfig.data,
+        loaderConfig.xAccessor || this.props.xAccessor,
+        loaderConfig.x0Accessor || this.props.x0Accessor,
+        loaderConfig.x1Accessor || this.props.x1Accessor
+      );
+      const xSubDomain = xDomain;
+      stateUpdates.xDomains = { ...this.state.xDomains, [id]: xDomain };
+      stateUpdates.xSubDomains = {
+        ...this.state.xSubDomains,
+        [id]: xSubDomain,
+      };
 
       const yDomain = calculateDomainFromData(
         loaderConfig.data,

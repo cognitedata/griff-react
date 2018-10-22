@@ -62,11 +62,11 @@ const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
         point = y.data.shift();
         lastKnown.y = point.value;
       }
-      lastKnown.z = point.timestamp;
+      lastKnown.timestamp = point.timestamp;
       if (
         lastKnown.x !== undefined &&
         lastKnown.y !== undefined &&
-        lastKnown.z !== undefined
+        lastKnown.timestamp !== undefined
       ) {
         data.push({
           ...lastKnown,

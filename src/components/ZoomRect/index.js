@@ -121,60 +121,69 @@ class ZoomRect extends React.Component {
       //   onZoomXAxis({ timeSubDomain: newDomain, transformation: t });
       // }
     }
-    if (zoomAxes.y || zoomAxes.x) {
-      const updates = itemIds.reduce((changes, itemId) => {
-        const { y: ySubDomain } = this.props.subDomainsByItemId[itemId] || {};
-        const ySubDomainRange = ySubDomain[1] - ySubDomain[0];
+
+    const distances = {
+      x: width,
+      y: height,
+    };
+
+    const movements = {
+      x: -sourceEvent.movementX,
+      y: sourceEvent.movementY,
+    };
+
+    const percents = {
+      x: sourceEvent.offsetX / width,
+      // Invert the event coordinates for sanity, since they're measured from
+      // the top-left, but we want to go from the bottom-left.
+      y: (height - sourceEvent.offsetY) / height,
+    };
+
+    const updates = {};
+    itemIds.forEach(itemId => {
+      ['x', 'y'].filter(axis => zoomAxes[axis]).forEach(axis => {
+        const subDomain = (this.props.subDomainsByItemId[itemId] || {})[axis];
+        const subDomainRange = subDomain[1] - subDomain[0];
         let newSubDomain = null;
         if (sourceEvent.deltaY) {
           // This is a zoom event.
-          const { deltaMode, deltaY, offsetY } = sourceEvent;
+          const { deltaMode, deltaY } = sourceEvent;
+          const percentFromEnd = percents[axis];
 
           // This was borrowed from d3-zoom.
           const zoomFactor = (deltaY * (deltaMode ? 120 : 1)) / 500;
 
-          // Invert the event coordinates for sanity, since they're measured from
-          // the top-left, but we want to go from the bottom-left.
-          const percentFromBottom = (height - offsetY) / height;
-
           // Figure out the value on the scale where the mouse is so that the new
           // subdomain does not shift.
-          const valueAtMouse =
-            ySubDomain[0] + ySubDomainRange * percentFromBottom;
+          const valueAtMouse = subDomain[0] + subDomainRange * percentFromEnd;
 
           // How big the next subdomain is going to be
-          const newSpan = ySubDomainRange * (1 + zoomFactor);
+          const newSpan = subDomainRange * (1 + zoomFactor);
 
           // Finally, place this new span into the subdomain, centered about the
           // mouse, and correctly (proportionately) split above & below so that the
           // axis is stable.
           newSubDomain = [
-            valueAtMouse - newSpan * percentFromBottom,
-            valueAtMouse + newSpan * (1 - percentFromBottom),
+            valueAtMouse - newSpan * percentFromEnd,
+            valueAtMouse + newSpan * (1 - percentFromEnd),
           ];
-        } else if (sourceEvent.movementY) {
+        } else if (movements[axis]) {
           // This is a drag event.
           const percentMovement =
-            ySubDomainRange * (sourceEvent.movementY / height);
-          newSubDomain = ySubDomain.map(bound => bound + percentMovement);
+            subDomainRange * (movements[axis] / distances[axis]);
+          newSubDomain = subDomain.map(bound => bound + percentMovement);
         } else if (sourceEvent.type === 'touchmove') {
           // This is a drag event from touch.
-          const percentMovement = ySubDomainRange * (transform.y / height);
-          newSubDomain = ySubDomain.map(bound => bound + percentMovement);
+          const percentMovement = subDomainRange * (transform.y / height);
+          newSubDomain = subDomain.map(bound => bound + percentMovement);
         }
         if (newSubDomain) {
-          return {
-            ...changes,
-            [itemId]: Object.keys(zoomAxes).reduce(
-              (domains, axis) => ({ ...domains, [axis]: newSubDomain }),
-              {}
-            ),
-          };
+          updates[itemId] = {};
+          updates[itemId][axis] = newSubDomain;
         }
-        return changes;
-      }, {});
-      this.props.updateDomains(updates);
-    }
+      });
+    });
+    this.props.updateDomains(updates);
   };
 
   render() {

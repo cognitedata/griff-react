@@ -47,8 +47,8 @@ class Scaler extends Component {
           ...acc,
           [item.id]: state.subDomainsByItemId[item.id] || {
             time: [...dataContext.timeSubDomain],
-            x: [...item.xSubDomain],
-            y: [...item.ySubDomain],
+            x: [...(item.xSubDomain || [])],
+            y: [...(item.ySubDomain || [])],
           },
         }),
         {}
@@ -61,8 +61,8 @@ class Scaler extends Component {
           ...acc,
           [item.id]: state.domainsByItemId[item.id] || {
             time: [...dataContext.timeDomain],
-            x: [...item.xDomain],
-            y: [...item.yDomain],
+            x: [...(item.xDomain || [])],
+            y: [...(item.yDomain || [])],
           },
         }),
         {}
