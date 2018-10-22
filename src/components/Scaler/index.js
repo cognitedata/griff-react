@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import * as d3 from 'd3';
-import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import ScalerContext from '../../context/Scaler';
-import { createXScale, createYScale } from '../../utils/scale-helpers';
+import { createXScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 
 class Scaler extends Component {
@@ -30,7 +28,6 @@ class Scaler extends Component {
     ySubDomains: {},
     xSubDomain:
       this.props.dataContext.xSubDomain || this.props.dataContext.xDomain,
-    yTransformations: {},
 
     // Map from item (collection, series) to their respective domains.
     domainsByItemId: {},
