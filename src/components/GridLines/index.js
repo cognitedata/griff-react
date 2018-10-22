@@ -12,7 +12,8 @@ const propTypes = {
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   series: seriesPropType.isRequired,
-  xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  // These are all populated by Griff.
+  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
   xScalerFactory: scalerFactoryFunc,
 };
 
@@ -33,7 +34,7 @@ class GridLines extends React.Component {
       height,
       width,
       series,
-      xSubDomain,
+      subDomainsByItemId,
       xScalerFactory,
     } = this.props;
 
@@ -158,7 +159,10 @@ class GridLines extends React.Component {
         }
       } else if (x.ticks !== undefined) {
         // This heavily inspired by XAxis -- maybe we can consolidate them?
-        const scale = xScalerFactory(xSubDomain, width);
+        // FIXME: Remove this when we support multiple X axes
+        const timeSubDomain =
+          subDomainsByItemId[Object.keys(subDomainsByItemId)[0]].time;
+        const scale = xScalerFactory(timeSubDomain, width);
         const values = scale.ticks(x.ticks || Math.floor(width / 100) || 1);
         values.forEach(v => {
           lines.push(
@@ -215,13 +219,12 @@ GridLines.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ series, xSubDomain, xScalerFactory, yTransformations }) => (
+    {({ series, subDomainsByItemId, xScalerFactory }) => (
       <GridLines
         {...props}
         series={series}
-        timeSubDomain={xSubDomain}
+        subDomainsByItemId={subDomainsByItemId}
         xScalerFactory={xScalerFactory}
-        yTransformations={yTransformations}
       />
     )}
   </ScalerContext.Consumer>
