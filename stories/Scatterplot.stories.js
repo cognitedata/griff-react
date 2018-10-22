@@ -92,7 +92,7 @@ storiesOf('Scatterplot', module)
         <div style={{ height: '500px', width: '100%' }}>
           <DataProvider
             defaultLoader={scatterplotloader}
-            xDomain={[0, 1]}
+            timeDomain={[0, 1]}
             series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -106,7 +106,7 @@ storiesOf('Scatterplot', module)
         <div style={{ height: '500px', width: '100%' }}>
           <DataProvider
             defaultLoader={scatterplotloader}
-            xDomain={[0, 1]}
+            timeDomain={[0, 1]}
             series={[
               { id: 'sincos', color: '#ACF39D', collectionId: 'scatter' },
               { id: 'sintan', color: '#E85F5C', collectionId: 'scatter' },
@@ -125,7 +125,7 @@ storiesOf('Scatterplot', module)
         <div style={{ height: '500px', width: '100%' }}>
           <DataProvider
             defaultLoader={scatterplotloader}
-            xDomain={[0, 1]}
+            timeDomain={[0, 1]}
             series={[
               { id: '1 2', color: '#ACF39D' },
               { id: '2 3', color: '#E85F5C' },
@@ -152,7 +152,7 @@ storiesOf('Scatterplot', module)
         <div style={{ height: '500px', width: '100%' }}>
           <DataProvider
             defaultLoader={scatterplotloader}
-            xDomain={[0, 1]}
+            timeDomain={[0, 1]}
             series={[
               { id: '1 2', color: 'steelblue', collectionId: 'scatter' },
               { id: 'sum-y', color: 'maroon', collectionId: 'scatter' },
@@ -174,7 +174,7 @@ storiesOf('Scatterplot', module)
         <div style={{ height: '500px', width: '100%' }}>
           <DataProvider
             defaultLoader={scatterplotloader}
-            xDomain={[-1, 2]}
+            timeDomain={[-1, 2]}
             yDomain={[-1, 2]}
             series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
@@ -189,7 +189,7 @@ storiesOf('Scatterplot', module)
         <div style={{ height: '500px', width: '100%' }}>
           <DataProvider
             defaultLoader={scatterplotloader}
-            xDomain={[-1, 2]}
+            timeDomain={[-1, 2]}
             series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -230,7 +230,7 @@ storiesOf('Scatterplot', module)
         <div style={{ height: '500px', width: '100%' }}>
           <DataProvider
             defaultLoader={scatterplotloader}
-            xDomain={[0.25, 0.75]}
+            timeDomain={[0.25, 0.75]}
             yDomain={[0.25, 0.75]}
             series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
@@ -247,7 +247,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '100%' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -265,7 +265,7 @@ storiesOf('Scatterplot', module)
     <div style={{ height: '500px', width: '500px' }}>
       <DataProvider
         defaultLoader={scatterplotloader}
-        xDomain={[0, 1]}
+        timeDomain={[0, 1]}
         series={[{ id: '1 2', color: 'steelblue' }]}
         xAccessor={d => +d.x}
         yAccessor={d => +d.y}
@@ -294,7 +294,7 @@ storiesOf('Scatterplot', module)
           >
             <DataProvider
               defaultLoader={scatterplotloader}
-              xDomain={[0, 1]}
+              timeDomain={[0, 1]}
               series={[{ id: '1 2', color: 'steelblue' }]}
               xAccessor={d => +d.x}
               yAccessor={d => +d.y}
@@ -317,7 +317,7 @@ storiesOf('Scatterplot', module)
           >
             <DataProvider
               defaultLoader={scatterplotloader}
-              xDomain={[0, 1]}
+              timeDomain={[0, 1]}
               series={[{ id: '1 2', color: 'steelblue' }]}
               xAccessor={d => +d.x}
               yAccessor={d => +d.y}
@@ -337,7 +337,7 @@ storiesOf('Scatterplot', module)
       >
         <DataProvider
           defaultLoader={scatterplotloader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -356,7 +356,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue', strokeWidth: 2 },
             { id: '3 4', color: 'maroon', strokeWidth: 10 },
@@ -370,7 +370,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue' },
             { id: '3 4', color: 'maroon' },
@@ -389,7 +389,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue', pointWidth: 2 },
             { id: '3 4', color: 'maroon', pointWidth: 10 },
@@ -403,7 +403,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue' },
             { id: '3 4', color: 'maroon' },
@@ -418,7 +418,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue' },
             { id: '3 4', color: 'maroon' },
@@ -437,7 +437,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue', opacity: 0.25 },
             { id: '3 4', color: 'maroon', opacity: 0.75 },
@@ -452,7 +452,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue' },
             { id: '3 4', color: 'maroon' },
@@ -472,7 +472,7 @@ storiesOf('Scatterplot', module)
       <div style={{ height: '500px', width: '500px' }}>
         <DataProvider
           defaultLoader={scatterplotloader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[
             { id: '1 2', color: 'steelblue' },
             { id: '3 4', color: 'maroon' },

@@ -359,7 +359,7 @@ const LineChart = props => (
           {...props}
           collections={collections}
           series={series}
-          xSubDomain={xSubDomain}
+          timeSubDomain={xSubDomain}
           xScalerFactory={xScalerFactory}
           yAxisWidth={yAxisWidth}
         />

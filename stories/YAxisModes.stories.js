@@ -31,7 +31,7 @@ storiesOf('Y-Axis Modes', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={series}
             >
               <LineChart
@@ -50,7 +50,7 @@ storiesOf('Y-Axis Modes', module)
   .add('Without y axis', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -62,7 +62,7 @@ storiesOf('Y-Axis Modes', module)
   .add('Collapsed y axis', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -74,7 +74,7 @@ storiesOf('Y-Axis Modes', module)
   .add('Collapsed collection', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       collections={[{ id: 'all', color: 'deepred' }]}
       series={[
         { id: 1, collectionId: 'all', color: 'steelblue' },
@@ -90,7 +90,7 @@ storiesOf('Y-Axis Modes', module)
   .add('Collapsed collected series', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       collections={[{ id: 'all', color: 'deepred' }]}
       series={[
         {
@@ -121,7 +121,7 @@ storiesOf('Y-Axis Modes', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={[
                 {
                   id: 1,
@@ -188,7 +188,7 @@ storiesOf('Y-Axis Modes', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={[
                 {
                   id: 1,
@@ -272,7 +272,7 @@ storiesOf('Y-Axis Modes', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={series}
             >
               <LineChart
@@ -372,7 +372,7 @@ storiesOf('Y-Axis Modes', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               collections={collections}
               series={series}
             >
@@ -402,7 +402,7 @@ storiesOf('Y-Axis Modes', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={[
                 { id: 1, color: 'steelblue' },
                 { id: 2, color: 'maroon' },
@@ -476,7 +476,7 @@ storiesOf('Y-Axis Modes', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={[
                 { id: 1, color: 'steelblue' },
                 { id: 2, color: 'maroon' },

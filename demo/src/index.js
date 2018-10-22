@@ -75,7 +75,7 @@ class App extends Component {
           yAccessor={d => d.value}
           xAccessor={d => d.timestamp}
           yAxisWidth={50}
-          xDomain={xDomain}
+          timeDomain={xDomain}
           {...dataProps}
         >
           <LineChart

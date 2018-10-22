@@ -29,7 +29,7 @@ storiesOf('XAxis', module)
       <div style={{ width: '75%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -46,7 +46,7 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -57,7 +57,7 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -72,7 +72,7 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -83,7 +83,7 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -98,7 +98,7 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -109,7 +109,7 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -124,7 +124,7 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -135,7 +135,7 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[0, 1]}
           series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}

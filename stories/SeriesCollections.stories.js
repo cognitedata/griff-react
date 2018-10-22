@@ -11,7 +11,7 @@ storiesOf('Series Collections', module)
   .add('Single collection', () => [
     <DataProvider
       key="simple"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -25,7 +25,7 @@ storiesOf('Series Collections', module)
     </DataProvider>,
     <DataProvider
       key="scaled"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -46,7 +46,7 @@ storiesOf('Series Collections', module)
   ])
   .add('Multiple collections', () => (
     <DataProvider
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -63,7 +63,7 @@ storiesOf('Series Collections', module)
   ))
   .add('Mixed items', () => (
     <DataProvider
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -80,7 +80,7 @@ storiesOf('Series Collections', module)
   .add('drawPoints', () => [
     <DataProvider
       key="default"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -94,7 +94,7 @@ storiesOf('Series Collections', module)
     </DataProvider>,
     <DataProvider
       key="override"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -116,7 +116,7 @@ storiesOf('Series Collections', module)
   .add('hidden', () => [
     <DataProvider
       key="default"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -130,7 +130,7 @@ storiesOf('Series Collections', module)
     </DataProvider>,
     <DataProvider
       key="preference"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -150,7 +150,7 @@ storiesOf('Series Collections', module)
     </DataProvider>,
     <DataProvider
       key="override"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -172,7 +172,7 @@ storiesOf('Series Collections', module)
   .add('strokeWidth', () => [
     <DataProvider
       key="default"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -186,7 +186,7 @@ storiesOf('Series Collections', module)
     </DataProvider>,
     <DataProvider
       key="preference"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -206,7 +206,7 @@ storiesOf('Series Collections', module)
     </DataProvider>,
     <DataProvider
       key="override"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -231,7 +231,7 @@ storiesOf('Series Collections', module)
     return [
       <DataProvider
         key="default"
-        xDomain={staticXDomain}
+        timeDomain={staticXDomain}
         defaultLoader={staticLoader}
         xAccessor={d => d.timestamp}
         yAccessor={d => d.value}
@@ -250,7 +250,7 @@ storiesOf('Series Collections', module)
       </DataProvider>,
       <DataProvider
         key="preference"
-        xDomain={staticXDomain}
+        timeDomain={staticXDomain}
         defaultLoader={staticLoader}
         xAccessor={d => d.timestamp}
         yAccessor={d => d.value}
@@ -271,7 +271,7 @@ storiesOf('Series Collections', module)
       </DataProvider>,
       <DataProvider
         key="override"
-        xDomain={staticXDomain}
+        timeDomain={staticXDomain}
         defaultLoader={staticLoader}
         xAccessor={d => d.timestamp}
         yAccessor={d => d.value}
@@ -295,7 +295,7 @@ storiesOf('Series Collections', module)
   .add('yAxisDisplayMode', () => [
     <DataProvider
       key="default"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -311,7 +311,7 @@ storiesOf('Series Collections', module)
     </DataProvider>,
     <DataProvider
       key="override"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -337,7 +337,7 @@ storiesOf('Series Collections', module)
     // yDomain.
     <DataProvider
       key="default"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -353,7 +353,7 @@ storiesOf('Series Collections', module)
     // ignored because it is ignored when in a collection.
     <DataProvider
       key="override"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -376,7 +376,7 @@ storiesOf('Series Collections', module)
     // yDomain as the collection.
     <DataProvider
       key="scaled"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -398,7 +398,7 @@ storiesOf('Series Collections', module)
   .add('colors', () => [
     <DataProvider
       key="default"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -413,7 +413,7 @@ storiesOf('Series Collections', module)
     // No color is specified; YAxis should use its default color.
     <DataProvider
       key="override"
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}

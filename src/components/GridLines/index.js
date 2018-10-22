@@ -219,7 +219,7 @@ export default props => (
       <GridLines
         {...props}
         series={series}
-        xSubDomain={xSubDomain}
+        timeSubDomain={xSubDomain}
         xScalerFactory={xScalerFactory}
         yTransformations={yTransformations}
       />

@@ -145,7 +145,7 @@ const Scatterplot = props => (
         <SizedScatterplotComponent
           {...props}
           series={series}
-          xSubDomain={xSubDomain}
+          timeSubDomain={xSubDomain}
           xScalerFactory={xScalerFactory}
         />
       )}
