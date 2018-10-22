@@ -17,6 +17,12 @@ const propTypes = {
   }).isRequired,
 
   doubleClickZoom: PropTypes.bool,
+  onMouseDown: PropTypes.func,
+  onMouseUp: PropTypes.func,
+  onMouseMove: PropTypes.func,
+  onMouseOut: PropTypes.func,
+  onClick: PropTypes.func,
+  onDoubleClick: PropTypes.func,
 
   // These are provided by Griff.
   updateDomains: GriffPropTypes.updateDomains.isRequired,
@@ -26,6 +32,12 @@ const propTypes = {
 
 const defaultProps = {
   doubleClickZoom: true,
+  onMouseDown: null,
+  onMouseUp: null,
+  onMouseMove: null,
+  onMouseOut: null,
+  onClick: null,
+  onDoubleClick: null,
 };
 
 class ZoomRect extends React.Component {
@@ -40,10 +52,14 @@ class ZoomRect extends React.Component {
   }
 
   syncZoomingState = () => {
-    const { doubleClickZoom } = this.props;
-    this.rectSelection.call(this.zoom.on('zoom', this.zoomed));
-    if (!doubleClickZoom) {
-      this.rectSelection.on('dblclick.zoom', null);
+    const { doubleClickZoom, zoomAxes } = this.props;
+    if (Object.keys(zoomAxes).find(axis => zoomAxes[axis])) {
+      this.rectSelection.call(this.zoom.on('zoom', this.zoomed));
+      if (!doubleClickZoom) {
+        this.rectSelection.on('dblclick.zoom', null);
+      }
+    } else {
+      this.rectSelection.on('.zoom', null);
     }
   };
 
@@ -54,7 +70,7 @@ class ZoomRect extends React.Component {
     } = d3;
     // FIXME: Once we have separate X axis zooming, we can remove this whole
     // special case.
-    if (zoomAxes.x) {
+    if (zoomAxes.x && itemIds.length > 0) {
       // TODO: Support separate X axis zooming
       const firstItemId = itemIds[0];
       const { x: xSubDomain } =
@@ -166,12 +182,32 @@ class ZoomRect extends React.Component {
   };
 
   render() {
+    const {
+      width,
+      height,
+      onClick,
+      onMouseMove,
+      onMouseOut,
+      onMouseDown,
+      onMouseUp,
+      onDoubleClick,
+    } = this.props;
     return (
       <rect
         ref={ref => {
           this.zoomNode = ref;
         }}
-        {...this.props}
+        pointerEvents="all"
+        fill="none"
+        width={width}
+        height={height}
+        onClick={onClick}
+        onMouseMove={onMouseMove}
+        onBlur={onMouseMove}
+        onMouseOut={onMouseOut}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
+        onDoubleClick={onDoubleClick}
       />
     );
   }

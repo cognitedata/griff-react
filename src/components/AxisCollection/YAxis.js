@@ -138,8 +138,6 @@ class YAxis extends Component {
     <ZoomRect
       width={this.props.width}
       height={this.props.height}
-      fill="none"
-      pointerEvents="all"
       zoomAxes={{ y: true }}
       itemIds={[this.getItem().id]}
     />

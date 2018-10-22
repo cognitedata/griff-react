@@ -418,10 +418,12 @@ class InteractionLayer extends React.Component {
       width,
       height,
       crosshair,
+      onAreaDefined,
       ruler,
       series,
       xSubDomain,
       xScalerFactory,
+      zoomable,
     } = this.props;
     const {
       crosshair: { x, y },
@@ -510,23 +512,19 @@ class InteractionLayer extends React.Component {
           )}
         {areas}
         {areaBeingDefined}
-        {this.props.zoomable && (
-          <ZoomRect
-            zoomAxes={{ x: true }}
-            width={width}
-            height={height}
-            pointerEvents="all"
-            fill="none"
-            onClick={this.onClick}
-            onMouseMove={this.onMouseMove}
-            onBlur={this.onMouseMove}
-            onMouseOut={this.onMouseOut}
-            onMouseDown={this.onMouseDown}
-            onMouseUp={this.onMouseUp}
-            onDoubleClick={this.onDoubleClick}
-            itemIds={series.map(s => s.id)}
-          />
-        )}
+        <ZoomRect
+          zoomAxes={{ x: zoomable && !onAreaDefined }}
+          width={width}
+          height={height}
+          onClick={this.onClick}
+          onMouseMove={this.onMouseMove}
+          onBlur={this.onMouseMove}
+          onMouseOut={this.onMouseOut}
+          onMouseDown={this.onMouseDown}
+          onMouseUp={this.onMouseUp}
+          onDoubleClick={this.onDoubleClick}
+          itemIds={series.map(s => s.id)}
+        />
       </React.Fragment>
     );
   }
