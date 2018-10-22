@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import ScalerContext from '../../context/Scaler';
 import { createXScale } from '../../utils/scale-helpers';
@@ -24,42 +25,56 @@ class Scaler extends Component {
     xScalerFactory: createXScale,
   };
 
-  state = {
-    xSubDomains: {},
-    ySubDomains: {},
-    timeSubDomain:
-      this.props.dataContext.timeSubDomain || this.props.dataContext.timeDomain,
+  constructor(props) {
+    super(props);
 
-    // Map from item (collection, series) to their respective domains.
-    domainsByItemId: {},
+    this.state = {
+      xSubDomains: {},
+      ySubDomains: {},
+      timeSubDomain:
+        this.props.dataContext.timeSubDomain ||
+        this.props.dataContext.timeDomain,
 
-    // Map from item (collection, series) to their respective subdomains.
-    subDomainsByItemId: {},
-  };
+      // Map from item (collection, series) to their respective domains.
+      domainsByItemId: {},
 
-  static getDerivedStateFromProps(props, state) {
-    const { dataContext } = props;
-    const subDomainsByItemId = []
-      .concat(dataContext.series)
-      .concat(dataContext.collections)
-      .reduce(
-        (acc, item) => ({
-          ...acc,
-          [item.id]: state.subDomainsByItemId[item.id] || {
-            time: [...dataContext.timeSubDomain],
-            x: [...(item.xSubDomain || [])],
-            y: [...(item.ySubDomain || [])],
-          },
-        }),
-        {}
-      );
+      // Map from item (collection, series) to their respective subdomains.
+      subDomainsByItemId: {},
+    };
+    const domainsByItemId = this.getDomainsByItemId();
+    const subDomainsByItemId = this.getSubDomainsByItemId();
+
+    this.state.domainsByItemId = domainsByItemId;
+    this.state.subDomainsByItemId = subDomainsByItemId;
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      !isEqual(
+        prevProps.dataContext.timeSubDomain,
+        this.props.dataContext.timeSubDomain
+      )
+    ) {
+      // When timeSubDomain changes, we need to update everything downstream.
+      const subDomainsByItemId = { ...this.state.subDomainsByItemId };
+      Object.keys(subDomainsByItemId).forEach(itemId => {
+        subDomainsByItemId[itemId].time = this.props.dataContext.timeSubDomain;
+      });
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ subDomainsByItemId });
+    }
+  }
+
+  getDomainsByItemId = () => {
+    const { dataContext } = this.props;
+
     const domainsByItemId = []
       .concat(dataContext.series)
       .concat(dataContext.collections)
       .reduce(
         (acc, item) => ({
           ...acc,
-          [item.id]: state.domainsByItemId[item.id] || {
+          [item.id]: this.state.domainsByItemId[item.id] || {
             time: [...dataContext.timeDomain],
             x: [...(item.xDomain || [])],
             y: [...(item.yDomain || [])],
@@ -67,8 +82,28 @@ class Scaler extends Component {
         }),
         {}
       );
-    return { subDomainsByItemId, domainsByItemId };
-  }
+    return domainsByItemId;
+  };
+
+  getSubDomainsByItemId = () => {
+    const { dataContext } = this.props;
+
+    const subDomainsByItemId = []
+      .concat(dataContext.series)
+      .concat(dataContext.collections)
+      .reduce(
+        (acc, item) => ({
+          ...acc,
+          [item.id]: this.state.subDomainsByItemId[item.id] || {
+            time: [...dataContext.timeSubDomain],
+            x: [...(item.xSubDomain || [])],
+            y: [...(item.ySubDomain || [])],
+          },
+        }),
+        {}
+      );
+    return subDomainsByItemId;
+  };
 
   updateDomains = (changedDomainsById, callback) => {
     // FIXME: This is not multi-series aware.
