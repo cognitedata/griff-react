@@ -16,7 +16,6 @@ const propTypes = {
     time: PropTypes.bool,
   }).isRequired,
 
-  doubleClickZoom: PropTypes.bool,
   onMouseDown: PropTypes.func,
   onMouseUp: PropTypes.func,
   onMouseMove: PropTypes.func,
@@ -30,7 +29,6 @@ const propTypes = {
 };
 
 const defaultProps = {
-  doubleClickZoom: true,
   onMouseDown: null,
   onMouseUp: null,
   onMouseMove: null,
@@ -51,12 +49,10 @@ class ZoomRect extends React.Component {
   }
 
   syncZoomingState = () => {
-    const { doubleClickZoom, zoomAxes } = this.props;
+    const { zoomAxes } = this.props;
     if (Object.keys(zoomAxes).find(axis => zoomAxes[axis])) {
       this.rectSelection.call(this.zoom.on('zoom', this.zoomed));
-      if (!doubleClickZoom) {
-        this.rectSelection.on('dblclick.zoom', null);
-      }
+      this.rectSelection.on('dblclick.zoom', null);
     } else {
       this.rectSelection.on('.zoom', null);
     }
