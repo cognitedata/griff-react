@@ -388,9 +388,9 @@ export default class DataProvider extends Component {
       ySubDomain:
         collection.ySubDomain ||
         series.ySubDomain ||
+        yDomain ||
         ySubDomains[series.id] ||
-        ySubDomain ||
-        yDomain,
+        ySubDomain,
     };
   };
 
