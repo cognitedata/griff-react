@@ -2,14 +2,14 @@ import 'react-select/dist/react-select.css';
 import { action } from '@storybook/addon-actions';
 
 const randomData = ({
-  xDomain,
+  timeDomain,
   n = 250,
   singleValue = undefined,
   func = Math.random,
 }) => {
   const data = [];
-  const dt = (xDomain[1] - xDomain[0]) / n;
-  for (let i = xDomain[0]; i <= xDomain[1]; i += dt) {
+  const dt = (timeDomain[1] - timeDomain[0]) / n;
+  for (let i = timeDomain[0]; i <= timeDomain[1]; i += dt) {
     const value = singleValue === undefined ? func(i) : singleValue;
     data.push({
       timestamp: i,
@@ -19,10 +19,14 @@ const randomData = ({
   return data;
 };
 
-export const monoLoader = singleValue => ({ xDomain, oldSeries, reason }) => {
+export const monoLoader = singleValue => ({
+  timeDomain,
+  oldSeries,
+  reason,
+}) => {
   if (reason === 'MOUNTED') {
     return {
-      data: randomData({ xDomain, singleValue }),
+      data: randomData({ timeDomain, singleValue }),
     };
   }
   return {
@@ -32,7 +36,7 @@ export const monoLoader = singleValue => ({ xDomain, oldSeries, reason }) => {
 
 export const staticLoader = ({
   id,
-  timeDomain: xDomain,
+  timeDomain,
   n = 250,
   multiplier = 1,
   oldSeries,
@@ -43,7 +47,7 @@ export const staticLoader = ({
     // Create dataset on mount
     const func = typeof id === 'function' ? id : Math.random;
     return {
-      data: randomData({ func, xDomain, n, multiplier }),
+      data: randomData({ func, timeDomain, n, multiplier }),
     };
   }
   // Otherwise, return the existing dataset.
@@ -52,18 +56,18 @@ export const staticLoader = ({
   };
 };
 
-export const liveLoader = ({ oldSeries, timeDomain: xDomain, reason }) => {
+export const liveLoader = ({ oldSeries, timeDomain: timeDomain, reason }) => {
   // action('LOADER_REQUEST_DATA')(id, reason);
   if (reason === 'MOUNTED') {
     // Create dataset on mount
     return {
-      data: randomData({ xDomain, n: 25 }),
+      data: randomData({ timeDomain, n: 25 }),
     };
   }
   if (reason === 'INTERVAL') {
     let splicingIndex = 0;
     for (let i = 0; i < oldSeries.data; i += 1) {
-      if (oldSeries.data[i] >= xDomain[0]) {
+      if (oldSeries.data[i] >= timeDomain[0]) {
         splicingIndex = i - 1;
         break;
       }
@@ -83,10 +87,10 @@ export const liveLoader = ({ oldSeries, timeDomain: xDomain, reason }) => {
   };
 };
 
-export const customAccessorLoader = ({ xDomain, oldSeries, reason }) => {
+export const customAccessorLoader = ({ timeDomain, oldSeries, reason }) => {
   if (reason === 'MOUNTED') {
     return {
-      data: randomData({ xDomain }).map(d => [d.timestamp, d.value]),
+      data: randomData({ timeDomain }).map(d => [d.timestamp, d.value]),
     };
   }
   return {

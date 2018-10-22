@@ -35,7 +35,7 @@ storiesOf('LineChart', module)
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
-  .add('New Basic', () => (
+  .add('Basic with yDomains', () => (
     <DataProvider
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
