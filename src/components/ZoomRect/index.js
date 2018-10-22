@@ -113,7 +113,7 @@ class ZoomRect extends React.Component {
       //   onZoomXAxis({ xSubDomain: newDomain, transformation: t });
       // }
     }
-    if (zoomAxes.y) {
+    if (zoomAxes.y || zoomAxes.time) {
       const updates = itemIds.reduce((changes, itemId) => {
         const { y: ySubDomain } = this.props.subDomainsByItemId[itemId] || {};
         const ySubDomainRange = ySubDomain[1] - ySubDomain[0];
@@ -157,7 +157,10 @@ class ZoomRect extends React.Component {
         if (newSubDomain) {
           return {
             ...changes,
-            [itemId]: { y: newSubDomain },
+            [itemId]: Object.keys(zoomAxes).reduce(
+              (domains, axis) => ({ ...domains, [axis]: newSubDomain }),
+              {}
+            ),
           };
         }
         return changes;
