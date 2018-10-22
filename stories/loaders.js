@@ -56,7 +56,7 @@ export const staticLoader = ({
   };
 };
 
-export const liveLoader = ({ oldSeries, timeDomain: timeDomain, reason }) => {
+export const liveLoader = ({ oldSeries, timeDomain, reason }) => {
   // action('LOADER_REQUEST_DATA')(id, reason);
   if (reason === 'MOUNTED') {
     // Create dataset on mount
