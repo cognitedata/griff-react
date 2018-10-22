@@ -214,7 +214,6 @@ ZoomRect.defaultProps = defaultProps;
 export default props => (
   <ScalerContext.Consumer>
     {({
-      updateYTransformation,
       xScalerFactory,
       domainsByItemId,
       subDomainsByItemId,
@@ -225,7 +224,6 @@ export default props => (
         domainsByItemId={domainsByItemId}
         subDomainsByItemId={subDomainsByItemId}
         xScalerFactory={xScalerFactory}
-        updateYTransformation={updateYTransformation}
         updateDomains={updateDomains}
       />
     )}

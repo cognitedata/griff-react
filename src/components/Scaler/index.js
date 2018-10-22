@@ -191,25 +191,6 @@ class Scaler extends Component {
     }
   }
 
-  updateYTransformation = (key, scaler, height) => {
-    const { dataContext } = this.props;
-
-    const { ySubDomain } =
-      dataContext.series.find(s => s.id === key) ||
-      dataContext.collections.find(c => c.id === key);
-    const newXSubDomain = scaler
-      .rescaleY(createYScale(ySubDomain, height))
-      .domain()
-      .map(Number);
-
-    this.setState({
-      ySubDomains: { ...this.state.ySubDomains, [key]: newXSubDomain },
-      yTransformations: { ...this.state.yTransformations, [key]: scaler },
-    });
-
-    return newXSubDomain;
-  };
-
   updateDomains = (changedDomainsById, callback) => {
     const { domainsById, subDomainsByItemId } = this.state;
     const newSubDomains = { ...subDomainsByItemId };
@@ -258,13 +239,10 @@ class Scaler extends Component {
       domainsByItemId,
       subDomainsByItemId,
       ySubDomains,
-      yTransformations,
       xSubDomain,
     } = this.state;
     const { dataContext, xScalerFactory } = this.props;
     const ownContext = {
-      updateYTransformation: this.updateYTransformation,
-      yTransformations,
       updateDomains: this.updateDomains,
       domainsByItemId,
       subDomainsByItemId,
