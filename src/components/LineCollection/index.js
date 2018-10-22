@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { createYScale } from '../../utils/scale-helpers';
-import { seriesPropType, scalerFactoryFunc } from '../../utils/proptypes';
+import GriffPropTypes, {
+  seriesPropType,
+  scalerFactoryFunc,
+} from '../../utils/proptypes';
 import ScalerContext from '../../context/Scaler';
 import Line from '../Line';
 import AxisDisplayMode from '../LineChart/AxisDisplayMode';
@@ -69,18 +72,20 @@ LineCollection.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   series: seriesPropType,
-  domain: PropTypes.arrayOf(PropTypes.number),
-  xScalerFactory: scalerFactoryFunc.isRequired,
   pointWidth: PropTypes.number,
   scaleX: PropTypes.bool,
   // Perform Y-scaling based on the current subdomain. If false, then use the
   // static yDomain property.
   scaleY: PropTypes.bool,
+
+  // These are provided by Griff
+  xScalerFactory: scalerFactoryFunc.isRequired,
+  domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
+  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
 
 LineCollection.defaultProps = {
   series: [],
-  domain: [0, 0],
   pointWidth: 6,
   scaleX: true,
   scaleY: true,
@@ -90,17 +95,10 @@ export default LineCollection;
 
 export const ScaledLineCollection = props => (
   <ScalerContext.Consumer>
-    {({
-      domainsByItemId,
-      subDomainsByItemId,
-      xSubDomain,
-      series,
-      xScalerFactory,
-    }) => (
+    {({ domainsByItemId, subDomainsByItemId, series, xScalerFactory }) => (
       <LineCollection
         {...props}
         series={series}
-        domain={xSubDomain}
         xScalerFactory={xScalerFactory}
         domainsByItemId={domainsByItemId}
         subDomainsByItemId={subDomainsByItemId}
