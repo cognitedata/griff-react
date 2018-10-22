@@ -141,6 +141,7 @@ class ZoomRect extends React.Component {
 
     const updates = {};
     itemIds.forEach(itemId => {
+      updates[itemId] = {};
       ['x', 'y'].filter(axis => zoomAxes[axis]).forEach(axis => {
         const subDomain = (this.props.subDomainsByItemId[itemId] || {})[axis];
         const subDomainRange = subDomain[1] - subDomain[0];
@@ -178,7 +179,6 @@ class ZoomRect extends React.Component {
           newSubDomain = subDomain.map(bound => bound + percentMovement);
         }
         if (newSubDomain) {
-          updates[itemId] = {};
           updates[itemId][axis] = newSubDomain;
         }
       });
