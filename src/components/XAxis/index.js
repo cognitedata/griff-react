@@ -11,7 +11,6 @@ import { createLinearXScale } from '../../utils/scale-helpers';
 const tickTransformer = v => `translate(${v}, 0)`;
 
 const propTypes = {
-  domain: PropTypes.arrayOf(PropTypes.number).isRequired,
   xScalerFactory: scalerFactoryFunc.isRequired,
   width: PropTypes.number,
   height: PropTypes.number,
@@ -95,14 +94,18 @@ class XAxis extends Component {
 
   renderAxis() {
     const {
-      domain,
       width,
       stroke,
       xScalerFactory,
       tickFormatter,
       ticks,
+      domainsByItemId,
+      subDomainsByItemId,
     } = this.props;
-    const scale = xScalerFactory(domain, width);
+    const scale = xScalerFactory(
+      subDomainsByItemId[Object.keys(domainsByItemId)[0]],
+      width
+    );
     const axis = d3.axisBottom(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;
@@ -173,20 +176,19 @@ XAxis.propTypes = propTypes;
 XAxis.defaultProps = defaultProps;
 
 export default props => (
-  <Scaler xScalerFactory={createLinearXScale}>
-    <ScalerContext.Consumer>
-      {({ xSubDomain, xScalerFactory }) => (
-        <SizeMe monitorWidth>
-          {({ size }) => (
-            <XAxis
-              xScalerFactory={xScalerFactory}
-              {...props}
-              width={size.width}
-              domain={xSubDomain}
-            />
-          )}
-        </SizeMe>
-      )}
-    </ScalerContext.Consumer>
-  </Scaler>
+  <ScalerContext.Consumer>
+    {({ xScalerFactory, domainsByItemId, subDomainsByItemId }) => (
+      <SizeMe monitorWidth>
+        {({ size }) => (
+          <XAxis
+            xScalerFactory={xScalerFactory}
+            {...props}
+            width={size.width}
+            domainsByItemId={domainsByItemId}
+            subDomainsByItemId={subDomainsByItemId}
+          />
+        )}
+      </SizeMe>
+    )}
+  </ScalerContext.Consumer>
 );
