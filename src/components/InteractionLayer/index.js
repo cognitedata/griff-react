@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import ScalerContext from '../../context/Scaler';
-import { createYScale, createXScale } from '../../utils/scale-helpers';
+import { createYScale } from '../../utils/scale-helpers';
 import {
   areaPropType,
   seriesPropType,
@@ -43,7 +43,6 @@ class InteractionLayer extends React.Component {
     onMouseOut: PropTypes.func,
     // ({ xSubDomain, transformation }) => void
     onZoomXAxis: PropTypes.func,
-    updateYTransformation: PropTypes.func,
     series: seriesPropType,
     areas: PropTypes.arrayOf(areaPropType),
     annotations: PropTypes.arrayOf(annotationPropType),
@@ -68,7 +67,6 @@ class InteractionLayer extends React.Component {
     onMouseMove: null,
     onMouseOut: null,
     onZoomXAxis: null,
-    updateYTransformation: () => {},
     series: [],
     zoomable: true,
     ruler: {
@@ -540,7 +538,6 @@ export default props => (
       xSubDomain,
       xDomain,
       series,
-      updateYTransformation,
       xScalerFactory,
       subDomainsByItemId,
       updateDomains,
@@ -550,7 +547,6 @@ export default props => (
         xSubDomain={xSubDomain}
         xDomain={xDomain}
         series={series}
-        updateYTransformation={updateYTransformation}
         xScalerFactory={xScalerFactory}
         subDomainsByItemId={subDomainsByItemId}
         updateDomains={updateDomains}
