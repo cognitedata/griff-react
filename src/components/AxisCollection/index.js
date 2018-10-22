@@ -15,15 +15,7 @@ const propTypes = {
   series: seriesPropType,
   collections: GriffPropTypes.collections,
   zoomable: PropTypes.bool,
-  updateYTransformation: PropTypes.func,
   yAxisWidth: PropTypes.number,
-  yTransformations: PropTypes.objectOf(
-    PropTypes.shape({
-      k: PropTypes.number.isRequired,
-      y: PropTypes.number.isRequired,
-      rescaleY: PropTypes.func.isRequired,
-    })
-  ).isRequired,
   axisDisplayMode: axisDisplayModeType,
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
@@ -36,7 +28,6 @@ const defaultProps = {
   series: [],
   collections: [],
   zoomable: true,
-  updateYTransformation: () => {},
   yAxisWidth: 50,
   axisDisplayMode: AxisDisplayMode.ALL,
   yAxisPlacement: AxisPlacement.RIGHT,
@@ -101,10 +92,8 @@ class AxisCollection extends React.Component {
       zoomable,
       height,
       tickFormatter,
-      updateYTransformation,
       yAxisPlacement,
       yAxisWidth,
-      yTransformations,
     } = this.props;
     let axisOffsetX = offsetx - yAxisWidth;
 
@@ -153,19 +142,6 @@ class AxisCollection extends React.Component {
       .concat(
         filteredCollections.map(c => {
           axisOffsetX += yAxisWidth;
-
-          const collectedSeries = series.filter(s => s.collectionId === c.id);
-
-          const updateCollectionYTransformation = (
-            collectionId,
-            transformation
-          ) => {
-            collectedSeries.forEach(s => {
-              updateYTransformation(s.id, transformation, height);
-            });
-            updateYTransformation(collectionId, transformation, height);
-          };
-
           return (
             <YAxis
               key={`y-axis-collection-${c.id}`}
@@ -254,8 +230,6 @@ export default props => (
       collections,
       series,
       yAxisWidth,
-      updateYTransformation,
-      yTransformations,
       updateDomains,
       subDomainsByItemId,
     }) => (
@@ -264,8 +238,6 @@ export default props => (
         collections={collections}
         series={series}
         yAxisWidth={yAxisWidth}
-        updateYTransformation={updateYTransformation}
-        yTransformations={yTransformations}
         updateDomains={updateDomains}
         subDomainsByItemId={subDomainsByItemId}
       />
