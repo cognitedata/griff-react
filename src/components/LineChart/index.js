@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
 import AxisCollection from '../AxisCollection';
 import GridLines from '../GridLines';
-import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import ContextChart from '../ContextChart';
 import GriffPropTypes, {

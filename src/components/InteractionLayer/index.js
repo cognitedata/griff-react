@@ -47,12 +47,12 @@ class InteractionLayer extends React.Component {
     areas: PropTypes.arrayOf(areaPropType),
     annotations: PropTypes.arrayOf(annotationPropType),
     width: PropTypes.number.isRequired,
-    timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-    timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     zoomable: PropTypes.bool,
     zoomAxes: GriffPropTypes.zoomAxes.isRequired,
 
     // These are all populated by Griff.
+    timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
     // (domain, width) => [number, number]
     xScalerFactory: PropTypes.func.isRequired,
@@ -245,18 +245,21 @@ class InteractionLayer extends React.Component {
       onClickAnnotation,
       onAreaClicked,
       onClick,
-      xSubDomain,
       width,
       annotations,
       areas,
       xScalerFactory,
+      subDomainsByItemId,
     } = this.props;
     if (this.dragging) {
       return;
     }
     if (onClickAnnotation || onAreaClicked) {
       let notified = false;
-      const xScale = xScalerFactory(xSubDomain, width);
+      // FIXME: Don't assume a single time domain
+      const timeSubDomain =
+        subDomainsByItemId[Object.keys(subDomainsByItemId)[0]].time;
+      const xScale = xScalerFactory(timeSubDomain, width);
       const xpos = e.nativeEvent.offsetX;
       const ypos = e.nativeEvent.offsetY;
       const rawTimestamp = xScale.invert(xpos).getTime();
@@ -323,10 +326,10 @@ class InteractionLayer extends React.Component {
 
     const output = { xpos, ypos, points: [] };
     series.forEach(s => {
-      const timeSubDomain = subDomainsByItemId[s.id].time;
+      const { time: timeSubDomain, y: ySubDomain } = subDomainsByItemId[s.id];
       const xScale = xScalerFactory(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos).getTime();
-      const { data, xAccessor, yAccessor, yDomain } = s;
+      const { data, xAccessor, yAccessor } = s;
       const rawX = d3.bisector(xAccessor).left(data, rawTimestamp, 1);
       const x0 = data[rawX - 1];
       const x1 = data[rawX];
@@ -342,12 +345,12 @@ class InteractionLayer extends React.Component {
           rawTimestamp - xAccessor(x0) > xAccessor(x1) - rawTimestamp ? x1 : x0;
       }
       if (d) {
-        let yScale = createYScale(yDomain, height);
+        let yScale = createYScale(ySubDomain, height);
         if (extrapolate) {
           yScale = d3
             .scaleLinear()
             .domain([height, 0])
-            .range(yDomain);
+            .range(ySubDomain);
         }
         const ts = xAccessor(d);
         const value = extrapolate ? ypos : yAccessor(d);
@@ -377,10 +380,10 @@ class InteractionLayer extends React.Component {
     } = this.props;
     const newPoints = [];
     series.forEach(s => {
-      const timeSubDomain = subDomainsByItemId[s.id].time;
+      const { time: timeSubDomain, y: ySubDomain } = subDomainsByItemId[s.id];
       const xScale = xScalerFactory(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos).getTime();
-      const { data, xAccessor, yAccessor, ySubDomain } = s;
+      const { data, xAccessor, yAccessor } = s;
       const rawX = d3.bisector(xAccessor).left(data, rawTimestamp, 1);
       const x0 = data[rawX - 1];
       const x1 = data[rawX];
@@ -499,7 +502,8 @@ class InteractionLayer extends React.Component {
       if (a.seriesId) {
         s = series.find(s1 => s1.id === a.seriesId);
         if (s) {
-          const yScale = createYScale(s.ySubDomain, height);
+          const { y: ySubDomain } = subDomainsByItemId[s.id];
+          const yScale = createYScale(ySubDomain, height);
           if (a.start.yval) {
             scaledArea.start.ypos = yScale(a.start.yval);
           }
@@ -570,6 +574,7 @@ export default props => (
     }) => (
       <InteractionLayer
         {...props}
+        // FIXME: Remove this crap
         timeSubDomain={timeSubDomain}
         timeDomain={timeDomain}
         series={series}
