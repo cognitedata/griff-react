@@ -68,6 +68,9 @@ class Scaler extends Component {
   }
 
   updateDomains = (changedDomainsById, callback) => {
+    // FIXME: This is not multi-series aware.
+    let newXSubDomain = null;
+
     const { domainsById, subDomainsByItemId } = this.state;
     const newSubDomains = { ...subDomainsByItemId };
     Object.keys(changedDomainsById).forEach(itemId => {
@@ -102,12 +105,20 @@ class Scaler extends Component {
         }
 
         newSubDomains[itemId][axis] = newSubDomain;
+
+        // FIXME: Operate only on time
+        if (axis === 'x' || axis === 'time') {
+          newXSubDomain = newSubDomain;
+        }
       });
     });
     this.setState(
       { subDomainsByItemId: newSubDomains },
       callback ? () => callback(changedDomainsById) : undefined
     );
+    if (newXSubDomain) {
+      this.props.dataContext.xSubDomainChanged(newXSubDomain);
+    }
   };
 
   render() {
