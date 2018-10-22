@@ -446,7 +446,7 @@ storiesOf('LineChart', module)
     const series = staticLoader({
       id: 1,
       reason: 'MOUNTED',
-      xDomain: staticXDomain,
+      timeDomain: staticXDomain,
     }).data;
     const exampleAnnotations = [
       {
