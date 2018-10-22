@@ -22,7 +22,7 @@ const propTypes = {
   defaultColor: PropTypes.string,
 
   // These are populated by Griff.
-  updateDomains: GriffPropTypes.updateDomainsFunc.isRequired,
+  updateDomains: GriffPropTypes.updateDomains.isRequired,
   subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
 

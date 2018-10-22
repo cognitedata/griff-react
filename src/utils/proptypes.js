@@ -203,7 +203,7 @@ const grid = PropTypes.shape({
   }),
 });
 
-const updateDomainsFunc = PropTypes.func;
+const updateDomains = PropTypes.func;
 
 const domainsByItemId = PropTypes.objectOf(
   PropTypes.shape({
@@ -220,7 +220,7 @@ export default {
   grid,
   multipleSeries,
   singleSeries,
-  updateDomainsFunc,
+  updateDomains,
   domainsByItemId,
   subDomainsByItemId: domainsByItemId,
 };

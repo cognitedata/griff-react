@@ -1,11 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
-import isEqual from 'lodash.isequal';
 import ScalerContext from '../../context/Scaler';
-import { ZoomMode } from '../InteractionLayer';
+import GriffPropTypes from '../../utils/proptypes';
 
 const propTypes = {
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
   itemIds: PropTypes.arrayOf(
     PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired
   ).isRequired,
@@ -13,42 +14,35 @@ const propTypes = {
     x: PropTypes.bool,
     y: PropTypes.bool,
     time: PropTypes.bool,
-  }),
+  }).isRequired,
+
+  doubleClickZoom: PropTypes.bool,
+
+  // These are provided by Griff.
+  updateDomains: GriffPropTypes.updateDomains.isRequired,
+  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
+  xScalerFactory: PropTypes.func.isRequired,
 };
 
 const defaultProps = {
-  zoomAxes: {},
+  doubleClickZoom: true,
 };
 
 class ZoomRect extends React.Component {
   componentDidMount() {
-    const { width, height, xScalerFactory } = this.props;
+    const { width, height } = this.props;
     this.zoom = d3
       .zoom()
       .translateExtent([[0, 0], [width, height]])
       .extent([[0, 0], [width, height]]);
     this.rectSelection = d3.select(this.zoomNode);
     this.syncZoomingState();
-
-    if (this.rectSelection.property('__zoom')) {
-      const { xSubDomain, xDomain } = this.props;
-      // if xSubDomain differs from xDomain on componentDidMount step that
-      // means it has been specified by a user and we need to update internals
-      if (!isEqual(xSubDomain, xDomain)) {
-        const scale = xScalerFactory(xDomain, width);
-        const selection = xSubDomain.map(scale);
-        const transform = d3.zoomIdentity
-          .scale(width / (selection[1] - selection[0]))
-          .translate(-selection[0], 0);
-        this.rectSelection.property('__zoom', transform);
-      }
-    }
   }
 
   syncZoomingState = () => {
-    const { onAreaDefined, onDoubleClick } = this.props;
+    const { doubleClickZoom } = this.props;
     this.rectSelection.call(this.zoom.on('zoom', this.zoomed));
-    if (onDoubleClick) {
+    if (!doubleClickZoom) {
       this.rectSelection.on('dblclick.zoom', null);
     }
   };
@@ -58,6 +52,8 @@ class ZoomRect extends React.Component {
     const {
       event: { sourceEvent, transform },
     } = d3;
+    // FIXME: Once we have separate X axis zooming, we can remove this whole
+    // special case.
     if (zoomAxes.x) {
       // TODO: Support separate X axis zooming
       const firstItemId = itemIds[0];

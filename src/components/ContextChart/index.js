@@ -30,7 +30,7 @@ class ContextChart extends Component {
     xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     xScalerFactory: scalerFactoryFunc.isRequired,
     xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-    updateDomains: GriffPropTypes.updateDomainsFunc.isRequired,
+    updateDomains: GriffPropTypes.updateDomains.isRequired,
     subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
     domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
   };
