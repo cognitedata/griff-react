@@ -352,20 +352,18 @@ const SizedLineChartComponent = sizeMe({ monitorHeight: true })(
 );
 
 const LineChart = props => (
-  <Scaler>
-    <ScalerContext.Consumer>
-      {({ collections, series, xSubDomain, xScalerFactory, yAxisWidth }) => (
-        <SizedLineChartComponent
-          {...props}
-          collections={collections}
-          series={series}
-          timeSubDomain={xSubDomain}
-          xScalerFactory={xScalerFactory}
-          yAxisWidth={yAxisWidth}
-        />
-      )}
-    </ScalerContext.Consumer>
-  </Scaler>
+  <ScalerContext.Consumer>
+    {({ collections, series, xSubDomain, xScalerFactory, yAxisWidth }) => (
+      <SizedLineChartComponent
+        {...props}
+        collections={collections}
+        series={series}
+        timeSubDomain={xSubDomain}
+        xScalerFactory={xScalerFactory}
+        yAxisWidth={yAxisWidth}
+      />
+    )}
+  </ScalerContext.Consumer>
 );
 
 LineChart.propTypes = propTypes;

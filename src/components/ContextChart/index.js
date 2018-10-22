@@ -102,6 +102,7 @@ class ContextChart extends Component {
       xScalerFactory,
       zoomable,
     } = this.props;
+
     const firstItemId = series[0].id;
     const timeDomain = domainsByItemId[firstItemId].time;
     const timeSubDomain = subDomainsByItemId[firstItemId].time;

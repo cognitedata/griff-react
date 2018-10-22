@@ -5,6 +5,7 @@ import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
+import Scaler from '../Scaler';
 
 const calculateDomainFromData = (
   data,
@@ -593,7 +594,9 @@ export default class DataProvider extends Component {
       })),
     };
     return (
-      <DataContext.Provider value={context}>{children}</DataContext.Provider>
+      <DataContext.Provider value={context}>
+        <Scaler>{children}</Scaler>
+      </DataContext.Provider>
     );
   }
 }
