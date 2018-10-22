@@ -254,18 +254,18 @@ export default class DataProvider extends Component {
       clearInterval(this.fetchInterval);
       this.fetchInterval = setInterval(() => {
         const { timeDomain, timeSubDomain } = this.state;
-        const newXDomain = timeDomain.map(d => d + updateInterval);
-        const newXSubDomain = this.props.isXSubDomainSticky
+        const newTimeDomain = timeDomain.map(d => d + updateInterval);
+        const newTimeSubDomain = this.props.isXSubDomainSticky
           ? DataProvider.getXSubDomain(
-              newXDomain,
+              newTimeDomain,
               timeSubDomain.map(d => d + updateInterval),
               this.props.limitXSubDomain
             )
           : timeSubDomain;
         this.setState(
           {
-            timeDomain: newXDomain,
-            timeSubDomain: newXSubDomain,
+            timeDomain: newTimeDomain,
+            timeSubDomain: newTimeSubDomain,
           },
           () => {
             Promise.map(this.props.series, s =>
