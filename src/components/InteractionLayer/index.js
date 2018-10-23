@@ -502,7 +502,7 @@ class InteractionLayer extends React.Component {
       const color = scaledArea.color || (s ? s.color : null);
       return (
         <Area
-          key={scaledArea.uuid || scaledArea.seriesId}
+          key={`${scaledArea.id || ''}-${scaledArea.seriesId || ''}`}
           color={color}
           {...scaledArea}
         />

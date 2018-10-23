@@ -301,6 +301,7 @@ storiesOf('InteractionLayer', module)
         const newAreas = [...this.state.areas];
         for (let i = 0; i < area.start.points.length; i += 1) {
           const newArea = {
+            id: area.id,
             seriesId: area.start.points[i].id,
             start: {
               ...area.start,
