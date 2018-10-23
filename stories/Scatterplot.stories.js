@@ -567,10 +567,10 @@ storiesOf('Scatterplot', module)
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
         >
-          <div style={{ height: '500px' }}>
+          <div style={{ height: 500 }}>
             <Scatterplot zoomable />
           </div>
-          <div>
+          <div style={{ width: 450 }}>
             <ContextChart />
           </div>
         </DataProvider>
