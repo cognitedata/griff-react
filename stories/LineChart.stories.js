@@ -250,9 +250,9 @@ storiesOf('LineChart', module)
   .add('Custom default accessors', () => (
     <DataProvider
       defaultLoader={customAccessorLoader}
-      xAccessor={d => d[0]}
-      yAccessor={d => d[1]}
       timeDomain={staticXDomain}
+      timeAccessor={d => d[0]}
+      yAccessor={d => d[1]}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart height={CHART_HEIGHT} />
