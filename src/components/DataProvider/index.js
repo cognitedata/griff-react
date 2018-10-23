@@ -476,9 +476,7 @@ export default class DataProvider extends Component {
     clearTimeout(this.timeSubDomainChangedTimeout);
     this.timeSubDomainChangedTimeout = setTimeout(
       () =>
-        Promise.map(this.props.series, s =>
-          this.fetchData(s.id, 'UPDATE_SUBDOMAIN')
-        ),
+        this.props.series.map(s => this.fetchData(s.id, 'UPDATE_SUBDOMAIN')),
       250
     );
     if (this.props.onXSubDomainChanged) {
