@@ -10,6 +10,22 @@ import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 // the leading edge of the timeDomain.
 const FRONT_OF_WINDOW_THRESHOLD = 0.05;
 
+/**
+ * The scaler is the source of truth for all things related to the domains and
+ * subdomains for all of the items within Griff. Note that an item can be either
+ * a series or a collection, and domains are flexible. As of this writing, there
+ * are three axes:
+ *   time: The timestamp of a datapoint
+ *   x: The x-value of a datapoint
+ *   y: THe y-value of a datapoint.
+ *
+ * These axes all have separate domains and subdomains. The domain is the range
+ * of that axis, and the subdomain is the currently-visible region of that
+ * range.
+ *
+ * These are manipulated with the {@link #updateDomains} function, which is
+ * made available through the {@link ScalerContext}.
+ */
 class Scaler extends Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
@@ -189,6 +205,24 @@ class Scaler extends Component {
     return subDomainsByItemId;
   };
 
+  /**
+   * Update the subdomains for the given items. This is a patch update and will
+   * be merged with the current state of the subdomains. An example payload
+   * will resemble:
+   * <code>
+   *   {
+   *     "series-1": {
+   *       "y": [0.5, 0.75],
+   *     },
+   *     "series-2": {
+   *       "y": [1.0, 2.0],
+   *     }
+   *   }
+   * </code>
+   *
+   * After this is complete, {@code callback} will be called with this patch
+   * object.
+   */
   updateDomains = (changedDomainsById, callback) => {
     // FIXME: This is not multi-series aware.
     let newTimeSubDomain = null;

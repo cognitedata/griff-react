@@ -5,4 +5,5 @@ export default React.createContext({
   collections: [],
   domainsByItemId: {},
   subDomainsByItemId: {},
+  updateDomains: () => null,
 });
