@@ -183,9 +183,11 @@ class ZoomRect extends React.Component {
             subDomainRange * (movements[axis] / distances[axis]);
           newSubDomain = subDomain.map(bound => bound + percentMovement);
         } else if (sourceEvent.type === 'touchmove') {
-          // This is a drag event from touch.
-          const percentMovement = subDomainRange * (transform.y / height);
-          newSubDomain = subDomain.map(bound => bound + percentMovement);
+          if (sourceEvent.touches === 1) {
+            // This is a drag event from touch.
+            const percentMovement = subDomainRange * (transform.y / height);
+            newSubDomain = subDomain.map(bound => bound + percentMovement);
+          }
         }
         if (newSubDomain) {
           updates[itemId][axis] = newSubDomain;
