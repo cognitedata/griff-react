@@ -283,6 +283,7 @@ class LineChartComponent extends Component {
               grid={grid}
               height={chartSize.height}
               width={chartSize.width}
+              axes={{ x: 'time' }}
             />
             <ScaledLineCollection
               height={chartSize.height}
