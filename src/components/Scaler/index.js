@@ -6,6 +6,10 @@ import ScalerContext from '../../context/Scaler';
 import { createXScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 
+// If the timeSubDomain is within this margin, consider it to be attached to
+// the leading edge of the timeDomain.
+const FRONT_OF_WINDOW_THRESHOLD = 0.05;
+
 class Scaler extends Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
@@ -98,6 +102,51 @@ class Scaler extends Component {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ subDomainsByItemId });
     }
+
+    // Handle changes in the base domain of the DataProvider
+    const {
+      dataContext: { timeDomain: nextPropsDomain },
+    } = this.props;
+    const {
+      dataContext: { timeDomain: prevTimeDomain },
+    } = prevProps;
+
+    if (
+      nextPropsDomain[0] !== prevTimeDomain[0] ||
+      nextPropsDomain[1] !== prevTimeDomain[1]
+    ) {
+      const subDomainsByItemId = {};
+      []
+        .concat(this.props.dataContext.series)
+        .concat(this.props.dataContext.collections)
+        .forEach(item => {
+          const { time: timeSubDomain } = this.state.subDomainsByItemId[
+            item.id
+          ];
+          subDomainsByItemId[item.id] = {
+            ...this.state.subDomainsByItemId[item.id],
+          };
+          const dt = timeSubDomain[1] - timeSubDomain[0];
+          if (
+            Math.abs((timeSubDomain[1] - prevTimeDomain[1]) / dt) <=
+            FRONT_OF_WINDOW_THRESHOLD
+          ) {
+            // Looking at the front of the window -- continue to track that.
+            subDomainsByItemId[item.id].time = [
+              nextPropsDomain[1] - dt,
+              nextPropsDomain[1],
+            ];
+          } else if (timeSubDomain[0] <= prevTimeDomain[0]) {
+            // Looking at the back of the window -- continue to track that.
+            subDomainsByItemId[item.id].time = [
+              prevTimeDomain[0],
+              prevTimeDomain[0] + dt,
+            ];
+          }
+        });
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ subDomainsByItemId });
+    }
   }
 
   getDomainsByItemId = () => {
@@ -158,7 +207,7 @@ class Scaler extends Component {
 
         const limits = ((domainsById || {})[itemId] || {})[axis] ||
           (axis === 'time'
-            ? // FIXME: Phase out this timeDomain thing.
+            ? // FIXME: Phase out this single timeDomain thing.
               this.props.dataContext.timeDomain
             : undefined) || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
 
