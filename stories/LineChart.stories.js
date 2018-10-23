@@ -264,9 +264,9 @@ storiesOf('LineChart', module)
     return (
       <DataProvider
         defaultLoader={customAccessorLoader}
-        xAccessor={d => d[0]}
-        yAccessor={d => d[1]}
         timeDomain={staticXDomain}
+        timeAccessor={d => d[0]}
+        yAccessor={d => d[1]}
         series={[
           { id: 10, color: 'steelblue', y0Accessor, y1Accessor },
           { id: 2, color: 'maroon' },
@@ -283,7 +283,7 @@ storiesOf('LineChart', module)
       <DataProvider
         defaultLoader={customAccessorLoader}
         timeDomain={staticXDomain}
-        xAccessor={d => d[0]}
+        timeAccessor={d => d[0]}
         yAccessor={d => d[1]}
         series={[
           { id: 10, color: 'steelblue', y0Accessor, y1Accessor, step: true },
@@ -300,9 +300,9 @@ storiesOf('LineChart', module)
     return (
       <DataProvider
         defaultLoader={customAccessorLoader}
-        xAccessor={d => d[0]}
-        yAccessor={d => d[1]}
         timeDomain={staticXDomain}
+        timeAccessor={d => d[0]}
+        yAccessor={d => d[1]}
         series={[
           { id: 10, color: 'steelblue', y0Accessor, y1Accessor },
           { id: 2, color: 'maroon', drawPoints: true },
