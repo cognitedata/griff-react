@@ -180,8 +180,8 @@ class Scaler extends Component {
           ...acc,
           [item.id]: this.state.subDomainsByItemId[item.id] || {
             time: [...dataContext.timeSubDomain],
-            x: [...(item.xSubDomain || [])],
-            y: [...(item.ySubDomain || [])],
+            x: [...(item.xDomain || item.xSubDomain || [])],
+            y: [...(item.yDomain || item.ySubDomain || [])],
           },
         }),
         {}
