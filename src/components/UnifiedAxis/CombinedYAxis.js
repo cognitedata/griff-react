@@ -194,7 +194,7 @@ CombinedYAxis.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ series, subDomainsByItemId, xScalerFactory }) => (
+    {({ series, subDomainsByItemId }) => (
       <CombinedYAxis
         {...props}
         series={series}

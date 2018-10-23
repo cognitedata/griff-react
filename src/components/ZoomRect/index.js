@@ -163,16 +163,16 @@ class ZoomRect extends React.Component {
           // This was borrowed from d3-zoom.
           const zoomFactor = (deltaY * (deltaMode ? 120 : 1)) / 500;
 
-          // Figure out the value on the scale where the mouse is so that the new
-          // subdomain does not shift.
+          // Figure out the value on the scale where the mouse is so that the
+          // new subdomain does not shift.
           const valueAtMouse = subDomain[0] + subDomainRange * percentFromEnd;
 
           // How big the next subdomain is going to be
           const newSpan = subDomainRange * (1 + zoomFactor);
 
           // Finally, place this new span into the subdomain, centered about the
-          // mouse, and correctly (proportionately) split above & below so that the
-          // axis is stable.
+          // mouse, and correctly (proportionately) split above & below so that
+          // theaxis is stable.
           newSubDomain = [
             valueAtMouse - newSpan * percentFromEnd,
             valueAtMouse + newSpan * (1 - percentFromEnd),
