@@ -121,6 +121,7 @@ const ScatterplotComponent = ({
           xScalerFactory={xScalerFactory}
           tickFormatter={xAxisFormatter}
           ticks={xAxisTicks}
+          axis="x"
         />
       }
       xAxisPlacement={xAxisPlacement}

@@ -97,3 +97,19 @@ export const customAccessorLoader = ({ timeDomain, oldSeries, reason }) => {
     data: oldSeries.data,
   };
 };
+
+export const functionLoader = ({ func, timeSubDomain, pointsPerSeries }) => {
+  const data = [];
+  const dt = (timeSubDomain[1] - timeSubDomain[0]) / pointsPerSeries;
+  for (
+    let timestamp = timeSubDomain[0];
+    timestamp <= timeSubDomain[1];
+    timestamp += dt
+  ) {
+    data.push({
+      timestamp,
+      value: func(timestamp),
+    });
+  }
+  return { data };
+};

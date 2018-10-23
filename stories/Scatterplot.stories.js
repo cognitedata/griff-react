@@ -1,8 +1,9 @@
 import React from 'react';
 import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
-import { DataProvider, Scatterplot, AxisPlacement } from '../src';
-import { staticLoader } from './loaders';
+import moment from 'moment';
+import { DataProvider, Scatterplot, AxisPlacement, ContextChart } from '../src';
+import { staticLoader, functionLoader } from './loaders';
 
 const mapping = {
   '1 2': { x: 1, y: 2 },
@@ -47,7 +48,7 @@ const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
     };
 
     const data = [];
-    const lastKnown = { x: undefined, y: undefined, z: undefined };
+    const lastKnown = { x: undefined, y: undefined, timestamp: undefined };
     while (x.data.length || y.data.length) {
       const points = {
         x: x.data.length ? x.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
@@ -79,9 +80,74 @@ const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
   return { data: oldSeries.data };
 };
 
+const scatterplotFunctionLoader = ({
+  id,
+  reason,
+  oldSeries,
+  timeDomain,
+  timeSubDomain,
+  ...params
+}) => {
+  const dt = timeDomain[1] - timeDomain[0];
+  const pair = mapping[id];
+  const { x, y } = {
+    x: functionLoader({
+      func: d => Math.sin((d / dt) * 2 * Math.PI),
+      id: pair.x,
+      reason,
+      timeSubDomain,
+      ...params,
+    }),
+    y: functionLoader({
+      func: d => Math.cos((d / dt) * 2 * Math.PI),
+      id: pair.y,
+      reason,
+      timeSubDomain,
+      ...params,
+    }),
+  };
+
+  const data = [];
+  const lastKnown = { x: undefined, y: undefined, timestamp: undefined };
+  while (x.data.length || y.data.length) {
+    const points = {
+      x: x.data.length ? x.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
+      y: y.data.length ? y.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
+    };
+    let point;
+    if (points.x.timestamp <= points.y.timestamp) {
+      point = x.data.shift();
+      lastKnown.x = point.value;
+    }
+    if (points.y.timestamp <= points.x.timestamp) {
+      point = y.data.shift();
+      lastKnown.y = point.value;
+    }
+    lastKnown.timestamp = point.timestamp;
+    if (
+      lastKnown.x !== undefined &&
+      lastKnown.y !== undefined &&
+      lastKnown.timestamp !== undefined
+    ) {
+      data.push({
+        ...lastKnown,
+      });
+    }
+  }
+
+  return { data };
+};
+
 storiesOf('Scatterplot', module)
   .addDecorator(story => (
-    <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
+    <div
+      style={{
+        marginLeft: 'auto',
+        marginRight: 'auto',
+        width: '80%',
+        height: '100%',
+      }}
+    >
       {story()}
     </div>
   ))
@@ -485,6 +551,28 @@ storiesOf('Scatterplot', module)
           y1Accessor={d => +d.y * 1.1}
         >
           <Scatterplot zoomable />
+        </DataProvider>
+      </div>
+    </React.Fragment>
+  ))
+  .add('Context Chart', () => (
+    <React.Fragment>
+      <div style={{ width: 500 }}>
+        <DataProvider
+          defaultLoader={scatterplotFunctionLoader}
+          timeDomain={[+moment().subtract(1, 'year'), +moment()]}
+          pointsPerSeries={100}
+          series={[{ id: '1 2', color: 'steelblue' }]}
+          timeAccessor={d => +d.timestamp}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+        >
+          <div style={{ height: '500px' }}>
+            <Scatterplot zoomable />
+          </div>
+          <div>
+            <ContextChart />
+          </div>
         </DataProvider>
       </div>
     </React.Fragment>
