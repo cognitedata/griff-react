@@ -587,4 +587,21 @@ storiesOf('Scatterplot', module)
         </DataProvider>
       </div>
     </React.Fragment>
+  ))
+  .add('Zoomable', () => (
+    <React.Fragment>
+      <div style={{ width: 500, height: 500 }}>
+        <DataProvider
+          defaultLoader={scatterplotFunctionLoader}
+          timeDomain={[+moment().subtract(1, 'year'), +moment()]}
+          pointsPerSeries={100}
+          series={[{ id: '1 2', color: 'steelblue' }]}
+          timeAccessor={d => +d.timestamp}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+        >
+          <Scatterplot zoomable={false} />
+        </DataProvider>
+      </div>
+    </React.Fragment>
   ));

@@ -96,11 +96,10 @@ const ScatterplotComponent = ({
           <ScaledPointCollection {...chartSize} />
           <InteractionLayer
             {...chartSize}
-            zoomable={zoomable}
             onClick={onClick}
             zoomMode={ZoomMode.BOTH}
             xScalerFactory={xScalerFactory}
-            zoomAxes={{ x: true, y: true }}
+            zoomAxes={{ x: zoomable, y: zoomable }}
           />
         </svg>
       }
