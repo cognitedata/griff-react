@@ -270,7 +270,11 @@ class InteractionLayer extends React.Component {
       });
     }
     if (ruler && ruler.visible) {
-      this.setState({ points: [] });
+      this.setState({
+        points: [],
+        touchX: null,
+        touchY: null,
+      });
     }
     if (onMouseMove) {
       onMouseMove({ points: [] });
