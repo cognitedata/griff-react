@@ -101,11 +101,21 @@ class Scaler extends Component {
     }
 
     if (!isEqual(prevProps.dataContext.series, this.props.dataContext.series)) {
+      const domainsByItemId = {};
       const subDomainsByItemId = {};
       []
         .concat(this.props.dataContext.series)
         .concat(this.props.dataContext.collections)
         .forEach(item => {
+          domainsByItemId[item.id] = {
+            ...this.state.domainsByItemId[item.id],
+            [Axes.x]: [
+              ...(item.xDomain || Axes.x(this.state.domainsByItemId[item.id])),
+            ],
+            [Axes.y]: [
+              ...(item.yDomain || Axes.y(this.state.domainsByItemId[item.id])),
+            ],
+          };
           subDomainsByItemId[item.id] = {
             ...this.state.subDomainsByItemId[item.id],
             [Axes.x]: [
@@ -119,7 +129,7 @@ class Scaler extends Component {
           };
         });
       // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ subDomainsByItemId });
+      this.setState({ subDomainsByItemId, domainsByItemId });
     }
 
     // Handle changes in the base domain of the DataProvider
