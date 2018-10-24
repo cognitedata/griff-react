@@ -6,6 +6,7 @@ import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
 import ScalerContext from '../../context/Scaler';
 import ZoomRect from '../ZoomRect';
+import Axes from '../../utils/Axes';
 
 const propTypes = {
   zoomable: PropTypes.bool,
@@ -153,7 +154,7 @@ class YAxis extends Component {
 
     const item = this.getItem();
     const color = item.color || defaultColor;
-    const scale = createYScale(subDomainsByItemId[item.id].y, height);
+    const scale = createYScale(Axes.y(subDomainsByItemId[item.id]), height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;

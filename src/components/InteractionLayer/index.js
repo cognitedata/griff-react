@@ -14,6 +14,7 @@ import Annotation from '../Annotation';
 import Ruler from '../Ruler';
 import Area from '../Area';
 import ZoomRect from '../ZoomRect';
+import Axes from '../../utils/Axes';
 
 export const ZoomMode = {
   X: 0,
@@ -98,10 +99,12 @@ class InteractionLayer extends React.Component {
     const { touchX, touchY } = this.state;
 
     // FIXME: Don't assume a single time domain
-    const prevTimeSubDomain =
-      prevSubDomainsByItemId[Object.keys(prevSubDomainsByItemId)[0]].time;
-    const nextTimeSubDomain =
-      nextSubDomainsByItemId[Object.keys(nextSubDomainsByItemId)[0]].time;
+    const prevTimeSubDomain = Axes.time(
+      prevSubDomainsByItemId[Object.keys(prevSubDomainsByItemId)[0]]
+    );
+    const nextTimeSubDomain = Axes.time(
+      nextSubDomainsByItemId[Object.keys(nextSubDomainsByItemId)[0]]
+    );
 
     if (
       ruler &&
@@ -244,8 +247,9 @@ class InteractionLayer extends React.Component {
     if (onClickAnnotation || onAreaClicked) {
       let notified = false;
       // FIXME: Don't assume a single time domain
-      const timeSubDomain =
-        subDomainsByItemId[Object.keys(subDomainsByItemId)[0]].time;
+      const timeSubDomain = Axes.time(
+        subDomainsByItemId[Object.keys(subDomainsByItemId)[0]]
+      );
       const xScale = xScalerFactory(timeSubDomain, width);
       const xpos = e.nativeEvent.offsetX;
       const ypos = e.nativeEvent.offsetY;
@@ -313,7 +317,10 @@ class InteractionLayer extends React.Component {
 
     const output = { xpos, ypos, points: [] };
     series.forEach(s => {
-      const { time: timeSubDomain, y: ySubDomain } = subDomainsByItemId[s.id];
+      const {
+        [Axes.time]: timeSubDomain,
+        [Axes.y]: ySubDomain,
+      } = subDomainsByItemId[s.id];
       const xScale = xScalerFactory(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos).getTime();
       const { data, xAccessor, yAccessor } = s;
@@ -367,7 +374,10 @@ class InteractionLayer extends React.Component {
     } = this.props;
     const newPoints = [];
     series.forEach(s => {
-      const { time: timeSubDomain, y: ySubDomain } = subDomainsByItemId[s.id];
+      const {
+        [Axes.time]: timeSubDomain,
+        [Axes.y]: ySubDomain,
+      } = subDomainsByItemId[s.id];
       const xScale = xScalerFactory(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos).getTime();
       const { data, xAccessor, yAccessor } = s;
@@ -467,7 +477,7 @@ class InteractionLayer extends React.Component {
       );
     }
     // FIXME: Don't rely on a single time domain
-    const timeSubDomain = subDomainsByItemId[series[0].id].time;
+    const timeSubDomain = Axes.time(subDomainsByItemId[series[0].id]);
     const xScale = xScalerFactory(timeSubDomain, width);
     const annotations = this.props.annotations.map(a => (
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
@@ -489,7 +499,7 @@ class InteractionLayer extends React.Component {
       if (a.seriesId) {
         s = series.find(s1 => s1.id === a.seriesId);
         if (s) {
-          const { y: ySubDomain } = subDomainsByItemId[s.id];
+          const { [Axes.y]: ySubDomain } = subDomainsByItemId[s.id];
           const yScale = createYScale(ySubDomain, height);
           if (a.start.yval) {
             scaledArea.start.ypos = yScale(a.start.yval);

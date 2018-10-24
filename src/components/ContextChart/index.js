@@ -13,6 +13,7 @@ import GriffPropTypes, {
 import Brush from '../Brush';
 import AxisPlacement from '../AxisPlacement';
 import multiFormat from '../../utils/multiFormat';
+import Axes from '../../utils/Axes';
 
 class ContextChart extends Component {
   static propTypes = {
@@ -104,8 +105,8 @@ class ContextChart extends Component {
     } = this.props;
 
     const firstItemId = series[0].id;
-    const timeDomain = domainsByItemId[firstItemId].time;
-    const timeSubDomain = subDomainsByItemId[firstItemId].time;
+    const timeDomain = Axes.time(domainsByItemId[firstItemId]);
+    const timeSubDomain = Axes.time(subDomainsByItemId[firstItemId]);
     const height = this.getChartHeight();
     const xScale = xScalerFactory(timeDomain, width);
     const selection = timeSubDomain.map(xScale);

@@ -8,6 +8,7 @@ import GriffPropTypes, {
 import ScalerContext from '../../context/Scaler';
 import Line from '../Line';
 import AxisDisplayMode from '../LineChart/AxisDisplayMode';
+import Axes from '../../utils/Axes';
 
 const LineCollection = props => {
   const {
@@ -39,11 +40,13 @@ const LineCollection = props => {
     }
     const { id } = s;
     const xScale = xScalerFactory(
-      scaleX ? subDomainsByItemId[id].time : domainsByItemId[id].time,
+      scaleX
+        ? Axes.time(subDomainsByItemId[id])
+        : Axes.time(domainsByItemId[id]),
       width
     );
     const yScale = createYScale(
-      scaleY ? subDomainsByItemId[s.collectionId || s.id].y : s.yDomain,
+      scaleY ? Axes.y(subDomainsByItemId[s.collectionId || s.id]) : s.yDomain,
       height
     );
     return [

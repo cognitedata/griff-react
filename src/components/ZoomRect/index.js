@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import ScalerContext from '../../context/Scaler';
 import GriffPropTypes from '../../utils/proptypes';
+import Axes from '../../utils/Axes';
 
 const propTypes = {
   width: PropTypes.number.isRequired,
@@ -65,16 +66,16 @@ class ZoomRect extends React.Component {
       const [touch] = touches;
       const { pageX: x, pageY: y } = touch;
       this.lastTouch = {
-        time: x,
-        x,
-        y,
+        [Axes.time]: x,
+        [Axes.x]: x,
+        [Axes.y]: y,
       };
     } else if (touches.length === 2) {
       const [touchOne, touchTwo] = touches;
       this.lastDeltas = {
-        time: Math.abs(touchOne.pageX - touchTwo.pageX),
-        x: Math.abs(touchOne.pageX - touchTwo.pageX),
-        y: Math.abs(touchOne.pageY - touchTwo.pageY),
+        [Axes.time]: Math.abs(touchOne.pageX - touchTwo.pageX),
+        [Axes.x]: Math.abs(touchOne.pageX - touchTwo.pageX),
+        [Axes.y]: Math.abs(touchOne.pageY - touchTwo.pageY),
       };
     }
   };
@@ -85,9 +86,9 @@ class ZoomRect extends React.Component {
     const { width, height } = this.props;
 
     const distances = {
-      time: width,
-      x: width,
-      y: -height,
+      [Axes.time]: width,
+      [Axes.x]: width,
+      [Axes.y]: -height,
     };
 
     const {
@@ -119,9 +120,9 @@ class ZoomRect extends React.Component {
       const [touch] = touches;
       const { pageX: x, pageY: y } = touch;
       this.lastTouch = {
-        time: x,
-        x,
-        y,
+        [Axes.time]: x,
+        [Axes.x]: x,
+        [Axes.y]: y,
       };
     }
   };
@@ -130,14 +131,14 @@ class ZoomRect extends React.Component {
     const { itemIds, subDomainsByItemId, zoomAxes } = this.props;
     const [touch] = touches;
     const newTouchPosition = {
-      time: touch.pageX,
-      x: touch.pageX,
-      y: touch.pageY,
+      [Axes.time]: touch.pageX,
+      [Axes.x]: touch.pageX,
+      [Axes.y]: touch.pageY,
     };
     const updates = {};
     itemIds.forEach(itemId => {
       updates[itemId] = {};
-      ['x', 'y', 'time'].filter(axis => zoomAxes[axis]).forEach(axis => {
+      Axes.ALL.filter(axis => zoomAxes[axis]).forEach(axis => {
         const subDomain = (subDomainsByItemId[itemId] || {})[axis];
         const subDomainRange = subDomain[1] - subDomain[0];
         let newSubDomain = null;
@@ -158,22 +159,21 @@ class ZoomRect extends React.Component {
     const { itemIds, subDomainsByItemId, zoomAxes } = this.props;
     const [touchOne, touchTwo] = touches;
     const deltas = {
-      time: Math.abs(touchOne.pageX - touchTwo.pageX),
-      x: Math.abs(touchOne.pageX - touchTwo.pageX),
-      y: Math.abs(touchOne.pageY - touchTwo.pageY),
+      [Axes.time]: Math.abs(touchOne.pageX - touchTwo.pageX),
+      [Axes.x]: Math.abs(touchOne.pageX - touchTwo.pageX),
+      [Axes.y]: Math.abs(touchOne.pageY - touchTwo.pageY),
     };
 
     const updates = {};
     const multipliers = {
-      time: -1,
-      x: -1,
-      y: 1,
+      [Axes.time]: -1,
+      [Axes.x]: -1,
+      [Axes.y]: 1,
     };
     itemIds.forEach(itemId => {
       updates[itemId] = {};
-      ['x', 'y', 'time']
-        .filter(axis => zoomAxes[axis] && this.lastDeltas[axis])
-        .forEach(axis => {
+      Axes.ALL.filter(axis => zoomAxes[axis] && this.lastDeltas[axis]).forEach(
+        axis => {
           const subDomain = (subDomainsByItemId[itemId] || {})[axis];
           const subDomainRange = subDomain[1] - subDomain[0];
           // TODO: Find the center of the touches and then place that on the
@@ -198,7 +198,8 @@ class ZoomRect extends React.Component {
             valueAtCenter - newSpan * percentFromEnd,
             valueAtCenter + newSpan * (1 - percentFromEnd),
           ];
-        });
+        }
+      );
     });
     this.lastDeltas = { ...deltas };
     return updates;
@@ -224,29 +225,29 @@ class ZoomRect extends React.Component {
     } = d3;
 
     const distances = {
-      time: width,
-      x: width,
-      y: height,
+      [Axes.time]: width,
+      [Axes.x]: width,
+      [Axes.y]: height,
     };
 
     const movements = {
-      time: -sourceEvent.movementX,
-      x: -sourceEvent.movementX,
-      y: sourceEvent.movementY,
+      [Axes.time]: -sourceEvent.movementX,
+      [Axes.x]: -sourceEvent.movementX,
+      [Axes.y]: sourceEvent.movementY,
     };
 
     const percents = {
-      time: sourceEvent.offsetX / width,
-      x: sourceEvent.offsetX / width,
+      [Axes.time]: sourceEvent.offsetX / width,
+      [Axes.x]: sourceEvent.offsetX / width,
       // Invert the event coordinates for sanity, since they're measured from
       // the top-left, but we want to go from the bottom-left.
-      y: (height - sourceEvent.offsetY) / height,
+      [Axes.y]: (height - sourceEvent.offsetY) / height,
     };
 
     const updates = {};
     itemIds.forEach(itemId => {
       updates[itemId] = {};
-      ['x', 'y', 'time'].filter(axis => zoomAxes[axis]).forEach(axis => {
+      Axes.ALL.filter(axis => zoomAxes[axis]).forEach(axis => {
         const subDomain = (this.props.subDomainsByItemId[itemId] || {})[axis];
         const subDomainRange = subDomain[1] - subDomain[0];
         let newSubDomain = null;

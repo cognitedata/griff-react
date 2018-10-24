@@ -5,6 +5,7 @@ import ScalerContext from '../../context/Scaler';
 import { createYScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
+import Axes from '../../utils/Axes';
 
 const propTypes = {
   series: seriesPropType.isRequired,
@@ -30,8 +31,14 @@ class CombinedYAxis extends Component {
   getDomain = seriesArray =>
     seriesArray.reduce(
       (domain, series) => [
-        Math.min(domain[0], this.props.subDomainsByItemId[series.id].y[0]),
-        Math.max(domain[1], this.props.subDomainsByItemId[series.id].y[1]),
+        Math.min(
+          domain[0],
+          Axes.y(this.props.subDomainsByItemId[series.id])[0]
+        ),
+        Math.max(
+          domain[1],
+          Axes.y(this.props.subDomainsByItemId[series.id])[1]
+        ),
       ],
       [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
     );

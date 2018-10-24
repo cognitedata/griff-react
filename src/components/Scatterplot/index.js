@@ -15,6 +15,7 @@ import XAxis from '../XAxis';
 import Layout from './Layout';
 import AxisPlacement from '../AxisPlacement';
 import GridLines from '../GridLines';
+import Axes from '../../utils/Axes';
 
 const propTypes = {
   grid: GriffPropTypes.grid,
@@ -120,7 +121,7 @@ const ScatterplotComponent = ({
           xScalerFactory={xScalerFactory}
           tickFormatter={xAxisFormatter}
           ticks={xAxisTicks}
-          axis="x"
+          axis={Axes.x}
         />
       }
       xAxisPlacement={xAxisPlacement}

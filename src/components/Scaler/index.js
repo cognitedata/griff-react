@@ -5,6 +5,7 @@ import DataContext from '../../context/Data';
 import ScalerContext from '../../context/Scaler';
 import { createXScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
+import Axes from '../../utils/Axes';
 
 // If the timeSubDomain is within this margin, consider it to be attached to
 // the leading edge of the timeDomain.
@@ -76,7 +77,9 @@ class Scaler extends Component {
       // When timeSubDomain changes, we need to update everything downstream.
       const subDomainsByItemId = { ...this.state.subDomainsByItemId };
       Object.keys(subDomainsByItemId).forEach(itemId => {
-        subDomainsByItemId[itemId].time = this.props.dataContext.timeSubDomain;
+        subDomainsByItemId[itemId][
+          Axes.time
+        ] = this.props.dataContext.timeSubDomain;
       });
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ subDomainsByItemId });
@@ -91,7 +94,7 @@ class Scaler extends Component {
       // When timeDomain changes, we need to update everything downstream.
       const domainsByItemId = { ...this.state.domainsByItemId };
       Object.keys(domainsByItemId).forEach(itemId => {
-        domainsByItemId[itemId].time = this.props.dataContext.timeDomain;
+        domainsByItemId[itemId][Axes.time] = this.props.dataContext.timeDomain;
       });
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ domainsByItemId });
@@ -105,11 +108,13 @@ class Scaler extends Component {
         .forEach(item => {
           subDomainsByItemId[item.id] = {
             ...this.state.subDomainsByItemId[item.id],
-            x: [
-              ...(item.xSubDomain || this.state.subDomainsByItemId[item.id].x),
+            [Axes.x]: [
+              ...(item.xSubDomain ||
+                Axes.x(this.state.subDomainsByItemId[item.id])),
             ],
-            y: [
-              ...(item.ySubDomain || this.state.subDomainsByItemId[item.id].y),
+            [Axes.y]: [
+              ...(item.ySubDomain ||
+                Axes.y(this.state.subDomainsByItemId[item.id])),
             ],
           };
         });
@@ -134,7 +139,7 @@ class Scaler extends Component {
         .concat(this.props.dataContext.series)
         .concat(this.props.dataContext.collections)
         .forEach(item => {
-          const { time: timeSubDomain } = this.state.subDomainsByItemId[
+          const { [Axes.time]: timeSubDomain } = this.state.subDomainsByItemId[
             item.id
           ];
           subDomainsByItemId[item.id] = {
@@ -146,13 +151,13 @@ class Scaler extends Component {
             FRONT_OF_WINDOW_THRESHOLD
           ) {
             // Looking at the front of the window -- continue to track that.
-            subDomainsByItemId[item.id].time = [
+            subDomainsByItemId[item.id][Axes.time] = [
               nextPropsDomain[1] - dt,
               nextPropsDomain[1],
             ];
           } else if (timeSubDomain[0] <= prevTimeDomain[0]) {
             // Looking at the back of the window -- continue to track that.
-            subDomainsByItemId[item.id].time = [
+            subDomainsByItemId[item.id][Axes.time] = [
               prevTimeDomain[0],
               prevTimeDomain[0] + dt,
             ];
@@ -193,9 +198,9 @@ class Scaler extends Component {
         (acc, item) => ({
           ...acc,
           [item.id]: this.state.subDomainsByItemId[item.id] || {
-            time: [...dataContext.timeSubDomain],
-            x: [...(item.xDomain || item.xSubDomain || [])],
-            y: [...(item.yDomain || item.ySubDomain || [])],
+            [Axes.time]: [...dataContext.timeSubDomain],
+            [Axes.x]: [...(item.xDomain || item.xSubDomain || [])],
+            [Axes.y]: [...(item.yDomain || item.ySubDomain || [])],
           },
         }),
         {}
@@ -238,7 +243,7 @@ class Scaler extends Component {
         const existingSpan = existingSubDomain[1] - existingSubDomain[0];
 
         const limits = ((domainsById || {})[itemId] || {})[axis] ||
-          (axis === 'time'
+          (axis === Axes.time
             ? // FIXME: Phase out this single timeDomain thing.
               this.props.dataContext.timeDomain
             : undefined) || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
@@ -260,7 +265,7 @@ class Scaler extends Component {
 
         newSubDomains[itemId][axis] = newSubDomain;
 
-        if (axis === 'time') {
+        if (axis === Axes.time) {
           newTimeSubDomain = newSubDomain;
         }
       });

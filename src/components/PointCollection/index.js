@@ -4,6 +4,7 @@ import ScalerContext from '../../context/Scaler';
 import { createYScale } from '../../utils/scale-helpers';
 import Points from '../Points';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
+import Axes from '../../utils/Axes';
 
 const propTypes = {
   width: PropTypes.number.isRequired,
@@ -23,8 +24,8 @@ const PointCollection = ({
   xScalerFactory,
 }) => {
   const points = series.filter(s => !s.hidden).map(s => {
-    const xScale = xScalerFactory(subDomainsByItemId[s.id].x, width);
-    const yScale = createYScale(subDomainsByItemId[s.id].y, height);
+    const xScale = xScalerFactory(Axes.x(subDomainsByItemId[s.id]), width);
+    const yScale = createYScale(Axes.y(subDomainsByItemId[s.id]), height);
     return <Points key={s.id} {...s} xScale={xScale} yScale={yScale} />;
   });
 

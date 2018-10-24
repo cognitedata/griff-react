@@ -6,6 +6,7 @@ import GriffPropTypes, {
   scalerFactoryFunc,
 } from '../../utils/proptypes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
+import Axes from '../../utils/Axes';
 
 const propTypes = {
   grid: GriffPropTypes.grid,
@@ -62,7 +63,7 @@ class GridLines extends React.Component {
         );
         series.filter(s => seriesIdMap[s.id]).forEach(s => {
           // This is heavily inspired by YAxis -- maybe we could consolidate?
-          const scale = createYScale(subDomainsByItemId[s.id].y, height);
+          const scale = createYScale(Axes.y(subDomainsByItemId[s.id]), height);
           const nTicks = y.count || Math.floor(height / 50) || 1;
           const values = scale.ticks(nTicks);
 
