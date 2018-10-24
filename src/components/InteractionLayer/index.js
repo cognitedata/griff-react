@@ -260,7 +260,6 @@ class InteractionLayer extends React.Component {
   };
 
   onMouseOut = e => {
-    console.log('onMouseOut');
     const { onMouseMove, crosshair, onMouseOut, ruler } = this.props;
     if (crosshair) {
       this.setState({
