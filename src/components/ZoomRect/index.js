@@ -222,68 +222,21 @@ class ZoomRect extends React.Component {
     const {
       event: { sourceEvent },
     } = d3;
-    // FIXME: Once we have separate X axis zooming, we can remove this whole
-    // special case.
-    if (zoomAxes.time && itemIds.length > 0) {
-      // TODO: Support separate X axis zooming
-      const firstItemId = itemIds[0];
-      const { time: timeSubDomain } =
-        this.props.subDomainsByItemId[firstItemId] || {};
-      const timeSubDomainRange = timeSubDomain[1] - timeSubDomain[0];
-      let newSubDomain = null;
-      if (sourceEvent.deltaY) {
-        // This is a zoom event.
-        const { deltaMode, deltaY, offsetX } = sourceEvent;
-
-        // This was borrowed from d3-zoom.
-        const zoomFactor = (deltaY * (deltaMode ? 120 : 1)) / 500;
-        const percentFromLeft = offsetX / width;
-
-        // Figure out the value on the scale where the mouse is so that the new
-        // subdomain does not shift.
-        const valueAtMouse =
-          timeSubDomain[0] + timeSubDomainRange * percentFromLeft;
-
-        // How big the next subdomain is going to be
-        const newSpan = timeSubDomainRange * (1 + zoomFactor);
-
-        // Finally, place this new span into the subdomain, centered about the
-        // mouse, and correctly (proportionately) split above & below so that the
-        // axis is stable.
-        newSubDomain = [
-          valueAtMouse - newSpan * percentFromLeft,
-          valueAtMouse + newSpan * (1 - percentFromLeft),
-        ];
-      } else if (sourceEvent.movementX) {
-        // This is a drag event.
-        const percentMovement =
-          timeSubDomainRange * (-sourceEvent.movementX / width);
-        newSubDomain = timeSubDomain.map(bound => bound + percentMovement);
-      }
-      if (newSubDomain) {
-        this.props.updateDomains(
-          itemIds.reduce(
-            (changes, itemId) => ({
-              ...changes,
-              [itemId]: { time: newSubDomain },
-            }),
-            {}
-          )
-        );
-      }
-    }
 
     const distances = {
+      time: width,
       x: width,
       y: height,
     };
 
     const movements = {
+      time: -sourceEvent.movementX,
       x: -sourceEvent.movementX,
       y: sourceEvent.movementY,
     };
 
     const percents = {
+      time: sourceEvent.offsetX / width,
       x: sourceEvent.offsetX / width,
       // Invert the event coordinates for sanity, since they're measured from
       // the top-left, but we want to go from the bottom-left.
@@ -293,7 +246,7 @@ class ZoomRect extends React.Component {
     const updates = {};
     itemIds.forEach(itemId => {
       updates[itemId] = {};
-      ['x', 'y'].filter(axis => zoomAxes[axis]).forEach(axis => {
+      ['x', 'y', 'time'].filter(axis => zoomAxes[axis]).forEach(axis => {
         const subDomain = (this.props.subDomainsByItemId[itemId] || {})[axis];
         const subDomainRange = subDomain[1] - subDomain[0];
         let newSubDomain = null;
