@@ -260,6 +260,7 @@ class InteractionLayer extends React.Component {
   };
 
   onMouseOut = e => {
+    console.log('onMouseOut');
     const { onMouseMove, crosshair, onMouseOut, ruler } = this.props;
     if (crosshair) {
       this.setState({
@@ -270,7 +271,11 @@ class InteractionLayer extends React.Component {
       });
     }
     if (ruler && ruler.visible) {
-      this.setState({ points: [] });
+      this.setState({
+        points: [],
+        touchX: null,
+        touchY: null,
+      });
     }
     if (onMouseMove) {
       onMouseMove({ points: [] });
