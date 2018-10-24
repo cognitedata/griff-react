@@ -65,23 +65,27 @@ class ZoomRect extends React.Component {
       const [touch] = touches;
       const { pageX: x, pageY: y } = touch;
       this.lastTouch = {
+        time: x,
         x,
         y,
       };
     } else if (touches.length === 2) {
       const [touchOne, touchTwo] = touches;
       this.lastDeltas = {
+        time: Math.abs(touchOne.pageX - touchTwo.pageX),
         x: Math.abs(touchOne.pageX - touchTwo.pageX),
         y: Math.abs(touchOne.pageY - touchTwo.pageY),
       };
     }
-    console.log('touchstart');
   };
 
+  // TODO: A lot of this is duplicated with `zoomed` -- maybe they can be
+  // consolidated?
   onTouchMove = () => {
-    const { itemIds, width, height, zoomAxes } = this.props;
+    const { width, height } = this.props;
 
     const distances = {
+      time: width,
       x: width,
       y: -height,
     };
@@ -89,52 +93,96 @@ class ZoomRect extends React.Component {
     const {
       event: { touches },
     } = d3;
+    let updates = null;
     if (touches.length === 1) {
       // If there was only one touch, then it was a drag event.
-      const [touch] = touches;
-      const newTouchPosition = {
-        x: touch.pageX,
-        y: touch.pageY,
-      };
-      const updates = {};
-      itemIds.forEach(itemId => {
-        updates[itemId] = {};
-        ['x', 'y'].filter(axis => zoomAxes[axis]).forEach(axis => {
-          const subDomain = (this.props.subDomainsByItemId[itemId] || {})[axis];
-          const subDomainRange = subDomain[1] - subDomain[0];
-          let newSubDomain = null;
-          const percentMovement =
-            subDomainRange *
-            ((this.lastTouch[axis] - newTouchPosition[axis]) / distances[axis]);
-          newSubDomain = subDomain.map(bound => bound + percentMovement);
-          if (newSubDomain) {
-            updates[itemId][axis] = newSubDomain;
-          }
-        });
-      });
-      this.lastTouch = { ...newTouchPosition };
-      this.props.updateDomains(updates);
+      updates = this.performTouchDrag(touches, distances);
     } else if (touches.length === 2) {
       // If there were two, then it is a zoom event.
-      const [touchOne, touchTwo] = touches;
-      const deltas = {
-        x: Math.abs(touchOne.pageX - touchTwo.pageX),
-        y: Math.abs(touchOne.pageY - touchTwo.pageY),
-      };
+      updates = this.performTouchZoom(touches, distances);
+    } else {
+      // We don't support more complicated gestures.
+    }
+    if (updates) {
+      this.props.updateDomains(updates);
+    }
+  };
 
-      const updates = {};
-      itemIds.forEach(itemId => {
-        updates[itemId] = {};
-        ['x', 'y'].filter(axis => zoomAxes[axis]).forEach(axis => {
-          const subDomain = (this.props.subDomainsByItemId[itemId] || {})[axis];
+  onTouchEnd = () => {
+    const {
+      event: { touches },
+    } = d3;
+    if (touches.length === 0) {
+      this.lastTouch = null;
+    } else if (touches.length === 1) {
+      this.lastDeltas = null;
+      const [touch] = touches;
+      const { pageX: x, pageY: y } = touch;
+      this.lastTouch = {
+        time: x,
+        x,
+        y,
+      };
+    }
+  };
+
+  performTouchDrag = (touches, distances) => {
+    const { itemIds, subDomainsByItemId, zoomAxes } = this.props;
+    const [touch] = touches;
+    const newTouchPosition = {
+      time: touch.pageX,
+      x: touch.pageX,
+      y: touch.pageY,
+    };
+    const updates = {};
+    itemIds.forEach(itemId => {
+      updates[itemId] = {};
+      ['x', 'y', 'time'].filter(axis => zoomAxes[axis]).forEach(axis => {
+        const subDomain = (subDomainsByItemId[itemId] || {})[axis];
+        const subDomainRange = subDomain[1] - subDomain[0];
+        let newSubDomain = null;
+        const percentMovement =
+          subDomainRange *
+          ((this.lastTouch[axis] - newTouchPosition[axis]) / distances[axis]);
+        newSubDomain = subDomain.map(bound => bound + percentMovement);
+        if (newSubDomain) {
+          updates[itemId][axis] = newSubDomain;
+        }
+      });
+    });
+    this.lastTouch = { ...newTouchPosition };
+    return updates;
+  };
+
+  performTouchZoom = (touches, distances) => {
+    const { itemIds, subDomainsByItemId, zoomAxes } = this.props;
+    const [touchOne, touchTwo] = touches;
+    const deltas = {
+      time: Math.abs(touchOne.pageX - touchTwo.pageX),
+      x: Math.abs(touchOne.pageX - touchTwo.pageX),
+      y: Math.abs(touchOne.pageY - touchTwo.pageY),
+    };
+
+    const updates = {};
+    const multipliers = {
+      time: -1,
+      x: -1,
+      y: 1,
+    };
+    itemIds.forEach(itemId => {
+      updates[itemId] = {};
+      ['x', 'y', 'time']
+        .filter(axis => zoomAxes[axis] && this.lastDeltas[axis])
+        .forEach(axis => {
+          const subDomain = (subDomainsByItemId[itemId] || {})[axis];
           const subDomainRange = subDomain[1] - subDomain[0];
           // TODO: Find the center of the touches and then place that on the
           // rect so that we can figure out where to zoom relative to.
           const percentFromEnd = 0.5;
 
-          // This was borrowed from d3-zoom.
           const zoomFactor =
-            (deltas[axis] - this.lastDeltas[axis]) / distances[axis];
+            multipliers[axis] *
+            ((deltas[axis] - this.lastDeltas[axis]) / distances[axis]);
 
           // Figure out the value on the scale where the mouse is so that the
           // new subdomain does not shift.
@@ -151,29 +199,9 @@ class ZoomRect extends React.Component {
             valueAtCenter + newSpan * (1 - percentFromEnd),
           ];
         });
-      });
-      this.lastDeltas = { ...deltas };
-      this.props.updateDomains(updates);
-    } else {
-      // We don't support more complicated gestures.
-    }
-  };
-
-  onTouchEnd = () => {
-    const {
-      event: { touches },
-    } = d3;
-    if (touches.length === 0) {
-      this.lastTouch = null;
-    } else if (touches.length === 1) {
-      this.lastDeltas = null;
-      const [touch] = touches;
-      const { pageX: x, pageY: y } = touch;
-      this.lastTouch = {
-        x,
-        y,
-      };
-    }
+    });
+    this.lastDeltas = { ...deltas };
+    return updates;
   };
 
   syncZoomingState = () => {
@@ -241,12 +269,8 @@ class ZoomRect extends React.Component {
             }),
             {}
           )
-          // () => this.selection.property('__zoom', d3.zoomIdentity)
         );
       }
-      // if (onZoomXAxis) {
-      //   onZoomXAxis({ timeSubDomain: newDomain, transformation: t });
-      // }
     }
 
     const distances = {
