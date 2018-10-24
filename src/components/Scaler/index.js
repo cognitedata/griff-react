@@ -243,7 +243,7 @@ class Scaler extends Component {
         const existingSpan = existingSubDomain[1] - existingSubDomain[0];
 
         const limits = ((domainsById || {})[itemId] || {})[axis] ||
-          (axis === Axes.time
+          (axis === String(Axes.time)
             ? // FIXME: Phase out this single timeDomain thing.
               this.props.dataContext.timeDomain
             : undefined) || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
@@ -265,7 +265,7 @@ class Scaler extends Component {
 
         newSubDomains[itemId][axis] = newSubDomain;
 
-        if (axis === Axes.time) {
+        if (axis === String(Axes.time)) {
           newTimeSubDomain = newSubDomain;
         }
       });
