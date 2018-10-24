@@ -27,7 +27,7 @@ const NUM_POINTS = 50;
 
 const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
   if (reason === 'MOUNTED') {
-    const pair = mapping[id];
+    const pair = mapping[id] || Math.round(Math.random() * 100);
     const { x, y } = {
       x: staticLoader({
         id: pair.x,
@@ -138,6 +138,21 @@ const scatterplotFunctionLoader = ({
   return { data };
 };
 
+const randomColor = () => {
+  const hex = ['r', 'g', 'b']
+    .map(() => `0${Number(Math.round(Math.random() * 255))}`.slice(-2))
+    .join('');
+  return `#${hex}`;
+};
+
+const generateSeries = count => {
+  const series = [];
+  for (let i = 0; i < count; i += 1) {
+    series.push({ id: `${i} ${i + 1}`, color: randomColor() });
+  }
+  return series;
+};
+
 storiesOf('Scatterplot', module)
   .addDecorator(story => (
     <div
@@ -192,16 +207,7 @@ storiesOf('Scatterplot', module)
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
-            series={[
-              { id: '1 2', color: '#ACF39D' },
-              { id: '2 3', color: '#E85F5C' },
-              { id: '3 4', color: '#9CFFFA' },
-              { id: '4 5', color: '#773344' },
-              { id: '5 6', color: '#E3B5A4' },
-              { id: '6 7', color: '#2E0219' },
-              { id: '7 8', color: '#2E0219' },
-              { id: '8 9', color: '#2E0219' },
-            ]}
+            series={generateSeries(10)}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
           >

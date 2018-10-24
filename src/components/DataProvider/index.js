@@ -268,9 +268,7 @@ export default class DataProvider extends Component {
             timeSubDomain: newTimeSubDomain,
           },
           () => {
-            Promise.map(this.props.series, s =>
-              this.fetchData(s.id, 'INTERVAL')
-            );
+            this.props.series.map(s => this.fetchData(s.id, 'INTERVAL'));
           }
         );
       }, updateInterval);
