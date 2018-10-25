@@ -61,10 +61,10 @@ const firstDefined = (first, ...others) => {
 
 export default class DataProvider extends Component {
   state = {
-    timeSubDomain: DataProvider.getXSubDomain(
+    timeSubDomain: DataProvider.getTimeSubDomain(
       this.props.timeDomain,
       this.props.timeSubDomain,
-      this.props.limitXSubDomain
+      this.props.limitTimeSubDomain
     ),
     timeDomain: this.props.timeDomain,
     loaderConfig: {},
@@ -167,16 +167,16 @@ export default class DataProvider extends Component {
 
     // Check if timeDomain changed in props -- if so reset state.
     if (!isEqual(this.props.timeDomain, prevProps.timeDomain)) {
-      const newXSubDomain = DataProvider.getXSubDomain(
+      const newTimeSubDomain = DataProvider.getTimeSubDomain(
         this.props.timeDomain,
         this.props.timeSubDomain,
-        this.props.limitXSubDomain
+        this.props.limitTimeSubDomain
       );
       // eslint-disable-next-line
       this.setState(
         {
           timeDomain: this.props.timeDomain,
-          timeSubDomain: newXSubDomain,
+          timeSubDomain: newTimeSubDomain,
           loaderConfig: {},
           contextSeries: {},
           yDomains: {},
@@ -184,8 +184,8 @@ export default class DataProvider extends Component {
         },
         () => this.props.series.map(s => this.fetchData(s.id, 'MOUNTED'))
       );
-      if (this.props.onXSubDomainChanged) {
-        this.props.onXSubDomainChanged(newXSubDomain);
+      if (this.props.onTimeSubDomainChanged) {
+        this.props.onTimeSubDomainChanged(newTimeSubDomain);
       }
       this.startUpdateInterval();
     }
@@ -195,28 +195,28 @@ export default class DataProvider extends Component {
     clearInterval(this.fetchInterval);
   }
 
-  static getXSubDomain = (
+  static getTimeSubDomain = (
     timeDomain,
     timeSubDomain,
     // eslint-disable-next-line no-shadow
-    limitXSubDomain = timeSubDomain => timeSubDomain
+    limitTimeSubDomain = timeSubDomain => timeSubDomain
   ) => {
     if (!timeSubDomain) {
       return timeDomain;
     }
-    const newXSubDomain = limitXSubDomain(timeSubDomain);
+    const newTimeSubDomain = limitTimeSubDomain(timeSubDomain);
     const timeDomainLength = timeDomain[1] - timeDomain[0];
-    const timeSubDomainLength = newXSubDomain[1] - newXSubDomain[0];
+    const timeSubDomainLength = newTimeSubDomain[1] - newTimeSubDomain[0];
     if (timeDomainLength < timeSubDomainLength) {
       return timeDomain;
     }
-    if (newXSubDomain[0] < timeDomain[0]) {
+    if (newTimeSubDomain[0] < timeDomain[0]) {
       return [timeDomain[0], timeDomain[0] + timeSubDomainLength];
     }
-    if (newXSubDomain[1] > timeDomain[1]) {
+    if (newTimeSubDomain[1] > timeDomain[1]) {
       return [timeDomain[1] - timeSubDomainLength, timeDomain[1]];
     }
-    return newXSubDomain;
+    return newTimeSubDomain;
   };
 
   getSeriesObjects = () => {
@@ -251,11 +251,11 @@ export default class DataProvider extends Component {
       this.fetchInterval = setInterval(() => {
         const { timeDomain, timeSubDomain } = this.state;
         const newTimeDomain = timeDomain.map(d => d + updateInterval);
-        const newTimeSubDomain = this.props.isXSubDomainSticky
-          ? DataProvider.getXSubDomain(
+        const newTimeSubDomain = this.props.isTimeSubDomainSticky
+          ? DataProvider.getTimeSubDomain(
               newTimeDomain,
               timeSubDomain.map(d => d + updateInterval),
-              this.props.limitXSubDomain
+              this.props.limitTimeSubDomain
             )
           : timeSubDomain;
         this.setState(
@@ -458,10 +458,10 @@ export default class DataProvider extends Component {
 
   timeSubDomainChanged = timeSubDomain => {
     const current = this.state.timeSubDomain;
-    const newTimeSubDomain = DataProvider.getXSubDomain(
+    const newTimeSubDomain = DataProvider.getTimeSubDomain(
       this.state.timeDomain,
       timeSubDomain,
-      this.props.limitXSubDomain
+      this.props.limitTimeSubDomain
     );
     if (isEqual(newTimeSubDomain, current)) {
       return;
@@ -473,8 +473,8 @@ export default class DataProvider extends Component {
         this.props.series.map(s => this.fetchData(s.id, 'UPDATE_SUBDOMAIN')),
       250
     );
-    if (this.props.onXSubDomainChanged) {
-      this.props.onXSubDomainChanged(newTimeSubDomain);
+    if (this.props.onTimeSubDomainChanged) {
+      this.props.onTimeSubDomainChanged(newTimeSubDomain);
     }
     this.setState({ timeSubDomain: newTimeSubDomain });
   };
@@ -489,8 +489,8 @@ export default class DataProvider extends Component {
     const {
       yAxisWidth,
       children,
-      timeDomain: externalXDomain,
-      timeSubDomain: externalXSubDomain,
+      timeDomain: externalTimeDomain,
+      timeSubDomain: externalTimeSubDomain,
       collections,
     } = this.props;
 
@@ -510,7 +510,7 @@ export default class DataProvider extends Component {
         if (!collectionId) {
           return acc;
         }
-        const { yDomain: existingDomain, ySubDomain: existingXSubDomain } = acc[
+        const { yDomain: existingDomain, ySubDomain: existingYSubDomain } = acc[
           collectionId
         ] || {
           yDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
@@ -524,8 +524,8 @@ export default class DataProvider extends Component {
               Math.max(existingDomain[1], seriesDomain[1]),
             ],
             ySubDomain: [
-              Math.min(existingXSubDomain[0], seriesXSubDomain[0]),
-              Math.max(existingXSubDomain[1], seriesXSubDomain[1]),
+              Math.min(existingYSubDomain[0], seriesXSubDomain[0]),
+              Math.max(existingYSubDomain[1], seriesXSubDomain[1]),
             ],
           },
         };
@@ -572,10 +572,10 @@ export default class DataProvider extends Component {
       collections: collectionsWithDomains,
       timeDomain,
       // This is used to signal external changes vs internal changes
-      externalXDomain,
+      externalTimeDomain,
       timeSubDomain,
       // This is used to signal external changes vs internal changes
-      externalXSubDomain,
+      externalTimeSubDomain,
       yAxisWidth,
       timeSubDomainChanged: this.timeSubDomainChanged,
       contextSeries: seriesObjects.map(s => ({
@@ -615,7 +615,7 @@ DataProvider.propTypes = {
   series: seriesPropType.isRequired,
   collections: GriffPropTypes.collections,
   // xSubDomain => void
-  onXSubDomainChanged: PropTypes.func,
+  onTimeSubDomainChanged: PropTypes.func,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
   pointWidth: PropTypes.number,
@@ -623,16 +623,16 @@ DataProvider.propTypes = {
   strokeWidth: PropTypes.number,
   // if set to true and an updateInterval is provided, xSubDomain
   // will be increased at every interval (similarly to xDomain)
-  isXSubDomainSticky: PropTypes.bool,
-  // xSubDomain => newXSubDomain
+  isTimeSubDomainSticky: PropTypes.bool,
+  // xSubDomain => newTimeSubDomain
   // function to allow limitation of the value of xSubDomain
-  limitXSubDomain: PropTypes.func,
+  limitTimeSubDomain: PropTypes.func,
 };
 
 DataProvider.defaultProps = {
   collections: [],
   defaultLoader: null,
-  onXSubDomainChanged: null,
+  onTimeSubDomainChanged: null,
   opacity: 1.0,
   opacityAccessor: null,
   pointsPerSeries: 250,
@@ -654,6 +654,6 @@ DataProvider.defaultProps = {
   yAxisWidth: 50,
   yDomain: null,
   ySubDomain: null,
-  isXSubDomainSticky: false,
-  limitXSubDomain: xSubDomain => xSubDomain,
+  isTimeSubDomainSticky: false,
+  limitTimeSubDomain: xSubDomain => xSubDomain,
 };
