@@ -42,9 +42,7 @@ const PointCollection = ({
 PointCollection.propTypes = propTypes;
 PointCollection.defaultProps = defaultProps;
 
-export default PointCollection;
-
-export const ScaledPointCollection = props => (
+export default props => (
   <ScalerContext.Consumer>
     {({ subDomainsByItemId, series, xScalerFactory }) => (
       <PointCollection

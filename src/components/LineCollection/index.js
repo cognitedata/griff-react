@@ -94,9 +94,7 @@ LineCollection.defaultProps = {
   scaleY: true,
 };
 
-export default LineCollection;
-
-export const ScaledLineCollection = props => (
+export default props => (
   <ScalerContext.Consumer>
     {({ domainsByItemId, subDomainsByItemId, series, xScalerFactory }) => (
       <LineCollection

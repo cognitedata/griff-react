@@ -182,11 +182,7 @@ export default class DataProvider extends Component {
           yDomains: {},
           ySubDomains: {},
         },
-        async () => {
-          await Promise.map(this.props.series, s =>
-            this.fetchData(s.id, 'MOUNTED')
-          );
-        }
+        () => this.props.series.map(s => this.fetchData(s.id, 'MOUNTED'))
       );
       if (this.props.onXSubDomainChanged) {
         this.props.onXSubDomainChanged(newXSubDomain);

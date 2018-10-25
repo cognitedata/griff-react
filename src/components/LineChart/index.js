@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import sizeMe from 'react-sizeme';
+import { SizeMe } from 'react-sizeme';
 import AxisCollection from '../AxisCollection';
 import GridLines from '../GridLines';
 import ScalerContext from '../../context/Scaler';
@@ -13,7 +13,7 @@ import GriffPropTypes, {
   axisDisplayModeType,
   scalerFactoryFunc,
 } from '../../utils/proptypes';
-import { ScaledLineCollection } from '../LineCollection';
+import LineCollection from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
 import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
@@ -124,7 +124,7 @@ const defaultProps = {
   pointWidth: 6,
 };
 
-class LineChartComponent extends Component {
+class LineChart extends Component {
   state = {};
 
   getContextChartHeight = () => {
@@ -285,7 +285,7 @@ class LineChartComponent extends Component {
               width={chartSize.width}
               axes={{ x: 'time' }}
             />
-            <ScaledLineCollection
+            <LineCollection
               height={chartSize.height}
               width={chartSize.width}
               pointWidth={pointWidth}
@@ -343,29 +343,25 @@ class LineChartComponent extends Component {
     );
   }
 }
-LineChartComponent.propTypes = propTypes;
-LineChartComponent.defaultProps = defaultProps;
-
-const SizedLineChartComponent = sizeMe({ monitorHeight: true })(
-  LineChartComponent
-);
-
-const LineChart = props => (
-  <ScalerContext.Consumer>
-    {({ collections, series, xSubDomain, xScalerFactory, yAxisWidth }) => (
-      <SizedLineChartComponent
-        {...props}
-        collections={collections}
-        series={series}
-        timeSubDomain={xSubDomain}
-        xScalerFactory={xScalerFactory}
-        yAxisWidth={yAxisWidth}
-      />
-    )}
-  </ScalerContext.Consumer>
-);
-
 LineChart.propTypes = propTypes;
 LineChart.defaultProps = defaultProps;
 
-export default LineChart;
+export default props => (
+  <ScalerContext.Consumer>
+    {({ collections, series, xSubDomain, xScalerFactory, yAxisWidth }) => (
+      <SizeMe monitorHeight>
+        {({ size }) => (
+          <LineChart
+            {...props}
+            size={size}
+            collections={collections}
+            series={series}
+            timeSubDomain={xSubDomain}
+            xScalerFactory={xScalerFactory}
+            yAxisWidth={yAxisWidth}
+          />
+        )}
+      </SizeMe>
+    )}
+  </ScalerContext.Consumer>
+);

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
-import { ScaledPointCollection } from '../PointCollection';
+import PointCollection from '../PointCollection';
 import InteractionLayer, { ZoomMode } from '../InteractionLayer';
 import { createLinearXScale } from '../../utils/scale-helpers';
 import GriffPropTypes, {
@@ -94,7 +94,7 @@ const ScatterplotComponent = ({
       chart={
         <svg style={{ width: '100%', height: '100%' }}>
           <GridLines grid={grid} {...chartSize} />
-          <ScaledPointCollection {...chartSize} />
+          <PointCollection {...chartSize} />
           <InteractionLayer
             {...chartSize}
             onClick={onClick}
