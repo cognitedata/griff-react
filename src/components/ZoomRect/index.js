@@ -72,10 +72,12 @@ class ZoomRect extends React.Component {
       };
     } else if (touches.length === 2) {
       const [touchOne, touchTwo] = touches;
+      const { x: touchOneX, y: touchOneY } = this.getOffset(touchOne);
+      const { x: touchTwoX, y: touchTwoY } = this.getOffset(touchTwo);
       this.lastDeltas = {
-        [Axes.time]: Math.abs(touchOne.pageX - touchTwo.pageX),
-        [Axes.x]: Math.abs(touchOne.pageX - touchTwo.pageX),
-        [Axes.y]: Math.abs(touchOne.pageY - touchTwo.pageY),
+        [Axes.time]: Math.abs(touchOneX - touchTwoX),
+        [Axes.x]: Math.abs(touchOneX - touchTwoX),
+        [Axes.y]: Math.abs(touchOneY - touchTwoY),
       };
     }
   };
@@ -127,6 +129,17 @@ class ZoomRect extends React.Component {
     }
   };
 
+  getOffset = ({ pageX, pageY }) => {
+    const {
+      x: boundingX,
+      y: boundingY,
+    } = this.zoomNode.getBoundingClientRect();
+    return {
+      x: pageX - boundingX,
+      y: pageY - boundingY,
+    };
+  };
+
   performTouchDrag = (touches, distances) => {
     const { itemIds, subDomainsByItemId, zoomAxes } = this.props;
     const [touch] = touches;
@@ -156,29 +169,41 @@ class ZoomRect extends React.Component {
   };
 
   performTouchZoom = (touches, distances) => {
-    const { itemIds, subDomainsByItemId, zoomAxes } = this.props;
+    const { itemIds, subDomainsByItemId, zoomAxes, width, height } = this.props;
     const [touchOne, touchTwo] = touches;
-    const deltas = {
-      [Axes.time]: Math.abs(touchOne.pageX - touchTwo.pageX),
-      [Axes.x]: Math.abs(touchOne.pageX - touchTwo.pageX),
-      [Axes.y]: Math.abs(touchOne.pageY - touchTwo.pageY),
+    const { x: touchOneX, y: touchOneY } = this.getOffset(touchOne);
+    const { x: touchTwoX, y: touchTwoY } = this.getOffset(touchTwo);
+    const centers = {
+      [Axes.time]: (touchOneX + touchTwoX) / 2,
+      [Axes.x]: (touchOneX + touchTwoX) / 2,
+      [Axes.y]: (touchOneY + touchTwoY) / 2,
     };
-
-    const updates = {};
+    const deltas = {
+      [Axes.time]: Math.abs(touchOneX - touchTwoX),
+      [Axes.x]: Math.abs(touchOneX - touchTwoX),
+      [Axes.y]: Math.abs(touchOneY - touchTwoY),
+    };
     const multipliers = {
       [Axes.time]: -1,
       [Axes.x]: -1,
       [Axes.y]: 1,
     };
+    // This is almost the same as the `distances` object, except the height is
+    // un-inverted for y axis.
+    const measurements = {
+      [Axes.time]: width,
+      [Axes.x]: width,
+      [Axes.y]: height,
+    };
+
+    const updates = {};
     itemIds.forEach(itemId => {
       updates[itemId] = {};
       Axes.ALL.filter(axis => zoomAxes[axis] && this.lastDeltas[axis]).forEach(
         axis => {
           const subDomain = (subDomainsByItemId[itemId] || {})[axis];
           const subDomainRange = subDomain[1] - subDomain[0];
-          // TODO: Find the center of the touches and then place that on the
-          // rect so that we can figure out where to zoom relative to.
-          const percentFromEnd = 0.5;
+          const percentFromEnd = centers[axis] / measurements[axis];
 
           const zoomFactor =
             multipliers[axis] *
