@@ -134,15 +134,15 @@ class Scaler extends Component {
 
     // Handle changes in the base domain of the DataProvider
     const {
-      dataContext: { timeDomain: nextPropsDomain },
+      dataContext: { timeDomain: nextTimeDomain },
     } = this.props;
     const {
       dataContext: { timeDomain: prevTimeDomain },
     } = prevProps;
 
     if (
-      nextPropsDomain[0] !== prevTimeDomain[0] ||
-      nextPropsDomain[1] !== prevTimeDomain[1]
+      nextTimeDomain[0] !== prevTimeDomain[0] ||
+      nextTimeDomain[1] !== prevTimeDomain[1]
     ) {
       const subDomainsByItemId = {};
       []
@@ -162,8 +162,8 @@ class Scaler extends Component {
           ) {
             // Looking at the front of the window -- continue to track that.
             subDomainsByItemId[item.id][Axes.time] = [
-              nextPropsDomain[1] - dt,
-              nextPropsDomain[1],
+              nextTimeDomain[1] - dt,
+              nextTimeDomain[1],
             ];
           } else if (timeSubDomain[0] <= prevTimeDomain[0]) {
             // Looking at the back of the window -- continue to track that.
