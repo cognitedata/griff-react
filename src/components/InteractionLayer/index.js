@@ -565,7 +565,6 @@ export default props => (
       series,
       xScalerFactory,
       subDomainsByItemId,
-      updateDomains,
     }) => (
       <InteractionLayer
         {...props}
@@ -575,7 +574,6 @@ export default props => (
         series={series}
         xScalerFactory={xScalerFactory}
         subDomainsByItemId={subDomainsByItemId}
-        updateDomains={updateDomains}
       />
     )}
   </ScalerContext.Consumer>

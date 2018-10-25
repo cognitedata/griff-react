@@ -104,9 +104,11 @@ class ZoomRect extends React.Component {
   onTouchMove = () => {
     const { width, height } = this.props;
 
-    const distances = {
+    const totalDistances = {
       [Axes.time]: width,
       [Axes.x]: width,
+      // height needs to be negated because pixels are measured with 0 at the
+      // top, but the axis is rendered with the 0 value at the bottom.
       [Axes.y]: -height,
     };
 
@@ -116,7 +118,7 @@ class ZoomRect extends React.Component {
     let updates = null;
     if (touches.length === 1) {
       // If there was only one touch, then it was a drag event.
-      updates = this.performTouchDrag(touches, distances);
+      updates = this.performTouchDrag(touches, totalDistances);
 
       if (this.props.onTouchDrag) {
         const { x: touchX, y: touchY } = this.firstTouch;
@@ -124,7 +126,7 @@ class ZoomRect extends React.Component {
       }
     } else if (touches.length === 2) {
       // If there were two, then it is a zoom event.
-      updates = this.performTouchZoom(touches, distances);
+      updates = this.performTouchZoom(touches, totalDistances);
     } else {
       // We don't support more complicated gestures.
     }
@@ -148,6 +150,9 @@ class ZoomRect extends React.Component {
         [Axes.x]: x,
         [Axes.y]: y,
       };
+    } else {
+      // We don't support more complicated gestures, so any more than 2 fingers
+      // touching the screen are ignored.
     }
   };
 
@@ -162,7 +167,7 @@ class ZoomRect extends React.Component {
     };
   };
 
-  performTouchDrag = (touches, distances) => {
+  performTouchDrag = (touches, totalDistances) => {
     const { itemIds, subDomainsByItemId, zoomAxes } = this.props;
     const [touch] = touches;
     const newTouchPosition = {
@@ -179,7 +184,8 @@ class ZoomRect extends React.Component {
         let newSubDomain = null;
         const percentMovement =
           subDomainRange *
-          ((this.lastTouch[axis] - newTouchPosition[axis]) / distances[axis]);
+          ((this.lastTouch[axis] - newTouchPosition[axis]) /
+            totalDistances[axis]);
         newSubDomain = subDomain.map(bound => bound + percentMovement);
         if (newSubDomain) {
           updates[itemId][axis] = newSubDomain;
@@ -190,7 +196,7 @@ class ZoomRect extends React.Component {
     return updates;
   };
 
-  performTouchZoom = (touches, distances) => {
+  performTouchZoom = (touches, totalDistances) => {
     const { itemIds, subDomainsByItemId, zoomAxes, width, height } = this.props;
     const [touchOne, touchTwo] = touches;
     const { x: touchOneX, y: touchOneY } = this.getOffset(touchOne);
@@ -205,13 +211,22 @@ class ZoomRect extends React.Component {
       [Axes.x]: Math.abs(touchOneX - touchTwoX),
       [Axes.y]: Math.abs(touchOneY - touchTwoY),
     };
+    // These are used to multiply the zoomFactor in each direction. These need
+    // to be treated separately because height is measured inverted from width.
+    // That is, a point lower on the screen (touching a lower axis value) has a
+    // higher Y pixel value than a point above it (one which is touching a
+    // higher axis value). Conversely, points along the time and x axes have
+    // x values which match the direction of the pixel values.
+    // The inversion (or lack thereof) needs to happen because when the
+    // distance between the fingers decreases, we want the subdomain to increase
+    // so the value needs to be inverted. (Phew!)
     const multipliers = {
       [Axes.time]: -1,
       [Axes.x]: -1,
       [Axes.y]: 1,
     };
-    // This is almost the same as the `distances` object, except the height is
-    // un-inverted for y axis.
+    // This is almost the same as the `totalDistances` object, except the height
+    // is un-inverted for y axis.
     const measurements = {
       [Axes.time]: width,
       [Axes.x]: width,
@@ -229,7 +244,7 @@ class ZoomRect extends React.Component {
 
           const zoomFactor =
             multipliers[axis] *
-            ((deltas[axis] - this.lastDeltas[axis]) / distances[axis]);
+            ((deltas[axis] - this.lastDeltas[axis]) / totalDistances[axis]);
 
           // Figure out the value on the scale where the mouse is so that the
           // new subdomain does not shift.
@@ -265,13 +280,18 @@ class ZoomRect extends React.Component {
     }
   };
 
+  /**
+   * {@link #zoomed()} is called when D3 is handling the zoom -- such as with
+   * a pointing device. However, {@link #onTouchMove()} is used to handle events
+   * with touch sources (such as fingers on a touchscreen).
+   */
   zoomed = () => {
     const { zoomAxes, itemIds, width, height } = this.props;
     const {
       event: { sourceEvent },
     } = d3;
 
-    const distances = {
+    const totalDistances = {
       [Axes.time]: width,
       [Axes.x]: width,
       [Axes.y]: height,
@@ -323,7 +343,7 @@ class ZoomRect extends React.Component {
         } else if (movements[axis]) {
           // This is a drag event.
           const percentMovement =
-            subDomainRange * (movements[axis] / distances[axis]);
+            subDomainRange * (movements[axis] / totalDistances[axis]);
           newSubDomain = subDomain.map(bound => bound + percentMovement);
         }
         if (newSubDomain) {
