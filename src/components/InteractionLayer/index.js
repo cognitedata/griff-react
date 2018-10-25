@@ -127,13 +127,10 @@ class InteractionLayer extends React.Component {
       } else if (
         // ruler should follow points during live loading
         // except when the chart is dragging firing touchmove event
-        (((d3 || {}).event || {}).sourceEvent || {}).type !== 'touchmove'
+        (((d3 || {}).event || {}).sourceEvent || {}).type === 'mousemove'
       ) {
-        this.setState(
-          {
-            touchX: newXPos,
-          },
-          () => this.processMouseMove(newXPos, touchY)
+        this.setState({ touchX: newXPos }, () =>
+          this.processMouseMove(newXPos, touchY)
         );
       }
     }
@@ -553,6 +550,7 @@ class InteractionLayer extends React.Component {
           onMouseUp={this.onMouseUp}
           onDoubleClick={this.onDoubleClick}
           itemIds={series.map(s => s.id)}
+          onTouchDrag={this.processMouseMove}
         />
       </React.Fragment>
     );

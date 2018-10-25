@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 import { render } from 'react-dom';
+import moment from 'moment';
 import { DataProvider, LineChart } from '../../src';
 
 const randomData = () => {
@@ -16,7 +17,7 @@ const randomData = () => {
   return data;
 };
 
-const _xDomain = d3.extent(randomData(), d => d.timestamp);
+const X_DOMAIN = d3.extent(randomData(), d => d.timestamp);
 const loader = async ({ oldSeries, reason }) => {
   if (reason === 'MOUNTED') {
     return {
@@ -42,7 +43,7 @@ class App extends Component {
         strokeWidth: 1.5,
       },
     ],
-    xDomain: _xDomain,
+    xDomain: X_DOMAIN,
     zoomable: true,
   };
 
@@ -83,6 +84,12 @@ class App extends Component {
             height={500}
             zoomable={zoomable}
             {...lineProps}
+            ruler={{
+              visible: true,
+              yLabel: point => Number.parseFloat(point.value).toFixed(3),
+              xLabel: point =>
+                moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+            }}
           />
         </DataProvider>
       </div>
