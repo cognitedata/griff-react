@@ -50,10 +50,6 @@ class Scaler extends Component {
     super(props);
 
     this.state = {
-      timeSubDomain:
-        this.props.dataContext.timeSubDomain ||
-        this.props.dataContext.timeDomain,
-
       // Map from item (collection, series) to their respective domains.
       domainsByItemId: this.getDomainsByItemId(),
 
@@ -263,7 +259,7 @@ class Scaler extends Component {
   };
 
   render() {
-    const { domainsByItemId, subDomainsByItemId, timeSubDomain } = this.state;
+    const { domainsByItemId, subDomainsByItemId } = this.state;
     const { dataContext, xScalerFactory } = this.props;
     const ownContext = {
       updateDomains: this.updateDomains,
@@ -272,9 +268,7 @@ class Scaler extends Component {
     };
 
     const enrichedContext = {
-      collections: dataContext.collections,
-      series: dataContext.series,
-      timeSubDomain: timeSubDomain || dataContext.timeSubDomain,
+      timeSubDomain: dataContext.timeSubDomain || dataContext.timeDomain,
       xScalerFactory,
     };
 
