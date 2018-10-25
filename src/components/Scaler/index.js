@@ -55,16 +55,11 @@ class Scaler extends Component {
         this.props.dataContext.timeDomain,
 
       // Map from item (collection, series) to their respective domains.
-      domainsByItemId: {},
+      domainsByItemId: this.getDomainsByItemId(),
 
       // Map from item (collection, series) to their respective subdomains.
-      subDomainsByItemId: {},
+      subDomainsByItemId: this.getDomainsByItemId(),
     };
-    const domainsByItemId = this.getDomainsByItemId();
-    const subDomainsByItemId = this.getSubDomainsByItemId();
-
-    this.state.domainsByItemId = domainsByItemId;
-    this.state.subDomainsByItemId = subDomainsByItemId;
   }
 
   componentDidUpdate(prevProps) {
@@ -91,13 +86,44 @@ class Scaler extends Component {
         this.props.dataContext.timeDomain
       )
     ) {
+      const { timeDomain: prevTimeDomain } = prevProps.dataContext;
+      const { timeDomain: nextTimeDomain } = this.props.dataContext;
+
       // When timeDomain changes, we need to update everything downstream.
       const domainsByItemId = { ...this.state.domainsByItemId };
       Object.keys(domainsByItemId).forEach(itemId => {
-        domainsByItemId[itemId][Axes.time] = this.props.dataContext.timeDomain;
+        domainsByItemId[itemId][Axes.time] = nextTimeDomain;
       });
+
+      const subDomainsByItemId = { ...this.state.subDomainsByItemId };
+      Object.keys(subDomainsByItemId).forEach(itemId => {
+        const { [Axes.time]: timeSubDomain } = this.state.subDomainsByItemId[
+          itemId
+        ];
+        subDomainsByItemId[itemId] = {
+          ...this.state.subDomainsByItemId[itemId],
+        };
+        const dt = timeSubDomain[1] - timeSubDomain[0];
+        if (
+          Math.abs((timeSubDomain[1] - prevTimeDomain[1]) / dt) <=
+          FRONT_OF_WINDOW_THRESHOLD
+        ) {
+          // Looking at the front of the window -- continue to track that.
+          subDomainsByItemId[itemId][Axes.time] = [
+            nextTimeDomain[1] - dt,
+            nextTimeDomain[1],
+          ];
+        } else if (timeSubDomain[0] <= prevTimeDomain[0]) {
+          // Looking at the back of the window -- continue to track that.
+          subDomainsByItemId[itemId][Axes.time] = [
+            prevTimeDomain[0],
+            prevTimeDomain[0] + dt,
+          ];
+        }
+      });
+
       // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ domainsByItemId });
+      this.setState({ domainsByItemId, subDomainsByItemId });
     }
 
     if (!isEqual(prevProps.dataContext.series, this.props.dataContext.series)) {
@@ -131,92 +157,39 @@ class Scaler extends Component {
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ subDomainsByItemId, domainsByItemId });
     }
-
-    // Handle changes in the base domain of the DataProvider
-    const {
-      dataContext: { timeDomain: nextTimeDomain },
-    } = this.props;
-    const {
-      dataContext: { timeDomain: prevTimeDomain },
-    } = prevProps;
-
-    if (
-      nextTimeDomain[0] !== prevTimeDomain[0] ||
-      nextTimeDomain[1] !== prevTimeDomain[1]
-    ) {
-      const subDomainsByItemId = {};
-      []
-        .concat(this.props.dataContext.series)
-        .concat(this.props.dataContext.collections)
-        .forEach(item => {
-          const { [Axes.time]: timeSubDomain } = this.state.subDomainsByItemId[
-            item.id
-          ];
-          subDomainsByItemId[item.id] = {
-            ...this.state.subDomainsByItemId[item.id],
-          };
-          const dt = timeSubDomain[1] - timeSubDomain[0];
-          if (
-            Math.abs((timeSubDomain[1] - prevTimeDomain[1]) / dt) <=
-            FRONT_OF_WINDOW_THRESHOLD
-          ) {
-            // Looking at the front of the window -- continue to track that.
-            subDomainsByItemId[item.id][Axes.time] = [
-              nextTimeDomain[1] - dt,
-              nextTimeDomain[1],
-            ];
-          } else if (timeSubDomain[0] <= prevTimeDomain[0]) {
-            // Looking at the back of the window -- continue to track that.
-            subDomainsByItemId[item.id][Axes.time] = [
-              prevTimeDomain[0],
-              prevTimeDomain[0] + dt,
-            ];
-          }
-        });
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ subDomainsByItemId });
-    }
   }
 
-  getDomainsByItemId = () => {
-    const { dataContext } = this.props;
-
-    const domainsByItemId = []
-      .concat(dataContext.series)
-      .concat(dataContext.collections)
+  getDomainsByItemId = () =>
+    []
+      .concat(this.props.dataContext.series)
+      .concat(this.props.dataContext.collections)
       .reduce(
         (acc, item) => ({
           ...acc,
-          [item.id]: this.state.domainsByItemId[item.id] || {
-            time: [...dataContext.timeDomain],
-            x: [...(item.xDomain || [])],
-            y: [...(item.yDomain || [])],
+          [item.id]: {
+            [Axes.time]: [...this.props.dataContext.timeDomain],
+            [Axes.x]: [...(item.xDomain || [])],
+            [Axes.y]: [...(item.yDomain || [])],
           },
         }),
         {}
       );
-    return domainsByItemId;
-  };
 
-  getSubDomainsByItemId = () => {
-    const { dataContext } = this.props;
-
-    const subDomainsByItemId = []
-      .concat(dataContext.series)
-      .concat(dataContext.collections)
+  getSubDomainsByItemId = () =>
+    []
+      .concat(this.props.dataContext.series)
+      .concat(this.props.dataContext.collections)
       .reduce(
         (acc, item) => ({
           ...acc,
-          [item.id]: this.state.subDomainsByItemId[item.id] || {
-            [Axes.time]: [...dataContext.timeSubDomain],
+          [item.id]: {
+            [Axes.time]: [...this.props.dataContext.timeSubDomain],
             [Axes.x]: [...(item.xDomain || item.xSubDomain || [])],
             [Axes.y]: [...(item.yDomain || item.ySubDomain || [])],
           },
         }),
         {}
       );
-    return subDomainsByItemId;
-  };
 
   /**
    * Update the subdomains for the given items. This is a patch update and will
