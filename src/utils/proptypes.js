@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { AxisDisplayMode } from '../';
 import AxisPlacement from '../components/AxisPlacement';
+import Axes from './Axes';
 
 const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
@@ -207,16 +208,26 @@ const updateDomains = PropTypes.func;
 
 const domainsByItemId = PropTypes.objectOf(
   PropTypes.shape({
-    x: domainPropType,
-    y: domainPropType,
+    [Axes.time]: domainPropType,
+    [Axes.x]: domainPropType,
+    [Axes.y]: domainPropType,
   })
 );
 
 const zoomAxes = PropTypes.shape({
-  time: PropTypes.bool,
-  x: PropTypes.bool,
-  y: PropTypes.bool,
+  [Axes.time]: PropTypes.bool,
+  [Axes.x]: PropTypes.bool,
+  [Axes.y]: PropTypes.bool,
 });
+
+const axes = PropTypes.oneOf([
+  Axes.time,
+  String(Axes.time),
+  Axes.x,
+  String(Axes.x),
+  Axes.y,
+  String(Axes.y),
+]);
 
 export default {
   axisPlacement,
@@ -230,4 +241,5 @@ export default {
   domainsByItemId,
   subDomainsByItemId: domainsByItemId,
   zoomAxes,
+  axes,
 };

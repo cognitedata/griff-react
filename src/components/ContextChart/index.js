@@ -121,7 +121,7 @@ class ContextChart extends Component {
         tickFormatter={xAxisFormatter}
         placement={xAxisPlacement}
         scaled={false}
-        axis="time"
+        axis={Axes.time}
       />
     );
 

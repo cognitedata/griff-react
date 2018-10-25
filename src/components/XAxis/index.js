@@ -18,7 +18,7 @@ const propTypes = {
   ticks: PropTypes.number,
   placement: GriffPropTypes.axisPlacement,
   scaled: PropTypes.bool,
-  axis: PropTypes.oneOf([Axes.time, Axes.x, Axes.y].concat(Axes.ALL)),
+  axis: GriffPropTypes.axes,
 
   // These are provided by Griff.
   xScalerFactory: scalerFactoryFunc.isRequired,
