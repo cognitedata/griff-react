@@ -5,6 +5,7 @@ import { SizeMe } from 'react-sizeme';
 import GriffPropTypes, { scalerFactoryFunc } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
 import ScalerContext from '../../context/Scaler';
+import Axes from '../../utils/Axes';
 
 const tickTransformer = v => `translate(${v}, 0)`;
 
@@ -17,7 +18,7 @@ const propTypes = {
   ticks: PropTypes.number,
   placement: GriffPropTypes.axisPlacement,
   scaled: PropTypes.bool,
-  axis: PropTypes.oneOf(['time', 'x', 'y']),
+  axis: PropTypes.oneOf([Axes.time, Axes.x, Axes.y].concat(Axes.ALL)),
 
   // These are provided by Griff.
   xScalerFactory: scalerFactoryFunc.isRequired,
@@ -33,7 +34,7 @@ const defaultProps = {
   placement: AxisPlacement.BOTTOM,
   tickFormatter: Number,
   scaled: true,
-  axis: 'time',
+  axis: Axes.time,
 };
 
 class XAxis extends Component {
