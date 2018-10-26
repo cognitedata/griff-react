@@ -735,6 +735,7 @@ storiesOf('LineChart', module)
             `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
           xLabel: point =>
             moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+          position: Date.now() - 1000 * 10,
         }}
       />
     </DataProvider>
