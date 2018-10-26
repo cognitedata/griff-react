@@ -329,15 +329,17 @@ class InteractionLayer extends React.Component {
       const x0 = data[rawX - 1];
       const x1 = data[rawX];
       let d = null;
-      if (x0 && !x1) {
+      if (x0) {
+        // If there is a point *before* the cursor position, then that should
+        // be used since it was the last-known value, and extrapolating into the
+        // future can be misleading (and incorrect).
         d = x0;
-      } else if (x1 && !x0) {
+      } else if (x1) {
+        // But if we only have a point under the cursor, go ahead and use that.
         d = x1;
-      } else if (!x0 && !x1) {
-        d = null;
       } else {
-        d =
-          rawTimestamp - xAccessor(x0) > xAccessor(x1) - rawTimestamp ? x1 : x0;
+        // Otherwise, just use nothing.
+        d = null;
       }
       if (d) {
         let yScale = createYScale(ySubDomain, height);
@@ -386,15 +388,17 @@ class InteractionLayer extends React.Component {
       const x0 = data[rawX - 1];
       const x1 = data[rawX];
       let d = null;
-      if (x0 && !x1) {
+      if (x0) {
+        // If there is a point *before* the cursor position, then that should
+        // be used since it was the last-known value, and extrapolating into the
+        // future can be misleading (and incorrect).
         d = x0;
-      } else if (x1 && !x0) {
+      } else if (x1) {
+        // But if we only have a point under the cursor, go ahead and use that.
         d = x1;
-      } else if (!x0 && !x1) {
-        d = null;
       } else {
-        d =
-          rawTimestamp - xAccessor(x0) > xAccessor(x1) - rawTimestamp ? x1 : x0;
+        // Otherwise, just use nothing.
+        d = null;
       }
       if (d) {
         const yScale = createYScale(ySubDomain, height);
