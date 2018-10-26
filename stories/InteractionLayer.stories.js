@@ -13,7 +13,7 @@ const CHART_HEIGHT = 500;
 storiesOf('InteractionLayer', module)
   .add('Ruler', () => (
     <DataProvider
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       defaultLoader={staticLoader}
       xAccessor={d => d.timestamp}
       yAccessor={d => d.value}
@@ -38,7 +38,7 @@ storiesOf('InteractionLayer', module)
   .add('Area (no zoom)', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -67,8 +67,8 @@ storiesOf('InteractionLayer', module)
         return (
           <DataProvider
             defaultLoader={staticLoader}
-            xDomain={staticXDomain}
-            xSubDomain={xSubDomain}
+            timeDomain={staticXDomain}
+            timeSubDomain={xSubDomain}
             series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
           >
             <LineChart
@@ -117,7 +117,7 @@ storiesOf('InteractionLayer', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={[
                 { id: 1, color: 'steelblue' },
                 { id: 2, color: 'maroon' },
@@ -173,7 +173,7 @@ storiesOf('InteractionLayer', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={[
                 { id: 1, color: 'steelblue' },
                 { id: 2, color: 'maroon' },
@@ -218,7 +218,7 @@ storiesOf('InteractionLayer', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={[
                 { id: 1, color: 'steelblue' },
                 { id: 2, color: 'maroon' },
@@ -266,7 +266,7 @@ storiesOf('InteractionLayer', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={[
                 { id: 1, color: 'steelblue' },
                 { id: 2, color: 'maroon' },
@@ -301,6 +301,7 @@ storiesOf('InteractionLayer', module)
         const newAreas = [...this.state.areas];
         for (let i = 0; i < area.start.points.length; i += 1) {
           const newArea = {
+            id: area.id,
             seriesId: area.start.points[i].id,
             start: {
               ...area.start,
@@ -342,7 +343,7 @@ storiesOf('InteractionLayer', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={[
                 { id: 1, color: 'steelblue' },
                 { id: 2, color: 'maroon' },
@@ -364,7 +365,7 @@ storiesOf('InteractionLayer', module)
   .add('Double-click events', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart
@@ -398,7 +399,7 @@ storiesOf('InteractionLayer', module)
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
-              xDomain={staticXDomain}
+              timeDomain={staticXDomain}
               series={[
                 { id: 1, color: 'steelblue' },
                 { id: 2, color: 'maroon' },

@@ -113,6 +113,18 @@ const Layout = ({ chart, xAxis, xAxisPlacement, yAxis, yAxisPlacement }) => {
     .map(s => `'${s}'`)
     .join(' ');
 
+  const gridTemplateSpec = axisPlacement => {
+    switch (axisPlacement) {
+      case AxisPlacement.BOTH:
+        return 'auto 1fr auto';
+      case AxisPlacement.LEFT:
+      case AxisPlacement.TOP:
+        return 'auto 1fr';
+      default:
+        return '1fr auto';
+    }
+  };
+
   switch (yAxisPlacement) {
     case AxisPlacement.BOTH: {
       yAxes.push(yAxisContainer('yaxis-left')(yAxis, AxisPlacement.LEFT));
@@ -146,6 +158,8 @@ const Layout = ({ chart, xAxis, xAxisPlacement, yAxis, yAxisPlacement }) => {
       style={{
         display: 'grid',
         gridTemplateAreas: areas,
+        gridTemplateColumns: gridTemplateSpec(yAxisPlacement),
+        gridTemplateRows: gridTemplateSpec(xAxisPlacement),
         height: '100%',
       }}
     >

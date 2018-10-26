@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import sizeMe from 'react-sizeme';
+import { SizeMe } from 'react-sizeme';
 import AxisCollection from '../AxisCollection';
 import GridLines from '../GridLines';
-import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import ContextChart from '../ContextChart';
 import GriffPropTypes, {
@@ -14,7 +13,7 @@ import GriffPropTypes, {
   axisDisplayModeType,
   scalerFactoryFunc,
 } from '../../utils/proptypes';
-import { ScaledLineCollection } from '../LineCollection';
+import LineCollection from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
 import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
@@ -125,7 +124,7 @@ const defaultProps = {
   pointWidth: 6,
 };
 
-class LineChartComponent extends Component {
+class LineChart extends Component {
   state = {};
 
   getContextChartHeight = () => {
@@ -284,8 +283,9 @@ class LineChartComponent extends Component {
               grid={grid}
               height={chartSize.height}
               width={chartSize.width}
+              axes={{ x: 'time' }}
             />
-            <ScaledLineCollection
+            <LineCollection
               height={chartSize.height}
               width={chartSize.width}
               pointWidth={pointWidth}
@@ -297,7 +297,6 @@ class LineChartComponent extends Component {
               onMouseMove={onMouseMove}
               onClickAnnotation={onClickAnnotation}
               onDoubleClick={onDoubleClick}
-              zoomable={zoomable}
               ruler={ruler}
               annotations={annotations}
               onClick={onClick}
@@ -305,6 +304,7 @@ class LineChartComponent extends Component {
               onAreaDefined={onAreaDefined}
               onZoomXAxis={onZoomXAxis}
               onAreaClicked={onAreaClicked}
+              zoomAxes={{ time: zoomable }}
             />
           </svg>
         }
@@ -343,31 +343,25 @@ class LineChartComponent extends Component {
     );
   }
 }
-LineChartComponent.propTypes = propTypes;
-LineChartComponent.defaultProps = defaultProps;
-
-const SizedLineChartComponent = sizeMe({ monitorHeight: true })(
-  LineChartComponent
-);
-
-const LineChart = props => (
-  <Scaler>
-    <ScalerContext.Consumer>
-      {({ collections, series, xSubDomain, xScalerFactory, yAxisWidth }) => (
-        <SizedLineChartComponent
-          {...props}
-          collections={collections}
-          series={series}
-          xSubDomain={xSubDomain}
-          xScalerFactory={xScalerFactory}
-          yAxisWidth={yAxisWidth}
-        />
-      )}
-    </ScalerContext.Consumer>
-  </Scaler>
-);
-
 LineChart.propTypes = propTypes;
 LineChart.defaultProps = defaultProps;
 
-export default LineChart;
+export default props => (
+  <ScalerContext.Consumer>
+    {({ collections, series, xSubDomain, xScalerFactory, yAxisWidth }) => (
+      <SizeMe monitorHeight>
+        {({ size }) => (
+          <LineChart
+            {...props}
+            size={size}
+            collections={collections}
+            series={series}
+            timeSubDomain={xSubDomain}
+            xScalerFactory={xScalerFactory}
+            yAxisWidth={yAxisWidth}
+          />
+        )}
+      </SizeMe>
+    )}
+  </ScalerContext.Consumer>
+);

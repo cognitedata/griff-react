@@ -26,7 +26,7 @@ storiesOf('ContextChart', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={staticXDomain}
+          timeDomain={staticXDomain}
           series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
         >
           <ContextChart />
@@ -39,7 +39,7 @@ storiesOf('ContextChart', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={staticXDomain}
+          timeDomain={staticXDomain}
           series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
         >
           <ContextChart height={500} />
@@ -52,7 +52,7 @@ storiesOf('ContextChart', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={staticXDomain}
+          timeDomain={staticXDomain}
           series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
         >
           <ContextChart annotations={exampleAnnotations} />
@@ -65,7 +65,7 @@ storiesOf('ContextChart', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={staticXDomain}
+          timeDomain={staticXDomain}
           series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
         >
           <ContextChart zoomable />
@@ -74,7 +74,7 @@ storiesOf('ContextChart', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={staticXDomain}
+          timeDomain={staticXDomain}
           series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
         >
           <ContextChart zoomable={false} />
@@ -87,7 +87,7 @@ storiesOf('ContextChart', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={staticXDomain}
+          timeDomain={staticXDomain}
           series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
         >
           <ContextChart
@@ -108,7 +108,7 @@ storiesOf('ContextChart', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={staticXDomain}
+          timeDomain={staticXDomain}
           series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
         >
           <ContextChart xAxisPlacement={AxisPlacement.TOP} />

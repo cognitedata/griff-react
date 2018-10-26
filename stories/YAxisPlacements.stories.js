@@ -17,7 +17,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="series"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart height={CHART_HEIGHT} />
@@ -25,7 +25,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         { id: 1, color: 'steelblue', collectionId: '1+2' },
         { id: 2, color: 'maroon', collectionId: '1+2' },
@@ -39,7 +39,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="series"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
@@ -47,7 +47,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         { id: 1, color: 'steelblue', collectionId: '1+2' },
         { id: 2, color: 'maroon', collectionId: '1+2' },
@@ -61,7 +61,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="series"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
@@ -69,7 +69,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         { id: 1, color: 'steelblue', collectionId: '1+2' },
         { id: 2, color: 'maroon', collectionId: '1+2' },
@@ -83,7 +83,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="series"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
@@ -91,7 +91,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         { id: 1, color: 'steelblue', collectionId: '1+2' },
         { id: 2, color: 'maroon', collectionId: '1+2' },
@@ -105,7 +105,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="series"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         { id: 1, color: 'steelblue', yAxisPlacement: AxisPlacement.LEFT },
         { id: 2, color: 'maroon', yAxisPlacement: AxisPlacement.RIGHT },
@@ -116,7 +116,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         {
           id: 1,
@@ -143,7 +143,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="series"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         { id: 1, color: 'steelblue', yAxisPlacement: AxisPlacement.LEFT },
         { id: 2, color: 'maroon', yAxisPlacement: AxisPlacement.RIGHT },
@@ -155,7 +155,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         {
           id: 1,
@@ -189,7 +189,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="series"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         { id: 1, color: 'steelblue', yAxisPlacement: AxisPlacement.LEFT },
         { id: 2, color: 'maroon', yAxisPlacement: AxisPlacement.RIGHT },
@@ -201,7 +201,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         {
           id: 1,
@@ -235,7 +235,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="series"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         { id: 1, color: 'steelblue', yAxisPlacement: AxisPlacement.LEFT },
         { id: 2, color: 'maroon', yAxisPlacement: AxisPlacement.LEFT },
@@ -246,7 +246,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         {
           id: 1,
@@ -270,7 +270,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="series"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         { id: 1, color: 'steelblue', yAxisPlacement: AxisPlacement.LEFT },
         { id: 2, color: 'maroon' },
@@ -283,7 +283,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="series"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         {
           id: 1,
@@ -298,7 +298,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         {
           id: 1,
@@ -326,7 +326,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="series"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         {
           id: 1,
@@ -342,7 +342,7 @@ storiesOf('Y-Axis Placement', module)
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
-      xDomain={staticXDomain}
+      timeDomain={staticXDomain}
       series={[
         {
           id: 1,

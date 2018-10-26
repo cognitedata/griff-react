@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 import PropTypes from 'prop-types';
+import ScalerContext from '../../context/Scaler';
 import { createYScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
+import Axes from '../../utils/Axes';
 
 const propTypes = {
   series: seriesPropType.isRequired,
@@ -14,6 +16,9 @@ const propTypes = {
   // Number => String
   tickFormatter: PropTypes.func.isRequired,
   yAxisPlacement: GriffPropTypes.axisPlacement,
+
+  // These are populated by Griff.
+  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
 
 const defaultProps = {
@@ -22,12 +27,18 @@ const defaultProps = {
   yAxisPlacement: AxisPlacement.RIGHT,
 };
 
-export default class CombinedYAxis extends Component {
+class CombinedYAxis extends Component {
   getDomain = seriesArray =>
     seriesArray.reduce(
       (domain, series) => [
-        Math.min(domain[0], series.ySubDomain[0]),
-        Math.max(domain[1], series.ySubDomain[1]),
+        Math.min(
+          domain[0],
+          Axes.y(this.props.subDomainsByItemId[series.id])[0]
+        ),
+        Math.max(
+          domain[1],
+          Axes.y(this.props.subDomainsByItemId[series.id])[1]
+        ),
       ],
       [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER]
     );
@@ -187,3 +198,15 @@ export default class CombinedYAxis extends Component {
 
 CombinedYAxis.propTypes = propTypes;
 CombinedYAxis.defaultProps = defaultProps;
+
+export default props => (
+  <ScalerContext.Consumer>
+    {({ series, subDomainsByItemId }) => (
+      <CombinedYAxis
+        {...props}
+        series={series}
+        subDomainsByItemId={subDomainsByItemId}
+      />
+    )}
+  </ScalerContext.Consumer>
+);

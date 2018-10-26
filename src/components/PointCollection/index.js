@@ -3,22 +3,29 @@ import PropTypes from 'prop-types';
 import ScalerContext from '../../context/Scaler';
 import { createYScale } from '../../utils/scale-helpers';
 import Points from '../Points';
-import { seriesPropType, domainPropType } from '../../utils/proptypes';
+import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
+import Axes from '../../utils/Axes';
 
 const propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   series: seriesPropType.isRequired,
-  domain: domainPropType.isRequired,
+  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
   // (domain, width) => [number, number]
   xScalerFactory: PropTypes.func.isRequired,
 };
 const defaultProps = {};
 
-const PointCollection = ({ width, height, series, domain, xScalerFactory }) => {
-  const xScale = xScalerFactory(domain, width);
+const PointCollection = ({
+  width,
+  height,
+  series,
+  subDomainsByItemId,
+  xScalerFactory,
+}) => {
   const points = series.filter(s => !s.hidden).map(s => {
-    const yScale = createYScale(s.ySubDomain, height);
+    const xScale = xScalerFactory(Axes.x(subDomainsByItemId[s.id]), width);
+    const yScale = createYScale(Axes.y(subDomainsByItemId[s.id]), height);
     return <Points key={s.id} {...s} xScale={xScale} yScale={yScale} />;
   });
 
@@ -35,15 +42,13 @@ const PointCollection = ({ width, height, series, domain, xScalerFactory }) => {
 PointCollection.propTypes = propTypes;
 PointCollection.defaultProps = defaultProps;
 
-export default PointCollection;
-
-export const ScaledPointCollection = props => (
+export default props => (
   <ScalerContext.Consumer>
-    {({ xSubDomain, series, xScalerFactory }) => (
+    {({ subDomainsByItemId, series, xScalerFactory }) => (
       <PointCollection
         {...props}
         series={series}
-        domain={xSubDomain}
+        subDomainsByItemId={subDomainsByItemId}
         xScalerFactory={xScalerFactory}
       />
     )}

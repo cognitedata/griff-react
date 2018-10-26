@@ -6,7 +6,7 @@ import { boundedSeries } from '../../utils/boundedseries';
 
 const Line = ({
   data,
-  xAccessor,
+  timeAccessor,
   yAccessor,
   y0Accessor,
   y1Accessor,
@@ -27,25 +27,25 @@ const Line = ({
     line = d3
       .line()
       .curve(d3.curveStepAfter)
-      .x(d => boundedSeries(xScale(xAccessor(d))))
+      .x(d => boundedSeries(xScale(timeAccessor(d))))
       .y(d => boundedSeries(yScale(yAccessor(d))));
     if (!drawPoints && y0Accessor && y1Accessor) {
       area = d3
         .area()
         .curve(d3.curveStepAfter)
-        .x(d => boundedSeries(xScale(xAccessor(d))))
+        .x(d => boundedSeries(xScale(timeAccessor(d))))
         .y0(d => boundedSeries(yScale(y0Accessor(d))))
         .y1(d => boundedSeries(yScale(y1Accessor(d))));
     }
   } else {
     line = d3
       .line()
-      .x(d => boundedSeries(xScale(xAccessor(d))))
+      .x(d => boundedSeries(xScale(timeAccessor(d))))
       .y(d => boundedSeries(yScale(yAccessor(d))));
     if (!drawPoints && y0Accessor && y1Accessor) {
       area = d3
         .area()
-        .x(d => boundedSeries(xScale(xAccessor(d))))
+        .x(d => boundedSeries(xScale(timeAccessor(d))))
         .y0(d => boundedSeries(yScale(y0Accessor(d))))
         .y1(d => boundedSeries(yScale(y1Accessor(d))));
     }
@@ -56,10 +56,10 @@ const Line = ({
     circles = (
       <Points
         data={data.filter(d => {
-          const x = xAccessor(d);
+          const x = timeAccessor(d);
           return x >= xSubDomain[0] && x <= xSubDomain[1];
         })}
-        xAccessor={xAccessor}
+        xAccessor={timeAccessor}
         yAccessor={yAccessor}
         xScale={xScale}
         yScale={yScale}
@@ -106,8 +106,8 @@ Line.propTypes = {
   yScale: PropTypes.func.isRequired,
   // eslint-disable-next-line
   data: PropTypes.array.isRequired,
-  // Data can take any form as long as the xAccessor and yAccessors are set.
-  xAccessor: PropTypes.func.isRequired,
+  // Data can take any form as long as the timeAccessor and yAccessors are set.
+  timeAccessor: PropTypes.func.isRequired,
   yAccessor: PropTypes.func.isRequired,
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,

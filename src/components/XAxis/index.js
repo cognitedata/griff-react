@@ -4,15 +4,12 @@ import * as d3 from 'd3';
 import { SizeMe } from 'react-sizeme';
 import GriffPropTypes, { scalerFactoryFunc } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
-import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
-import { createLinearXScale } from '../../utils/scale-helpers';
+import Axes from '../../utils/Axes';
 
 const tickTransformer = v => `translate(${v}, 0)`;
 
 const propTypes = {
-  domain: PropTypes.arrayOf(PropTypes.number).isRequired,
-  xScalerFactory: scalerFactoryFunc.isRequired,
   width: PropTypes.number,
   height: PropTypes.number,
   stroke: PropTypes.string,
@@ -20,6 +17,13 @@ const propTypes = {
   tickFormatter: PropTypes.func,
   ticks: PropTypes.number,
   placement: GriffPropTypes.axisPlacement,
+  scaled: PropTypes.bool,
+  axis: GriffPropTypes.axes,
+
+  // These are provided by Griff.
+  xScalerFactory: scalerFactoryFunc.isRequired,
+  domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
+  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
 
 const defaultProps = {
@@ -29,6 +33,8 @@ const defaultProps = {
   ticks: 0,
   placement: AxisPlacement.BOTTOM,
   tickFormatter: Number,
+  scaled: true,
+  axis: Axes.time,
 };
 
 class XAxis extends Component {
@@ -95,14 +101,22 @@ class XAxis extends Component {
 
   renderAxis() {
     const {
-      domain,
+      axis: a,
       width,
       stroke,
       xScalerFactory,
       tickFormatter,
       ticks,
+      domainsByItemId,
+      subDomainsByItemId,
+      scaled,
     } = this.props;
-    const scale = xScalerFactory(domain, width);
+    const scale = xScalerFactory(
+      (scaled ? subDomainsByItemId : domainsByItemId)[
+        Object.keys(domainsByItemId)[0]
+      ][a],
+      width
+    );
     const axis = d3.axisBottom(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;
@@ -173,20 +187,19 @@ XAxis.propTypes = propTypes;
 XAxis.defaultProps = defaultProps;
 
 export default props => (
-  <Scaler xScalerFactory={createLinearXScale}>
-    <ScalerContext.Consumer>
-      {({ xSubDomain, xScalerFactory }) => (
-        <SizeMe monitorWidth>
-          {({ size }) => (
-            <XAxis
-              xScalerFactory={xScalerFactory}
-              {...props}
-              width={size.width}
-              domain={xSubDomain}
-            />
-          )}
-        </SizeMe>
-      )}
-    </ScalerContext.Consumer>
-  </Scaler>
+  <ScalerContext.Consumer>
+    {({ xScalerFactory, domainsByItemId, subDomainsByItemId }) => (
+      <SizeMe monitorWidth>
+        {({ size }) => (
+          <XAxis
+            xScalerFactory={xScalerFactory}
+            {...props}
+            width={size.width}
+            domainsByItemId={domainsByItemId}
+            subDomainsByItemId={subDomainsByItemId}
+          />
+        )}
+      </SizeMe>
+    )}
+  </ScalerContext.Consumer>
 );

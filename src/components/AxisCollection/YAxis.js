@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 import PropTypes from 'prop-types';
-import isEqual from 'lodash.isequal';
 import { createYScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
+import ScalerContext from '../../context/Scaler';
+import ZoomRect from '../ZoomRect';
+import Axes from '../../utils/Axes';
 
 const propTypes = {
   zoomable: PropTypes.bool,
@@ -13,64 +15,29 @@ const propTypes = {
   collection: GriffPropTypes.collection,
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
-  updateYTransformation: PropTypes.func,
-  yTransformation: PropTypes.shape({
-    y: PropTypes.number.isRequired,
-    k: PropTypes.number.isRequired,
-    rescaleY: PropTypes.func.isRequired,
-  }),
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
   // Number => String
   tickFormatter: PropTypes.func.isRequired,
   defaultColor: PropTypes.string,
+
+  // These are populated by Griff.
+  updateDomains: GriffPropTypes.updateDomains.isRequired,
+  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
 
 const defaultProps = {
   series: null,
   collection: null,
   zoomable: true,
-  updateYTransformation: () => {},
-  yTransformation: null,
   onMouseEnter: null,
   onMouseLeave: null,
   yAxisPlacement: AxisPlacement.RIGHT,
   defaultColor: '#000',
 };
 
-export default class YAxis extends Component {
-  componentWillMount() {
-    this.zoom = d3.zoom().on('zoom', this.didZoom);
-  }
-
-  componentDidMount() {
-    this.selection = d3.select(this.zoomNode);
-    this.syncZoomingState();
-  }
-
-  componentDidUpdate(prevProps) {
-    if (prevProps.zoomable !== this.props.zoomable) {
-      this.syncZoomingState();
-    }
-    if (this.props.yTransformation) {
-      if (
-        (!!prevProps.series !== !!this.props.series &&
-          !isEqual(
-            (prevProps.series || {}).ySubDomain,
-            (this.props.series || {}).ySubDomain
-          )) ||
-        (!!prevProps.collection !== !!this.props.collection &&
-          !isEqual(
-            (prevProps.collection || {}).ySubDomain,
-            (this.props.collection || {}).ySubDomain
-          ))
-      ) {
-        this.selection.property('__zoom', this.props.yTransformation);
-      }
-    }
-  }
-
+class YAxis extends Component {
   getItem = () =>
     this.props.series ? this.props.series : this.props.collection;
 
@@ -168,41 +135,26 @@ export default class YAxis extends Component {
     }
   };
 
-  syncZoomingState = () => {
-    if (this.props.zoomable) {
-      this.selection.call(this.zoom);
-    } else {
-      this.selection.on('.zoom', null);
-    }
-  };
-
-  didZoom = () => {
-    const { height } = this.props;
-    const t = d3.event.transform;
-    this.props.updateYTransformation(this.getItem().id, t, height);
-  };
-
-  renderZoomRect() {
-    const { height, width } = this.props;
-    return (
-      <rect
-        width={width}
-        height={height}
-        fill="none"
-        pointerEvents="all"
-        ref={ref => {
-          this.zoomNode = ref;
-        }}
-      />
-    );
-  }
+  renderZoomRect = () => (
+    <ZoomRect
+      width={this.props.width}
+      height={this.props.height}
+      zoomAxes={{ y: true }}
+      itemIds={[this.getItem().id]}
+    />
+  );
 
   renderAxis() {
-    const { defaultColor, height, tickFormatter } = this.props;
+    const {
+      defaultColor,
+      subDomainsByItemId,
+      height,
+      tickFormatter,
+    } = this.props;
 
     const item = this.getItem();
     const color = item.color || defaultColor;
-    const scale = createYScale(item.ySubDomain, height);
+    const scale = createYScale(Axes.y(subDomainsByItemId[item.id]), height);
     const axis = d3.axisRight(scale);
     const tickFontSize = 14;
     const strokeWidth = 2;
@@ -262,7 +214,7 @@ export default class YAxis extends Component {
         onMouseLeave={onMouseLeave}
       >
         {this.renderAxis()}
-        {this.renderZoomRect()}
+        {zoomable && this.renderZoomRect()}
       </g>
     );
   }
@@ -270,3 +222,15 @@ export default class YAxis extends Component {
 
 YAxis.propTypes = propTypes;
 YAxis.defaultProps = defaultProps;
+
+export default props => (
+  <ScalerContext.Consumer>
+    {({ subDomainsByItemId, updateDomains }) => (
+      <YAxis
+        {...props}
+        subDomainsByItemId={subDomainsByItemId}
+        updateDomains={updateDomains}
+      />
+    )}
+  </ScalerContext.Consumer>
+);

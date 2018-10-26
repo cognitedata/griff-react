@@ -66,7 +66,7 @@ const Ruler = ({ ruler, points, height, width }) => {
       />
       {points.map(point => [
         <RulerTooltip
-          key={point.name}
+          key={point.name || point.y}
           labelHeight={labelHeight}
           color={point.color}
           label={ruler.yLabel(point)}
@@ -75,7 +75,7 @@ const Ruler = ({ ruler, points, height, width }) => {
           width={width}
         />,
         <circle
-          key={`circle${point.name}`}
+          key={`circle${point.name || point.y}`}
           r={3}
           cx={point.x}
           cy={point.y}
@@ -84,7 +84,8 @@ const Ruler = ({ ruler, points, height, width }) => {
           strokeWidth="3"
           strokeOpacity="0.5"
         />,
-      ])};
+      ])}
+      ;
     </React.Fragment>
   );
 };
