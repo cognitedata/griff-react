@@ -5,6 +5,7 @@ import { SizeMe } from 'react-sizeme';
 import GriffPropTypes, { scalerFactoryFunc } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
 import ScalerContext from '../../context/Scaler';
+import ZoomRect from '../ZoomRect';
 import Axes from '../../utils/Axes';
 
 const tickTransformer = v => `translate(${v}, 0)`;
@@ -21,6 +22,7 @@ const propTypes = {
   axis: GriffPropTypes.axes,
 
   // These are provided by Griff.
+  series: GriffPropTypes.multipleSeries.isRequired,
   xScalerFactory: scalerFactoryFunc.isRequired,
   domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
   subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
@@ -178,6 +180,12 @@ class XAxis extends Component {
         height={height}
       >
         {this.renderAxis()}
+        <ZoomRect
+          width={width}
+          height={height}
+          itemIds={this.props.series.filter(s => !s.hidden).map(s => s.id)}
+          zoomAxes={{ [this.props.axis]: true }}
+        />
       </svg>
     );
   }
@@ -188,10 +196,11 @@ XAxis.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ xScalerFactory, domainsByItemId, subDomainsByItemId }) => (
+    {({ xScalerFactory, domainsByItemId, subDomainsByItemId, series }) => (
       <SizeMe monitorWidth>
         {({ size }) => (
           <XAxis
+            series={series}
             xScalerFactory={xScalerFactory}
             {...props}
             width={size.width}
