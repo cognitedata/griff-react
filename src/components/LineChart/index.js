@@ -41,6 +41,7 @@ const propTypes = {
   crosshair: PropTypes.bool,
   onMouseMove: PropTypes.func,
   onMouseOut: PropTypes.func,
+  onBlur: PropTypes.func,
   onClick: PropTypes.func,
   // (annotation, x, y) => void
   onClickAnnotation: PropTypes.func,
@@ -96,6 +97,7 @@ const defaultProps = {
   crosshair: true,
   onMouseMove: null,
   onMouseOut: null,
+  onBlur: null,
   onClick: null,
   onClickAnnotation: null,
   onDoubleClick: null,
@@ -244,6 +246,7 @@ class LineChartComponent extends Component {
       onDoubleClick,
       onMouseMove,
       onMouseOut,
+      onBlur,
       pointWidth,
       size,
       xSubDomain,
@@ -299,6 +302,7 @@ class LineChartComponent extends Component {
               crosshair={crosshair}
               onMouseMove={onMouseMove}
               onMouseOut={onMouseOut}
+              onBlur={onBlur}
               onClickAnnotation={onClickAnnotation}
               onDoubleClick={onDoubleClick}
               zoomable={zoomable}

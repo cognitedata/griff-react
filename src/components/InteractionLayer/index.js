@@ -202,10 +202,7 @@ class InteractionLayer extends React.Component {
       });
     }
 
-    if (
-      this.props.ruler.position &&
-      this.props.ruler.position !== prevProps.ruler.position
-    ) {
+    if (this.props.ruler.position !== prevProps.ruler.position) {
       this.setRulerPosition(this.props.ruler.position);
     }
   }
@@ -455,6 +452,14 @@ class InteractionLayer extends React.Component {
   };
 
   setRulerPosition = timestamp => {
+    if (!timestamp) {
+      this.setState({
+        points: [],
+        touchX: null,
+        touchY: null,
+      });
+      return;
+    }
     const { xScalerFactory, width, xSubDomain } = this.props;
     const xScale = xScalerFactory(xSubDomain, width);
     const xpos = xScale(timestamp);
