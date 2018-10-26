@@ -92,7 +92,7 @@ class InteractionLayer extends React.Component {
   };
 
   componentDidMount() {
-    const { width, height, xScalerFactory } = this.props;
+    const { width, height, xScalerFactory, ruler } = this.props;
     this.zoom = d3
       .zoom()
       .scaleExtent([1, Infinity])
@@ -113,6 +113,9 @@ class InteractionLayer extends React.Component {
           .translate(-selection[0], 0);
         this.rectSelection.property('__zoom', transform);
       }
+    }
+    if (ruler && ruler.position) {
+      this.setRulerPosition(ruler.position);
     }
   }
 
@@ -198,6 +201,13 @@ class InteractionLayer extends React.Component {
         area: null,
       });
     }
+
+    if (
+      this.props.ruler.position &&
+      this.props.ruler.position !== prevProps.ruler.position
+    ) {
+      this.setRulerPosition(this.props.ruler.position);
+    }
   }
 
   onMouseDown = e => {
@@ -247,7 +257,7 @@ class InteractionLayer extends React.Component {
 
     const { area } = this.state;
     if (onMouseMove || (ruler && ruler.visible) || area) {
-      this.processMouseMove(xpos, ypos);
+      this.processExternalMouseMove(xpos, ypos);
       this.setState({
         touchX: xpos,
         touchY: ypos,
@@ -403,30 +413,9 @@ class InteractionLayer extends React.Component {
     return output;
   };
 
-  syncZoomingState = () => {
-    const { onAreaDefined, onDoubleClick, zoomable } = this.props;
-    if (zoomable && !onAreaDefined) {
-      this.rectSelection.call(this.zoom.on('zoom', this.zoomed));
-      if (onDoubleClick) {
-        this.rectSelection.on('dblclick.zoom', null);
-      }
-    } else {
-      this.rectSelection.on('.zoom', null);
-    }
-  };
-
-  processMouseMove = (xpos, ypos) => {
-    const {
-      series,
-      height,
-      width,
-      xSubDomain,
-      onMouseMove,
-      ruler,
-      xScalerFactory,
-    } = this.props;
+  getRulerPoints = rawTimestamp => {
+    const { series, height, xSubDomain, width, xScalerFactory } = this.props;
     const xScale = xScalerFactory(xSubDomain, width);
-    const rawTimestamp = xScale.invert(xpos).getTime();
     const newPoints = [];
     series.forEach(s => {
       const { data, xAccessor, yAccessor, ySubDomain } = s;
@@ -462,24 +451,68 @@ class InteractionLayer extends React.Component {
         newPoints.push({ id: s.id });
       }
     });
+    return newPoints;
+  };
 
-    if (ruler && ruler.visible) {
-      this.setState({ points: newPoints });
+  setRulerPosition = timestamp => {
+    const { xScalerFactory, width, xSubDomain } = this.props;
+    const xScale = xScalerFactory(xSubDomain, width);
+    const xpos = xScale(timestamp);
+    this.setRulerPoints(xpos);
+    this.setState({
+      touchX: xpos,
+    });
+  };
+
+  setRulerPoints = xpos => {
+    const { ruler, width, xSubDomain, xScalerFactory } = this.props;
+    if (!ruler || !ruler.visible) {
+      return [];
     }
+    const xScale = xScalerFactory(xSubDomain, width);
+    const rawTimestamp = xScale.invert(xpos).getTime();
+    const rulerPoints = this.getRulerPoints(rawTimestamp);
+    this.setState({ points: rulerPoints });
 
+    return rulerPoints;
+  };
+
+  setArea = (xpos, ypos) => {
     const { area } = this.state;
-    if (area) {
-      const output = this.getDataForCoordinate(xpos, ypos, true);
-      this.setState({
-        area: {
-          ...area,
-          end: output,
-        },
-      });
+    if (!area) {
+      return;
     }
+    const output = this.getDataForCoordinate(xpos, ypos, true);
+    this.setState({
+      area: {
+        ...area,
+        end: output,
+      },
+    });
+  };
 
+  processExternalMouseMove = (xpos, ypos) => {
+    this.processMouseMove(xpos, ypos, true);
+  };
+
+  processMouseMove = (xpos, ypos, external = false) => {
+    const rulerPoints = this.setRulerPoints(xpos);
+    this.setArea(xpos, ypos);
+    const { onMouseMove } = this.props;
     if (onMouseMove) {
-      onMouseMove({ points: newPoints, xpos, ypos });
+      onMouseMove({ points: rulerPoints, xpos, ypos, external });
+    }
+  };
+
+  syncZoomingState = () => {
+    const { onAreaDefined, onDoubleClick, zoomable } = this.props;
+    if (zoomable && !onAreaDefined) {
+      this.rectSelection.call(this.zoom.on('zoom', this.zoomed));
+      if (onDoubleClick) {
+        this.rectSelection.on('dblclick.zoom', null);
+      }
+    } else {
+      this.rectSelection.on('.zoom', null);
     }
   };
 

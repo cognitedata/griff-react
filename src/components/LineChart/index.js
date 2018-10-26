@@ -40,6 +40,7 @@ const propTypes = {
   collections: GriffPropTypes.collections,
   crosshair: PropTypes.bool,
   onMouseMove: PropTypes.func,
+  onMouseOut: PropTypes.func,
   onClick: PropTypes.func,
   // (annotation, x, y) => void
   onClickAnnotation: PropTypes.func,
@@ -94,6 +95,7 @@ const defaultProps = {
   },
   crosshair: true,
   onMouseMove: null,
+  onMouseOut: null,
   onClick: null,
   onClickAnnotation: null,
   onDoubleClick: null,
@@ -241,6 +243,7 @@ class LineChartComponent extends Component {
       onClickAnnotation,
       onDoubleClick,
       onMouseMove,
+      onMouseOut,
       pointWidth,
       size,
       xSubDomain,
@@ -295,6 +298,7 @@ class LineChartComponent extends Component {
               width={chartSize.width}
               crosshair={crosshair}
               onMouseMove={onMouseMove}
+              onMouseOut={onMouseOut}
               onClickAnnotation={onClickAnnotation}
               onDoubleClick={onDoubleClick}
               zoomable={zoomable}

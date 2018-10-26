@@ -436,7 +436,9 @@ export default class DataProvider extends Component {
         [id]: { ...loaderConfig },
       };
     }
-    this.setState(stateUpdates);
+    this.setState(stateUpdates, () => {
+      this.props.onFetchData();
+    });
   };
 
   xSubDomainChanged = xSubDomain => {
@@ -602,6 +604,7 @@ DataProvider.propTypes = {
   // xSubDomain => newXSubDomain
   // function to allow limitation of the value of xSubDomain
   limitXSubDomain: PropTypes.func,
+  onFetchData: PropTypes.func,
 };
 
 DataProvider.defaultProps = {
@@ -628,4 +631,5 @@ DataProvider.defaultProps = {
   ySubDomain: null,
   isXSubDomainSticky: false,
   limitXSubDomain: xSubDomain => xSubDomain,
+  onFetchData: () => {},
 };

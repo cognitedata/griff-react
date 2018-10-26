@@ -60,6 +60,8 @@ export const rulerPropType = PropTypes.shape({
   visible: PropTypes.bool,
   xLabel: PropTypes.func.isRequired,
   yLabel: PropTypes.func.isRequired,
+  // a timestamp representing the initial position of the ruler
+  position: PropTypes.number,
 });
 
 const contextChart = PropTypes.shape({
