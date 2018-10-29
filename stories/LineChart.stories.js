@@ -513,7 +513,7 @@ storiesOf('LineChart', module)
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
         pointsPerSeries={100}
-        pointRenderer={(d, _, __, { x, y, color }) => (
+        drawPoints={(d, _, __, { x, y, color }) => (
           <polygon
             points={`${x - 5} ${y},${x} ${y - 5},${x + 5} ${y},${x} ${y + 5}`}
             fill={color}

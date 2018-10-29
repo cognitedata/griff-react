@@ -155,7 +155,13 @@ const generateSeries = count => {
   return series;
 };
 
-const latestPointRenderer = (d, i, array, { x, y, x0, x1, y0, y1, color }) => {
+const latestPointRenderer = (
+  d,
+  i,
+  array,
+  { x, y, x0, x1, y0, y1, color },
+  defaultPoints
+) => {
   if (i === array.length - 1) {
     const size = 10;
     const points = [
@@ -164,9 +170,11 @@ const latestPointRenderer = (d, i, array, { x, y, x0, x1, y0, y1, color }) => {
       `${x1 || x + size} ${y}`,
       `${x} ${y0 || y + size}`,
     ];
-    return <polygon points={points.join(',')} fill={color} />;
+    return (
+      <polygon key={`${x},${y},${i}`} points={points.join(',')} fill={color} />
+    );
   }
-  return undefined;
+  return defaultPoints;
 };
 
 storiesOf('Scatterplot', module)
@@ -649,7 +657,7 @@ storiesOf('Scatterplot', module)
             series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
-            pointRenderer={latestPointRenderer}
+            drawPoints={latestPointRenderer}
           >
             <Scatterplot zoomable />
           </DataProvider>
@@ -665,7 +673,12 @@ storiesOf('Scatterplot', module)
               {
                 id: '1 2',
                 color: 'steelblue',
-                pointRenderer: latestPointRenderer,
+                drawPoints: latestPointRenderer,
+              },
+              {
+                id: '2 3',
+                color: 'maroon',
+                drawPoints: latestPointRenderer,
               },
             ]}
             xAccessor={d => +d.x}
@@ -689,7 +702,7 @@ storiesOf('Scatterplot', module)
               {
                 id: 'scatter',
                 color: 'black',
-                pointRenderer: latestPointRenderer,
+                drawPoints: latestPointRenderer,
               },
             ]}
             xAccessor={d => +d.x}

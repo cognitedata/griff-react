@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import Points from '../Points';
 import { boundedSeries } from '../../utils/boundedseries';
+import GriffPropTypes from '../../utils/proptypes';
 
 const Line = ({
   data,
@@ -17,7 +18,6 @@ const Line = ({
   hidden,
   drawPoints,
   strokeWidth,
-  pointRenderer,
   pointWidth,
   pointWidthAccessor,
   clipPath,
@@ -60,7 +60,7 @@ const Line = ({
           const x = timeAccessor(d);
           return x >= xSubDomain[0] && x <= xSubDomain[1];
         })}
-        pointRenderer={pointRenderer}
+        drawPoints={drawPoints}
         xAccessor={timeAccessor}
         yAccessor={yAccessor}
         xScale={xScale}
@@ -116,8 +116,7 @@ Line.propTypes = {
   color: PropTypes.string.isRequired,
   step: PropTypes.bool,
   hidden: PropTypes.bool,
-  drawPoints: PropTypes.bool,
-  pointRenderer: PropTypes.func,
+  drawPoints: GriffPropTypes.drawPoints,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
@@ -128,7 +127,6 @@ Line.defaultProps = {
   step: false,
   hidden: false,
   drawPoints: false,
-  pointRenderer: null,
   pointWidth: 6,
   pointWidthAccessor: null,
   strokeWidth: 1,

@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
+import GriffPropTypes, {
   dataPointPropType,
   accessorFuncPropType,
   scaleFuncPropType,
@@ -9,6 +9,7 @@ import { boundedSeries } from '../../utils/boundedseries';
 
 const propTypes = {
   data: PropTypes.arrayOf(dataPointPropType).isRequired,
+  drawPoints: GriffPropTypes.drawPoints,
   xAccessor: accessorFuncPropType.isRequired,
   x0Accessor: accessorFuncPropType,
   x1Accessor: accessorFuncPropType,
@@ -20,16 +21,15 @@ const propTypes = {
   color: PropTypes.string.isRequired,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
-  pointRenderer: PropTypes.func,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
 };
 
 const defaultProps = {
+  drawPoints: false,
   opacity: 1,
   opacityAccessor: null,
-  pointRenderer: null,
   pointWidth: null,
   pointWidthAccessor: null,
   strokeWidth: null,
@@ -43,6 +43,7 @@ const defaultMinMaxAccessor = () => undefined;
 
 const Points = ({
   data,
+  drawPoints,
   xAccessor,
   x0Accessor,
   x1Accessor,
@@ -54,11 +55,15 @@ const Points = ({
   color,
   opacity,
   opacityAccessor,
-  pointRenderer,
   pointWidth,
   pointWidthAccessor,
   strokeWidth,
 }) => {
+  if (!drawPoints) {
+    // We should never wind up in this situation, but just in case...
+    return null;
+  }
+
   const points = data.map((d, i, arr) => {
     const [x, x0, x1] = [
       xAccessor,
@@ -71,29 +76,6 @@ const Points = ({
       y0Accessor || defaultMinMaxAccessor,
       y1Accessor || defaultMinMaxAccessor,
     ].map(f => boundedSeries(yScale(f(d))));
-
-    if (pointRenderer) {
-      const customObjects = pointRenderer(d, i, arr, {
-        x,
-        y,
-        x0,
-        x1,
-        y0,
-        y1,
-        color,
-        opacity,
-        opacityAccessor,
-        pointWidth,
-        pointWidthAccessor,
-        strokeWidth,
-      });
-      if (customObjects === null) {
-        return null;
-      } else if (customObjects !== undefined) {
-        return customObjects;
-      }
-      // Otherwise, fall through to the regular logic.
-    }
 
     let width = 0;
     if (pointWidthAccessor) {
@@ -137,7 +119,7 @@ const Points = ({
 
     uiElements.push(
       <circle
-        key={`${xAccessor(d)}-${yAccessor(d)}`}
+        key={`${x}-${y}`}
         className="point"
         r={width / 2}
         opacity={opacityAccessor ? opacityAccessor(d) : opacity}
@@ -146,6 +128,24 @@ const Points = ({
         fill={color}
       />
     );
+
+    if (typeof drawPoints === 'function') {
+      const metadata = {
+        x,
+        y,
+        x0,
+        x1,
+        y0,
+        y1,
+        color,
+        opacity,
+        opacityAccessor,
+        pointWidth,
+        pointWidthAccessor,
+        strokeWidth,
+      };
+      return drawPoints(d, i, arr, metadata, uiElements);
+    }
     return uiElements;
   });
   return <g>{points}</g>;

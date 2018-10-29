@@ -5,13 +5,19 @@ import Axes from './Axes';
 
 const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
+/**
+ * If a {@code function} is passed, then this will be used as the rendering
+ * function for rendering the points.
+ */
+const drawPoints = PropTypes.oneOfType([PropTypes.bool, PropTypes.func]);
+
 export const singleSeriePropType = PropTypes.shape({
   id: idPropType.isRequired,
   collectionId: idPropType,
   color: PropTypes.string,
   hidden: PropTypes.bool,
   strokeWidth: PropTypes.number,
-  drawPoints: PropTypes.bool,
+  drawPoints,
   loader: PropTypes.func,
   step: PropTypes.bool,
   xAccessor: PropTypes.func,
@@ -104,7 +110,7 @@ const collection = PropTypes.shape({
   id: idPropType.isRequired,
   // This the color used when referencing the collection (eg, the common axis)
   color: PropTypes.string,
-  drawPoints: PropTypes.bool,
+  drawPoints,
   hidden: PropTypes.bool,
   strokeWidth: PropTypes.number,
   xAccessor: PropTypes.func,
@@ -236,6 +242,7 @@ export default {
   collection,
   collections,
   contextChart,
+  drawPoints,
   grid,
   multipleSeries,
   singleSeries,
