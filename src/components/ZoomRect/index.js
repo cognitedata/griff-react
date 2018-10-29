@@ -256,10 +256,9 @@ class ZoomRect extends React.Component {
           // Finally, place this new span into the subdomain, centered about the
           // mouse, and correctly (proportionately) split above & below so that
           // theaxis is stable.
-          updates[itemId][axis] = [
-            valueAtCenter - newSpan * percentFromEnd,
-            valueAtCenter + newSpan * (1 - percentFromEnd),
-          ];
+          const start = valueAtCenter - newSpan * percentFromEnd;
+          const end = valueAtCenter + newSpan * (1 - percentFromEnd);
+          updates[itemId][axis] = [Math.min(start, end), Math.max(end, start)];
         }
       );
     });
@@ -335,11 +334,10 @@ class ZoomRect extends React.Component {
 
           // Finally, place this new span into the subdomain, centered about the
           // mouse, and correctly (proportionately) split above & below so that
-          // theaxis is stable.
-          newSubDomain = [
-            valueAtMouse - newSpan * percentFromEnd,
-            valueAtMouse + newSpan * (1 - percentFromEnd),
-          ];
+          // the axis is stable.
+          const start = valueAtMouse - newSpan * percentFromEnd;
+          const end = valueAtMouse + newSpan * (1 - percentFromEnd);
+          newSubDomain = [Math.min(start, end), Math.max(end, start)];
         } else if (movements[axis]) {
           // This is a drag event.
           const percentMovement =
