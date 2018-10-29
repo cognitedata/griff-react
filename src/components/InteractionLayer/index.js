@@ -44,13 +44,14 @@ class InteractionLayer extends React.Component {
     onMouseOut: PropTypes.func,
     // ({ xSubDomain, transformation }) => void
     onZoomXAxis: PropTypes.func,
-    series: seriesPropType,
     areas: PropTypes.arrayOf(areaPropType),
     annotations: PropTypes.arrayOf(annotationPropType),
     width: PropTypes.number.isRequired,
     zoomAxes: GriffPropTypes.zoomAxes.isRequired,
 
     // These are all populated by Griff.
+    series: seriesPropType,
+    collections: GriffPropTypes.collections,
     timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
@@ -61,6 +62,7 @@ class InteractionLayer extends React.Component {
   static defaultProps = {
     areas: [],
     annotations: [],
+    collections: [],
     crosshair: false,
     onAreaDefined: null,
     onAreaClicked: null,
@@ -437,13 +439,14 @@ class InteractionLayer extends React.Component {
 
   render() {
     const {
-      width,
+      collections,
       height,
       crosshair,
       onAreaDefined,
       ruler,
       series,
       subDomainsByItemId,
+      width,
       xScalerFactory,
       zoomAxes,
     } = this.props;
@@ -553,7 +556,7 @@ class InteractionLayer extends React.Component {
           onMouseDown={this.onMouseDown}
           onMouseUp={this.onMouseUp}
           onDoubleClick={this.onDoubleClick}
-          itemIds={series.map(s => s.id)}
+          itemIds={series.map(s => s.id).concat(collections.map(c => c.id))}
           onTouchDrag={this.processMouseMove}
         />
       </React.Fragment>
@@ -566,6 +569,7 @@ export default props => (
     {({
       timeSubDomain,
       timeDomain,
+      collections,
       series,
       xScalerFactory,
       subDomainsByItemId,
@@ -575,6 +579,7 @@ export default props => (
         // FIXME: Remove this crap
         timeSubDomain={timeSubDomain}
         timeDomain={timeDomain}
+        collections={collections}
         series={series}
         xScalerFactory={xScalerFactory}
         subDomainsByItemId={subDomainsByItemId}

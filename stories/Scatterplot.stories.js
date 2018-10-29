@@ -183,17 +183,34 @@ storiesOf('Scatterplot', module)
         </div>
       </div>
       <div>
+        <h3>One collection</h3>
+        <div style={{ height: '500px', width: '100%' }}>
+          <DataProvider
+            defaultLoader={scatterplotloader}
+            timeDomain={[0, 1]}
+            series={[
+              { id: '1 2', color: 'steelblue', collectionId: 'scatter' },
+              { id: '2 3', color: 'maroon', collectionId: 'scatter' },
+            ]}
+            collections={[{ id: 'scatter', color: 'black' }]}
+            xAccessor={d => +d.x}
+            yAccessor={d => +d.y}
+          >
+            <Scatterplot zoomable />
+          </DataProvider>
+        </div>
+      </div>
+      <div>
         <h3>Geometric series</h3>
         <div style={{ height: '500px', width: '100%' }}>
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
             series={[
-              { id: 'sincos', color: '#ACF39D', collectionId: 'scatter' },
-              { id: 'sintan', color: '#E85F5C', collectionId: 'scatter' },
-              { id: 'pow', color: '#9CFFFA', collectionId: 'scatter' },
+              { id: 'sincos', color: '#ACF39D' },
+              { id: 'sintan', color: '#E85F5C' },
+              { id: 'pow', color: '#9CFFFA' },
             ]}
-            collections={[{ id: 'scatter' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
           >

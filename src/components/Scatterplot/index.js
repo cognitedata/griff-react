@@ -10,12 +10,12 @@ import GriffPropTypes, {
   seriesPropType,
   scalerFactoryFunc,
 } from '../../utils/proptypes';
-import UnifiedAxis from '../UnifiedAxis';
 import XAxis from '../XAxis';
 import Layout from './Layout';
 import AxisPlacement from '../AxisPlacement';
 import GridLines from '../GridLines';
 import Axes from '../../utils/Axes';
+import AxisCollection from '../AxisCollection';
 
 const propTypes = {
   grid: GriffPropTypes.grid,
@@ -55,7 +55,6 @@ const X_AXIS_HEIGHT = 50;
 const ScatterplotComponent = ({
   grid,
   size: { width, height },
-  series,
   zoomable,
   onClick,
   xAxisFormatter,
@@ -105,10 +104,9 @@ const ScatterplotComponent = ({
         </svg>
       }
       yAxis={
-        <UnifiedAxis
+        <AxisCollection
           tickFormatter={yAxisFormatter}
           yAxisPlacement={yAxisPlacement}
-          series={series}
           height={chartSize.height}
           width={Y_AXIS_WIDTH}
           ticks={yAxisTicks}

@@ -24,8 +24,15 @@ const PointCollection = ({
   xScalerFactory,
 }) => {
   const points = series.filter(s => !s.hidden).map(s => {
+    // TODO: We can't use [s.collectionId || s.id] on the x axis. I'm not
+    // entirely sure why; I think it's because the collection's x domain is not
+    // correctly calculated to the data's extent. I have not looked into it
+    // because it doesn't really matter yet, but it will at some point.
     const xScale = xScalerFactory(Axes.x(subDomainsByItemId[s.id]), width);
-    const yScale = createYScale(Axes.y(subDomainsByItemId[s.id]), height);
+    const yScale = createYScale(
+      Axes.y(subDomainsByItemId[s.collectionId || s.id]),
+      height
+    );
     return <Points key={s.id} {...s} xScale={xScale} yScale={yScale} />;
   });
 
