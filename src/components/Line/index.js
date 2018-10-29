@@ -17,6 +17,7 @@ const Line = ({
   hidden,
   drawPoints,
   strokeWidth,
+  pointRenderer,
   pointWidth,
   pointWidthAccessor,
   clipPath,
@@ -59,6 +60,7 @@ const Line = ({
           const x = timeAccessor(d);
           return x >= xSubDomain[0] && x <= xSubDomain[1];
         })}
+        pointRenderer={pointRenderer}
         xAccessor={timeAccessor}
         yAccessor={yAccessor}
         xScale={xScale}
@@ -115,6 +117,7 @@ Line.propTypes = {
   step: PropTypes.bool,
   hidden: PropTypes.bool,
   drawPoints: PropTypes.bool,
+  pointRenderer: PropTypes.func,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
@@ -125,6 +128,7 @@ Line.defaultProps = {
   step: false,
   hidden: false,
   drawPoints: false,
+  pointRenderer: null,
   pointWidth: 6,
   pointWidthAccessor: null,
   strokeWidth: 1,

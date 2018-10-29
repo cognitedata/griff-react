@@ -275,6 +275,7 @@ export default class DataProvider extends Component {
     const {
       opacity,
       opacityAccessor,
+      pointRenderer,
       pointWidth,
       pointWidthAccessor,
       strokeWidth,
@@ -350,6 +351,11 @@ export default class DataProvider extends Component {
         series.strokeWidth,
         collection.strokeWidth,
         strokeWidth
+      ),
+      pointRenderer: firstDefined(
+        series.pointRenderer,
+        collection.pointRenderer,
+        pointRenderer
       ),
       pointWidth: firstDefined(
         series.pointWidth,
@@ -618,6 +624,33 @@ DataProvider.propTypes = {
   onTimeSubDomainChanged: PropTypes.func,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
+
+  /**
+   * A custom renderer for data points. This has several magic return values:
+   *  - {@code null} will cause the point to be omitted entirely.
+   *  - {@code undefined} will use the standard Griff rendering.
+   * All other values (object, or Array) will be written into the SVG.
+   *
+   * @param {object} datapoint
+   * @param {number} index
+   * @param {Array} datapoints
+   * @param {object} metadata This object contains metadata useful for the
+   * rendering process. This contains the following keys:
+   *  - {@code x}: The x-position (in pixels) of the data point.
+   *  - {@code x0}: The x-position (in pixels) for the data point's x0 value
+   *  - {@code x1}: The x-position (in pixels) for the data point's x1 value
+   *  - {@code y}: The y-position (in pixels) of the data point.
+   *  - {@code y0}: The y-position (in pixels) for the data point's y0 value
+   *  - {@code y1}: The y-position (in pixels) for the data point's y1 value
+   *  - {@code color}: The color of this data point
+   *  - {@code opacity}: The opacity of this data point
+   *  - {@code opacityAccessor}: The opacity accessor for this data point
+   *  - {@code pointWidth}: The width of this data point
+   *  - {@code pointWidthAccessor}: The accessor for this data point's width
+   *  - {@code strokeWidth}: The width of the stroke for this data point
+   * @returns {(object|Array)} object(s) to render for this point.
+   */
+  pointRenderer: PropTypes.func,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
@@ -636,6 +669,7 @@ DataProvider.defaultProps = {
   opacity: 1.0,
   opacityAccessor: null,
   pointsPerSeries: 250,
+  pointRenderer: null,
   pointWidth: null,
   pointWidthAccessor: null,
   strokeWidth: null,

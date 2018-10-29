@@ -20,13 +20,16 @@ const propTypes = {
   color: PropTypes.string.isRequired,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
+  pointRenderer: PropTypes.func,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
 };
+
 const defaultProps = {
   opacity: 1,
   opacityAccessor: null,
+  pointRenderer: null,
   pointWidth: null,
   pointWidthAccessor: null,
   strokeWidth: null,
@@ -35,6 +38,8 @@ const defaultProps = {
   y0Accessor: null,
   y1Accessor: null,
 };
+
+const defaultMinMaxAccessor = () => undefined;
 
 const Points = ({
   data,
@@ -49,13 +54,47 @@ const Points = ({
   color,
   opacity,
   opacityAccessor,
+  pointRenderer,
   pointWidth,
   pointWidthAccessor,
   strokeWidth,
 }) => {
-  const getX = x => boundedSeries(xScale(x));
-  const getY = y => boundedSeries(yScale(y));
-  const points = data.map(d => {
+  const points = data.map((d, i, arr) => {
+    const [x, x0, x1] = [
+      xAccessor,
+      x0Accessor || defaultMinMaxAccessor,
+      x1Accessor || defaultMinMaxAccessor,
+    ].map(f => boundedSeries(xScale(f(d))));
+
+    const [y, y0, y1] = [
+      yAccessor,
+      y0Accessor || defaultMinMaxAccessor,
+      y1Accessor || defaultMinMaxAccessor,
+    ].map(f => boundedSeries(yScale(f(d))));
+
+    if (pointRenderer) {
+      const customObjects = pointRenderer(d, i, arr, {
+        x,
+        y,
+        x0,
+        x1,
+        y0,
+        y1,
+        color,
+        opacity,
+        opacityAccessor,
+        pointWidth,
+        pointWidthAccessor,
+        strokeWidth,
+      });
+      if (customObjects === null) {
+        return null;
+      } else if (customObjects !== undefined) {
+        return customObjects;
+      }
+      // Otherwise, fall through to the regular logic.
+    }
+
     let width = 0;
     if (pointWidthAccessor) {
       width = pointWidthAccessor(d);
@@ -68,33 +107,28 @@ const Points = ({
     }
     const uiElements = [];
 
-    const cx = getX(xAccessor(d));
-    const cy = getY(yAccessor(d));
-
-    if (x0Accessor && x1Accessor) {
-      const [x0, x1] = [x0Accessor, x1Accessor].map(f => f(d));
+    if (!Number.isNaN(x0) && !Number.isNaN(x1)) {
       uiElements.push(
         <line
-          key={`${x0},${cy}-${x1},${cy}`}
-          x1={getX(x0)}
-          y1={cy}
-          x2={getX(x1)}
-          y2={cy}
+          key={`${x0},${y}-${x1},${y}`}
+          x1={x0}
+          y1={y}
+          x2={x1}
+          y2={y}
           stroke={color}
           strokeWidth={1}
         />
       );
     }
 
-    if (y0Accessor && y1Accessor) {
-      const [y0, y1] = [y0Accessor, y1Accessor].map(f => f(d));
+    if (!Number.isNaN(y0) && !Number.isNaN(y1)) {
       uiElements.push(
         <line
-          key={`${cx},${y0}-${cx},${y1}`}
-          x1={cx}
-          y1={getY(y0)}
-          x2={cx}
-          y2={getY(y1)}
+          key={`${x},${y0}-${x},${y1}`}
+          x1={x}
+          y1={y0}
+          x2={x}
+          y2={y1}
           stroke={color}
           strokeWidth={1}
         />
@@ -107,8 +141,8 @@ const Points = ({
         className="point"
         r={width / 2}
         opacity={opacityAccessor ? opacityAccessor(d) : opacity}
-        cx={cx}
-        cy={cy}
+        cx={x}
+        cy={y}
         fill={color}
       />
     );
