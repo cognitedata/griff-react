@@ -604,6 +604,8 @@ DataProvider.propTypes = {
   // xSubDomain => newXSubDomain
   // function to allow limitation of the value of xSubDomain
   limitXSubDomain: PropTypes.func,
+  // void => void
+  // called whenever data is fetched by the loader
   onFetchData: PropTypes.func,
 };
 

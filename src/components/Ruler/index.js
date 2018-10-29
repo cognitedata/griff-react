@@ -59,7 +59,7 @@ const Ruler = ({ ruler, points, height, width }) => {
       <RulerTooltip
         labelHeight={labelHeight}
         color={firstPoint.color}
-        label={ruler.xLabel(firstPoint)}
+        label={ruler.timeLabel(firstPoint)}
         x={firstPoint.x}
         y={xTooltipPosition}
         width={width}

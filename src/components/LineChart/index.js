@@ -107,8 +107,9 @@ const defaultProps = {
   annotations: [],
   ruler: {
     visible: false,
-    xLabel: () => {},
+    timeLabel: () => {},
     yLabel: () => {},
+    timestamp: null,
   },
   xAxisHeight: 50,
   yAxisWidth: 50,

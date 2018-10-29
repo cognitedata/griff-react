@@ -74,8 +74,9 @@ class InteractionLayer extends React.Component {
     zoomable: true,
     ruler: {
       visible: false,
-      xLabel: () => {},
+      timeLabel: () => {},
       yLabel: () => {},
+      timestamp: null,
     },
     zoomMode: ZoomMode.X,
   };
@@ -114,8 +115,8 @@ class InteractionLayer extends React.Component {
         this.rectSelection.property('__zoom', transform);
       }
     }
-    if (ruler && ruler.position) {
-      this.setRulerPosition(ruler.position);
+    if (ruler && ruler.timestamp) {
+      this.setRulerPosition(ruler.timestamp);
     }
   }
 
@@ -202,8 +203,8 @@ class InteractionLayer extends React.Component {
       });
     }
 
-    if (this.props.ruler.position !== prevProps.ruler.position) {
-      this.setRulerPosition(this.props.ruler.position);
+    if (this.props.ruler.timestamp !== prevProps.ruler.timestamp) {
+      this.setRulerPosition(this.props.ruler.timestamp);
     }
   }
 
@@ -254,7 +255,7 @@ class InteractionLayer extends React.Component {
 
     const { area } = this.state;
     if (onMouseMove || (ruler && ruler.visible) || area) {
-      this.processExternalMouseMove(xpos, ypos);
+      this.processMouseMove(xpos, ypos, e);
       this.setState({
         touchX: xpos,
         touchY: ypos,
@@ -496,16 +497,12 @@ class InteractionLayer extends React.Component {
     });
   };
 
-  processExternalMouseMove = (xpos, ypos) => {
-    this.processMouseMove(xpos, ypos, true);
-  };
-
-  processMouseMove = (xpos, ypos, external = false) => {
+  processMouseMove = (xpos, ypos, e = null) => {
     const rulerPoints = this.setRulerPoints(xpos);
     this.setArea(xpos, ypos);
     const { onMouseMove } = this.props;
     if (onMouseMove) {
-      onMouseMove({ points: rulerPoints, xpos, ypos, external });
+      onMouseMove({ points: rulerPoints, xpos, ypos, e });
     }
   };
 
