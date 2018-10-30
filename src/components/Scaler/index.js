@@ -54,7 +54,7 @@ class Scaler extends Component {
       domainsByItemId: this.getDomainsByItemId(),
 
       // Map from item (collection, series) to their respective subdomains.
-      subDomainsByItemId: this.getDomainsByItemId(),
+      subDomainsByItemId: this.getSubDomainsByItemId(),
     };
   }
 
