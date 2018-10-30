@@ -92,13 +92,6 @@ class InteractionLayer extends React.Component {
     touchY: null,
   };
 
-  componentDidMount() {
-    const { ruler } = this.props;
-    if (ruler && ruler.timestamp) {
-      this.setRulerPosition(ruler.timestamp);
-    }
-  }
-
   componentWillReceiveProps(nextProps) {
     const {
       subDomainsByItemId: prevSubDomainsByItemId,
@@ -127,6 +120,8 @@ class InteractionLayer extends React.Component {
       const curXScale = xScalerFactory(nextTimeSubDomain, width);
       const ts = prevXScale.invert(touchX).getTime();
       const newXPos = curXScale(ts);
+
+      const { type: d3Type } = ((d3 || {}).event || {}).sourceEvent || {};
       // hide ruler if point went out to the left of subdomain
       if (newXPos < 0) {
         this.setState({
@@ -137,7 +132,8 @@ class InteractionLayer extends React.Component {
       } else if (
         // ruler should follow points during live loading
         // except when the chart is dragging firing touchmove event
-        (((d3 || {}).event || {}).sourceEvent || {}).type === 'mousemove'
+        d3Type === 'mousemove' ||
+        d3Type === undefined
       ) {
         this.setState({ touchX: newXPos }, () =>
           this.processMouseMove(newXPos, touchY)

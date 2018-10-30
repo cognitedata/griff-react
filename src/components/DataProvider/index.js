@@ -627,7 +627,7 @@ DataProvider.propTypes = {
   // will be increased at every interval (similarly to xDomain)
   isTimeSubDomainSticky: PropTypes.bool,
   // timeSubDomain => timeSubDomain
-  // function to allow limitation of the value of xSubDomain
+  // function to allow limitation of the value of timeSubDomain
   limitTimeSubDomain: PropTypes.func,
   // void => void
   // called whenever data is fetched by the loader
