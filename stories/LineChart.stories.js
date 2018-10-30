@@ -915,9 +915,7 @@ storiesOf('LineChart', module)
     >
       <LineChart
         height={CHART_HEIGHT}
-        onMouseOut={e => {
-          action('mouse out')(e);
-        }}
+        onMouseOut={action('mouse out')}
         onBlur={() => {}}
       />
     </DataProvider>
