@@ -186,7 +186,9 @@ class ZoomRect extends React.Component {
           subDomainRange *
           ((this.lastTouch[axis] - newTouchPosition[axis]) /
             totalDistances[axis]);
-        newSubDomain = subDomain.map(bound => bound + percentMovement);
+        newSubDomain = subDomain.map(bound =>
+          Math.floor(bound + percentMovement)
+        );
         if (newSubDomain) {
           updates[itemId][axis] = newSubDomain;
         }
@@ -256,8 +258,10 @@ class ZoomRect extends React.Component {
           // Finally, place this new span into the subdomain, centered about the
           // mouse, and correctly (proportionately) split above & below so that
           // theaxis is stable.
-          const start = valueAtCenter - newSpan * percentFromEnd;
-          const end = valueAtCenter + newSpan * (1 - percentFromEnd);
+          const start = Math.floor(valueAtCenter - newSpan * percentFromEnd);
+          const end = Math.floor(
+            valueAtCenter + newSpan * (1 - percentFromEnd)
+          );
           updates[itemId][axis] = [Math.min(start, end), Math.max(end, start)];
         }
       );
@@ -335,14 +339,16 @@ class ZoomRect extends React.Component {
           // Finally, place this new span into the subdomain, centered about the
           // mouse, and correctly (proportionately) split above & below so that
           // the axis is stable.
-          const start = valueAtMouse - newSpan * percentFromEnd;
-          const end = valueAtMouse + newSpan * (1 - percentFromEnd);
+          const start = Math.floor(valueAtMouse - newSpan * percentFromEnd);
+          const end = Math.floor(valueAtMouse + newSpan * (1 - percentFromEnd));
           newSubDomain = [Math.min(start, end), Math.max(end, start)];
         } else if (movements[axis]) {
           // This is a drag event.
           const percentMovement =
             subDomainRange * (movements[axis] / totalDistances[axis]);
-          newSubDomain = subDomain.map(bound => bound + percentMovement);
+          newSubDomain = subDomain.map(bound =>
+            Math.floor(bound + percentMovement)
+          );
         }
         if (newSubDomain) {
           updates[itemId][axis] = newSubDomain;
