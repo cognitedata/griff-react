@@ -75,8 +75,9 @@ class InteractionLayer extends React.Component {
     series: [],
     ruler: {
       visible: false,
-      xLabel: () => {},
+      timeLabel: () => {},
       yLabel: () => {},
+      timestamp: null,
     },
   };
 
@@ -149,6 +150,13 @@ class InteractionLayer extends React.Component {
         area: null,
       });
     }
+
+    if (
+      (!prevProps.width && this.props.width && this.props.ruler.timestamp) || // got width from sizeMe
+      this.props.ruler.timestamp !== prevProps.ruler.timestamp
+    ) {
+      this.setRulerPosition(this.props.ruler.timestamp);
+    }
   }
 
   onMouseDown = e => {
@@ -198,7 +206,7 @@ class InteractionLayer extends React.Component {
 
     const { area } = this.state;
     if (onMouseMove || (ruler && ruler.visible) || area) {
-      this.processMouseMove(xpos, ypos);
+      this.processMouseMove(xpos, ypos, e);
       this.setState({
         touchX: xpos,
         touchY: ypos,
@@ -368,14 +376,12 @@ class InteractionLayer extends React.Component {
     return output;
   };
 
-  processMouseMove = (xpos, ypos) => {
+  getRulerPoints = xpos => {
     const {
       series,
       height,
       width,
       subDomainsByItemId,
-      onMouseMove,
-      ruler,
       xScalerFactory,
     } = this.props;
     const newPoints = [];
@@ -419,24 +425,58 @@ class InteractionLayer extends React.Component {
         newPoints.push({ id: s.id });
       }
     });
+    return newPoints;
+  };
 
-    if (ruler && ruler.visible) {
-      this.setState({ points: newPoints });
-    }
-
-    const { area } = this.state;
-    if (area) {
-      const output = this.getDataForCoordinate(xpos, ypos, true);
+  setRulerPosition = timestamp => {
+    if (!timestamp) {
       this.setState({
-        area: {
-          ...area,
-          end: output,
-        },
+        points: [],
+        touchX: null,
+        touchY: null,
       });
+      return;
     }
+    const { xScalerFactory, width, timeSubDomain } = this.props;
+    const xScale = xScalerFactory(timeSubDomain, width);
+    const xpos = xScale(timestamp);
+    this.setRulerPoints(xpos);
+    this.setState({
+      touchX: xpos,
+    });
+  };
 
+  setRulerPoints = xpos => {
+    const { ruler } = this.props;
+    if (!ruler || !ruler.visible) {
+      return [];
+    }
+    const rulerPoints = this.getRulerPoints(xpos);
+    this.setState({ points: rulerPoints });
+
+    return rulerPoints;
+  };
+
+  setArea = (xpos, ypos) => {
+    const { area } = this.state;
+    if (!area) {
+      return;
+    }
+    const output = this.getDataForCoordinate(xpos, ypos, true);
+    this.setState({
+      area: {
+        ...area,
+        end: output,
+      },
+    });
+  };
+
+  processMouseMove = (xpos, ypos, e = null) => {
+    const rulerPoints = this.setRulerPoints(xpos);
+    this.setArea(xpos, ypos);
+    const { onMouseMove } = this.props;
     if (onMouseMove) {
-      onMouseMove({ points: newPoints, xpos, ypos });
+      onMouseMove({ points: rulerPoints, xpos, ypos, e });
     }
   };
 
