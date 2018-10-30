@@ -6,17 +6,23 @@ import GriffPropTypes, {
   scalerFactoryFunc,
 } from '../../utils/proptypes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
+import Axes from '../../utils/Axes';
 
 const propTypes = {
   grid: GriffPropTypes.grid,
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   series: seriesPropType.isRequired,
-  xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+  axes: PropTypes.shape({
+    x: PropTypes.oneOf(['x', 'time']),
+  }),
+  // These are all populated by Griff.
+  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
   xScalerFactory: scalerFactoryFunc,
 };
 
 const defaultProps = {
+  axes: { x: 'x' },
   grid: null,
   xScalerFactory: createXScale,
 };
@@ -33,8 +39,9 @@ class GridLines extends React.Component {
       height,
       width,
       series,
-      xSubDomain,
+      subDomainsByItemId,
       xScalerFactory,
+      axes,
     } = this.props;
 
     if (!grid) {
@@ -56,7 +63,7 @@ class GridLines extends React.Component {
         );
         series.filter(s => seriesIdMap[s.id]).forEach(s => {
           // This is heavily inspired by YAxis -- maybe we could consolidate?
-          const scale = createYScale(s.ySubDomain, height);
+          const scale = createYScale(Axes.y(subDomainsByItemId[s.id]), height);
           const nTicks = y.count || Math.floor(height / 50) || 1;
           const values = scale.ticks(nTicks);
 
@@ -158,7 +165,10 @@ class GridLines extends React.Component {
         }
       } else if (x.ticks !== undefined) {
         // This heavily inspired by XAxis -- maybe we can consolidate them?
-        const scale = xScalerFactory(xSubDomain, width);
+        // FIXME: Remove this when we support multiple X axes
+        const timeSubDomain =
+          subDomainsByItemId[Object.keys(subDomainsByItemId)[0]][axes.x];
+        const scale = xScalerFactory(timeSubDomain, width);
         const values = scale.ticks(x.ticks || Math.floor(width / 100) || 1);
         values.forEach(v => {
           lines.push(
@@ -215,13 +225,12 @@ GridLines.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ series, xSubDomain, xScalerFactory, yTransformations }) => (
+    {({ series, subDomainsByItemId, xScalerFactory }) => (
       <GridLines
         {...props}
         series={series}
-        xSubDomain={xSubDomain}
+        subDomainsByItemId={subDomainsByItemId}
         xScalerFactory={xScalerFactory}
-        yTransformations={yTransformations}
       />
     )}
   </ScalerContext.Consumer>

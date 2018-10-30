@@ -3,18 +3,19 @@ import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
 import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
-import { ScaledPointCollection } from '../PointCollection';
+import PointCollection from '../PointCollection';
 import InteractionLayer, { ZoomMode } from '../InteractionLayer';
 import { createLinearXScale } from '../../utils/scale-helpers';
 import GriffPropTypes, {
   seriesPropType,
   scalerFactoryFunc,
 } from '../../utils/proptypes';
-import UnifiedAxis from '../UnifiedAxis';
 import XAxis from '../XAxis';
 import Layout from './Layout';
 import AxisPlacement from '../AxisPlacement';
 import GridLines from '../GridLines';
+import Axes from '../../utils/Axes';
+import AxisCollection from '../AxisCollection';
 
 const propTypes = {
   grid: GriffPropTypes.grid,
@@ -30,7 +31,6 @@ const propTypes = {
   xAxisPlacement: GriffPropTypes.axisPlacement,
   xAxisTicks: PropTypes.number,
   xScalerFactory: scalerFactoryFunc.isRequired,
-  xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
   // Number => String
   yAxisFormatter: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
@@ -55,7 +55,6 @@ const X_AXIS_HEIGHT = 50;
 const ScatterplotComponent = ({
   grid,
   size: { width, height },
-  series,
   zoomable,
   onClick,
   xAxisFormatter,
@@ -65,7 +64,6 @@ const ScatterplotComponent = ({
   yAxisFormatter,
   yAxisPlacement,
   yAxisTicks,
-  xSubDomain,
 }) => {
   const chartSize = {
     width,
@@ -95,21 +93,20 @@ const ScatterplotComponent = ({
       chart={
         <svg style={{ width: '100%', height: '100%' }}>
           <GridLines grid={grid} {...chartSize} />
-          <ScaledPointCollection {...chartSize} />
+          <PointCollection {...chartSize} />
           <InteractionLayer
             {...chartSize}
-            zoomable={zoomable}
             onClick={onClick}
             zoomMode={ZoomMode.BOTH}
             xScalerFactory={xScalerFactory}
+            zoomAxes={{ x: zoomable, y: zoomable }}
           />
         </svg>
       }
       yAxis={
-        <UnifiedAxis
+        <AxisCollection
           tickFormatter={yAxisFormatter}
           yAxisPlacement={yAxisPlacement}
-          series={series}
           height={chartSize.height}
           width={Y_AXIS_WIDTH}
           ticks={yAxisTicks}
@@ -117,12 +114,12 @@ const ScatterplotComponent = ({
       }
       xAxis={
         <XAxis
-          domain={xSubDomain}
           width={chartSize.width}
           height={X_AXIS_HEIGHT}
           xScalerFactory={xScalerFactory}
           tickFormatter={xAxisFormatter}
           ticks={xAxisTicks}
+          axis={Axes.x}
         />
       }
       xAxisPlacement={xAxisPlacement}
@@ -141,11 +138,10 @@ const SizedScatterplotComponent = sizeMe({
 const Scatterplot = props => (
   <Scaler xScalerFactory={createLinearXScale}>
     <ScalerContext.Consumer>
-      {({ series, xSubDomain, xScalerFactory }) => (
+      {({ series, xScalerFactory }) => (
         <SizedScatterplotComponent
           {...props}
           series={series}
-          xSubDomain={xSubDomain}
           xScalerFactory={xScalerFactory}
         />
       )}

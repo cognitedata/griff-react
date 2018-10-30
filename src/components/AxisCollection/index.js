@@ -12,36 +12,33 @@ import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {
   height: PropTypes.number.isRequired,
-  series: seriesPropType,
-  collections: GriffPropTypes.collections,
   zoomable: PropTypes.bool,
-  updateYTransformation: PropTypes.func,
-  yAxisWidth: PropTypes.number,
-  yTransformations: PropTypes.objectOf(
-    PropTypes.shape({
-      k: PropTypes.number.isRequired,
-      y: PropTypes.number.isRequired,
-      rescaleY: PropTypes.func.isRequired,
-    })
-  ).isRequired,
   axisDisplayMode: axisDisplayModeType,
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
+  ticks: PropTypes.number,
+
   // Number => String
-  tickFormatter: PropTypes.func.isRequired,
+  tickFormatter: PropTypes.func,
+
+  // These are populated by Griff.
+  series: seriesPropType,
+  collections: GriffPropTypes.collections,
+  yAxisWidth: PropTypes.number,
 };
 
 const defaultProps = {
   series: [],
   collections: [],
   zoomable: true,
-  updateYTransformation: () => {},
+  ticks: 5,
   yAxisWidth: 50,
   axisDisplayMode: AxisDisplayMode.ALL,
   yAxisPlacement: AxisPlacement.RIGHT,
   onMouseEnter: null,
   onMouseLeave: null,
+  tickFormatter: Number,
 };
 
 class AxisCollection extends React.Component {
@@ -101,10 +98,9 @@ class AxisCollection extends React.Component {
       zoomable,
       height,
       tickFormatter,
-      updateYTransformation,
+      ticks,
       yAxisPlacement,
       yAxisWidth,
-      yTransformations,
     } = this.props;
     let axisOffsetX = offsetx - yAxisWidth;
 
@@ -142,12 +138,11 @@ class AxisCollection extends React.Component {
               series={s}
               height={height}
               width={yAxisWidth}
-              updateYTransformation={updateYTransformation}
-              yTransformation={yTransformations[s.id]}
               onMouseEnter={this.onAxisMouseEnter(s.id)}
               onMouseLeave={this.onAxisMouseLeave(s.id)}
               tickFormatter={tickFormatter}
               yAxisPlacement={yAxisPlacement}
+              ticks={ticks}
             />
           );
         })
@@ -155,19 +150,6 @@ class AxisCollection extends React.Component {
       .concat(
         filteredCollections.map(c => {
           axisOffsetX += yAxisWidth;
-
-          const collectedSeries = series.filter(s => s.collectionId === c.id);
-
-          const updateCollectionYTransformation = (
-            collectionId,
-            transformation
-          ) => {
-            collectedSeries.forEach(s => {
-              updateYTransformation(s.id, transformation, height);
-            });
-            updateYTransformation(collectionId, transformation, height);
-          };
-
           return (
             <YAxis
               key={`y-axis-collection-${c.id}`}
@@ -176,12 +158,11 @@ class AxisCollection extends React.Component {
               collection={c}
               height={height}
               width={yAxisWidth}
-              updateYTransformation={updateCollectionYTransformation}
-              yTransformation={yTransformations[c.id]}
               onMouseEnter={this.onAxisMouseEnter(c.id)}
               onMouseLeave={this.onAxisMouseLeave(c.id)}
               tickFormatter={tickFormatter}
               yAxisPlacement={yAxisPlacement}
+              ticks={ticks}
             />
           );
         })
@@ -254,21 +235,8 @@ AxisCollection.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({
-      collections,
-      series,
-      yAxisWidth,
-      updateYTransformation,
-      yTransformations,
-    }) => (
-      <AxisCollection
-        {...props}
-        collections={collections}
-        series={series}
-        yAxisWidth={yAxisWidth}
-        updateYTransformation={updateYTransformation}
-        yTransformations={yTransformations}
-      />
+    {({ collections, series }) => (
+      <AxisCollection {...props} collections={collections} series={series} />
     )}
   </ScalerContext.Consumer>
 );

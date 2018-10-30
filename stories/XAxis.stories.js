@@ -1,9 +1,11 @@
 import React from 'react';
 import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
+import moment from 'moment';
 import { DataProvider, XAxis, AxisPlacement } from '../src';
-
 import { staticLoader } from './loaders';
+import Scaler from '../src/components/Scaler';
+import { createXScale } from '../src/utils/scale-helpers';
 
 storiesOf('XAxis', module)
   .addDecorator(story => (
@@ -16,9 +18,9 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           series={[{ id: '1 2', color: 'steelblue' }]}
-          xAccessor={d => +d.x}
+          timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <XAxis />
@@ -27,12 +29,14 @@ storiesOf('XAxis', module)
       <div style={{ width: '75%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           series={[{ id: '1 2', color: 'steelblue' }]}
-          xAccessor={d => +d.x}
+          timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
-          <XAxis />
+          <Scaler xScalerFactory={createXScale}>
+            <XAxis />
+          </Scaler>
         </DataProvider>
       </div>
     </React.Fragment>
@@ -42,9 +46,9 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           series={[{ id: '1 2', color: 'steelblue' }]}
-          xAccessor={d => +d.x}
+          timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <XAxis />
@@ -53,9 +57,9 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           series={[{ id: '1 2', color: 'steelblue' }]}
-          xAccessor={d => +d.x}
+          timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <XAxis stroke="red" />
@@ -68,9 +72,9 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           series={[{ id: '1 2', color: 'steelblue' }]}
-          xAccessor={d => +d.x}
+          timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <XAxis />
@@ -79,9 +83,9 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           series={[{ id: '1 2', color: 'steelblue' }]}
-          xAccessor={d => +d.x}
+          timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <XAxis placement={AxisPlacement.TOP} />
@@ -94,9 +98,9 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           series={[{ id: '1 2', color: 'steelblue' }]}
-          xAccessor={d => +d.x}
+          timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <XAxis />
@@ -105,12 +109,12 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           series={[{ id: '1 2', color: 'steelblue' }]}
-          xAccessor={d => +d.x}
+          timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
-          <XAxis tickFormatter={n => Number(n).toFixed(5)} />
+          <XAxis tickFormatter={n => moment(n).fromNow()} />
         </DataProvider>
       </div>
     </React.Fragment>
@@ -120,9 +124,9 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           series={[{ id: '1 2', color: 'steelblue' }]}
-          xAccessor={d => +d.x}
+          timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <XAxis />
@@ -131,12 +135,12 @@ storiesOf('XAxis', module)
       <div style={{ width: '100%' }}>
         <DataProvider
           defaultLoader={staticLoader}
-          xDomain={[0, 1]}
+          timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           series={[{ id: '1 2', color: 'steelblue' }]}
-          xAccessor={d => +d.x}
+          timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
-          <XAxis ticks={5} />
+          <XAxis ticks={2} />
         </DataProvider>
       </div>
     </React.Fragment>

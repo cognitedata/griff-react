@@ -12,9 +12,8 @@ import GriffPropTypes, {
 } from '../../utils/proptypes';
 import Brush from '../Brush';
 import AxisPlacement from '../AxisPlacement';
-import Scaler from '../Scaler';
-import { createLinearXScale } from '../../utils/scale-helpers';
 import multiFormat from '../../utils/multiFormat';
+import Axes from '../../utils/Axes';
 
 class ContextChart extends Component {
   static propTypes = {
@@ -28,11 +27,13 @@ class ContextChart extends Component {
 
     // These are all provided by Griff.
     contextSeries: seriesPropType,
-    updateXSubDomain: PropTypes.func.isRequired,
     width: PropTypes.number,
-    xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     xScalerFactory: scalerFactoryFunc.isRequired,
-    xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+    updateDomains: GriffPropTypes.updateDomains.isRequired,
+    subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
+    domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
   };
 
   static defaultProps = {
@@ -47,10 +48,25 @@ class ContextChart extends Component {
   };
 
   onUpdateSelection = selection => {
-    const { xDomain, width, xScalerFactory } = this.props;
-    const xScale = xScalerFactory(xDomain, width);
-    const xSubDomain = selection.map(xScale.invert).map(Number);
-    this.props.updateXSubDomain(xSubDomain);
+    const {
+      contextSeries: series,
+      timeDomain,
+      width,
+      xScalerFactory,
+    } = this.props;
+    const xScale = xScalerFactory(timeDomain, width);
+    const timeSubDomain = selection.map(xScale.invert).map(Number);
+    this.props.updateDomains(
+      series.reduce(
+        (changes, s) => ({
+          ...changes,
+          [s.id]: {
+            time: timeSubDomain,
+          },
+        }),
+        {}
+      )
+    );
   };
 
   getChartHeight = () => {
@@ -76,9 +92,10 @@ class ContextChart extends Component {
 
   render() {
     const {
+      contextSeries: series,
+      domainsByItemId,
+      subDomainsByItemId,
       width,
-      xDomain,
-      xSubDomain,
       contextSeries,
       xAxisFormatter,
       xAxisHeight,
@@ -86,9 +103,13 @@ class ContextChart extends Component {
       xScalerFactory,
       zoomable,
     } = this.props;
+
+    const firstItemId = series[0].id;
+    const timeDomain = Axes.time(domainsByItemId[firstItemId]);
+    const timeSubDomain = Axes.time(subDomainsByItemId[firstItemId]);
     const height = this.getChartHeight();
-    const xScale = xScalerFactory(xDomain, width);
-    const selection = xSubDomain.map(xScale);
+    const xScale = xScalerFactory(timeDomain, width);
+    const selection = timeSubDomain.map(xScale);
     const annotations = this.props.annotations.map(a => (
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
     ));
@@ -96,9 +117,11 @@ class ContextChart extends Component {
     const xAxis = (
       <XAxis
         height={xAxisHeight}
-        domain={xDomain}
+        domain={timeDomain}
         tickFormatter={xAxisFormatter}
         placement={xAxisPlacement}
+        scaled={false}
+        axis={Axes.time}
       />
     );
 
@@ -115,9 +138,10 @@ class ContextChart extends Component {
             series={contextSeries}
             width={width}
             height={height}
-            domain={xDomain}
             xScalerFactory={xScalerFactory}
             scaleY={false}
+            scaleX={false}
+            subDomainsByItemId={subDomainsByItemId}
           />
           <Brush
             width={width}
@@ -134,29 +158,31 @@ class ContextChart extends Component {
 }
 
 export default props => (
-  <Scaler xScalerFactory={createLinearXScale}>
-    <ScalerContext.Consumer>
-      {({
-        xSubDomain,
-        xDomain,
-        updateXSubDomain,
-        contextSeries,
-        xScalerFactory,
-      }) => (
-        <SizeMe monitorWidth>
-          {({ size }) => (
-            <ContextChart
-              width={size.width}
-              {...props}
-              xDomain={xDomain}
-              contextSeries={contextSeries}
-              xSubDomain={xSubDomain}
-              updateXSubDomain={updateXSubDomain}
-              xScalerFactory={xScalerFactory}
-            />
-          )}
-        </SizeMe>
-      )}
-    </ScalerContext.Consumer>
-  </Scaler>
+  <ScalerContext.Consumer>
+    {({
+      domainsByItemId,
+      subDomainsByItemId,
+      timeSubDomain,
+      timeDomain,
+      contextSeries,
+      xScalerFactory,
+      updateDomains,
+    }) => (
+      <SizeMe monitorWidth>
+        {({ size }) => (
+          <ContextChart
+            width={size.width}
+            {...props}
+            timeDomain={timeDomain}
+            contextSeries={contextSeries}
+            timeSubDomain={timeSubDomain}
+            xScalerFactory={xScalerFactory}
+            subDomainsByItemId={subDomainsByItemId}
+            domainsByItemId={domainsByItemId}
+            updateDomains={updateDomains}
+          />
+        )}
+      </SizeMe>
+    )}
+  </ScalerContext.Consumer>
 );

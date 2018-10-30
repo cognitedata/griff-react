@@ -1,20 +1,40 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import ScalerContext from '../../context/Scaler';
-import { createXScale, createYScale } from '../../utils/scale-helpers';
+import { createXScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
+import Axes from '../../utils/Axes';
 
+// If the timeSubDomain is within this margin, consider it to be attached to
+// the leading edge of the timeDomain.
+const FRONT_OF_WINDOW_THRESHOLD = 0.05;
+
+/**
+ * The scaler is the source of truth for all things related to the domains and
+ * subdomains for all of the items within Griff. Note that an item can be either
+ * a series or a collection, and domains are flexible. As of this writing, there
+ * are three axes:
+ *   time: The timestamp of a datapoint
+ *   x: The x-value of a datapoint
+ *   y: THe y-value of a datapoint.
+ *
+ * These axes all have separate domains and subdomains. The domain is the range
+ * of that axis, and the subdomain is the currently-visible region of that
+ * range.
+ *
+ * These are manipulated with the {@link #updateDomains} function, which is
+ * made available through the {@link ScalerContext}.
+ */
 class Scaler extends Component {
   static propTypes = {
     children: PropTypes.node.isRequired,
     dataContext: PropTypes.shape({
-      xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-      xSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+      timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+      timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
+      timeSubDomainChanged: PropTypes.func.isRequired,
       externalXSubDomain: PropTypes.arrayOf(PropTypes.number),
-      xSubDomainChanged: PropTypes.func.isRequired,
       series: seriesPropType.isRequired,
       collections: GriffPropTypes.collections.isRequired,
     }).isRequired,
@@ -26,201 +46,229 @@ class Scaler extends Component {
     xScalerFactory: createXScale,
   };
 
-  state = {
-    ySubDomains: {},
-    xSubDomain:
-      this.props.dataContext.xSubDomain || this.props.dataContext.xDomain,
-    yTransformations: {},
-  };
+  constructor(props) {
+    super(props);
 
-  componentDidUpdate(prevProps, prevState) {
-    // Check every serie if its ySubDomain changed
-    // If so -- update the state
-    const ySubDomains = {};
-    this.props.dataContext.series.forEach(s => {
-      ySubDomains[s.id] = s.ySubDomain;
-    });
-    const transformUpdate = {};
-    const domainUpdate = {};
-    prevProps.dataContext.series.forEach(s => {
-      if (!isEqual(ySubDomains[s.id], s.ySubDomain)) {
-        transformUpdate[s.id] = d3.zoomIdentity;
-        domainUpdate[s.id] = ySubDomains[s.id];
+    this.state = {
+      // Map from item (collection, series) to their respective domains.
+      domainsByItemId: this.getDomainsByItemId(),
 
-        if (s.collectionId) {
-          transformUpdate[s.collectionId] = d3.zoomIdentity;
-          domainUpdate[s.collectionId] = ySubDomains[s.id];
+      // Map from item (collection, series) to their respective subdomains.
+      subDomainsByItemId: this.getDomainsByItemId(),
+    };
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      !isEqual(
+        prevProps.dataContext.timeSubDomain,
+        this.props.dataContext.timeSubDomain
+      )
+    ) {
+      // When timeSubDomain changes, we need to update everything downstream.
+      const subDomainsByItemId = { ...this.state.subDomainsByItemId };
+      Object.keys(subDomainsByItemId).forEach(itemId => {
+        subDomainsByItemId[itemId][
+          Axes.time
+        ] = this.props.dataContext.timeSubDomain;
+      });
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ subDomainsByItemId });
+    }
+
+    if (
+      !isEqual(
+        prevProps.dataContext.timeDomain,
+        this.props.dataContext.timeDomain
+      )
+    ) {
+      const { timeDomain: prevTimeDomain } = prevProps.dataContext;
+      const { timeDomain: nextTimeDomain } = this.props.dataContext;
+
+      // When timeDomain changes, we need to update everything downstream.
+      const domainsByItemId = { ...this.state.domainsByItemId };
+      Object.keys(domainsByItemId).forEach(itemId => {
+        domainsByItemId[itemId][Axes.time] = nextTimeDomain;
+      });
+
+      const subDomainsByItemId = { ...this.state.subDomainsByItemId };
+      Object.keys(subDomainsByItemId).forEach(itemId => {
+        const { [Axes.time]: timeSubDomain } = this.state.subDomainsByItemId[
+          itemId
+        ];
+        subDomainsByItemId[itemId] = {
+          ...this.state.subDomainsByItemId[itemId],
+        };
+        const dt = timeSubDomain[1] - timeSubDomain[0];
+        if (
+          Math.abs((timeSubDomain[1] - prevTimeDomain[1]) / dt) <=
+          FRONT_OF_WINDOW_THRESHOLD
+        ) {
+          // Looking at the front of the window -- continue to track that.
+          subDomainsByItemId[itemId][Axes.time] = [
+            nextTimeDomain[1] - dt,
+            nextTimeDomain[1],
+          ];
+        } else if (timeSubDomain[0] <= prevTimeDomain[0]) {
+          // Looking at the back of the window -- continue to track that.
+          subDomainsByItemId[itemId][Axes.time] = [
+            prevTimeDomain[0],
+            prevTimeDomain[0] + dt,
+          ];
         }
-      }
-    });
-
-    if (
-      !isEqual(
-        prevProps.dataContext.xSubDomain,
-        this.props.dataContext.xSubDomain
-      )
-    ) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ xSubDomain: this.props.dataContext.xSubDomain });
-    }
-    if (
-      !isEqual(
-        prevProps.dataContext.externalXSubDomain,
-        this.props.dataContext.externalXSubDomain
-      )
-    ) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({
-        xSubDomain: this.props.dataContext.externalXSubDomain,
       });
+
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ domainsByItemId, subDomainsByItemId });
     }
 
-    if (
-      Object.keys(domainUpdate).length ||
-      Object.keys(transformUpdate).length
-    ) {
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({
-        yTransformations: {
-          ...this.state.yTransformations,
-          ...transformUpdate,
-        },
-        ySubDomains: {
-          ...this.state.ySubDomains,
-          ...domainUpdate,
-        },
-      });
-    }
-
-    // Handle changes in the base domain of the DataProvider
-    const {
-      dataContext: {
-        xDomain: nextPropsDomain,
-        externalXDomain: nextExternalXDomain,
-      },
-    } = this.props;
-    const {
-      dataContext: {
-        xDomain: prevXDomain,
-        externalXDomain: prevExternalXDomain,
-      },
-    } = prevProps;
-    if (!isEqual(prevExternalXDomain, nextExternalXDomain)) {
-      // External base domain changed (props on DataProvider)
-      // Reset state
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({
-        xSubDomain: nextExternalXDomain,
-        ySubDomains: {},
-        yTransformations: {},
-      });
-      return;
-    }
-    if (
-      nextPropsDomain[0] !== prevXDomain[0] ||
-      nextPropsDomain[1] !== prevXDomain[1]
-    ) {
-      // The internal xDomain changed
-      // Keep existing subdomain
-      const { xSubDomain } = prevState;
-      if (
-        xSubDomain &&
-        (xSubDomain[1] === prevXDomain[1] || xSubDomain[1] >= prevXDomain[1])
-      ) {
-        // You are looking at the end of the window
-        // and the xDomain is updated
-        // Lock the xSubDomain to the end of the window
-        const dt = xSubDomain[1] - xSubDomain[0];
-        // eslint-disable-next-line react/no-did-update-set-state
-        this.setState({
-          xSubDomain: [nextPropsDomain[1] - dt, nextPropsDomain[1]],
+    if (!isEqual(prevProps.dataContext.series, this.props.dataContext.series)) {
+      const domainsByItemId = {};
+      const subDomainsByItemId = {};
+      []
+        .concat(this.props.dataContext.series)
+        .concat(this.props.dataContext.collections)
+        .forEach(item => {
+          domainsByItemId[item.id] = {
+            ...this.state.domainsByItemId[item.id],
+            [Axes.x]: [
+              ...(item.xDomain || Axes.x(this.state.domainsByItemId[item.id])),
+            ],
+            [Axes.y]: [
+              ...(item.yDomain || Axes.y(this.state.domainsByItemId[item.id])),
+            ],
+          };
+          subDomainsByItemId[item.id] = {
+            ...this.state.subDomainsByItemId[item.id],
+            [Axes.x]: [
+              ...(item.xSubDomain ||
+                Axes.x(this.state.subDomainsByItemId[item.id])),
+            ],
+            [Axes.y]: [
+              ...(item.ySubDomain ||
+                Axes.y(this.state.subDomainsByItemId[item.id])),
+            ],
+          };
         });
-      }
-      if (
-        xSubDomain &&
-        (xSubDomain[0] === prevXDomain[0] ||
-          xSubDomain[0] <= nextPropsDomain[0])
-      ) {
-        // You are looking at the front of the window
-        // and the base domain is updated.
-        // Lock the sub domain to the start of the window
-        const dt = xSubDomain[1] - xSubDomain[0];
-        // eslint-disable-next-line react/no-did-update-set-state
-        this.setState({
-          xSubDomain: [nextPropsDomain[0], nextPropsDomain[0] + dt],
-        });
-      }
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ subDomainsByItemId, domainsByItemId });
     }
   }
 
-  updateXTransformation = (xTransformation, width) => {
-    const { xDomain } = this.props.dataContext;
-    const { xScalerFactory } = this.props;
-    // Get the new rescaled axis
-    const newScale = xTransformation.rescaleX(xScalerFactory(xDomain, width));
-    // Calculate new domain, map to timestamps (not dates)
-    const newXSubDomain = newScale.domain().map(Number);
-    // Update DataProvider's xSubDomain
-    // No need to set new xSubDomain state here since we
-    // listen for xSubDomain change in componentDidUpdate.
-    this.props.dataContext.xSubDomainChanged(newXSubDomain);
-    return newXSubDomain;
-  };
+  getDomainsByItemId = () =>
+    []
+      .concat(this.props.dataContext.series)
+      .concat(this.props.dataContext.collections)
+      .reduce(
+        (acc, item) => ({
+          ...acc,
+          [item.id]: {
+            [Axes.time]: [...this.props.dataContext.timeDomain],
+            [Axes.x]: [...(item.xDomain || [])],
+            [Axes.y]: [...(item.yDomain || [])],
+          },
+        }),
+        {}
+      );
 
-  updateXSubDomain = xSubDomain => {
-    this.setState(
-      {
-        xSubDomain,
-      },
-      () => {
-        this.props.dataContext.xSubDomainChanged(xSubDomain);
-      }
-    );
-  };
+  getSubDomainsByItemId = () =>
+    []
+      .concat(this.props.dataContext.series)
+      .concat(this.props.dataContext.collections)
+      .reduce(
+        (acc, item) => ({
+          ...acc,
+          [item.id]: {
+            [Axes.time]: [...this.props.dataContext.timeSubDomain],
+            [Axes.x]: [...(item.xDomain || item.xSubDomain || [])],
+            [Axes.y]: [...(item.yDomain || item.ySubDomain || [])],
+          },
+        }),
+        {}
+      );
 
-  updateYTransformation = (key, scaler, height) => {
-    const { dataContext } = this.props;
+  /**
+   * Update the subdomains for the given items. This is a patch update and will
+   * be merged with the current state of the subdomains. An example payload
+   * will resemble:
+   * <code>
+   *   {
+   *     "series-1": {
+   *       "y": [0.5, 0.75],
+   *     },
+   *     "series-2": {
+   *       "y": [1.0, 2.0],
+   *     }
+   *   }
+   * </code>
+   *
+   * After this is complete, {@code callback} will be called with this patch
+   * object.
+   */
+  updateDomains = (changedDomainsById, callback) => {
+    // FIXME: This is not multi-series aware.
+    let newTimeSubDomain = null;
 
-    const { ySubDomain } =
-      dataContext.series.find(s => s.id === key) ||
-      dataContext.collections.find(c => c.id === key);
-    const newXSubDomain = scaler
-      .rescaleY(createYScale(ySubDomain, height))
-      .domain()
-      .map(Number);
+    const { domainsById, subDomainsByItemId } = this.state;
+    const newSubDomains = { ...subDomainsByItemId };
+    Object.keys(changedDomainsById).forEach(itemId => {
+      newSubDomains[itemId] = { ...(subDomainsByItemId[itemId] || {}) };
+      Object.keys(changedDomainsById[itemId]).forEach(axis => {
+        let newSubDomain = changedDomainsById[itemId][axis];
+        const newSpan = newSubDomain[1] - newSubDomain[0];
 
-    this.setState({
-      ySubDomains: { ...this.state.ySubDomains, [key]: newXSubDomain },
-      yTransformations: { ...this.state.yTransformations, [key]: scaler },
+        const existingSubDomain =
+          subDomainsByItemId[itemId][axis] || newSubDomain;
+        const existingSpan = existingSubDomain[1] - existingSubDomain[0];
+
+        const limits = ((domainsById || {})[itemId] || {})[axis] ||
+          (axis === String(Axes.time)
+            ? // FIXME: Phase out this single timeDomain thing.
+              this.props.dataContext.timeDomain
+            : undefined) || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
+
+        if (newSpan === existingSpan) {
+          // This is a translation; check the bounds.
+          if (newSubDomain[0] <= limits[0]) {
+            newSubDomain = [limits[0], limits[0] + newSpan];
+          }
+          if (newSubDomain[1] >= limits[1]) {
+            newSubDomain = [limits[1] - newSpan, limits[1]];
+          }
+        } else {
+          newSubDomain = [
+            Math.max(limits[0], newSubDomain[0]),
+            Math.min(limits[1], newSubDomain[1]),
+          ];
+        }
+
+        newSubDomains[itemId][axis] = newSubDomain;
+
+        if (axis === String(Axes.time)) {
+          newTimeSubDomain = newSubDomain;
+        }
+      });
     });
-
-    return newXSubDomain;
+    this.setState(
+      { subDomainsByItemId: newSubDomains },
+      callback ? () => callback(changedDomainsById) : undefined
+    );
+    if (newTimeSubDomain) {
+      this.props.dataContext.timeSubDomainChanged(newTimeSubDomain);
+    }
   };
 
   render() {
-    const { ySubDomains, yTransformations, xSubDomain } = this.state;
+    const { domainsByItemId, subDomainsByItemId } = this.state;
     const { dataContext, xScalerFactory } = this.props;
     const ownContext = {
-      updateXTransformation: this.updateXTransformation,
-      updateXSubDomain: this.updateXSubDomain,
-      updateYTransformation: this.updateYTransformation,
-      yTransformations,
+      updateDomains: this.updateDomains,
+      domainsByItemId,
+      subDomainsByItemId,
     };
 
-    const enrichedSeries = dataContext.series.map(s => ({
-      ...s,
-      ySubDomain: ySubDomains[s.id] || s.ySubDomain,
-    }));
-
-    const enrichedCollections = dataContext.collections.map(c => ({
-      ...c,
-      ySubDomain: ySubDomains[c.id] || c.ySubDomain,
-    }));
-
     const enrichedContext = {
-      collections: enrichedCollections,
-      series: enrichedSeries,
-      xSubDomain: xSubDomain || dataContext.xSubDomain,
+      timeSubDomain: dataContext.timeSubDomain || dataContext.timeDomain,
       xScalerFactory,
     };
 
