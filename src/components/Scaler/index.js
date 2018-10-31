@@ -59,6 +59,39 @@ class Scaler extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    if (!isEqual(prevProps.dataContext.series, this.props.dataContext.series)) {
+      const domainsByItemId = {};
+      const subDomainsByItemId = {};
+
+      const updateDomainsForItem = item => {
+        domainsByItemId[item.id] = {
+          [Axes.time]: this.props.dataContext.timeDomain,
+          [Axes.x]: [
+            ...(item.xDomain || Axes.x(this.state.domainsByItemId[item.id])),
+          ],
+          [Axes.y]: [
+            ...(item.yDomain || Axes.y(this.state.domainsByItemId[item.id])),
+          ],
+        };
+        subDomainsByItemId[item.id] = {
+          [Axes.time]: this.props.dataContext.timeSubDomain,
+          [Axes.x]: [
+            ...(item.xSubDomain ||
+              Axes.x(this.state.subDomainsByItemId[item.id])),
+          ],
+          [Axes.y]: [
+            ...(item.ySubDomain ||
+              Axes.y(this.state.subDomainsByItemId[item.id])),
+          ],
+        };
+      };
+      (this.props.dataContext.series || []).forEach(updateDomainsForItem);
+      (this.props.dataContext.collections || []).forEach(updateDomainsForItem);
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ subDomainsByItemId, domainsByItemId });
+      return;
+    }
+
     if (
       !isEqual(
         prevProps.dataContext.timeSubDomain,
@@ -120,38 +153,6 @@ class Scaler extends Component {
 
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ domainsByItemId, subDomainsByItemId });
-    }
-
-    if (!isEqual(prevProps.dataContext.series, this.props.dataContext.series)) {
-      const domainsByItemId = {};
-      const subDomainsByItemId = {};
-      []
-        .concat(this.props.dataContext.series)
-        .concat(this.props.dataContext.collections)
-        .forEach(item => {
-          domainsByItemId[item.id] = {
-            ...this.state.domainsByItemId[item.id],
-            [Axes.x]: [
-              ...(item.xDomain || Axes.x(this.state.domainsByItemId[item.id])),
-            ],
-            [Axes.y]: [
-              ...(item.yDomain || Axes.y(this.state.domainsByItemId[item.id])),
-            ],
-          };
-          subDomainsByItemId[item.id] = {
-            ...this.state.subDomainsByItemId[item.id],
-            [Axes.x]: [
-              ...(item.xSubDomain ||
-                Axes.x(this.state.subDomainsByItemId[item.id])),
-            ],
-            [Axes.y]: [
-              ...(item.ySubDomain ||
-                Axes.y(this.state.subDomainsByItemId[item.id])),
-            ],
-          };
-        });
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ subDomainsByItemId, domainsByItemId });
     }
   }
 
