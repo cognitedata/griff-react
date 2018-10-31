@@ -71,10 +71,10 @@ class Scaler extends Component {
             ),
           ],
           [Axes.x]: [
-            ...(item.xDomain || Axes.x(this.state.domainsByItemId[item.id])),
+            ...Axes.x(this.state.domainsByItemId[item.id] || item.xDomain),
           ],
           [Axes.y]: [
-            ...(item.yDomain || Axes.y(this.state.domainsByItemId[item.id])),
+            ...Axes.y(this.state.domainsByItemId[item.id] || item.yDomain),
           ],
         };
         subDomainsByItemId[item.id] = {
