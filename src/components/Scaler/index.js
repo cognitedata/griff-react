@@ -11,6 +11,16 @@ import Axes from '../../utils/Axes';
 // the leading edge of the timeDomain.
 const FRONT_OF_WINDOW_THRESHOLD = 0.05;
 
+const containsSameItems = (a, b) => {
+  const reducer = (acc, item) => {
+    if (item.hidden) {
+      return acc;
+    }
+    return { ...acc, [item.id]: item.yDomain };
+  };
+  return isEqual(a.reduce(reducer, {}), b.reduce(reducer, {}));
+};
+
 /**
  * The scaler is the source of truth for all things related to the domains and
  * subdomains for all of the items within Griff. Note that an item can be either
@@ -59,7 +69,12 @@ class Scaler extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (!isEqual(prevProps.dataContext.series, this.props.dataContext.series)) {
+    if (
+      !containsSameItems(
+        prevProps.dataContext.series,
+        this.props.dataContext.series
+      )
+    ) {
       const domainsByItemId = {};
       const subDomainsByItemId = {};
 
