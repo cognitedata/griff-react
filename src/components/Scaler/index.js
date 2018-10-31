@@ -65,7 +65,11 @@ class Scaler extends Component {
 
       const updateDomainsForItem = item => {
         domainsByItemId[item.id] = {
-          [Axes.time]: this.props.dataContext.timeDomain,
+          [Axes.time]: this.props.dataContext.timeDomain || [
+            ...Axes.time(
+              this.state.domainsByItemId[item.id] || item.timeDomain
+            ),
+          ],
           [Axes.x]: [
             ...(item.xDomain || Axes.x(this.state.domainsByItemId[item.id])),
           ],
