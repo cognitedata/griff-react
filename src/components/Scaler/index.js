@@ -11,6 +11,12 @@ import Axes from '../../utils/Axes';
 // the leading edge of the timeDomain.
 const FRONT_OF_WINDOW_THRESHOLD = 0.05;
 
+/**
+ * Provide a placeholder domain so that we can test for validity later, but
+ * it can be safely operated on like a real domain.
+ */
+export const PLACEHOLDER_DOMAIN = [0, 0];
+
 const containsSameItems = (a, b) => {
   const reducer = (acc, item) => {
     if (item.hidden) {
@@ -19,6 +25,13 @@ const containsSameItems = (a, b) => {
     return { ...acc, [item.id]: item.yDomain };
   };
   return isEqual(a.reduce(reducer, {}), b.reduce(reducer, {}));
+};
+
+const stripPlaceholderDomain = domain => {
+  if (isEqual(PLACEHOLDER_DOMAIN, domain)) {
+    return undefined;
+  }
+  return domain;
 };
 
 /**
@@ -81,30 +94,36 @@ class Scaler extends Component {
       const updateDomainsForItem = item => {
         domainsByItemId[item.id] = {
           [Axes.time]: this.props.dataContext.timeDomain || [
-            ...Axes.time(
-              this.state.domainsByItemId[item.id] || item.timeDomain
-            ),
+            ...(stripPlaceholderDomain(
+              Axes.time(this.state.domainsByItemId[item.id])
+            ) || item.timeDomain),
           ],
           [Axes.x]: [
-            ...Axes.x(this.state.domainsByItemId[item.id] || item.xDomain),
+            ...(stripPlaceholderDomain(
+              Axes.x(this.state.domainsByItemId[item.id])
+            ) || item.xDomain),
           ],
           [Axes.y]: [
-            ...Axes.y(this.state.domainsByItemId[item.id] || item.yDomain),
+            ...(stripPlaceholderDomain(
+              Axes.y(this.state.domainsByItemId[item.id])
+            ) || item.yDomain),
           ],
         };
         subDomainsByItemId[item.id] = {
           [Axes.time]: this.props.dataContext.timeSubDomain || [
-            ...Axes.time(
-              this.state.subDomainsByItemId[item.id] || item.timeSubDomain
-            ),
+            ...(stripPlaceholderDomain(
+              Axes.time(this.state.subDomainsByItemId[item.id])
+            ) || item.timeSubDomain),
           ],
           [Axes.x]: [
-            ...(Axes.x(this.state.subDomainsByItemId[item.id]) ||
-              item.xSubDomain),
+            ...(stripPlaceholderDomain(
+              Axes.x(this.state.subDomainsByItemId[item.id])
+            ) || item.xSubDomain),
           ],
           [Axes.y]: [
-            ...(Axes.y(this.state.subDomainsByItemId[item.id]) ||
-              item.ySubDomain),
+            ...(stripPlaceholderDomain(
+              Axes.y(this.state.subDomainsByItemId[item.id])
+            ) || item.ySubDomain),
           ],
         };
       };

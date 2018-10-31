@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
-import Scaler from '../Scaler';
+import Scaler, { PLACEHOLDER_DOMAIN } from '../Scaler';
 
 const calculateDomainFromData = (
   data,
@@ -297,14 +297,18 @@ export default class DataProvider extends Component {
       yDomains,
       ySubDomains,
     } = this.state;
-    const yDomain = collection.yDomain ||
+    const yDomain =
+      collection.yDomain ||
       series.yDomain ||
       propYDomain ||
-      yDomains[series.id] || [0, 1];
-    const xDomain = collection.xDomain ||
+      yDomains[series.id] ||
+      PLACEHOLDER_DOMAIN;
+    const xDomain =
+      collection.xDomain ||
       series.xDomain ||
       propXDomain ||
-      xDomains[series.id] || [0, 1];
+      xDomains[series.id] ||
+      PLACEHOLDER_DOMAIN;
     return {
       drawPoints: collection.drawPoints,
       hidden: collection.hidden,
