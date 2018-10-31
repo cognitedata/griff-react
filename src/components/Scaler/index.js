@@ -93,14 +93,18 @@ class Scaler extends Component {
           ],
         };
         subDomainsByItemId[item.id] = {
-          [Axes.time]: this.props.dataContext.timeSubDomain,
+          [Axes.time]: this.props.dataContext.timeSubDomain || [
+            ...Axes.time(
+              this.state.subDomainsByItemId[item.id] || item.timeSubDomain
+            ),
+          ],
           [Axes.x]: [
-            ...(item.xSubDomain ||
-              Axes.x(this.state.subDomainsByItemId[item.id])),
+            ...(Axes.x(this.state.subDomainsByItemId[item.id]) ||
+              item.xSubDomain),
           ],
           [Axes.y]: [
-            ...(item.ySubDomain ||
-              Axes.y(this.state.subDomainsByItemId[item.id])),
+            ...(Axes.y(this.state.subDomainsByItemId[item.id]) ||
+              item.ySubDomain),
           ],
         };
       };
