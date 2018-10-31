@@ -1,5 +1,10 @@
 const dimension = key => {
-  const functor = input => input[key];
+  const functor = input => {
+    if (!input) {
+      return [0, 0];
+    }
+    return input[key];
+  };
   functor.toString = () => key;
   return functor;
 };

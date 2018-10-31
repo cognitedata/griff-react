@@ -11,6 +11,16 @@ import Axes from '../../utils/Axes';
 // the leading edge of the timeDomain.
 const FRONT_OF_WINDOW_THRESHOLD = 0.05;
 
+const containsSameItems = (a, b) => {
+  const reducer = (acc, item) => {
+    if (item.hidden) {
+      return acc;
+    }
+    return { ...acc, [item.id]: item.yDomain };
+  };
+  return isEqual(a.reduce(reducer, {}), b.reduce(reducer, {}));
+};
+
 /**
  * The scaler is the source of truth for all things related to the domains and
  * subdomains for all of the items within Griff. Note that an item can be either
@@ -59,6 +69,52 @@ class Scaler extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    if (
+      !containsSameItems(
+        prevProps.dataContext.series,
+        this.props.dataContext.series
+      )
+    ) {
+      const domainsByItemId = {};
+      const subDomainsByItemId = {};
+
+      const updateDomainsForItem = item => {
+        domainsByItemId[item.id] = {
+          [Axes.time]: this.props.dataContext.timeDomain || [
+            ...Axes.time(
+              this.state.domainsByItemId[item.id] || item.timeDomain
+            ),
+          ],
+          [Axes.x]: [
+            ...Axes.x(this.state.domainsByItemId[item.id] || item.xDomain),
+          ],
+          [Axes.y]: [
+            ...Axes.y(this.state.domainsByItemId[item.id] || item.yDomain),
+          ],
+        };
+        subDomainsByItemId[item.id] = {
+          [Axes.time]: this.props.dataContext.timeSubDomain || [
+            ...Axes.time(
+              this.state.subDomainsByItemId[item.id] || item.timeSubDomain
+            ),
+          ],
+          [Axes.x]: [
+            ...(Axes.x(this.state.subDomainsByItemId[item.id]) ||
+              item.xSubDomain),
+          ],
+          [Axes.y]: [
+            ...(Axes.y(this.state.subDomainsByItemId[item.id]) ||
+              item.ySubDomain),
+          ],
+        };
+      };
+      (this.props.dataContext.series || []).forEach(updateDomainsForItem);
+      (this.props.dataContext.collections || []).forEach(updateDomainsForItem);
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ subDomainsByItemId, domainsByItemId });
+      return;
+    }
+
     if (
       !isEqual(
         prevProps.dataContext.timeSubDomain,
@@ -120,38 +176,6 @@ class Scaler extends Component {
 
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ domainsByItemId, subDomainsByItemId });
-    }
-
-    if (!isEqual(prevProps.dataContext.series, this.props.dataContext.series)) {
-      const domainsByItemId = {};
-      const subDomainsByItemId = {};
-      []
-        .concat(this.props.dataContext.series)
-        .concat(this.props.dataContext.collections)
-        .forEach(item => {
-          domainsByItemId[item.id] = {
-            ...this.state.domainsByItemId[item.id],
-            [Axes.x]: [
-              ...(item.xDomain || Axes.x(this.state.domainsByItemId[item.id])),
-            ],
-            [Axes.y]: [
-              ...(item.yDomain || Axes.y(this.state.domainsByItemId[item.id])),
-            ],
-          };
-          subDomainsByItemId[item.id] = {
-            ...this.state.subDomainsByItemId[item.id],
-            [Axes.x]: [
-              ...(item.xSubDomain ||
-                Axes.x(this.state.subDomainsByItemId[item.id])),
-            ],
-            [Axes.y]: [
-              ...(item.ySubDomain ||
-                Axes.y(this.state.subDomainsByItemId[item.id])),
-            ],
-          };
-        });
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ subDomainsByItemId, domainsByItemId });
     }
   }
 
