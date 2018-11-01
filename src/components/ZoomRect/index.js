@@ -32,7 +32,8 @@ const propTypes = {
    * {@code (offsetX, offsetY) => void}
    */
   // FIXME: Remove this bit and move the business logic to the apps.
-  onTouchDrag: PropTypes.func,
+  onTouchMove: PropTypes.func,
+  onTouchMoveEnd: PropTypes.func,
 
   // These are provided by Griff.
   updateDomains: GriffPropTypes.updateDomains.isRequired,
@@ -46,7 +47,8 @@ const defaultProps = {
   onMouseOut: null,
   onClick: null,
   onDoubleClick: null,
-  onTouchDrag: null,
+  onTouchMove: null,
+  onTouchMoveEnd: null,
 };
 
 class ZoomRect extends React.Component {
@@ -67,13 +69,6 @@ class ZoomRect extends React.Component {
       this.syncZoomingState();
     }
   }
-
-  onMouseMove = e => {
-    this.firstTouch = this.getOffset(e.nativeEvent);
-    if (this.props.onMouseMove) {
-      this.props.onMouseMove(e);
-    }
-  };
 
   onTouchStart = () => {
     const {
@@ -119,11 +114,6 @@ class ZoomRect extends React.Component {
     if (touches.length === 1) {
       // If there was only one touch, then it was a drag event.
       updates = this.performTouchDrag(touches, totalDistances);
-
-      if (this.props.onTouchDrag) {
-        const { x: touchX, y: touchY } = this.firstTouch;
-        this.props.onTouchDrag(touchX, touchY);
-      }
     } else if (touches.length === 2) {
       // If there were two, then it is a zoom event.
       updates = this.performTouchZoom(touches, totalDistances);
@@ -132,6 +122,9 @@ class ZoomRect extends React.Component {
     }
     if (updates) {
       this.props.updateDomains(updates);
+    }
+    if (this.props.onTouchMove) {
+      this.props.onTouchMove();
     }
   };
 
@@ -153,6 +146,9 @@ class ZoomRect extends React.Component {
     } else {
       // We don't support more complicated gestures, so any more than 2 fingers
       // touching the screen are ignored.
+    }
+    if (this.props.onTouchMoveEnd) {
+      this.props.onTouchMoveEnd();
     }
   };
 
@@ -373,7 +369,7 @@ class ZoomRect extends React.Component {
         width={width}
         height={height}
         onClick={onClick}
-        onMouseMove={this.onMouseMove}
+        onMouseMove={onMouseMove}
         onBlur={onMouseMove}
         onMouseOut={onMouseOut}
         onMouseDown={onMouseDown}

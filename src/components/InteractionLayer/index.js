@@ -121,7 +121,6 @@ class InteractionLayer extends React.Component {
       const ts = prevXScale.invert(touchX).getTime();
       const newXPos = curXScale(ts);
 
-      const { type: d3Type } = ((d3 || {}).event || {}).sourceEvent || {};
       // hide ruler if point went out to the left of subdomain
       if (newXPos < 0) {
         this.setState({
@@ -129,15 +128,15 @@ class InteractionLayer extends React.Component {
           touchX: null,
           touchY: null,
         });
-      } else if (
-        // ruler should follow points during live loading
-        // except when the chart is dragging firing touchmove event
-        d3Type === 'mousemove' ||
-        d3Type === undefined
-      ) {
-        this.setState({ touchX: newXPos }, () =>
-          this.processMouseMove(newXPos, touchY)
-        );
+      } else if (this.touchMoving) {
+        // ruler should not follow points during panning and zooming on mobile
+        this.processMouseMove(touchX, touchY);
+      } else {
+        // ruler should follow points during live loading and
+        // panning and zooming on desktop
+        this.setState({ touchX: newXPos }, () => {
+          this.processMouseMove(newXPos, touchY);
+        });
       }
     }
   }
@@ -317,6 +316,14 @@ class InteractionLayer extends React.Component {
     if (onDoubleClick) {
       onDoubleClick(e);
     }
+  };
+
+  onTouchMove = () => {
+    this.touchMoving = true;
+  };
+
+  onTouchMoveEnd = () => {
+    this.touchMoving = false;
   };
 
   // TODO: This extrapolate thing is super gross and so hacky.
@@ -600,7 +607,8 @@ class InteractionLayer extends React.Component {
           onMouseUp={this.onMouseUp}
           onDoubleClick={this.onDoubleClick}
           itemIds={series.map(s => s.id).concat(collections.map(c => c.id))}
-          onTouchDrag={this.processMouseMove}
+          onTouchMove={this.onTouchMove}
+          onTouchMoveEnd={this.onTouchMoveEnd}
         />
       </React.Fragment>
     );

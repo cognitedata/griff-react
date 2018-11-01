@@ -87,7 +87,7 @@ class App extends Component {
             ruler={{
               visible: true,
               yLabel: point => Number.parseFloat(point.value).toFixed(3),
-              xLabel: point =>
+              timeLabel: point =>
                 moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
             }}
           />
