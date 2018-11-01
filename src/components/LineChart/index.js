@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { SizeMe } from 'react-sizeme';
+import sizeMe from 'react-sizeme';
 import AxisCollection from '../AxisCollection';
 import GridLines from '../GridLines';
 import ScalerContext from '../../context/Scaler';
@@ -355,22 +355,19 @@ class LineChart extends Component {
 LineChart.propTypes = propTypes;
 LineChart.defaultProps = defaultProps;
 
+const SizedLineChart = sizeMe({ monitorHeight: true })(LineChart);
+
 export default props => (
   <ScalerContext.Consumer>
     {({ collections, series, xSubDomain, xScalerFactory, yAxisWidth }) => (
-      <SizeMe monitorHeight>
-        {({ size }) => (
-          <LineChart
-            {...props}
-            size={size}
-            collections={collections}
-            series={series}
-            timeSubDomain={xSubDomain}
-            xScalerFactory={xScalerFactory}
-            yAxisWidth={yAxisWidth}
-          />
-        )}
-      </SizeMe>
+      <SizedLineChart
+        {...props}
+        collections={collections}
+        series={series}
+        timeSubDomain={xSubDomain}
+        xScalerFactory={xScalerFactory}
+        yAxisWidth={yAxisWidth}
+      />
     )}
   </ScalerContext.Consumer>
 );
