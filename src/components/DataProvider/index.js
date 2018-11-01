@@ -69,6 +69,8 @@ export default class DataProvider extends Component {
     timeDomain: this.props.timeDomain,
     loaderConfig: {},
     contextSeries: {},
+    timeDomains: {},
+    timeSubDomains: {},
     xDomains: {},
     xSubDomains: {},
     yDomains: {},
@@ -279,6 +281,8 @@ export default class DataProvider extends Component {
       pointWidthAccessor,
       strokeWidth,
       timeAccessor,
+      timeDomain: propTimeDomain,
+      timeSubDomain,
       xAccessor,
       x0Accessor,
       x1Accessor,
@@ -292,6 +296,8 @@ export default class DataProvider extends Component {
     } = this.props;
     const {
       loaderConfig,
+      timeDomains,
+      timeSubDomains,
       xDomains,
       xSubDomains,
       yDomains,
@@ -308,6 +314,12 @@ export default class DataProvider extends Component {
       series.xDomain ||
       propXDomain ||
       xDomains[series.id] ||
+      PLACEHOLDER_DOMAIN;
+    const timeDomain =
+      collection.timeDomain ||
+      series.timeDomain ||
+      timeDomains[series.id] ||
+      propTimeDomain ||
       PLACEHOLDER_DOMAIN;
     return {
       drawPoints: collection.drawPoints,
@@ -375,6 +387,13 @@ export default class DataProvider extends Component {
         (series.collectionId
           ? collection.yAxisDisplayMode
           : series.yAxisDisplayMode) || collection.yAxisDisplayMode,
+      timeDomain,
+      timeSubDomain:
+        collection.timeSubDomain ||
+        series.timeSubDomain ||
+        timeSubDomains[series.id] ||
+        timeSubDomain ||
+        timeDomain,
       xDomain,
       xSubDomain:
         collection.xSubDomain ||
@@ -419,6 +438,20 @@ export default class DataProvider extends Component {
     };
     const stateUpdates = {};
     if (reason === 'MOUNTED') {
+      const calculatedTimeDomain = calculateDomainFromData(
+        loaderConfig.data,
+        loaderConfig.timeAccessor || this.props.timeAccessor
+      );
+      const calculatedTimeSubDomain = calculatedTimeDomain;
+      stateUpdates.timeDomains = {
+        ...this.state.timeDomains,
+        [id]: calculatedTimeDomain,
+      };
+      stateUpdates.timeSubDomains = {
+        ...this.state.timeSubDomains,
+        [id]: calculatedTimeSubDomain,
+      };
+
       // We were not given an xDomain, so we need to calculate one based on
       // the loaded data.
       const xDomain = calculateDomainFromData(
