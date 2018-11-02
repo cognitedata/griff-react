@@ -451,10 +451,6 @@ class InteractionLayer extends React.Component {
   };
 
   setRulerPoints = xpos => {
-    const { ruler } = this.props;
-    if (!ruler || !ruler.visible) {
-      return [];
-    }
     const rulerPoints = this.getRulerPoints(xpos);
     this.setState({ points: rulerPoints });
 
