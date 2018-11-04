@@ -12,27 +12,33 @@ import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {
   height: PropTypes.number.isRequired,
-  series: seriesPropType,
-  collections: GriffPropTypes.collections,
   zoomable: PropTypes.bool,
-  yAxisWidth: PropTypes.number,
   axisDisplayMode: axisDisplayModeType,
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
+  ticks: PropTypes.number,
+
   // Number => String
-  tickFormatter: PropTypes.func.isRequired,
+  tickFormatter: PropTypes.func,
+
+  // These are populated by Griff.
+  series: seriesPropType,
+  collections: GriffPropTypes.collections,
+  yAxisWidth: PropTypes.number,
 };
 
 const defaultProps = {
   series: [],
   collections: [],
   zoomable: true,
+  ticks: 5,
   yAxisWidth: 50,
   axisDisplayMode: AxisDisplayMode.ALL,
   yAxisPlacement: AxisPlacement.RIGHT,
   onMouseEnter: null,
   onMouseLeave: null,
+  tickFormatter: Number,
 };
 
 class AxisCollection extends React.Component {
@@ -92,6 +98,7 @@ class AxisCollection extends React.Component {
       zoomable,
       height,
       tickFormatter,
+      ticks,
       yAxisPlacement,
       yAxisWidth,
     } = this.props;
@@ -135,6 +142,7 @@ class AxisCollection extends React.Component {
               onMouseLeave={this.onAxisMouseLeave(s.id)}
               tickFormatter={tickFormatter}
               yAxisPlacement={yAxisPlacement}
+              ticks={ticks}
             />
           );
         })
@@ -154,6 +162,7 @@ class AxisCollection extends React.Component {
               onMouseLeave={this.onAxisMouseLeave(c.id)}
               tickFormatter={tickFormatter}
               yAxisPlacement={yAxisPlacement}
+              ticks={ticks}
             />
           );
         })
@@ -226,21 +235,8 @@ AxisCollection.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({
-      collections,
-      series,
-      yAxisWidth,
-      updateDomains,
-      subDomainsByItemId,
-    }) => (
-      <AxisCollection
-        {...props}
-        collections={collections}
-        series={series}
-        yAxisWidth={yAxisWidth}
-        updateDomains={updateDomains}
-        subDomainsByItemId={subDomainsByItemId}
-      />
+    {({ collections, series }) => (
+      <AxisCollection {...props} collections={collections} series={series} />
     )}
   </ScalerContext.Consumer>
 );

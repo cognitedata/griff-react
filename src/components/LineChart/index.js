@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { SizeMe } from 'react-sizeme';
+import sizeMe from 'react-sizeme';
 import AxisCollection from '../AxisCollection';
 import GridLines from '../GridLines';
 import ScalerContext from '../../context/Scaler';
@@ -39,6 +39,8 @@ const propTypes = {
   collections: GriffPropTypes.collections,
   crosshair: PropTypes.bool,
   onMouseMove: PropTypes.func,
+  onMouseOut: PropTypes.func,
+  onBlur: PropTypes.func,
   onClick: PropTypes.func,
   // (annotation, x, y) => void
   onClickAnnotation: PropTypes.func,
@@ -93,6 +95,8 @@ const defaultProps = {
   },
   crosshair: true,
   onMouseMove: null,
+  onMouseOut: null,
+  onBlur: null,
   onClick: null,
   onClickAnnotation: null,
   onDoubleClick: null,
@@ -102,8 +106,9 @@ const defaultProps = {
   annotations: [],
   ruler: {
     visible: false,
-    xLabel: () => {},
+    timeLabel: () => {},
     yLabel: () => {},
+    timestamp: null,
   },
   xAxisHeight: 50,
   yAxisWidth: 50,
@@ -240,6 +245,8 @@ class LineChart extends Component {
       onClickAnnotation,
       onDoubleClick,
       onMouseMove,
+      onMouseOut,
+      onBlur,
       pointWidth,
       size,
       xSubDomain,
@@ -295,6 +302,8 @@ class LineChart extends Component {
               width={chartSize.width}
               crosshair={crosshair}
               onMouseMove={onMouseMove}
+              onMouseOut={onMouseOut}
+              onBlur={onBlur}
               onClickAnnotation={onClickAnnotation}
               onDoubleClick={onDoubleClick}
               ruler={ruler}
@@ -346,22 +355,19 @@ class LineChart extends Component {
 LineChart.propTypes = propTypes;
 LineChart.defaultProps = defaultProps;
 
+const SizedLineChart = sizeMe({ monitorHeight: true })(LineChart);
+
 export default props => (
   <ScalerContext.Consumer>
     {({ collections, series, xSubDomain, xScalerFactory, yAxisWidth }) => (
-      <SizeMe monitorHeight>
-        {({ size }) => (
-          <LineChart
-            {...props}
-            size={size}
-            collections={collections}
-            series={series}
-            timeSubDomain={xSubDomain}
-            xScalerFactory={xScalerFactory}
-            yAxisWidth={yAxisWidth}
-          />
-        )}
-      </SizeMe>
+      <SizedLineChart
+        {...props}
+        collections={collections}
+        series={series}
+        timeSubDomain={xSubDomain}
+        xScalerFactory={xScalerFactory}
+        yAxisWidth={yAxisWidth}
+      />
     )}
   </ScalerContext.Consumer>
 );

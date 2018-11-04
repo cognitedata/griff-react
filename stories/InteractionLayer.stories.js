@@ -29,7 +29,7 @@ storiesOf('InteractionLayer', module)
           visible: true,
           yLabel: point =>
             `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
-          xLabel: point =>
+          timeLabel: point =>
             moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
         }}
       />

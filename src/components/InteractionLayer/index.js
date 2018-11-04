@@ -44,13 +44,14 @@ class InteractionLayer extends React.Component {
     onMouseOut: PropTypes.func,
     // ({ xSubDomain, transformation }) => void
     onZoomXAxis: PropTypes.func,
-    series: seriesPropType,
     areas: PropTypes.arrayOf(areaPropType),
     annotations: PropTypes.arrayOf(annotationPropType),
     width: PropTypes.number.isRequired,
     zoomAxes: GriffPropTypes.zoomAxes.isRequired,
 
     // These are all populated by Griff.
+    series: seriesPropType,
+    collections: GriffPropTypes.collections,
     timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
@@ -61,6 +62,7 @@ class InteractionLayer extends React.Component {
   static defaultProps = {
     areas: [],
     annotations: [],
+    collections: [],
     crosshair: false,
     onAreaDefined: null,
     onAreaClicked: null,
@@ -73,8 +75,9 @@ class InteractionLayer extends React.Component {
     series: [],
     ruler: {
       visible: false,
-      xLabel: () => {},
+      timeLabel: () => {},
       yLabel: () => {},
+      timestamp: null,
     },
   };
 
@@ -117,6 +120,7 @@ class InteractionLayer extends React.Component {
       const curXScale = xScalerFactory(nextTimeSubDomain, width);
       const ts = prevXScale.invert(touchX).getTime();
       const newXPos = curXScale(ts);
+
       // hide ruler if point went out to the left of subdomain
       if (newXPos < 0) {
         this.setState({
@@ -124,14 +128,15 @@ class InteractionLayer extends React.Component {
           touchX: null,
           touchY: null,
         });
-      } else if (
-        // ruler should follow points during live loading
-        // except when the chart is dragging firing touchmove event
-        (((d3 || {}).event || {}).sourceEvent || {}).type === 'mousemove'
-      ) {
-        this.setState({ touchX: newXPos }, () =>
-          this.processMouseMove(newXPos, touchY)
-        );
+      } else if (this.touchMoving) {
+        // ruler should not follow points during panning and zooming on mobile
+        this.processMouseMove(touchX, touchY);
+      } else {
+        // ruler should follow points during live loading and
+        // panning and zooming on desktop
+        this.setState({ touchX: newXPos }, () => {
+          this.processMouseMove(newXPos, touchY);
+        });
       }
     }
   }
@@ -143,6 +148,13 @@ class InteractionLayer extends React.Component {
       this.setState({
         area: null,
       });
+    }
+
+    if (
+      (!prevProps.width && this.props.width && this.props.ruler.timestamp) || // got width from sizeMe
+      this.props.ruler.timestamp !== prevProps.ruler.timestamp
+    ) {
+      this.setRulerPosition(this.props.ruler.timestamp);
     }
   }
 
@@ -193,7 +205,7 @@ class InteractionLayer extends React.Component {
 
     const { area } = this.state;
     if (onMouseMove || (ruler && ruler.visible) || area) {
-      this.processMouseMove(xpos, ypos);
+      this.processMouseMove(xpos, ypos, e);
       this.setState({
         touchX: xpos,
         touchY: ypos,
@@ -306,6 +318,14 @@ class InteractionLayer extends React.Component {
     }
   };
 
+  onTouchMove = () => {
+    this.touchMoving = true;
+  };
+
+  onTouchMoveEnd = () => {
+    this.touchMoving = false;
+  };
+
   // TODO: This extrapolate thing is super gross and so hacky.
   getDataForCoordinate = (xpos, ypos, extrapolate = false) => {
     const {
@@ -329,15 +349,17 @@ class InteractionLayer extends React.Component {
       const x0 = data[rawX - 1];
       const x1 = data[rawX];
       let d = null;
-      if (x0 && !x1) {
+      if (x0) {
+        // If there is a point *before* the cursor position, then that should
+        // be used since it was the last-known value, and extrapolating into the
+        // future can be misleading (and incorrect).
         d = x0;
-      } else if (x1 && !x0) {
+      } else if (x1) {
+        // But if we only have a point under the cursor, go ahead and use that.
         d = x1;
-      } else if (!x0 && !x1) {
-        d = null;
       } else {
-        d =
-          rawTimestamp - xAccessor(x0) > xAccessor(x1) - rawTimestamp ? x1 : x0;
+        // Otherwise, just use nothing.
+        d = null;
       }
       if (d) {
         let yScale = createYScale(ySubDomain, height);
@@ -363,14 +385,12 @@ class InteractionLayer extends React.Component {
     return output;
   };
 
-  processMouseMove = (xpos, ypos) => {
+  getRulerPoints = xpos => {
     const {
       series,
       height,
       width,
       subDomainsByItemId,
-      onMouseMove,
-      ruler,
       xScalerFactory,
     } = this.props;
     const newPoints = [];
@@ -386,15 +406,17 @@ class InteractionLayer extends React.Component {
       const x0 = data[rawX - 1];
       const x1 = data[rawX];
       let d = null;
-      if (x0 && !x1) {
+      if (x0) {
+        // If there is a point *before* the cursor position, then that should
+        // be used since it was the last-known value, and extrapolating into the
+        // future can be misleading (and incorrect).
         d = x0;
-      } else if (x1 && !x0) {
+      } else if (x1) {
+        // But if we only have a point under the cursor, go ahead and use that.
         d = x1;
-      } else if (!x0 && !x1) {
-        d = null;
       } else {
-        d =
-          rawTimestamp - xAccessor(x0) > xAccessor(x1) - rawTimestamp ? x1 : x0;
+        // Otherwise, just use nothing.
+        d = null;
       }
       if (d) {
         const yScale = createYScale(ySubDomain, height);
@@ -414,36 +436,67 @@ class InteractionLayer extends React.Component {
         newPoints.push({ id: s.id });
       }
     });
+    return newPoints;
+  };
 
-    if (ruler && ruler.visible) {
-      this.setState({ points: newPoints });
-    }
-
-    const { area } = this.state;
-    if (area) {
-      const output = this.getDataForCoordinate(xpos, ypos, true);
+  setRulerPosition = timestamp => {
+    if (!timestamp) {
       this.setState({
-        area: {
-          ...area,
-          end: output,
-        },
+        points: [],
+        touchX: null,
+        touchY: null,
       });
+      return;
     }
+    const { xScalerFactory, width, timeSubDomain } = this.props;
+    const xScale = xScalerFactory(timeSubDomain, width);
+    const xpos = xScale(timestamp);
+    this.setRulerPoints(xpos);
+    this.setState({
+      touchX: xpos,
+    });
+  };
 
+  setRulerPoints = xpos => {
+    const rulerPoints = this.getRulerPoints(xpos);
+    this.setState({ points: rulerPoints });
+
+    return rulerPoints;
+  };
+
+  setArea = (xpos, ypos) => {
+    const { area } = this.state;
+    if (!area) {
+      return;
+    }
+    const output = this.getDataForCoordinate(xpos, ypos, true);
+    this.setState({
+      area: {
+        ...area,
+        end: output,
+      },
+    });
+  };
+
+  processMouseMove = (xpos, ypos, e = null) => {
+    const rulerPoints = this.setRulerPoints(xpos);
+    this.setArea(xpos, ypos);
+    const { onMouseMove } = this.props;
     if (onMouseMove) {
-      onMouseMove({ points: newPoints, xpos, ypos });
+      onMouseMove({ points: rulerPoints, xpos, ypos, e });
     }
   };
 
   render() {
     const {
-      width,
+      collections,
       height,
       crosshair,
       onAreaDefined,
       ruler,
       series,
       subDomainsByItemId,
+      width,
       xScalerFactory,
       zoomAxes,
     } = this.props;
@@ -553,8 +606,9 @@ class InteractionLayer extends React.Component {
           onMouseDown={this.onMouseDown}
           onMouseUp={this.onMouseUp}
           onDoubleClick={this.onDoubleClick}
-          itemIds={series.map(s => s.id)}
-          onTouchDrag={this.processMouseMove}
+          itemIds={series.map(s => s.id).concat(collections.map(c => c.id))}
+          onTouchMove={this.onTouchMove}
+          onTouchMoveEnd={this.onTouchMoveEnd}
         />
       </React.Fragment>
     );
@@ -566,6 +620,7 @@ export default props => (
     {({
       timeSubDomain,
       timeDomain,
+      collections,
       series,
       xScalerFactory,
       subDomainsByItemId,
@@ -575,6 +630,7 @@ export default props => (
         // FIXME: Remove this crap
         timeSubDomain={timeSubDomain}
         timeDomain={timeDomain}
+        collections={collections}
         series={series}
         xScalerFactory={xScalerFactory}
         subDomainsByItemId={subDomainsByItemId}

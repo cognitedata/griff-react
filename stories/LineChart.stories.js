@@ -745,29 +745,56 @@ storiesOf('LineChart', module)
     </DataProvider>
   ))
   .add('Live loading and ruler', () => (
-    <DataProvider
-      defaultLoader={liveLoader}
-      timeDomain={liveXDomain}
-      updateInterval={33}
-      yAxisWidth={50}
-      series={[
-        { id: 1, color: 'steelblue', name: 'name1' },
-        { id: 2, color: 'maroon', name: 'name2' },
-      ]}
-    >
-      <LineChart
-        height={CHART_HEIGHT}
-        crosshair={false}
-        ruler={{
-          visible: true,
-          yLabel: point =>
-            `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
-          xLabel: point =>
-            moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
-        }}
-      />
-    </DataProvider>
+    <div>
+      <DataProvider
+        defaultLoader={liveLoader}
+        timeDomain={liveXDomain}
+        updateInterval={33}
+        yAxisWidth={50}
+        series={[
+          { id: 1, color: 'steelblue', name: 'name1' },
+          { id: 2, color: 'maroon', name: 'name2' },
+        ]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          crosshair={false}
+          ruler={{
+            visible: true,
+            yLabel: point =>
+              `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+            timeLabel: point =>
+              moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+          }}
+        />
+      </DataProvider>
+      <h3>With ruler timestamp</h3>
+      <DataProvider
+        defaultLoader={liveLoader}
+        timeDomain={liveXDomain}
+        updateInterval={33}
+        yAxisWidth={50}
+        series={[
+          { id: 1, color: 'steelblue', name: 'name1' },
+          { id: 2, color: 'maroon', name: 'name2' },
+        ]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          crosshair={false}
+          ruler={{
+            visible: true,
+            yLabel: point =>
+              `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+            timeLabel: point =>
+              moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+            timestamp: Date.now() - 1000 * 10,
+          }}
+        />
+      </DataProvider>
+    </div>
   ))
+
   .add('Enable/disable series', () => {
     const colors = {
       'COM/COFFEE_BRZL': 'steelblue',
@@ -864,7 +891,7 @@ storiesOf('LineChart', module)
         { id: 1, color: 'steelblue', name: 'name1' },
         { id: 2, color: 'maroon', name: 'name2' },
       ]}
-      isXSubDomainSticky
+      istimeSubDomainSticky
     >
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
@@ -895,7 +922,7 @@ storiesOf('LineChart', module)
                 Date.now() - 1000 * 60 * 60 * 24 * 15,
                 Date.now() - 1000 * 60 * 60 * 24 * 10,
               ]}
-              limitXSubDomain={this.limitXSubDomain}
+              limitTimeSubDomain={this.limitXSubDomain}
             >
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
@@ -904,4 +931,21 @@ storiesOf('LineChart', module)
       }
     }
     return <LimitXSubDomain />;
-  });
+  })
+  .add('onMouseOut', () => (
+    <DataProvider
+      defaultLoader={staticLoader}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      timeDomain={staticXDomain}
+      xSubDomain={[
+        Date.now() - 1000 * 60 * 60 * 24 * 30,
+        Date.now() - 1000 * 60 * 60 * 24 * 10,
+      ]}
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        onMouseOut={action('mouse out')}
+        onBlur={() => {}}
+      />
+    </DataProvider>
+  ));
