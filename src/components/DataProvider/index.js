@@ -678,7 +678,7 @@ DataProvider.propTypes = {
   // timeSubDomain => timeSubDomain
   // function to allow limitation of the value of timeSubDomain
   limitTimeSubDomain: PropTypes.func,
-  // void => void
+  // { lastPoints } => void
   // called whenever data is fetched by the loader
   onFetchData: PropTypes.func,
 };
