@@ -17,6 +17,7 @@ const LineCollection = props => {
     series,
     width,
     height,
+    xAxis,
     xScalerFactory,
     pointWidth,
     scaleX,
@@ -40,9 +41,7 @@ const LineCollection = props => {
     }
     const { id } = s;
     const xScale = xScalerFactory(
-      scaleX
-        ? Axes.time(subDomainsByItemId[id])
-        : Axes.time(domainsByItemId[id]),
+      scaleX ? xAxis(subDomainsByItemId[id]) : xAxis(domainsByItemId[id]),
       width
     );
     const yScale = createYScale(
@@ -54,6 +53,7 @@ const LineCollection = props => {
       <Line
         key={s.id}
         {...s}
+        xAxisAccessor={xAxis === Axes.time ? s.timeAccessor : s.xAccessor}
         xScale={xScale}
         yScale={yScale}
         clipPath={clipPath}
@@ -74,6 +74,7 @@ const LineCollection = props => {
 LineCollection.propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
+  xAxis: PropTypes.oneOf(Axes.HORIZONTAL),
   series: seriesPropType,
   pointWidth: PropTypes.number,
   scaleX: PropTypes.bool,
@@ -92,6 +93,7 @@ LineCollection.defaultProps = {
   pointWidth: 6,
   scaleX: true,
   scaleY: true,
+  xAxis: Axes.time,
 };
 
 export default props => (
