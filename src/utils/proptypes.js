@@ -6,8 +6,12 @@ import Axes from './Axes';
 const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
 /**
+ * If a {@code boolean} is passed, then this will enable (or disable) the
+ * default rendering.
  * If a {@code function} is passed, then this will be used as the rendering
  * function for rendering the points.
+ *
+ * @see {@code drawPoints} on {@link DataProvider} for more information.
  */
 const drawPoints = PropTypes.oneOfType([PropTypes.bool, PropTypes.func]);
 

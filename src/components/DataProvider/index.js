@@ -663,7 +663,7 @@ DataProvider.propTypes = {
    * data point, return this array as-is
    * @returns {(object|Array)} object(s) to render for this point.
    */
-  drawPoints: PropTypes.func,
+  drawPoints: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   timeDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   timeSubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   xDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
