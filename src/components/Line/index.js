@@ -119,7 +119,6 @@ Line.propTypes = {
   step: PropTypes.bool,
   hidden: PropTypes.bool,
   drawPoints: GriffPropTypes.drawPoints,
-  drawPoints: PropTypes.bool,
   opacity: PropTypes.number,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
