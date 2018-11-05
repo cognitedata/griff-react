@@ -59,8 +59,7 @@ const Points = ({
   pointWidthAccessor,
   strokeWidth,
 }) => {
-  if (!drawPoints) {
-    // We should never wind up in this situation, but just in case...
+  if (drawPoints === false) {
     return null;
   }
 
