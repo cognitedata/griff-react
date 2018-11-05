@@ -277,6 +277,7 @@ export default class DataProvider extends Component {
 
   enrichSeries = (series, collection = {}) => {
     const {
+      drawLines,
       opacity,
       opacityAccessor,
       pointWidth,
@@ -329,6 +330,11 @@ export default class DataProvider extends Component {
       data: [],
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
       ...deleteUndefinedFromObject(series),
+      drawLines: firstDefined(
+        series.drawLines,
+        collection.drawLines,
+        drawLines
+      ),
       timeAccessor: firstDefined(
         series.timeAccessor,
         collection.timeAccessor,
@@ -637,6 +643,7 @@ export default class DataProvider extends Component {
 }
 
 DataProvider.propTypes = {
+  drawLines: PropTypes.bool,
   timeDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   timeSubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   xDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
@@ -678,6 +685,7 @@ DataProvider.propTypes = {
 DataProvider.defaultProps = {
   collections: [],
   defaultLoader: null,
+  drawLines: undefined,
   onTimeSubDomainChanged: null,
   opacity: 1.0,
   opacityAccessor: null,
