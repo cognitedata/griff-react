@@ -92,22 +92,22 @@ class InteractionLayer extends React.Component {
     touchY: null,
   };
 
+  componentDidMount() {
+    if (this.props.ruler.timestamp) {
+      this.setRulerPosition(this.props.ruler.timestamp);
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     const {
-      subDomainsByItemId: prevSubDomainsByItemId,
+      // FIXME: Migrate this to `subDomainsByItemId`.
+      timeSubDomain: prevTimeSubDomain,
       ruler,
       xScalerFactory,
     } = this.props;
-    const { subDomainsByItemId: nextSubDomainsByItemId, width } = nextProps;
-    const { touchX, touchY } = this.state;
-
     // FIXME: Don't assume a single time domain
-    const prevTimeSubDomain = Axes.time(
-      prevSubDomainsByItemId[Object.keys(prevSubDomainsByItemId)[0]]
-    );
-    const nextTimeSubDomain = Axes.time(
-      nextSubDomainsByItemId[Object.keys(nextSubDomainsByItemId)[0]]
-    );
+    const { timeSubDomain: nextTimeSubDomain, width } = nextProps;
+    const { touchX, touchY } = this.state;
 
     if (
       ruler &&
@@ -151,7 +151,7 @@ class InteractionLayer extends React.Component {
     }
 
     if (
-      (!prevProps.width && this.props.width && this.props.ruler.timestamp) || // got width from sizeMe
+      (prevProps.width !== this.props.width && this.props.ruler.timestamp) ||
       this.props.ruler.timestamp !== prevProps.ruler.timestamp
     ) {
       this.setRulerPosition(this.props.ruler.timestamp);
@@ -392,13 +392,12 @@ class InteractionLayer extends React.Component {
       width,
       subDomainsByItemId,
       xScalerFactory,
+      // FIXME: Migrate this to `subDomainsByItemId`.
+      timeSubDomain,
     } = this.props;
     const newPoints = [];
     series.forEach(s => {
-      const {
-        [Axes.time]: timeSubDomain,
-        [Axes.y]: ySubDomain,
-      } = subDomainsByItemId[s.id];
+      const { [Axes.y]: ySubDomain } = subDomainsByItemId[s.id];
       const xScale = xScalerFactory(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos).getTime();
       const { data, xAccessor, yAccessor } = s;
