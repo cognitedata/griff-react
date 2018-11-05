@@ -499,7 +499,7 @@ export default class DataProvider extends Component {
       };
     }
     this.setState(stateUpdates, () => {
-      this.props.onFetchData();
+      this.props.onFetchData({ ...loaderConfig });
     });
   };
 
@@ -677,7 +677,7 @@ DataProvider.propTypes = {
   // timeSubDomain => timeSubDomain
   // function to allow limitation of the value of timeSubDomain
   limitTimeSubDomain: PropTypes.func,
-  // void => void
+  // loaderConfig => void
   // called whenever data is fetched by the loader
   onFetchData: PropTypes.func,
 };
