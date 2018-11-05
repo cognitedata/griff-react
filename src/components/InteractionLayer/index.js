@@ -92,22 +92,21 @@ class InteractionLayer extends React.Component {
     touchY: null,
   };
 
+  componentDidMount() {
+    if (this.props.ruler.timestamp) {
+      this.setRulerPosition(this.props.ruler.timestamp);
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     const {
-      subDomainsByItemId: prevSubDomainsByItemId,
+      timeSubDomain: prevTimeSubDomain,
       ruler,
       xScalerFactory,
     } = this.props;
-    const { subDomainsByItemId: nextSubDomainsByItemId, width } = nextProps;
-    const { touchX, touchY } = this.state;
-
     // FIXME: Don't assume a single time domain
-    const prevTimeSubDomain = Axes.time(
-      prevSubDomainsByItemId[Object.keys(prevSubDomainsByItemId)[0]]
-    );
-    const nextTimeSubDomain = Axes.time(
-      nextSubDomainsByItemId[Object.keys(nextSubDomainsByItemId)[0]]
-    );
+    const { timeSubDomain: nextTimeSubDomain, width } = nextProps;
+    const { touchX, touchY } = this.state;
 
     if (
       ruler &&
@@ -151,7 +150,7 @@ class InteractionLayer extends React.Component {
     }
 
     if (
-      (!prevProps.width && this.props.width && this.props.ruler.timestamp) || // got width from sizeMe
+      (prevProps.width !== this.props.width && this.props.ruler.timestamp) || // got new width from sizeMe
       this.props.ruler.timestamp !== prevProps.ruler.timestamp
     ) {
       this.setRulerPosition(this.props.ruler.timestamp);
