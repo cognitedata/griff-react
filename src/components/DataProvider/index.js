@@ -277,6 +277,7 @@ export default class DataProvider extends Component {
 
   enrichSeries = (series, collection = {}) => {
     const {
+      drawPoints,
       drawLines,
       opacity,
       opacityAccessor,
@@ -325,11 +326,15 @@ export default class DataProvider extends Component {
       propTimeDomain ||
       PLACEHOLDER_DOMAIN;
     return {
-      drawPoints: collection.drawPoints,
       hidden: collection.hidden,
       data: [],
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
       ...deleteUndefinedFromObject(series),
+      drawPoints: firstDefined(
+        series.drawPoints,
+        collection.drawPoints,
+        drawPoints
+      ),
       drawLines: firstDefined(
         series.drawLines,
         collection.drawLines,
@@ -643,6 +648,32 @@ export default class DataProvider extends Component {
 }
 
 DataProvider.propTypes = {
+  /**
+   * A custom renderer for data points.
+   *
+   * @param {object} datapoint Current data point being rendered
+   * @param {number} index Index of this current data point
+   * @param {Array} datapoints All of the data points to be rendered
+   * @param {object} metadata This object contains metadata useful for the
+   * rendering process. This contains the following keys:
+   *  - {@code x}: The x-position (in pixels) of the data point.
+   *  - {@code x0}: The x-position (in pixels) for the data point's x0 value
+   *  - {@code x1}: The x-position (in pixels) for the data point's x1 value
+   *  - {@code y}: The y-position (in pixels) of the data point.
+   *  - {@code y0}: The y-position (in pixels) for the data point's y0 value
+   *  - {@code y1}: The y-position (in pixels) for the data point's y1 value
+   *  - {@code color}: The color of this data point
+   *  - {@code opacity}: The opacity of this data point
+   *  - {@code opacityAccessor}: The opacity accessor for this data point
+   *  - {@code pointWidth}: The width of this data point
+   *  - {@code pointWidthAccessor}: The accessor for this data point's width
+   *  - {@code strokeWidth}: The width of the stroke for this data point
+   * @param {Array} elements This is an array of the items that Griff would
+   * render for this data point. If custom rendering is not desired for this
+   * data point, return this array as-is
+   * @returns {(object|Array)} object(s) to render for this point.
+   */
+  drawPoints: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
   drawLines: PropTypes.bool,
   timeDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   timeSubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
@@ -668,6 +699,7 @@ DataProvider.propTypes = {
   onTimeSubDomainChanged: PropTypes.func,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
+
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
@@ -685,6 +717,7 @@ DataProvider.propTypes = {
 DataProvider.defaultProps = {
   collections: [],
   defaultLoader: null,
+  drawPoints: null,
   drawLines: undefined,
   onTimeSubDomainChanged: null,
   opacity: 1.0,

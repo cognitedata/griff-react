@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import Points from '../Points';
 import { boundedSeries } from '../../utils/boundedseries';
+import GriffPropTypes from '../../utils/proptypes';
 
 const Line = ({
   data,
@@ -60,6 +61,7 @@ const Line = ({
           const x = xAxisAccessor(d);
           return x >= xSubDomain[0] && x <= xSubDomain[1];
         })}
+        drawPoints={drawPoints}
         xAccessor={xAxisAccessor}
         yAccessor={yAccessor}
         xScale={xScale}
@@ -116,7 +118,7 @@ Line.propTypes = {
   color: PropTypes.string.isRequired,
   step: PropTypes.bool,
   hidden: PropTypes.bool,
-  drawPoints: PropTypes.bool,
+  drawPoints: GriffPropTypes.drawPoints,
   opacity: PropTypes.number,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,

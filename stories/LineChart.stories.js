@@ -509,6 +509,23 @@ storiesOf('LineChart', module)
       >
         <LineChart height={CHART_HEIGHT} pointWidth={4} />
       </DataProvider>
+      <DataProvider
+        defaultLoader={staticLoader}
+        timeDomain={staticXDomain}
+        pointsPerSeries={100}
+        drawPoints={(d, _, __, { x, y, color }) => (
+          <polygon
+            points={`${x - 5} ${y},${x} ${y - 5},${x + 5} ${y},${x} ${y + 5}`}
+            fill={color}
+          />
+        )}
+        series={[
+          { id: 1, color: 'steelblue' },
+          { id: 2, color: 'maroon', drawPoints: true },
+        ]}
+      >
+        <LineChart height={CHART_HEIGHT} pointWidth={4} />
+      </DataProvider>
     </React.Fragment>
   ))
   .add('Without context chart', () => (

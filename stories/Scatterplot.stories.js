@@ -140,7 +140,9 @@ const scatterplotFunctionLoader = ({
 
 const randomColor = () => {
   const hex = ['r', 'g', 'b']
-    .map(() => `0${Number(Math.round(Math.random() * 255))}`.slice(-2))
+    .map(() =>
+      `0${Number(Math.round(Math.random() * 255)).toString(16)}`.slice(-2)
+    )
     .join('');
   return `#${hex}`;
 };
@@ -151,6 +153,28 @@ const generateSeries = count => {
     series.push({ id: `${i} ${i + 1}`, color: randomColor() });
   }
   return series;
+};
+
+const latestPointRenderer = (
+  d,
+  i,
+  array,
+  { x, y, x0, x1, y0, y1, color },
+  defaultPoints
+) => {
+  if (i === array.length - 1) {
+    const size = 10;
+    const points = [
+      `${x0 || x - size} ${y}`,
+      `${x} ${y1 || y - size}`,
+      `${x1 || x + size} ${y}`,
+      `${x} ${y0 || y + size}`,
+    ];
+    return (
+      <polygon key={`${x},${y},${i}`} points={points.join(',')} fill={color} />
+    );
+  }
+  return defaultPoints;
 };
 
 storiesOf('Scatterplot', module)
@@ -686,6 +710,74 @@ storiesOf('Scatterplot', module)
                 drawLines: true,
                 drawPoints: false,
                 strokeWidth: 1,
+              },
+            ]}
+            xAccessor={d => +d.x}
+            yAccessor={d => +d.y}
+          >
+            <Scatterplot zoomable />
+          </DataProvider>
+        </div>
+      </div>
+    </React.Fragment>
+  ))
+  .add('Point Renderer', () => (
+    <React.Fragment>
+      <div>
+        <h3>Set on DataProvider</h3>
+        <div style={{ height: '500px', width: '100%' }}>
+          <DataProvider
+            defaultLoader={scatterplotloader}
+            timeDomain={[0, 1]}
+            series={[{ id: '1 2', color: 'steelblue' }]}
+            xAccessor={d => +d.x}
+            yAccessor={d => +d.y}
+            drawPoints={latestPointRenderer}
+          >
+            <Scatterplot zoomable />
+          </DataProvider>
+        </div>
+      </div>
+      <div>
+        <h3>Set on the series</h3>
+        <div style={{ height: '500px', width: '100%' }}>
+          <DataProvider
+            defaultLoader={scatterplotloader}
+            timeDomain={[0, 1]}
+            series={[
+              {
+                id: '1 2',
+                color: 'steelblue',
+                drawPoints: latestPointRenderer,
+              },
+              {
+                id: '2 3',
+                color: 'maroon',
+                drawPoints: latestPointRenderer,
+              },
+            ]}
+            xAccessor={d => +d.x}
+            yAccessor={d => +d.y}
+          >
+            <Scatterplot zoomable />
+          </DataProvider>
+        </div>
+      </div>
+      <div>
+        <h3>Set on the collection</h3>
+        <div style={{ height: '500px', width: '100%' }}>
+          <DataProvider
+            defaultLoader={scatterplotloader}
+            timeDomain={[0, 1]}
+            series={[
+              { id: '1 2', color: 'steelblue', collectionId: 'scatter' },
+              { id: '2 3', color: 'maroon', collectionId: 'scatter' },
+            ]}
+            collections={[
+              {
+                id: 'scatter',
+                color: 'black',
+                drawPoints: latestPointRenderer,
               },
             ]}
             xAccessor={d => +d.x}
