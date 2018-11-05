@@ -617,6 +617,7 @@ export default class DataProvider extends Component {
       externalTimeSubDomain,
       yAxisWidth,
       timeSubDomainChanged: this.timeSubDomainChanged,
+      limitTimeSubDomain: this.props.limitTimeSubDomain,
       contextSeries: seriesObjects.map(s => ({
         ...contextSeries[s.id],
         ...s,
