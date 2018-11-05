@@ -891,7 +891,7 @@ storiesOf('LineChart', module)
         { id: 1, color: 'steelblue', name: 'name1' },
         { id: 2, color: 'maroon', name: 'name2' },
       ]}
-      istimeSubDomainSticky
+      isTimeSubDomainSticky
     >
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>

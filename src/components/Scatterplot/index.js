@@ -16,6 +16,7 @@ import AxisPlacement from '../AxisPlacement';
 import GridLines from '../GridLines';
 import Axes from '../../utils/Axes';
 import AxisCollection from '../AxisCollection';
+import LineCollection from '../LineCollection';
 
 const propTypes = {
   grid: GriffPropTypes.grid,
@@ -54,6 +55,7 @@ const X_AXIS_HEIGHT = 50;
 
 const ScatterplotComponent = ({
   grid,
+  series,
   size: { width, height },
   zoomable,
   onClick,
@@ -94,6 +96,11 @@ const ScatterplotComponent = ({
         <svg style={{ width: '100%', height: '100%' }}>
           <GridLines grid={grid} {...chartSize} />
           <PointCollection {...chartSize} />
+          <LineCollection
+            {...chartSize}
+            series={series.filter(s => !!s.drawLines)}
+            xAxis={Axes.x}
+          />
           <InteractionLayer
             {...chartSize}
             onClick={onClick}

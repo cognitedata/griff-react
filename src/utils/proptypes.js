@@ -20,8 +20,15 @@ export const singleSeriePropType = PropTypes.shape({
   collectionId: idPropType,
   color: PropTypes.string,
   hidden: PropTypes.bool,
+  opacity: PropTypes.number,
   strokeWidth: PropTypes.number,
   drawPoints,
+  /**
+   * If unset, this defaults to {@code true} for line charts and {@code false}
+   * for scatterplots.
+   * This will likely be consolidated into a standardized default in the future.
+   */
+  drawLines: PropTypes.bool,
   loader: PropTypes.func,
   step: PropTypes.bool,
   xAccessor: PropTypes.func,
@@ -114,8 +121,15 @@ const collection = PropTypes.shape({
   id: idPropType.isRequired,
   // This the color used when referencing the collection (eg, the common axis)
   color: PropTypes.string,
+  /**
+   * If unset, this defaults to {@code true} for line charts and {@code false}
+   * for scatterplots.
+   * This will likely be consolidated into a standardized default in the future.
+   */
+  drawLines: PropTypes.bool,
   drawPoints,
   hidden: PropTypes.bool,
+  opacity: PropTypes.number,
   strokeWidth: PropTypes.number,
   xAccessor: PropTypes.func,
   yAxisDisplayMode: PropTypes.instanceOf(AxisDisplayMode),

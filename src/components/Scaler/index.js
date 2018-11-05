@@ -57,6 +57,7 @@ class Scaler extends Component {
       timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
       timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
       timeSubDomainChanged: PropTypes.func.isRequired,
+      limitTimeSubDomain: PropTypes.func,
       externalXSubDomain: PropTypes.arrayOf(PropTypes.number),
       series: seriesPropType.isRequired,
       collections: GriffPropTypes.collections.isRequired,
@@ -258,6 +259,12 @@ class Scaler extends Component {
       newSubDomains[itemId] = { ...(subDomainsByItemId[itemId] || {}) };
       Object.keys(changedDomainsById[itemId]).forEach(axis => {
         let newSubDomain = changedDomainsById[itemId][axis];
+        if (axis === String(Axes.time)) {
+          newSubDomain = this.props.dataContext.limitTimeSubDomain(
+            newSubDomain
+          );
+        }
+
         const newSpan = newSubDomain[1] - newSubDomain[0];
 
         const existingSubDomain =

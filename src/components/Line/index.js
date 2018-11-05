@@ -7,17 +7,18 @@ import GriffPropTypes from '../../utils/proptypes';
 
 const Line = ({
   data,
-  timeAccessor,
+  xAxisAccessor,
+  xScale,
   yAccessor,
   y0Accessor,
   y1Accessor,
-  xScale,
   yScale,
   color,
   step,
   hidden,
   drawPoints,
   strokeWidth,
+  opacity,
   pointWidth,
   pointWidthAccessor,
   clipPath,
@@ -28,25 +29,25 @@ const Line = ({
     line = d3
       .line()
       .curve(d3.curveStepAfter)
-      .x(d => boundedSeries(xScale(timeAccessor(d))))
+      .x(d => boundedSeries(xScale(xAxisAccessor(d))))
       .y(d => boundedSeries(yScale(yAccessor(d))));
     if (!drawPoints && y0Accessor && y1Accessor) {
       area = d3
         .area()
         .curve(d3.curveStepAfter)
-        .x(d => boundedSeries(xScale(timeAccessor(d))))
+        .x(d => boundedSeries(xScale(xAxisAccessor(d))))
         .y0(d => boundedSeries(yScale(y0Accessor(d))))
         .y1(d => boundedSeries(yScale(y1Accessor(d))));
     }
   } else {
     line = d3
       .line()
-      .x(d => boundedSeries(xScale(timeAccessor(d))))
+      .x(d => boundedSeries(xScale(xAxisAccessor(d))))
       .y(d => boundedSeries(yScale(yAccessor(d))));
     if (!drawPoints && y0Accessor && y1Accessor) {
       area = d3
         .area()
-        .x(d => boundedSeries(xScale(timeAccessor(d))))
+        .x(d => boundedSeries(xScale(xAxisAccessor(d))))
         .y0(d => boundedSeries(yScale(y0Accessor(d))))
         .y1(d => boundedSeries(yScale(y1Accessor(d))));
     }
@@ -57,11 +58,11 @@ const Line = ({
     circles = (
       <Points
         data={data.filter(d => {
-          const x = timeAccessor(d);
+          const x = xAxisAccessor(d);
           return x >= xSubDomain[0] && x <= xSubDomain[1];
         })}
         drawPoints={drawPoints}
-        xAccessor={timeAccessor}
+        xAccessor={xAxisAccessor}
         yAccessor={yAccessor}
         xScale={xScale}
         yScale={yScale}
@@ -94,6 +95,7 @@ const Line = ({
         style={{
           stroke: color,
           strokeWidth: `${strokeWidth}px`,
+          strokeOpacity: opacity,
           fill: 'none',
           display: hidden ? 'none' : 'inherit',
         }}
@@ -108,8 +110,8 @@ Line.propTypes = {
   yScale: PropTypes.func.isRequired,
   // eslint-disable-next-line
   data: PropTypes.array.isRequired,
-  // Data can take any form as long as the timeAccessor and yAccessors are set.
-  timeAccessor: PropTypes.func.isRequired,
+  // Data can take any form as long as the xAxisAccessor and yAccessors are set.
+  xAxisAccessor: PropTypes.func.isRequired,
   yAccessor: PropTypes.func.isRequired,
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,
@@ -117,6 +119,8 @@ Line.propTypes = {
   step: PropTypes.bool,
   hidden: PropTypes.bool,
   drawPoints: GriffPropTypes.drawPoints,
+  drawPoints: PropTypes.bool,
+  opacity: PropTypes.number,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
@@ -127,6 +131,7 @@ Line.defaultProps = {
   step: false,
   hidden: false,
   drawPoints: false,
+  opacity: 1,
   pointWidth: 6,
   pointWidthAccessor: null,
   strokeWidth: 1,

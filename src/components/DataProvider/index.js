@@ -184,11 +184,13 @@ export default class DataProvider extends Component {
           yDomains: {},
           ySubDomains: {},
         },
-        () => this.props.series.map(s => this.fetchData(s.id, 'MOUNTED'))
+        () => {
+          this.props.series.map(s => this.fetchData(s.id, 'MOUNTED'));
+          if (this.props.onTimeSubDomainChanged) {
+            this.props.onTimeSubDomainChanged(newTimeSubDomain);
+          }
+        }
       );
-      if (this.props.onTimeSubDomainChanged) {
-        this.props.onTimeSubDomainChanged(newTimeSubDomain);
-      }
       this.startUpdateInterval();
     }
   }
@@ -276,6 +278,7 @@ export default class DataProvider extends Component {
   enrichSeries = (series, collection = {}) => {
     const {
       drawPoints,
+      drawLines,
       opacity,
       opacityAccessor,
       pointWidth,
@@ -331,6 +334,11 @@ export default class DataProvider extends Component {
         series.drawPoints,
         collection.drawPoints,
         drawPoints
+      ),
+      drawLines: firstDefined(
+        series.drawLines,
+        collection.drawLines,
+        drawLines
       ),
       timeAccessor: firstDefined(
         series.timeAccessor,
@@ -517,10 +525,11 @@ export default class DataProvider extends Component {
         this.props.series.map(s => this.fetchData(s.id, 'UPDATE_SUBDOMAIN')),
       250
     );
-    if (this.props.onTimeSubDomainChanged) {
-      this.props.onTimeSubDomainChanged(newTimeSubDomain);
-    }
-    this.setState({ timeSubDomain: newTimeSubDomain });
+    this.setState({ timeSubDomain: newTimeSubDomain }, () => {
+      if (this.props.onTimeSubDomainChanged) {
+        this.props.onTimeSubDomainChanged(newTimeSubDomain);
+      }
+    });
   };
 
   render() {
@@ -622,6 +631,7 @@ export default class DataProvider extends Component {
       externalTimeSubDomain,
       yAxisWidth,
       timeSubDomainChanged: this.timeSubDomainChanged,
+      limitTimeSubDomain: this.props.limitTimeSubDomain,
       contextSeries: seriesObjects.map(s => ({
         ...contextSeries[s.id],
         ...s,
@@ -664,6 +674,7 @@ DataProvider.propTypes = {
    * @returns {(object|Array)} object(s) to render for this point.
    */
   drawPoints: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
+  drawLines: PropTypes.bool,
   timeDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   timeSubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   xDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
@@ -707,6 +718,7 @@ DataProvider.defaultProps = {
   collections: [],
   defaultLoader: null,
   drawPoints: null,
+  drawLines: undefined,
   onTimeSubDomainChanged: null,
   opacity: 1.0,
   opacityAccessor: null,

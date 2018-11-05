@@ -9,6 +9,10 @@ const dimension = key => {
   return functor;
 };
 
+const time = dimension('time');
+const x = dimension('x');
+const y = dimension('y');
+
 export default {
   /**
    * {@code time} is a reference to the time dimension of the plotted data.
@@ -16,7 +20,7 @@ export default {
    * example: scatterplots might not have one) but it's required for series
    * which need it, such as a line charts.
    */
-  time: dimension('time'),
+  time,
 
   /**
    * {@code x} is the x-dimension of a plotted point. For time series charts,
@@ -24,7 +28,7 @@ export default {
    * {@code time = x}. However, for a scatterplot, this is used to determine
    * where the data point will lie along the x axis.
    */
-  x: dimension('x'),
+  x,
 
   /**
    * {@code y} is the y-dimension of a plotted point. For time series charts,
@@ -32,9 +36,9 @@ export default {
    * use this to place the point along the y axis (for example, by using the
    * value from another coupled time series).
    */
-  y: dimension('y'),
+  y,
 
-  HORIZONTAL: ['x', 'time'],
+  HORIZONTAL: [x, time],
 
   VERTICAL: ['y'],
 
