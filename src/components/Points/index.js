@@ -20,6 +20,7 @@ const propTypes = {
   color: PropTypes.string.isRequired,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
+  pointFilter: PropTypes.func,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
@@ -27,6 +28,7 @@ const propTypes = {
 const defaultProps = {
   opacity: 1,
   opacityAccessor: null,
+  pointFilter: () => true,
   pointWidth: null,
   pointWidthAccessor: null,
   strokeWidth: null,
@@ -49,13 +51,14 @@ const Points = ({
   color,
   opacity,
   opacityAccessor,
+  pointFilter,
   pointWidth,
   pointWidthAccessor,
   strokeWidth,
 }) => {
   const getX = x => boundedSeries(xScale(x));
   const getY = y => boundedSeries(yScale(y));
-  const points = data.map(d => {
+  const points = data.filter(pointFilter).map(d => {
     let width = 0;
     if (pointWidthAccessor) {
       width = pointWidthAccessor(d);
