@@ -512,10 +512,9 @@ export default class DataProvider extends Component {
         this.props.series.map(s => this.fetchData(s.id, 'UPDATE_SUBDOMAIN')),
       250
     );
-    if (this.props.onTimeSubDomainChanged) {
+    this.setState({ timeSubDomain: newTimeSubDomain }, () => {
       this.props.onTimeSubDomainChanged(newTimeSubDomain);
-    }
-    this.setState({ timeSubDomain: newTimeSubDomain });
+    });
   };
 
   render() {
