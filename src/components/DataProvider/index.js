@@ -492,16 +492,15 @@ export default class DataProvider extends Component {
         [id]: { ...loaderConfig },
       };
     }
-
     this.setState(stateUpdates, () => {
-      const lastPoints = {};
-      if (stateUpdates.contextSeries) {
-        Object.keys(stateUpdates.contextSeries).forEach(seriesId => {
-          const { data } = stateUpdates.contextSeries[seriesId];
-          lastPoints[seriesId] = data[data.length - 1];
-        });
+      let lastPoint = {};
+      if (loaderConfig.data && loaderConfig.data.length) {
+        lastPoint = {
+          ...loaderConfig,
+          data: { ...loaderConfig.data[loaderConfig.data.length - 1] },
+        };
       }
-      this.props.onFetchData({ lastPoints });
+      this.props.onFetchData(lastPoint);
     });
   };
 
