@@ -493,14 +493,7 @@ export default class DataProvider extends Component {
       };
     }
     this.setState(stateUpdates, () => {
-      let lastPoint = {};
-      if (loaderConfig.data && loaderConfig.data.length) {
-        lastPoint = {
-          ...loaderConfig,
-          data: { ...loaderConfig.data[loaderConfig.data.length - 1] },
-        };
-      }
-      this.props.onFetchData(lastPoint);
+      this.props.onFetchData({ ...loaderConfig });
     });
   };
 
