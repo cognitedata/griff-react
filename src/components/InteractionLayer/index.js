@@ -100,6 +100,7 @@ class InteractionLayer extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const {
+      // FIXME: Migrate this to `subDomainsByItemId`.
       timeSubDomain: prevTimeSubDomain,
       ruler,
       xScalerFactory,
@@ -150,7 +151,7 @@ class InteractionLayer extends React.Component {
     }
 
     if (
-      (prevProps.width !== this.props.width && this.props.ruler.timestamp) || // got new width from sizeMe
+      (prevProps.width !== this.props.width && this.props.ruler.timestamp) ||
       this.props.ruler.timestamp !== prevProps.ruler.timestamp
     ) {
       this.setRulerPosition(this.props.ruler.timestamp);
@@ -391,13 +392,12 @@ class InteractionLayer extends React.Component {
       width,
       subDomainsByItemId,
       xScalerFactory,
+      // FIXME: Migrate this to `subDomainsByItemId`.
+      timeSubDomain,
     } = this.props;
     const newPoints = [];
     series.forEach(s => {
-      const {
-        [Axes.time]: timeSubDomain,
-        [Axes.y]: ySubDomain,
-      } = subDomainsByItemId[s.id];
+      const { [Axes.y]: ySubDomain } = subDomainsByItemId[s.id];
       const xScale = xScalerFactory(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos).getTime();
       const { data, xAccessor, yAccessor } = s;
