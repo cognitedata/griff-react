@@ -184,11 +184,13 @@ export default class DataProvider extends Component {
           yDomains: {},
           ySubDomains: {},
         },
-        () => this.props.series.map(s => this.fetchData(s.id, 'MOUNTED'))
+        () => {
+          this.props.series.map(s => this.fetchData(s.id, 'MOUNTED'));
+          if (this.props.onTimeSubDomainChanged) {
+            this.props.onTimeSubDomainChanged(newTimeSubDomain);
+          }
+        }
       );
-      if (this.props.onTimeSubDomainChanged) {
-        this.props.onTimeSubDomainChanged(newTimeSubDomain);
-      }
       this.startUpdateInterval();
     }
   }
@@ -513,7 +515,9 @@ export default class DataProvider extends Component {
       250
     );
     this.setState({ timeSubDomain: newTimeSubDomain }, () => {
-      this.props.onTimeSubDomainChanged(newTimeSubDomain);
+      if (this.props.onTimeSubDomainChanged) {
+        this.props.onTimeSubDomainChanged(newTimeSubDomain);
+      }
     });
   };
 
