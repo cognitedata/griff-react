@@ -698,9 +698,11 @@ DataProvider.propTypes = {
   // xSubDomain => void
   onTimeSubDomainChanged: PropTypes.func,
   opacity: PropTypes.number,
+  /** (datapoint, index, datapoints) => number */
   opacityAccessor: PropTypes.func,
 
   pointWidth: PropTypes.number,
+  /** (datapoint, index, datapoints) => number */
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
   // if set to true and an updateInterval is provided, xSubDomain

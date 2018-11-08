@@ -68,17 +68,17 @@ const Points = ({
       xAccessor,
       x0Accessor || defaultMinMaxAccessor,
       x1Accessor || defaultMinMaxAccessor,
-    ].map(f => boundedSeries(xScale(f(d))));
+    ].map(f => +boundedSeries(xScale(f(d))));
 
     const [y, y0, y1] = [
       yAccessor,
       y0Accessor || defaultMinMaxAccessor,
       y1Accessor || defaultMinMaxAccessor,
-    ].map(f => boundedSeries(yScale(f(d))));
+    ].map(f => +boundedSeries(yScale(f(d))));
 
     let width = 0;
     if (pointWidthAccessor) {
-      width = pointWidthAccessor(d);
+      width = pointWidthAccessor(d, i, arr);
     } else if (pointWidth !== undefined && pointWidth !== null) {
       width = pointWidth;
     } else if (strokeWidth !== undefined && strokeWidth !== null) {
@@ -91,7 +91,7 @@ const Points = ({
     if (!Number.isNaN(x0) && !Number.isNaN(x1)) {
       uiElements.push(
         <line
-          key={`${x0},${y}-${x1},${y}`}
+          key={`horizontal-${x0},${y}-${x1},${y}`}
           x1={x0}
           y1={y}
           x2={x1}
@@ -105,7 +105,7 @@ const Points = ({
     if (!Number.isNaN(y0) && !Number.isNaN(y1)) {
       uiElements.push(
         <line
-          key={`${x},${y0}-${x},${y1}`}
+          key={`vertical-${x},${y0}-${x},${y1}`}
           x1={x}
           y1={y0}
           x2={x}
@@ -116,17 +116,19 @@ const Points = ({
       );
     }
 
-    uiElements.push(
-      <circle
-        key={`${x}-${y}`}
-        className="point"
-        r={width / 2}
-        opacity={opacityAccessor ? opacityAccessor(d) : opacity}
-        cx={x}
-        cy={y}
-        fill={color}
-      />
-    );
+    if (!Number.isNaN(x) && !Number.isNaN(y)) {
+      uiElements.push(
+        <circle
+          key={`${x}-${y}`}
+          className="point"
+          r={width / 2}
+          opacity={opacityAccessor ? opacityAccessor(d, i, arr) : opacity}
+          cx={x}
+          cy={y}
+          fill={color}
+        />
+      );
+    }
 
     if (typeof drawPoints === 'function') {
       const metadata = {
