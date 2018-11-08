@@ -75,35 +75,37 @@ const ScatterplotComponent = ({
     height,
   };
 
-  const { collectionIds, visibleCollections } = collections.reduce(
-    (info, c) => {
-      let { visibleCollections: updatedVisibleCollections } = info;
-      if (!c.hidden && c.yAxisDisplayMode !== AxisDisplayMode.NONE) {
-        updatedVisibleCollections += 1;
-      }
-      return {
-        collectionIds: {
-          ...info.collectionIds,
-          [c.id]: true,
-        },
-        updatedVisibleCollections,
-      };
-    },
-    { collectionIds: {}, visibleCollections: 0 }
+  const collectionVisibility = collections.reduce(
+    (acc, c) => ({
+      ...acc,
+      // Will this collection have its own axis?
+      [c.id]: !c.hidden && c.yAxisDisplayMode !== AxisDisplayMode.NONE,
+    }),
+    {}
   );
 
-  const visibleAxes = series.reduce((total, s) => {
-    if (s.hidden) {
-      return total;
-    }
-    if (s.collectionId && collectionIds[s.collectionId]) {
-      return total;
-    }
-    if (s.yAxisDisplayMode === AxisDisplayMode.NONE) {
-      return total;
-    }
-    return total + 1;
-  }, visibleCollections);
+  const seriesVisibility = series.reduce(
+    (acc, s) => ({
+      ...acc,
+      // Will this series have its own axis?
+      [s.id]:
+        // If it's hidden, it won't have an axis.
+        !s.hidden &&
+        // If it has a non-hidden axis, it will not have an axis.
+        s.yAxisDisplayMode !== AxisDisplayMode.NONE &&
+        // If it's in a collection, it gets special behavior ...
+        ((s.collectionId &&
+          // If it's in an unknown collection, it will have an axis.
+          collectionVisibility[s.collectionId] === undefined) ||
+          // And if it's not in a collection, it gets its own axis
+          s.collectionId === undefined),
+    }),
+    {}
+  );
+
+  const visibleAxes = Object.values(seriesVisibility)
+    .concat(Object.values(collectionVisibility))
+    .filter(Boolean).length;
 
   switch (yAxisPlacement) {
     case AxisPlacement.BOTH:
