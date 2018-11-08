@@ -17,6 +17,7 @@ import GridLines from '../GridLines';
 import Axes from '../../utils/Axes';
 import AxisCollection from '../AxisCollection';
 import LineCollection from '../LineCollection';
+import AxisDisplayMode from '../LineChart/AxisDisplayMode';
 
 const propTypes = {
   grid: GriffPropTypes.grid,
@@ -26,7 +27,6 @@ const propTypes = {
   }).isRequired,
   zoomable: PropTypes.bool,
   onClick: PropTypes.func,
-  series: seriesPropType.isRequired,
   // Number => String
   xAxisFormatter: PropTypes.func,
   xAxisPlacement: GriffPropTypes.axisPlacement,
@@ -36,6 +36,8 @@ const propTypes = {
   yAxisFormatter: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
   yAxisTicks: PropTypes.number,
+  collections: GriffPropTypes.collections.isRequired,
+  series: seriesPropType.isRequired,
 };
 
 const defaultProps = {
@@ -54,6 +56,7 @@ const Y_AXIS_WIDTH = 50;
 const X_AXIS_HEIGHT = 50;
 
 const ScatterplotComponent = ({
+  collections,
   grid,
   series,
   size: { width, height },
@@ -72,12 +75,44 @@ const ScatterplotComponent = ({
     height,
   };
 
+  const collectionVisibility = collections.reduce(
+    (acc, c) => ({
+      ...acc,
+      // Will this collection have its own axis?
+      [c.id]: !c.hidden && c.yAxisDisplayMode !== AxisDisplayMode.NONE,
+    }),
+    {}
+  );
+
+  const seriesVisibility = series.reduce(
+    (acc, s) => ({
+      ...acc,
+      // Will this series have its own axis?
+      [s.id]:
+        // If it's hidden, it won't have an axis.
+        !s.hidden &&
+        // If it has a non-hidden axis, it will not have an axis.
+        s.yAxisDisplayMode !== AxisDisplayMode.NONE &&
+        // If it's in a collection, it gets special behavior ...
+        ((s.collectionId &&
+          // If it's in an unknown collection, it will have an axis.
+          collectionVisibility[s.collectionId] === undefined) ||
+          // And if it's not in a collection, it gets its own axis
+          s.collectionId === undefined),
+    }),
+    {}
+  );
+
+  const visibleAxes = Object.values(seriesVisibility)
+    .concat(Object.values(collectionVisibility))
+    .filter(Boolean).length;
+
   switch (yAxisPlacement) {
     case AxisPlacement.BOTH:
-      chartSize.width -= 2 * Y_AXIS_WIDTH;
+      chartSize.width -= 2 * visibleAxes * Y_AXIS_WIDTH;
       break;
     default:
-      chartSize.width -= Y_AXIS_WIDTH;
+      chartSize.width -= visibleAxes * Y_AXIS_WIDTH;
       break;
   }
 
@@ -145,9 +180,10 @@ const SizedScatterplotComponent = sizeMe({
 const Scatterplot = props => (
   <Scaler xScalerFactory={createLinearXScale}>
     <ScalerContext.Consumer>
-      {({ series, xScalerFactory }) => (
+      {({ collections, series, xScalerFactory }) => (
         <SizedScatterplotComponent
           {...props}
+          collections={collections}
           series={series}
           xScalerFactory={xScalerFactory}
         />
