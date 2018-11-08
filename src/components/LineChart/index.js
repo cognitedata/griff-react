@@ -297,24 +297,28 @@ class LineChart extends Component {
               width={chartSize.width}
               pointWidth={pointWidth}
             />
-            <InteractionLayer
-              height={chartSize.height}
-              width={chartSize.width}
-              crosshair={crosshair}
-              onMouseMove={onMouseMove}
-              onMouseOut={onMouseOut}
-              onBlur={onBlur}
-              onClickAnnotation={onClickAnnotation}
-              onDoubleClick={onDoubleClick}
-              ruler={ruler}
-              annotations={annotations}
-              onClick={onClick}
-              areas={areas}
-              onAreaDefined={onAreaDefined}
-              onZoomXAxis={onZoomXAxis}
-              onAreaClicked={onAreaClicked}
-              zoomAxes={{ time: zoomable }}
-            />
+            {// sizeMe can cause chartSize.width to be < 0, which causes
+            // problems for the position of the ruler in InteractionLayer
+            chartSize.width > 0 && (
+              <InteractionLayer
+                height={chartSize.height}
+                width={chartSize.width}
+                crosshair={crosshair}
+                onMouseMove={onMouseMove}
+                onMouseOut={onMouseOut}
+                onBlur={onBlur}
+                onClickAnnotation={onClickAnnotation}
+                onDoubleClick={onDoubleClick}
+                ruler={ruler}
+                annotations={annotations}
+                onClick={onClick}
+                areas={areas}
+                onAreaDefined={onAreaDefined}
+                onZoomXAxis={onZoomXAxis}
+                onAreaClicked={onAreaClicked}
+                zoomAxes={{ time: zoomable }}
+              />
+            )}
           </svg>
         }
         yAxis={
