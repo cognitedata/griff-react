@@ -17,6 +17,7 @@ import GridLines from '../GridLines';
 import Axes from '../../utils/Axes';
 import AxisCollection from '../AxisCollection';
 import LineCollection from '../LineCollection';
+import AxisDisplayMode from '../LineChart/AxisDisplayMode';
 
 const propTypes = {
   grid: GriffPropTypes.grid,
@@ -26,7 +27,6 @@ const propTypes = {
   }).isRequired,
   zoomable: PropTypes.bool,
   onClick: PropTypes.func,
-  series: seriesPropType.isRequired,
   // Number => String
   xAxisFormatter: PropTypes.func,
   xAxisPlacement: GriffPropTypes.axisPlacement,
@@ -36,6 +36,8 @@ const propTypes = {
   yAxisFormatter: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
   yAxisTicks: PropTypes.number,
+  collections: GriffPropTypes.collections.isRequired,
+  series: seriesPropType.isRequired,
 };
 
 const defaultProps = {
@@ -54,6 +56,7 @@ const Y_AXIS_WIDTH = 50;
 const X_AXIS_HEIGHT = 50;
 
 const ScatterplotComponent = ({
+  collections,
   grid,
   series,
   size: { width, height },
@@ -72,12 +75,42 @@ const ScatterplotComponent = ({
     height,
   };
 
+  const { collectionIds, visibleCollections } = collections.reduce(
+    (info, c) => {
+      let { visibleCollections: updatedVisibleCollections } = info;
+      if (!c.hidden && c.yAxisDisplayMode !== AxisDisplayMode.NONE) {
+        updatedVisibleCollections += 1;
+      }
+      return {
+        collectionIds: {
+          ...info.collectionIds,
+          [c.id]: true,
+        },
+        updatedVisibleCollections,
+      };
+    },
+    { collectionIds: {}, visibleCollections: 0 }
+  );
+
+  const visibleAxes = series.reduce((total, s) => {
+    if (s.hidden) {
+      return total;
+    }
+    if (s.collectionId && collectionIds[s.collectionId]) {
+      return total;
+    }
+    if (s.yAxisDisplayMode === AxisDisplayMode.NONE) {
+      return total;
+    }
+    return total + 1;
+  }, visibleCollections);
+
   switch (yAxisPlacement) {
     case AxisPlacement.BOTH:
-      chartSize.width -= 2 * Y_AXIS_WIDTH;
+      chartSize.width -= 2 * visibleAxes * Y_AXIS_WIDTH;
       break;
     default:
-      chartSize.width -= Y_AXIS_WIDTH;
+      chartSize.width -= visibleAxes * Y_AXIS_WIDTH;
       break;
   }
 
@@ -145,9 +178,10 @@ const SizedScatterplotComponent = sizeMe({
 const Scatterplot = props => (
   <Scaler xScalerFactory={createLinearXScale}>
     <ScalerContext.Consumer>
-      {({ series, xScalerFactory }) => (
+      {({ collections, series, xScalerFactory }) => (
         <SizedScatterplotComponent
           {...props}
+          collections={collections}
           series={series}
           xScalerFactory={xScalerFactory}
         />
