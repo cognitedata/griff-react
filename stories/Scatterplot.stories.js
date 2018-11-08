@@ -577,7 +577,7 @@ storiesOf('Scatterplot', module)
           ]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
-          opacityAccessor={d => (+d.x + +d.y) / 2}
+          opacityAccessor={(d, i, arr) => (i / arr.length) * 0.9 + 0.1}
           pointWidth={20}
         >
           <Scatterplot zoomable />
