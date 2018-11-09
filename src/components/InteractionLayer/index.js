@@ -102,22 +102,30 @@ class InteractionLayer extends React.Component {
     const {
       // FIXME: Migrate this to `subDomainsByItemId`.
       timeSubDomain: prevTimeSubDomain,
+      subDomainsByItemId: prevSubDomainsByItemId,
       ruler,
       xScalerFactory,
+      width: prevWidth,
     } = this.props;
     // FIXME: Don't assume a single time domain
-    const { timeSubDomain: nextTimeSubDomain, width } = nextProps;
+    const {
+      timeSubDomain: nextTimeSubDomain,
+      width: nextWidth,
+      subDomainsByItemId: nextSubDomainsByItemId,
+    } = nextProps;
     const { touchX, touchY } = this.state;
 
     if (
       ruler &&
       ruler.visible &&
       touchX !== null &&
-      !isEqual(prevTimeSubDomain, nextTimeSubDomain)
+      (!isEqual(prevTimeSubDomain, nextTimeSubDomain) ||
+        prevWidth !== nextWidth ||
+        !isEqual(prevSubDomainsByItemId, nextSubDomainsByItemId))
     ) {
       // keep track on ruler on subdomain update
-      const prevXScale = xScalerFactory(prevTimeSubDomain, width);
-      const curXScale = xScalerFactory(nextTimeSubDomain, width);
+      const prevXScale = xScalerFactory(prevTimeSubDomain, prevWidth);
+      const curXScale = xScalerFactory(nextTimeSubDomain, nextWidth);
       const ts = prevXScale.invert(touchX).getTime();
       const newXPos = curXScale(ts);
 
@@ -150,10 +158,7 @@ class InteractionLayer extends React.Component {
       });
     }
 
-    if (
-      (prevProps.width !== this.props.width && this.props.ruler.timestamp) ||
-      this.props.ruler.timestamp !== prevProps.ruler.timestamp
-    ) {
+    if (this.props.ruler.timestamp !== prevProps.ruler.timestamp) {
       this.setRulerPosition(this.props.ruler.timestamp);
     }
   }
@@ -397,6 +402,9 @@ class InteractionLayer extends React.Component {
     } = this.props;
     const newPoints = [];
     series.forEach(s => {
+      if (!subDomainsByItemId[s.id]) {
+        return;
+      }
       const { [Axes.y]: ySubDomain } = subDomainsByItemId[s.id];
       const xScale = xScalerFactory(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos).getTime();
@@ -431,8 +439,6 @@ class InteractionLayer extends React.Component {
           x: xScale(ts),
           y: yScale(value),
         });
-      } else {
-        newPoints.push({ id: s.id });
       }
     });
     return newPoints;
