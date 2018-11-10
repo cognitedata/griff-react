@@ -331,11 +331,13 @@ export default class DataProvider extends Component {
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
       ...deleteUndefinedFromObject(series),
       drawPoints: firstDefined(
+        (loaderConfig[series.id] || {}).drawPoints,
         series.drawPoints,
         collection.drawPoints,
         drawPoints
       ),
       drawLines: firstDefined(
+        (loaderConfig[series.id] || {}).drawLines,
         series.drawLines,
         collection.drawLines,
         drawLines
