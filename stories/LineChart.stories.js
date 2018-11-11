@@ -40,7 +40,7 @@ storiesOf('LineChart', module)
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
       series={[
-        { id: 1, color: 'steelblue', ySubDomain: [0, 2] },
+        { id: 1, color: 'steelblue', ySubDomain: [0, 5] },
         { id: 2, color: 'maroon', ySubDomain: [-1, 1] },
       ]}
     >
@@ -376,9 +376,11 @@ storiesOf('LineChart', module)
     return <HiddenSeries />;
   })
   .add('Specify y domain', () => {
-    const staticDomain = [-2, 2];
+    const staticDomain = [-5, 5];
+    const staticSubDomain = [-2, 2];
+
     class SpecifyDomain extends React.Component {
-      state = { yDomains: {} };
+      state = { yDomains: {}, ySubDomains: {} };
 
       setStaticDomain = key => {
         const { yDomains } = this.state;
@@ -393,25 +395,56 @@ storiesOf('LineChart', module)
         this.setState({ yDomains: { ...yDomains, [key]: staticDomain } });
       };
 
+      setStaticSubDomain = key => {
+        const { ySubDomains } = this.state;
+        if (ySubDomains[key]) {
+          const newYSubDomains = { ...ySubDomains };
+          delete newYSubDomains[key];
+          this.setState({ ySubDomains: newYSubDomains });
+          action(`Removing static domain`)(key);
+          return;
+        }
+        action(`Setting subdomain to DataProvider`)(key);
+        this.setState({
+          ySubDomains: { ...ySubDomains, [key]: staticSubDomain },
+        });
+      };
+
       render() {
-        const { yDomains } = this.state;
+        const { yDomains, ySubDomains } = this.state;
         return (
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
               series={[
-                { id: 1, color: 'steelblue', yDomain: yDomains[1] },
-                { id: 2, color: 'maroon', yDomain: yDomains[2] },
+                {
+                  id: 1,
+                  color: 'steelblue',
+                  yDomain: yDomains[1],
+                  ySubDomain: ySubDomains[1],
+                },
+                {
+                  id: 2,
+                  color: 'maroon',
+                  yDomain: yDomains[2],
+                  ySubDomain: ySubDomains[2],
+                },
               ]}
             >
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
             <button onClick={() => this.setStaticDomain(1)}>
-              Static series 1
+              Set blue domain
+            </button>
+            <button onClick={() => this.setStaticSubDomain(1)}>
+              Set blue subdomain
             </button>
             <button onClick={() => this.setStaticDomain(2)}>
-              Static series 2
+              Set maroon domain
+            </button>
+            <button onClick={() => this.setStaticSubDomain(2)}>
+              Set maroon subdomain
             </button>
           </React.Fragment>
         );
@@ -629,7 +662,11 @@ storiesOf('LineChart', module)
   })
   .add('ySubDomain', () => (
     <React.Fragment>
-      <h1>Set on DataProvider</h1>
+      <h1>Set on DataProvider ([0.25, 0.5])</h1>
+      <p>
+        The ySubDomain for the chart should be [0.25, 0.5]. The context chart
+        should be [0,1].
+      </p>
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
@@ -639,6 +676,10 @@ storiesOf('LineChart', module)
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <h1>Set on Series</h1>
+      <p>
+        The ySubDomain for the chart should be [0.25, 0.5] for blue{' '}
+        <em>only</em>. Maroon should be [0, 1]
+      </p>
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
@@ -650,6 +691,10 @@ storiesOf('LineChart', module)
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <h1>Set on Collection</h1>
+      <p>
+        The ySubDomain for the chart should be [0.0, 0.5] for the green
+        collection (includes all lines).
+      </p>
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
@@ -668,8 +713,9 @@ storiesOf('LineChart', module)
       </DataProvider>
       <h1>Set on Series with yDomain</h1>
       <p>
-        The LineChart should be zoomed-in, but the context chart should be
-        zoomed-out
+        The LineChart should be zoomed-in for the blue line, but the context
+        chart should be zoomed-out (for the blue line). The blue line should
+        have a maximum zoom-out range of [-1, 2].
       </p>
       <DataProvider
         defaultLoader={staticLoader}

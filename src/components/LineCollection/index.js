@@ -19,9 +19,9 @@ const LineCollection = props => {
     height,
     xAxis,
     xScalerFactory,
+    yScalerFactory,
     pointWidth,
     scaleX,
-    scaleY,
   } = props;
   if (!subDomainsByItemId) {
     return null;
@@ -35,6 +35,12 @@ const LineCollection = props => {
         }`
     )
     .join('/')}`;
+
+  const yScaler =
+    yScalerFactory ||
+    ((s, h) =>
+      createYScale(Axes.y(subDomainsByItemId[s.collectionId || s.id]), h));
+
   const lines = series.reduce((l, s) => {
     if (s.hidden) {
       return l;
@@ -44,10 +50,7 @@ const LineCollection = props => {
       scaleX ? xAxis(subDomainsByItemId[id]) : xAxis(domainsByItemId[id]),
       width
     );
-    const yScale = createYScale(
-      scaleY ? Axes.y(subDomainsByItemId[s.collectionId || s.id]) : s.yDomain,
-      height
-    );
+    const yScale = yScaler(s, height);
     return [
       ...l,
       <Line
@@ -78,11 +81,9 @@ LineCollection.propTypes = {
   series: seriesPropType,
   pointWidth: PropTypes.number,
   scaleX: PropTypes.bool,
-  // Perform Y-scaling based on the current subdomain. If false, then use the
-  // static yDomain property.
-  scaleY: PropTypes.bool,
 
   // These are provided by Griff
+  yScalerFactory: scalerFactoryFunc,
   xScalerFactory: scalerFactoryFunc.isRequired,
   domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
   subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
@@ -92,8 +93,8 @@ LineCollection.defaultProps = {
   series: [],
   pointWidth: 6,
   scaleX: true,
-  scaleY: true,
   xAxis: Axes.time,
+  yScalerFactory: null,
 };
 
 export default props => (
@@ -101,8 +102,8 @@ export default props => (
     {({ domainsByItemId, subDomainsByItemId, series, xScalerFactory }) => (
       <LineCollection
         series={series}
-        {...props}
         xScalerFactory={xScalerFactory}
+        {...props}
         domainsByItemId={domainsByItemId}
         subDomainsByItemId={subDomainsByItemId}
       />
