@@ -5,5 +5,4 @@ export default React.createContext({
   collections: [],
   xDomain: [Date.now() - 1000 * 60 * 60 * 24 * 365, 0],
   yAxisWidth: 50,
-  contextSeries: [],
 });

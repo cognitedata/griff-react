@@ -6,7 +6,6 @@ import LineCollection from '../LineCollection';
 import XAxis from '../XAxis';
 import Annotation from '../Annotation';
 import GriffPropTypes, {
-  seriesPropType,
   annotationPropType,
   scalerFactoryFunc,
 } from '../../utils/proptypes';
@@ -14,6 +13,9 @@ import Brush from '../Brush';
 import AxisPlacement from '../AxisPlacement';
 import multiFormat from '../../utils/multiFormat';
 import Axes from '../../utils/Axes';
+import { createYScale } from '../../utils/scale-helpers';
+import { stripPlaceholderDomain } from '../Scaler';
+import { calculateDomainFromData } from '../DataProvider';
 
 class ContextChart extends Component {
   static propTypes = {
@@ -26,21 +28,20 @@ class ContextChart extends Component {
     xAxisPlacement: GriffPropTypes.axisPlacement,
 
     // These are all provided by Griff.
-    contextSeries: seriesPropType,
-    width: PropTypes.number,
+    domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
+    series: GriffPropTypes.multipleSeries.isRequired,
+    subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
     timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-    xScalerFactory: scalerFactoryFunc.isRequired,
     updateDomains: GriffPropTypes.updateDomains.isRequired,
-    subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
-    domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
+    xScalerFactory: scalerFactoryFunc.isRequired,
+    width: PropTypes.number,
   };
 
   static defaultProps = {
     width: 1,
     height: 150,
     annotations: [],
-    contextSeries: [],
     zoomable: true,
     xAxisFormatter: multiFormat,
     xAxisHeight: 50,
@@ -48,12 +49,7 @@ class ContextChart extends Component {
   };
 
   onUpdateSelection = selection => {
-    const {
-      contextSeries: series,
-      timeDomain,
-      width,
-      xScalerFactory,
-    } = this.props;
+    const { series, timeDomain, width, xScalerFactory } = this.props;
     const xScale = xScalerFactory(timeDomain, width);
     const timeSubDomain = selection.map(xScale.invert).map(Number);
     this.props.updateDomains(
@@ -79,6 +75,15 @@ class ContextChart extends Component {
     );
   };
 
+  getYScale = (s, height) => {
+    const { domainsByItemId } = this.props;
+    const domain =
+      stripPlaceholderDomain(s.yDomain) ||
+      stripPlaceholderDomain(Axes.y(domainsByItemId[s.collectionId || s.id])) ||
+      calculateDomainFromData(s.data, s.yAccessor, s.y0Accessor, s.y1Accessor);
+    return createYScale(domain, height);
+  };
+
   renderXAxis = (position, xAxis) => {
     const { xAxisPlacement } = this.props;
     if (position === xAxisPlacement) {
@@ -92,11 +97,10 @@ class ContextChart extends Component {
 
   render() {
     const {
-      contextSeries: series,
       domainsByItemId,
+      series,
       subDomainsByItemId,
       width,
-      contextSeries,
       xAxisFormatter,
       xAxisHeight,
       xAxisPlacement,
@@ -135,10 +139,11 @@ class ContextChart extends Component {
         >
           {annotations}
           <LineCollection
-            series={contextSeries}
+            series={series.map(s => ({ ...s, drawPoints: false }))}
             width={width}
             height={height}
             xScalerFactory={xScalerFactory}
+            yScalerFactory={this.getYScale}
             scaleY={false}
             scaleX={false}
             subDomainsByItemId={subDomainsByItemId}
@@ -164,17 +169,17 @@ export default props => (
       subDomainsByItemId,
       timeSubDomain,
       timeDomain,
-      contextSeries,
       xScalerFactory,
       updateDomains,
+      series,
     }) => (
       <SizeMe monitorWidth>
         {({ size }) => (
           <ContextChart
             width={size.width}
+            series={series}
             {...props}
             timeDomain={timeDomain}
-            contextSeries={contextSeries}
             timeSubDomain={timeSubDomain}
             xScalerFactory={xScalerFactory}
             subDomainsByItemId={subDomainsByItemId}

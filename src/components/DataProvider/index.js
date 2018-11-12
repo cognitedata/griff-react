@@ -7,7 +7,7 @@ import DataContext from '../../context/Data';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import Scaler, { PLACEHOLDER_DOMAIN } from '../Scaler';
 
-const calculateDomainFromData = (
+export const calculateDomainFromData = (
   data,
   accessor,
   minAccessor = null,
@@ -68,7 +68,6 @@ export default class DataProvider extends Component {
     ),
     timeDomain: this.props.timeDomain,
     loaderConfig: {},
-    contextSeries: {},
     timeDomains: {},
     timeSubDomains: {},
     xDomains: {},
@@ -79,15 +78,14 @@ export default class DataProvider extends Component {
 
   static getDerivedStateFromProps(nextProps, prevState) {
     // Check if one of the series got removed from props
-    // If so, delete the respective keys in contextSeries and loaderconfig
-    // This is important so we don't cache the vales if it gets readded later
-    const { loaderConfig, contextSeries, yDomains, ySubDomains } = prevState;
+    // If so, delete the respective keys in loaderconfig
+    // This is important so we don't cache the values if it gets readded later
+    const { loaderConfig, yDomains, ySubDomains } = prevState;
     const { series } = nextProps;
     const seriesKeys = {};
     series.forEach(s => {
       seriesKeys[s.id] = true;
     });
-    const newContextSeries = { ...contextSeries };
     const newLoaderConfig = { ...loaderConfig };
     const newYDomains = { ...yDomains };
     const newYSubDomains = { ...ySubDomains };
@@ -95,7 +93,6 @@ export default class DataProvider extends Component {
     Object.keys(loaderConfig).forEach(key => {
       if (!seriesKeys[key]) {
         // Clean up
-        delete newContextSeries[key];
         delete newLoaderConfig[key];
         delete newYDomains[key];
         shouldUpdate = true;
@@ -104,7 +101,6 @@ export default class DataProvider extends Component {
     if (shouldUpdate) {
       return {
         loaderConfig: newLoaderConfig,
-        contextSeries: newContextSeries,
         yDomains: newYDomains,
         ySubDomains: newYSubDomains,
       };
@@ -180,7 +176,6 @@ export default class DataProvider extends Component {
           timeDomain: this.props.timeDomain,
           timeSubDomain: newTimeSubDomain,
           loaderConfig: {},
-          contextSeries: {},
           yDomains: {},
           ySubDomains: {},
         },
@@ -291,12 +286,12 @@ export default class DataProvider extends Component {
       x0Accessor,
       x1Accessor,
       xDomain: propXDomain,
-      xSubDomain,
+      xSubDomain: propXSubDomain,
       y0Accessor,
       y1Accessor,
       yAccessor,
       yDomain: propYDomain,
-      ySubDomain,
+      ySubDomain: propYSubDomain,
     } = this.props;
     const {
       loaderConfig,
@@ -413,16 +408,16 @@ export default class DataProvider extends Component {
       xSubDomain:
         collection.xSubDomain ||
         series.xSubDomain ||
+        propXSubDomain ||
         xSubDomains[series.id] ||
-        xSubDomain ||
         xDomain,
       yDomain,
       ySubDomain:
         collection.ySubDomain ||
         series.ySubDomain ||
-        yDomain ||
+        propYSubDomain ||
         ySubDomains[series.id] ||
-        ySubDomain,
+        yDomain,
     };
   };
 
@@ -467,29 +462,23 @@ export default class DataProvider extends Component {
         [id]: calculatedTimeSubDomain,
       };
 
-      // We were not given an xDomain, so we need to calculate one based on
-      // the loaded data.
-      const xDomain = calculateDomainFromData(
+      const xSubDomain = calculateDomainFromData(
         loaderConfig.data,
         loaderConfig.xAccessor || this.props.xAccessor,
         loaderConfig.x0Accessor || this.props.x0Accessor,
         loaderConfig.x1Accessor || this.props.x1Accessor
       );
-      const xSubDomain = xDomain;
-      stateUpdates.xDomains = { ...this.state.xDomains, [id]: xDomain };
       stateUpdates.xSubDomains = {
         ...this.state.xSubDomains,
         [id]: xSubDomain,
       };
 
-      const yDomain = calculateDomainFromData(
+      const ySubDomain = calculateDomainFromData(
         loaderConfig.data,
         loaderConfig.yAccessor || this.props.yAccessor,
         loaderConfig.y0Accessor || this.props.y0Accessor,
         loaderConfig.y1Accessor || this.props.y1Accessor
       );
-      const ySubDomain = yDomain;
-      stateUpdates.yDomains = { ...this.state.yDomains, [id]: yDomain };
       stateUpdates.ySubDomains = {
         ...this.state.ySubDomains,
         [id]: ySubDomain,
@@ -499,12 +488,6 @@ export default class DataProvider extends Component {
       ...this.state.loaderConfig,
       [id]: { ...loaderConfig },
     };
-    if (reason !== 'UPDATE_SUBDOMAIN') {
-      stateUpdates.contextSeries = {
-        ...this.state.contextSeries,
-        [id]: { ...loaderConfig },
-      };
-    }
     this.setState(stateUpdates, () => {
       this.props.onFetchData({ ...loaderConfig });
     });
@@ -535,12 +518,7 @@ export default class DataProvider extends Component {
   };
 
   render() {
-    const {
-      loaderConfig,
-      contextSeries,
-      timeDomain,
-      timeSubDomain,
-    } = this.state;
+    const { loaderConfig, timeDomain, timeSubDomain } = this.state;
     const {
       yAxisWidth,
       children,
@@ -607,10 +585,10 @@ export default class DataProvider extends Component {
     // yDomain and ySubDomain arrays with the one from their collections (if
     // they're a member of a collection).
     const collectedSeries = seriesObjects.map(s => {
-      const copy = {
-        ...s,
-      };
-      if (copy.collectionId !== undefined) {
+      if (s.collectionId !== undefined) {
+        const copy = {
+          ...s,
+        };
         if (!collectionsById[copy.collectionId]) {
           // It's pointing to a collection that doesn't exist.
           copy.collectionId = undefined;
@@ -618,8 +596,9 @@ export default class DataProvider extends Component {
         }
         copy.yDomain = [...collectionsById[copy.collectionId].yDomain];
         copy.ySubDomain = [...collectionsById[copy.collectionId].ySubDomain];
+        return copy;
       }
-      return copy;
+      return s;
     });
 
     const context = {
@@ -634,12 +613,6 @@ export default class DataProvider extends Component {
       yAxisWidth,
       timeSubDomainChanged: this.timeSubDomainChanged,
       limitTimeSubDomain: this.props.limitTimeSubDomain,
-      contextSeries: seriesObjects.map(s => ({
-        ...contextSeries[s.id],
-        ...s,
-        drawPoints: false,
-        data: (contextSeries[s.id] || { data: [] }).data,
-      })),
     };
     return (
       <DataContext.Provider value={context}>
