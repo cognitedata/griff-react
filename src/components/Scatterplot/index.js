@@ -55,6 +55,32 @@ const defaultProps = {
 const Y_AXIS_WIDTH = 50;
 const X_AXIS_HEIGHT = 50;
 
+const getYAxisPlacement = ({ collections, series, yAxisPlacement }) => {
+  const yAxisPlacements = []
+    .concat(series.filter(s => s.collectionId === undefined))
+    .concat(collections)
+    .reduce((acc, item) => {
+      const placement = item.yAxisPlacement || yAxisPlacement;
+      if (placement) {
+        acc[placement] = (acc[placement] || 0) + 1;
+      }
+      return acc;
+    }, {});
+  if (yAxisPlacements[AxisPlacement.BOTH]) {
+    return AxisPlacement.BOTH;
+  }
+  if (
+    yAxisPlacements[AxisPlacement.LEFT] &&
+    yAxisPlacements[AxisPlacement.RIGHT]
+  ) {
+    return AxisPlacement.BOTH;
+  }
+  if (yAxisPlacements[AxisPlacement.LEFT]) {
+    return AxisPlacement.LEFT;
+  }
+  return yAxisPlacement || AxisPlacement.RIGHT;
+};
+
 const ScatterplotComponent = ({
   collections,
   grid,
@@ -67,7 +93,7 @@ const ScatterplotComponent = ({
   xAxisTicks,
   xScalerFactory,
   yAxisFormatter,
-  yAxisPlacement,
+  yAxisPlacement: propsYAxisPlacement,
   yAxisTicks,
 }) => {
   const chartSize = {
@@ -107,14 +133,13 @@ const ScatterplotComponent = ({
     .concat(Object.values(collectionVisibility))
     .filter(Boolean).length;
 
-  switch (yAxisPlacement) {
-    case AxisPlacement.BOTH:
-      chartSize.width -= 2 * visibleAxes * Y_AXIS_WIDTH;
-      break;
-    default:
-      chartSize.width -= visibleAxes * Y_AXIS_WIDTH;
-      break;
-  }
+  const yAxisPlacement = getYAxisPlacement({
+    collections,
+    series,
+    propsYAxisPlacement,
+  });
+
+  chartSize.width -= visibleAxes * Y_AXIS_WIDTH;
 
   switch (xAxisPlacement) {
     case AxisPlacement.BOTH:

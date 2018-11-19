@@ -469,6 +469,37 @@ storiesOf('Scatterplot', module)
       </div>
     </React.Fragment>
   ))
+  .add('Split axes', () => (
+    <div
+      style={{
+        width: '500px',
+        height: '500px',
+        outline: '1px solid red',
+        margin: '1em',
+      }}
+    >
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        timeDomain={[0, 1]}
+        xDomain={[-1, 2]}
+        yDomain={[-1, 2]}
+        collections={[
+          { id: 'left', color: 'red', yAxisPlacement: AxisPlacement.LEFT },
+          { id: 'right', color: 'blue', yAxisPlacement: AxisPlacement.RIGHT },
+        ]}
+        series={[
+          { id: '1 2', collectionId: 'left', color: 'steelblue' },
+          { id: '2 3', collectionId: 'left', color: 'maroon' },
+          { id: '3 4', collectionId: 'right', color: 'black' },
+          { id: '4 5', collectionId: 'right', color: 'gray' },
+        ]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+      >
+        <Scatterplot zoomable />
+      </DataProvider>
+    </div>
+  ))
   .add('Stroke width', () => (
     <React.Fragment>
       <div style={{ height: '500px', width: '500px' }}>
