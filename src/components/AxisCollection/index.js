@@ -111,16 +111,11 @@ class AxisCollection extends React.Component {
       filteredCollections.reverse();
     }
 
-    const collectionsById = filteredCollections.reduce(
-      (acc, c) => ({ ...acc, [c.id]: true }),
-      {}
-    );
-
     const filteredSeries = series.filter(
       s =>
         this.axisFilter(AxisDisplayMode.ALL)(s) &&
         this.placementFilter(s) &&
-        (s.collectionId === undefined || !collectionsById[s.collectionId])
+        s.collectionId === undefined
     );
     if (yAxisPlacement === AxisPlacement.LEFT) {
       filteredSeries.reverse();
