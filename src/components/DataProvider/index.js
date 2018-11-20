@@ -454,7 +454,7 @@ export default class DataProvider extends Component {
     const stateUpdates = {};
     if (
       reason === 'MOUNTED' ||
-      (!seriesObject.data.length && loaderConfig.data.length)
+      (seriesObject.data.length === 0 && loaderConfig.data.length > 0)
     ) {
       const calculatedTimeDomain = calculateDomainFromData(
         loaderConfig.data,
