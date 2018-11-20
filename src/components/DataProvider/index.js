@@ -13,6 +13,11 @@ export const calculateDomainFromData = (
   minAccessor = null,
   maxAccessor = null
 ) => {
+  // if there is no data, hard code the domain
+  if (!data || !data.length) {
+    return [-0.25, 0.25];
+  }
+
   let extent;
   if (minAccessor && maxAccessor) {
     extent = [d3.min(data, minAccessor), d3.max(data, maxAccessor)];
@@ -447,7 +452,10 @@ export default class DataProvider extends Component {
       y1Accessor: seriesObject.y1Accessor,
     };
     const stateUpdates = {};
-    if (reason === 'MOUNTED') {
+    if (
+      reason === 'MOUNTED' ||
+      (seriesObject.data.length === 0 && loaderConfig.data.length > 0)
+    ) {
       const calculatedTimeDomain = calculateDomainFromData(
         loaderConfig.data,
         loaderConfig.timeAccessor || this.props.timeAccessor
