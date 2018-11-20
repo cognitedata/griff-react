@@ -325,7 +325,6 @@ export default class DataProvider extends Component {
       timeDomains[series.id] ||
       propTimeDomain ||
       PLACEHOLDER_DOMAIN;
-
     return {
       hidden: collection.hidden,
       data: [],
