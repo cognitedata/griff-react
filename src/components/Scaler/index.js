@@ -133,12 +133,13 @@ class Scaler extends Component {
     // Get the new rescaled axis
     const newScale = xTransformation.rescaleX(createXScale(baseDomain, width));
     // Calculate new domain, map to timestamps (not dates)
-    const newDomain = newScale.domain().map(Number);
+    const newSubDomain = newScale.domain().map(Number);
     // Update dataproviders subdomains changed
     this.setState({
-      subDomain: newDomain,
+      subDomain: newSubDomain,
     });
-    this.props.dataContext.subDomainChanged(newDomain);
+    this.props.dataContext.subDomainChanged(newSubDomain);
+    return newSubDomain;
   };
 
   updateSubDomain = subDomain => {
@@ -169,6 +170,8 @@ class Scaler extends Component {
         [key]: scaler,
       },
     });
+
+    return newSubDomain;
   };
 
   render() {
