@@ -5,13 +5,30 @@ import Axes from './Axes';
 
 const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
+/**
+ * If a {@code boolean} is passed, then this will enable (or disable) the
+ * default rendering.
+ * If a {@code function} is passed, then this will be used as the rendering
+ * function for rendering the points.
+ *
+ * @see {@code drawPoints} on {@link DataProvider} for more information.
+ */
+const drawPoints = PropTypes.oneOfType([PropTypes.bool, PropTypes.func]);
+
 export const singleSeriePropType = PropTypes.shape({
   id: idPropType.isRequired,
   collectionId: idPropType,
   color: PropTypes.string,
   hidden: PropTypes.bool,
+  opacity: PropTypes.number,
   strokeWidth: PropTypes.number,
-  drawPoints: PropTypes.bool,
+  drawPoints,
+  /**
+   * If unset, this defaults to {@code true} for line charts and {@code false}
+   * for scatterplots.
+   * This will likely be consolidated into a standardized default in the future.
+   */
+  drawLines: PropTypes.bool,
   loader: PropTypes.func,
   step: PropTypes.bool,
   xAccessor: PropTypes.func,
@@ -104,8 +121,15 @@ const collection = PropTypes.shape({
   id: idPropType.isRequired,
   // This the color used when referencing the collection (eg, the common axis)
   color: PropTypes.string,
-  drawPoints: PropTypes.bool,
+  /**
+   * If unset, this defaults to {@code true} for line charts and {@code false}
+   * for scatterplots.
+   * This will likely be consolidated into a standardized default in the future.
+   */
+  drawLines: PropTypes.bool,
+  drawPoints,
   hidden: PropTypes.bool,
+  opacity: PropTypes.number,
   strokeWidth: PropTypes.number,
   xAccessor: PropTypes.func,
   yAxisDisplayMode: PropTypes.instanceOf(AxisDisplayMode),
@@ -236,6 +260,7 @@ export default {
   collection,
   collections,
   contextChart,
+  drawPoints,
   grid,
   multipleSeries,
   singleSeries,

@@ -7,12 +7,17 @@ import DataContext from '../../context/Data';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import Scaler, { PLACEHOLDER_DOMAIN } from '../Scaler';
 
-const calculateDomainFromData = (
+export const calculateDomainFromData = (
   data,
   accessor,
   minAccessor = null,
   maxAccessor = null
 ) => {
+  // if there is no data, hard code the domain
+  if (!data || !data.length) {
+    return [-0.25, 0.25];
+  }
+
   let extent;
   if (minAccessor && maxAccessor) {
     extent = [d3.min(data, minAccessor), d3.max(data, maxAccessor)];
@@ -68,7 +73,6 @@ export default class DataProvider extends Component {
     ),
     timeDomain: this.props.timeDomain,
     loaderConfig: {},
-    contextSeries: {},
     timeDomains: {},
     timeSubDomains: {},
     xDomains: {},
@@ -79,15 +83,14 @@ export default class DataProvider extends Component {
 
   static getDerivedStateFromProps(nextProps, prevState) {
     // Check if one of the series got removed from props
-    // If so, delete the respective keys in contextSeries and loaderconfig
-    // This is important so we don't cache the vales if it gets readded later
-    const { loaderConfig, contextSeries, yDomains, ySubDomains } = prevState;
+    // If so, delete the respective keys in loaderconfig
+    // This is important so we don't cache the values if it gets readded later
+    const { loaderConfig, yDomains, ySubDomains } = prevState;
     const { series } = nextProps;
     const seriesKeys = {};
     series.forEach(s => {
       seriesKeys[s.id] = true;
     });
-    const newContextSeries = { ...contextSeries };
     const newLoaderConfig = { ...loaderConfig };
     const newYDomains = { ...yDomains };
     const newYSubDomains = { ...ySubDomains };
@@ -95,7 +98,6 @@ export default class DataProvider extends Component {
     Object.keys(loaderConfig).forEach(key => {
       if (!seriesKeys[key]) {
         // Clean up
-        delete newContextSeries[key];
         delete newLoaderConfig[key];
         delete newYDomains[key];
         shouldUpdate = true;
@@ -104,7 +106,6 @@ export default class DataProvider extends Component {
     if (shouldUpdate) {
       return {
         loaderConfig: newLoaderConfig,
-        contextSeries: newContextSeries,
         yDomains: newYDomains,
         ySubDomains: newYSubDomains,
       };
@@ -180,15 +181,16 @@ export default class DataProvider extends Component {
           timeDomain: this.props.timeDomain,
           timeSubDomain: newTimeSubDomain,
           loaderConfig: {},
-          contextSeries: {},
           yDomains: {},
           ySubDomains: {},
         },
-        () => this.props.series.map(s => this.fetchData(s.id, 'MOUNTED'))
+        () => {
+          this.props.series.map(s => this.fetchData(s.id, 'MOUNTED'));
+          if (this.props.onTimeSubDomainChanged) {
+            this.props.onTimeSubDomainChanged(newTimeSubDomain);
+          }
+        }
       );
-      if (this.props.onTimeSubDomainChanged) {
-        this.props.onTimeSubDomainChanged(newTimeSubDomain);
-      }
       this.startUpdateInterval();
     }
   }
@@ -275,6 +277,8 @@ export default class DataProvider extends Component {
 
   enrichSeries = (series, collection = {}) => {
     const {
+      drawPoints,
+      drawLines,
       opacity,
       opacityAccessor,
       pointWidth,
@@ -287,12 +291,12 @@ export default class DataProvider extends Component {
       x0Accessor,
       x1Accessor,
       xDomain: propXDomain,
-      xSubDomain,
+      xSubDomain: propXSubDomain,
       y0Accessor,
       y1Accessor,
       yAccessor,
       yDomain: propYDomain,
-      ySubDomain,
+      ySubDomain: propYSubDomain,
     } = this.props;
     const {
       loaderConfig,
@@ -322,11 +326,22 @@ export default class DataProvider extends Component {
       propTimeDomain ||
       PLACEHOLDER_DOMAIN;
     return {
-      drawPoints: collection.drawPoints,
       hidden: collection.hidden,
       data: [],
       ...deleteUndefinedFromObject(loaderConfig[series.id]),
       ...deleteUndefinedFromObject(series),
+      drawPoints: firstDefined(
+        (loaderConfig[series.id] || {}).drawPoints,
+        series.drawPoints,
+        collection.drawPoints,
+        drawPoints
+      ),
+      drawLines: firstDefined(
+        (loaderConfig[series.id] || {}).drawLines,
+        series.drawLines,
+        collection.drawLines,
+        drawLines
+      ),
       timeAccessor: firstDefined(
         series.timeAccessor,
         collection.timeAccessor,
@@ -398,16 +413,16 @@ export default class DataProvider extends Component {
       xSubDomain:
         collection.xSubDomain ||
         series.xSubDomain ||
+        propXSubDomain ||
         xSubDomains[series.id] ||
-        xSubDomain ||
         xDomain,
       yDomain,
       ySubDomain:
         collection.ySubDomain ||
         series.ySubDomain ||
-        yDomain ||
+        propYSubDomain ||
         ySubDomains[series.id] ||
-        ySubDomain,
+        yDomain,
     };
   };
 
@@ -437,7 +452,10 @@ export default class DataProvider extends Component {
       y1Accessor: seriesObject.y1Accessor,
     };
     const stateUpdates = {};
-    if (reason === 'MOUNTED') {
+    if (
+      reason === 'MOUNTED' ||
+      (seriesObject.data.length === 0 && loaderConfig.data.length > 0)
+    ) {
       const calculatedTimeDomain = calculateDomainFromData(
         loaderConfig.data,
         loaderConfig.timeAccessor || this.props.timeAccessor
@@ -452,29 +470,23 @@ export default class DataProvider extends Component {
         [id]: calculatedTimeSubDomain,
       };
 
-      // We were not given an xDomain, so we need to calculate one based on
-      // the loaded data.
-      const xDomain = calculateDomainFromData(
+      const xSubDomain = calculateDomainFromData(
         loaderConfig.data,
         loaderConfig.xAccessor || this.props.xAccessor,
         loaderConfig.x0Accessor || this.props.x0Accessor,
         loaderConfig.x1Accessor || this.props.x1Accessor
       );
-      const xSubDomain = xDomain;
-      stateUpdates.xDomains = { ...this.state.xDomains, [id]: xDomain };
       stateUpdates.xSubDomains = {
         ...this.state.xSubDomains,
         [id]: xSubDomain,
       };
 
-      const yDomain = calculateDomainFromData(
+      const ySubDomain = calculateDomainFromData(
         loaderConfig.data,
         loaderConfig.yAccessor || this.props.yAccessor,
         loaderConfig.y0Accessor || this.props.y0Accessor,
         loaderConfig.y1Accessor || this.props.y1Accessor
       );
-      const ySubDomain = yDomain;
-      stateUpdates.yDomains = { ...this.state.yDomains, [id]: yDomain };
       stateUpdates.ySubDomains = {
         ...this.state.ySubDomains,
         [id]: ySubDomain,
@@ -484,14 +496,8 @@ export default class DataProvider extends Component {
       ...this.state.loaderConfig,
       [id]: { ...loaderConfig },
     };
-    if (reason !== 'UPDATE_SUBDOMAIN') {
-      stateUpdates.contextSeries = {
-        ...this.state.contextSeries,
-        [id]: { ...loaderConfig },
-      };
-    }
     this.setState(stateUpdates, () => {
-      this.props.onFetchData();
+      this.props.onFetchData({ ...loaderConfig });
     });
   };
 
@@ -512,19 +518,15 @@ export default class DataProvider extends Component {
         this.props.series.map(s => this.fetchData(s.id, 'UPDATE_SUBDOMAIN')),
       250
     );
-    if (this.props.onTimeSubDomainChanged) {
-      this.props.onTimeSubDomainChanged(newTimeSubDomain);
-    }
-    this.setState({ timeSubDomain: newTimeSubDomain });
+    this.setState({ timeSubDomain: newTimeSubDomain }, () => {
+      if (this.props.onTimeSubDomainChanged) {
+        this.props.onTimeSubDomainChanged(newTimeSubDomain);
+      }
+    });
   };
 
   render() {
-    const {
-      loaderConfig,
-      contextSeries,
-      timeDomain,
-      timeSubDomain,
-    } = this.state;
+    const { loaderConfig, timeDomain, timeSubDomain } = this.state;
     const {
       yAxisWidth,
       children,
@@ -591,10 +593,10 @@ export default class DataProvider extends Component {
     // yDomain and ySubDomain arrays with the one from their collections (if
     // they're a member of a collection).
     const collectedSeries = seriesObjects.map(s => {
-      const copy = {
-        ...s,
-      };
-      if (copy.collectionId !== undefined) {
+      if (s.collectionId !== undefined) {
+        const copy = {
+          ...s,
+        };
         if (!collectionsById[copy.collectionId]) {
           // It's pointing to a collection that doesn't exist.
           copy.collectionId = undefined;
@@ -602,8 +604,9 @@ export default class DataProvider extends Component {
         }
         copy.yDomain = [...collectionsById[copy.collectionId].yDomain];
         copy.ySubDomain = [...collectionsById[copy.collectionId].ySubDomain];
+        return copy;
       }
-      return copy;
+      return s;
     });
 
     const context = {
@@ -617,12 +620,7 @@ export default class DataProvider extends Component {
       externalTimeSubDomain,
       yAxisWidth,
       timeSubDomainChanged: this.timeSubDomainChanged,
-      contextSeries: seriesObjects.map(s => ({
-        ...contextSeries[s.id],
-        ...s,
-        drawPoints: false,
-        data: (contextSeries[s.id] || { data: [] }).data,
-      })),
+      limitTimeSubDomain: this.props.limitTimeSubDomain,
     };
     return (
       <DataContext.Provider value={context}>
@@ -633,6 +631,33 @@ export default class DataProvider extends Component {
 }
 
 DataProvider.propTypes = {
+  /**
+   * A custom renderer for data points.
+   *
+   * @param {object} datapoint Current data point being rendered
+   * @param {number} index Index of this current data point
+   * @param {Array} datapoints All of the data points to be rendered
+   * @param {object} metadata This object contains metadata useful for the
+   * rendering process. This contains the following keys:
+   *  - {@code x}: The x-position (in pixels) of the data point.
+   *  - {@code x0}: The x-position (in pixels) for the data point's x0 value
+   *  - {@code x1}: The x-position (in pixels) for the data point's x1 value
+   *  - {@code y}: The y-position (in pixels) of the data point.
+   *  - {@code y0}: The y-position (in pixels) for the data point's y0 value
+   *  - {@code y1}: The y-position (in pixels) for the data point's y1 value
+   *  - {@code color}: The color of this data point
+   *  - {@code opacity}: The opacity of this data point
+   *  - {@code opacityAccessor}: The opacity accessor for this data point
+   *  - {@code pointWidth}: The width of this data point
+   *  - {@code pointWidthAccessor}: The accessor for this data point's width
+   *  - {@code strokeWidth}: The width of the stroke for this data point
+   * @param {Array} elements This is an array of the items that Griff would
+   * render for this data point. If custom rendering is not desired for this
+   * data point, return this array as-is
+   * @returns {(object|Array)} object(s) to render for this point.
+   */
+  drawPoints: PropTypes.oneOfType([PropTypes.bool, PropTypes.func]),
+  drawLines: PropTypes.bool,
   timeDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   timeSubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   xDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
@@ -656,8 +681,11 @@ DataProvider.propTypes = {
   // xSubDomain => void
   onTimeSubDomainChanged: PropTypes.func,
   opacity: PropTypes.number,
+  /** (datapoint, index, datapoints) => number */
   opacityAccessor: PropTypes.func,
+
   pointWidth: PropTypes.number,
+  /** (datapoint, index, datapoints) => number */
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
   // if set to true and an updateInterval is provided, xSubDomain
@@ -666,7 +694,7 @@ DataProvider.propTypes = {
   // timeSubDomain => timeSubDomain
   // function to allow limitation of the value of timeSubDomain
   limitTimeSubDomain: PropTypes.func,
-  // void => void
+  // loaderConfig => void
   // called whenever data is fetched by the loader
   onFetchData: PropTypes.func,
 };
@@ -674,6 +702,8 @@ DataProvider.propTypes = {
 DataProvider.defaultProps = {
   collections: [],
   defaultLoader: null,
+  drawPoints: null,
+  drawLines: undefined,
   onTimeSubDomainChanged: null,
   opacity: 1.0,
   opacityAccessor: null,

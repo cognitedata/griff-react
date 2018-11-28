@@ -92,32 +92,40 @@ class InteractionLayer extends React.Component {
     touchY: null,
   };
 
+  componentDidMount() {
+    if (this.props.ruler.timestamp) {
+      this.setRulerPosition(this.props.ruler.timestamp);
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
     const {
+      // FIXME: Migrate this to `subDomainsByItemId`.
+      timeSubDomain: prevTimeSubDomain,
       subDomainsByItemId: prevSubDomainsByItemId,
       ruler,
       xScalerFactory,
+      width: prevWidth,
     } = this.props;
-    const { subDomainsByItemId: nextSubDomainsByItemId, width } = nextProps;
-    const { touchX, touchY } = this.state;
-
     // FIXME: Don't assume a single time domain
-    const prevTimeSubDomain = Axes.time(
-      prevSubDomainsByItemId[Object.keys(prevSubDomainsByItemId)[0]]
-    );
-    const nextTimeSubDomain = Axes.time(
-      nextSubDomainsByItemId[Object.keys(nextSubDomainsByItemId)[0]]
-    );
+    const {
+      timeSubDomain: nextTimeSubDomain,
+      width: nextWidth,
+      subDomainsByItemId: nextSubDomainsByItemId,
+    } = nextProps;
+    const { touchX, touchY } = this.state;
 
     if (
       ruler &&
       ruler.visible &&
       touchX !== null &&
-      !isEqual(prevTimeSubDomain, nextTimeSubDomain)
+      (!isEqual(prevTimeSubDomain, nextTimeSubDomain) ||
+        prevWidth !== nextWidth ||
+        !isEqual(prevSubDomainsByItemId, nextSubDomainsByItemId))
     ) {
       // keep track on ruler on subdomain update
-      const prevXScale = xScalerFactory(prevTimeSubDomain, width);
-      const curXScale = xScalerFactory(nextTimeSubDomain, width);
+      const prevXScale = xScalerFactory(prevTimeSubDomain, prevWidth);
+      const curXScale = xScalerFactory(nextTimeSubDomain, nextWidth);
       const ts = prevXScale.invert(touchX).getTime();
       const newXPos = curXScale(ts);
 
@@ -150,10 +158,7 @@ class InteractionLayer extends React.Component {
       });
     }
 
-    if (
-      (!prevProps.width && this.props.width && this.props.ruler.timestamp) || // got width from sizeMe
-      this.props.ruler.timestamp !== prevProps.ruler.timestamp
-    ) {
+    if (this.props.ruler.timestamp !== prevProps.ruler.timestamp) {
       this.setRulerPosition(this.props.ruler.timestamp);
     }
   }
@@ -392,13 +397,15 @@ class InteractionLayer extends React.Component {
       width,
       subDomainsByItemId,
       xScalerFactory,
+      // FIXME: Migrate this to `subDomainsByItemId`.
+      timeSubDomain,
     } = this.props;
     const newPoints = [];
     series.forEach(s => {
-      const {
-        [Axes.time]: timeSubDomain,
-        [Axes.y]: ySubDomain,
-      } = subDomainsByItemId[s.id];
+      if (!subDomainsByItemId[s.id]) {
+        return;
+      }
+      const { [Axes.y]: ySubDomain } = subDomainsByItemId[s.id];
       const xScale = xScalerFactory(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos).getTime();
       const { data, xAccessor, yAccessor } = s;
@@ -432,8 +439,6 @@ class InteractionLayer extends React.Component {
           x: xScale(ts),
           y: yScale(value),
         });
-      } else {
-        newPoints.push({ id: s.id });
       }
     });
     return newPoints;
