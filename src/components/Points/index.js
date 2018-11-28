@@ -21,6 +21,7 @@ const propTypes = {
   color: PropTypes.string.isRequired,
   opacity: PropTypes.number,
   opacityAccessor: PropTypes.func,
+  pointFilter: PropTypes.func,
   pointWidth: PropTypes.number,
   pointWidthAccessor: PropTypes.func,
   strokeWidth: PropTypes.number,
@@ -30,6 +31,7 @@ const defaultProps = {
   drawPoints: false,
   opacity: 1,
   opacityAccessor: null,
+  pointFilter: () => true,
   pointWidth: null,
   pointWidthAccessor: null,
   strokeWidth: null,
@@ -55,6 +57,7 @@ const Points = ({
   color,
   opacity,
   opacityAccessor,
+  pointFilter,
   pointWidth,
   pointWidthAccessor,
   strokeWidth,
@@ -63,7 +66,7 @@ const Points = ({
     return null;
   }
 
-  const points = data.map((d, i, arr) => {
+  const points = data.filter(pointFilter).map((d, i, arr) => {
     const [x, x0, x1] = [
       xAccessor,
       x0Accessor || defaultMinMaxAccessor,

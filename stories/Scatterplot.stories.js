@@ -1,6 +1,7 @@
 import React from 'react';
 import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
+import { action } from '@storybook/addon-actions';
 import moment from 'moment';
 import { DataProvider, Scatterplot, AxisPlacement, ContextChart } from '../src';
 import { staticLoader, functionLoader } from './loaders';
@@ -26,6 +27,7 @@ const mapping = {
 const NUM_POINTS = 50;
 
 const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
+  action('scatterplotloader')(reason);
   if (reason === 'MOUNTED') {
     const pair = mapping[id] || Math.round(Math.random() * 100);
     const { x, y } = {
@@ -88,6 +90,7 @@ const scatterplotFunctionLoader = ({
   timeSubDomain,
   ...params
 }) => {
+  action('scatterplotFunctionLoader')(reason);
   const dt = timeDomain[1] - timeDomain[0];
   const pair = mapping[id];
   const { x, y } = {
@@ -107,7 +110,7 @@ const scatterplotFunctionLoader = ({
     }),
   };
 
-  const data = [];
+  const newData = [];
   const lastKnown = { x: undefined, y: undefined, timestamp: undefined };
   while (x.data.length || y.data.length) {
     const points = {
@@ -129,11 +132,16 @@ const scatterplotFunctionLoader = ({
       lastKnown.y !== undefined &&
       lastKnown.timestamp !== undefined
     ) {
-      data.push({
+      newData.push({
         ...lastKnown,
       });
     }
   }
+
+  const data = []
+    .concat(oldSeries.data.filter(d => d.timestamp <= timeSubDomain[0]))
+    .concat(newData)
+    .concat(oldSeries.data.filter(d => d.timestamp >= timeSubDomain[1]));
 
   return { data };
 };

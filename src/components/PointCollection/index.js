@@ -35,7 +35,25 @@ const PointCollection = ({
         Axes.y(subDomainsByItemId[s.collectionId || s.id]),
         height
       );
-      return <Points key={s.id} {...s} xScale={xScale} yScale={yScale} />;
+      // Only show points which are relevant for the current time subdomain.
+      // We don't need to do this for lines because we want lines to be drawn to
+      // infinity so that they go to the ends of the graph, but points are special
+      // since they can overlap in the [x,y] plane, but not be in the current time
+      // subdomain.
+      const pointFilter = d => {
+        const timestamp = s.timeAccessor(d);
+        const subDomain = Axes.time(subDomainsByItemId[s.id]);
+        return subDomain[0] <= timestamp && timestamp <= subDomain[1];
+      };
+      return (
+        <Points
+          key={s.id}
+          {...s}
+          xScale={xScale}
+          yScale={yScale}
+          pointFilter={pointFilter}
+        />
+      );
     });
 
   return (
