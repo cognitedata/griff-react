@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import ScalerContext from '../../context/Scaler';
-import { createYScale } from '../../utils/scale-helpers';
+import { createYScale, createXScale } from '../../utils/scale-helpers';
 import GriffPropTypes, {
   areaPropType,
   seriesPropType,
@@ -55,8 +55,6 @@ class InteractionLayer extends React.Component {
     timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
-    // (domain, width) => [number, number]
-    xScalerFactory: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -104,7 +102,6 @@ class InteractionLayer extends React.Component {
       timeSubDomain: prevTimeSubDomain,
       subDomainsByItemId: prevSubDomainsByItemId,
       ruler,
-      xScalerFactory,
       width: prevWidth,
     } = this.props;
     // FIXME: Don't assume a single time domain
@@ -124,9 +121,9 @@ class InteractionLayer extends React.Component {
         !isEqual(prevSubDomainsByItemId, nextSubDomainsByItemId))
     ) {
       // keep track on ruler on subdomain update
-      const prevXScale = xScalerFactory(prevTimeSubDomain, prevWidth);
-      const curXScale = xScalerFactory(nextTimeSubDomain, nextWidth);
-      const ts = prevXScale.invert(touchX).getTime();
+      const prevXScale = createXScale(prevTimeSubDomain, prevWidth);
+      const curXScale = createXScale(nextTimeSubDomain, nextWidth);
+      const ts = prevXScale.invert(touchX);
       const newXPos = curXScale(ts);
 
       // hide ruler if point went out to the left of subdomain
@@ -256,7 +253,6 @@ class InteractionLayer extends React.Component {
       width,
       annotations,
       areas,
-      xScalerFactory,
       subDomainsByItemId,
     } = this.props;
     if (this.dragging) {
@@ -268,10 +264,10 @@ class InteractionLayer extends React.Component {
       const timeSubDomain = Axes.time(
         subDomainsByItemId[Object.keys(subDomainsByItemId)[0]]
       );
-      const xScale = xScalerFactory(timeSubDomain, width);
+      const xScale = createXScale(timeSubDomain, width);
       const xpos = e.nativeEvent.offsetX;
       const ypos = e.nativeEvent.offsetY;
-      const rawTimestamp = xScale.invert(xpos).getTime();
+      const rawTimestamp = xScale.invert(xpos);
       if (onAreaClicked) {
         let stopNotifying = false;
         areas.forEach(a => {
@@ -333,13 +329,7 @@ class InteractionLayer extends React.Component {
 
   // TODO: This extrapolate thing is super gross and so hacky.
   getDataForCoordinate = (xpos, ypos, extrapolate = false) => {
-    const {
-      subDomainsByItemId,
-      width,
-      series,
-      height,
-      xScalerFactory,
-    } = this.props;
+    const { subDomainsByItemId, width, series, height } = this.props;
 
     const output = { xpos, ypos, points: [] };
     series.forEach(s => {
@@ -347,8 +337,8 @@ class InteractionLayer extends React.Component {
         [Axes.time]: timeSubDomain,
         [Axes.y]: ySubDomain,
       } = subDomainsByItemId[s.id];
-      const xScale = xScalerFactory(timeSubDomain, width);
-      const rawTimestamp = xScale.invert(xpos).getTime();
+      const xScale = createXScale(timeSubDomain, width);
+      const rawTimestamp = xScale.invert(xpos);
       const { data, xAccessor, yAccessor } = s;
       const rawX = d3.bisector(xAccessor).left(data, rawTimestamp, 1);
       const x0 = data[rawX - 1];
@@ -396,7 +386,6 @@ class InteractionLayer extends React.Component {
       height,
       width,
       subDomainsByItemId,
-      xScalerFactory,
       // FIXME: Migrate this to `subDomainsByItemId`.
       timeSubDomain,
     } = this.props;
@@ -406,8 +395,8 @@ class InteractionLayer extends React.Component {
         return;
       }
       const { [Axes.y]: ySubDomain } = subDomainsByItemId[s.id];
-      const xScale = xScalerFactory(timeSubDomain, width);
-      const rawTimestamp = xScale.invert(xpos).getTime();
+      const xScale = createXScale(timeSubDomain, width);
+      const rawTimestamp = xScale.invert(xpos);
       const { data, xAccessor, yAccessor } = s;
       const rawX = d3.bisector(xAccessor).left(data, rawTimestamp, 1);
       const x0 = data[rawX - 1];
@@ -453,8 +442,8 @@ class InteractionLayer extends React.Component {
       });
       return;
     }
-    const { xScalerFactory, width, timeSubDomain } = this.props;
-    const xScale = xScalerFactory(timeSubDomain, width);
+    const { width, timeSubDomain } = this.props;
+    const xScale = createXScale(timeSubDomain, width);
     const xpos = xScale(timestamp);
     this.setRulerPoints(xpos);
     this.setState({
@@ -502,7 +491,6 @@ class InteractionLayer extends React.Component {
       series,
       subDomainsByItemId,
       width,
-      xScalerFactory,
       zoomAxes,
     } = this.props;
     const {
@@ -537,7 +525,7 @@ class InteractionLayer extends React.Component {
     }
     // FIXME: Don't rely on a single time domain
     const timeSubDomain = Axes.time(subDomainsByItemId[series[0].id]);
-    const xScale = xScalerFactory(timeSubDomain, width);
+    const xScale = createXScale(timeSubDomain, width);
     const annotations = this.props.annotations.map(a => (
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
     ));
@@ -627,7 +615,6 @@ export default props => (
       timeDomain,
       collections,
       series,
-      xScalerFactory,
       subDomainsByItemId,
     }) => (
       <InteractionLayer
@@ -637,7 +624,6 @@ export default props => (
         timeDomain={timeDomain}
         collections={collections}
         series={series}
-        xScalerFactory={xScalerFactory}
         subDomainsByItemId={subDomainsByItemId}
       />
     )}

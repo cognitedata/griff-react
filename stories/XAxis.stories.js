@@ -4,8 +4,6 @@ import { storiesOf } from '@storybook/react';
 import moment from 'moment';
 import { DataProvider, XAxis, AxisPlacement } from '../src';
 import { staticLoader } from './loaders';
-import Scaler from '../src/components/Scaler';
-import { createXScale } from '../src/utils/scale-helpers';
 
 storiesOf('XAxis', module)
   .addDecorator(story => (
@@ -26,7 +24,7 @@ storiesOf('XAxis', module)
           <XAxis />
         </DataProvider>
       </div>
-      <div style={{ width: '75%' }}>
+      <div style={{ width: '50%' }}>
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
@@ -34,9 +32,7 @@ storiesOf('XAxis', module)
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
-          <Scaler xScalerFactory={createXScale}>
-            <XAxis />
-          </Scaler>
+          <XAxis />
         </DataProvider>
       </div>
     </React.Fragment>

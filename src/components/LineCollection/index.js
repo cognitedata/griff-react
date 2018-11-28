@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { createYScale } from '../../utils/scale-helpers';
+import { createXScale, createYScale } from '../../utils/scale-helpers';
 import GriffPropTypes, {
   seriesPropType,
   scalerFactoryFunc,
@@ -18,7 +18,6 @@ const LineCollection = props => {
     width,
     height,
     xAxis,
-    xScalerFactory,
     yScalerFactory,
     pointWidth,
     scaleX,
@@ -46,7 +45,7 @@ const LineCollection = props => {
       return l;
     }
     const { id } = s;
-    const xScale = xScalerFactory(
+    const xScale = createXScale(
       scaleX ? xAxis(subDomainsByItemId[id]) : xAxis(domainsByItemId[id]),
       width
     );
@@ -84,7 +83,6 @@ LineCollection.propTypes = {
 
   // These are provided by Griff
   yScalerFactory: scalerFactoryFunc,
-  xScalerFactory: scalerFactoryFunc.isRequired,
   domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
   subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
@@ -99,10 +97,9 @@ LineCollection.defaultProps = {
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ domainsByItemId, subDomainsByItemId, series, xScalerFactory }) => (
+    {({ domainsByItemId, subDomainsByItemId, series }) => (
       <LineCollection
         series={series}
-        xScalerFactory={xScalerFactory}
         {...props}
         domainsByItemId={domainsByItemId}
         subDomainsByItemId={subDomainsByItemId}

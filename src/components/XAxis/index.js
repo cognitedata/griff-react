@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import { SizeMe } from 'react-sizeme';
-import GriffPropTypes, { scalerFactoryFunc } from '../../utils/proptypes';
+import GriffPropTypes from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
 import ScalerContext from '../../context/Scaler';
 import ZoomRect from '../ZoomRect';
 import Axes from '../../utils/Axes';
+import { createXScale } from '../../utils/scale-helpers';
 
 const tickTransformer = v => `translate(${v}, 0)`;
 
@@ -23,7 +24,6 @@ const propTypes = {
 
   // These are provided by Griff.
   series: GriffPropTypes.multipleSeries.isRequired,
-  xScalerFactory: scalerFactoryFunc.isRequired,
   domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
   subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
@@ -106,14 +106,13 @@ class XAxis extends Component {
       axis: a,
       width,
       stroke,
-      xScalerFactory,
       tickFormatter,
       ticks,
       domainsByItemId,
       subDomainsByItemId,
       scaled,
     } = this.props;
-    const scale = xScalerFactory(
+    const scale = createXScale(
       (scaled ? subDomainsByItemId : domainsByItemId)[
         Object.keys(domainsByItemId)[0]
       ][a],
@@ -196,12 +195,11 @@ XAxis.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ xScalerFactory, domainsByItemId, subDomainsByItemId, series }) => (
+    {({ domainsByItemId, subDomainsByItemId, series }) => (
       <SizeMe monitorWidth>
         {({ size }) => (
           <XAxis
             series={series}
-            xScalerFactory={xScalerFactory}
             {...props}
             width={size.width}
             domainsByItemId={domainsByItemId}

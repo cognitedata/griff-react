@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import ScalerContext from '../../context/Scaler';
-import { createXScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import Axes from '../../utils/Axes';
 
@@ -79,13 +78,9 @@ class Scaler extends Component {
       series: seriesPropType.isRequired,
       collections: GriffPropTypes.collections.isRequired,
     }).isRequired,
-    // (domain, width) => [number, number]
-    xScalerFactory: PropTypes.func,
   };
 
-  static defaultProps = {
-    xScalerFactory: createXScale,
-  };
+  static defaultProps = {};
 
   constructor(props) {
     super(props);
@@ -343,7 +338,7 @@ class Scaler extends Component {
 
   render() {
     const { domainsByItemId, subDomainsByItemId } = this.state;
-    const { dataContext, xScalerFactory } = this.props;
+    const { dataContext } = this.props;
     const ownContext = {
       updateDomains: this.updateDomains,
       domainsByItemId,
@@ -352,7 +347,6 @@ class Scaler extends Component {
 
     const enrichedContext = {
       timeSubDomain: dataContext.timeSubDomain || dataContext.timeDomain,
-      xScalerFactory,
     };
 
     const finalContext = {
