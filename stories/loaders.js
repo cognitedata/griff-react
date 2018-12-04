@@ -98,7 +98,7 @@ export const customAccessorLoader = ({ timeDomain, oldSeries, reason }) => {
   };
 };
 
-export const functionLoader = ({ func, timeSubDomain, pointsPerSeries }) => {
+export const functionLoader = func => ({ timeSubDomain, pointsPerSeries }) => {
   const data = [];
   const dt = (timeSubDomain[1] - timeSubDomain[0]) / pointsPerSeries;
   for (

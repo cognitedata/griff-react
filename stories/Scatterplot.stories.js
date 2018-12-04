@@ -94,15 +94,13 @@ const scatterplotFunctionLoader = ({
   const dt = timeDomain[1] - timeDomain[0];
   const pair = mapping[id];
   const { x, y } = {
-    x: functionLoader({
-      func: d => Math.sin((d / dt) * 2 * Math.PI),
+    x: functionLoader(d => Math.sin((d / dt) * 2 * Math.PI))({
       id: pair.x,
       reason,
       timeSubDomain,
       ...params,
     }),
-    y: functionLoader({
-      func: d => Math.cos((d / dt) * 2 * Math.PI),
+    y: functionLoader(d => Math.cos((d / dt) * 2 * Math.PI))({
       id: pair.y,
       reason,
       timeSubDomain,
