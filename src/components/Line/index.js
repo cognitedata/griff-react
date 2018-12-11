@@ -31,7 +31,11 @@ const Line = ({
       .curve(d3.curveStepAfter)
       .x(d => boundedSeries(xScale(xAxisAccessor(d))))
       .y(d => boundedSeries(yScale(yAccessor(d))));
-    if (!drawPoints && y0Accessor && y1Accessor) {
+    if (
+      (typeof drawPoints === 'function' || !drawPoints) &&
+      y0Accessor &&
+      y1Accessor
+    ) {
       area = d3
         .area()
         .curve(d3.curveStepAfter)
@@ -44,7 +48,11 @@ const Line = ({
       .line()
       .x(d => boundedSeries(xScale(xAxisAccessor(d))))
       .y(d => boundedSeries(yScale(yAccessor(d))));
-    if (!drawPoints && y0Accessor && y1Accessor) {
+    if (
+      (typeof drawPoints === 'function' || !drawPoints) &&
+      y0Accessor &&
+      y1Accessor
+    ) {
       area = d3
         .area()
         .x(d => boundedSeries(xScale(xAxisAccessor(d))))
