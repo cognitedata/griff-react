@@ -942,6 +942,31 @@ storiesOf('LineChart', module)
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
+  .add('Sticky x subdomain and ruler', () => (
+    <DataProvider
+      defaultLoader={liveLoader}
+      timeDomain={liveXDomain}
+      timeSubDomain={[Date.now() - 1000 * 20, Date.now() - 1000 * 10]}
+      updateInterval={33}
+      yAxisWidth={50}
+      series={[
+        { id: 1, color: 'steelblue', name: 'name1' },
+        { id: 2, color: 'maroon', name: 'name2' },
+      ]}
+      isTimeSubDomainSticky
+    >
+      <LineChart
+        height={CHART_HEIGHT}
+        ruler={{
+          visible: true,
+          yLabel: point =>
+            `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+          timeLabel: point =>
+            moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+        }}
+      />
+    </DataProvider>
+  ))
   .add('Limit x subdomain', () => {
     class LimitXSubDomain extends React.Component {
       limitXSubDomain = subDomain => {
