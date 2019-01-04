@@ -5,15 +5,12 @@ import ScalerContext from '../../context/Scaler';
 import LineCollection from '../LineCollection';
 import XAxis from '../XAxis';
 import Annotation from '../Annotation';
-import GriffPropTypes, {
-  annotationPropType,
-  scalerFactoryFunc,
-} from '../../utils/proptypes';
+import GriffPropTypes, { annotationPropType } from '../../utils/proptypes';
 import Brush from '../Brush';
 import AxisPlacement from '../AxisPlacement';
 import multiFormat from '../../utils/multiFormat';
 import Axes from '../../utils/Axes';
-import { createYScale } from '../../utils/scale-helpers';
+import { createYScale, createXScale } from '../../utils/scale-helpers';
 import { stripPlaceholderDomain } from '../Scaler';
 import { calculateDomainFromData } from '../DataProvider';
 
@@ -34,7 +31,6 @@ class ContextChart extends Component {
     timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     updateDomains: GriffPropTypes.updateDomains.isRequired,
-    xScalerFactory: scalerFactoryFunc.isRequired,
     width: PropTypes.number,
   };
 
@@ -49,8 +45,8 @@ class ContextChart extends Component {
   };
 
   onUpdateSelection = selection => {
-    const { series, timeDomain, width, xScalerFactory } = this.props;
-    const xScale = xScalerFactory(timeDomain, width);
+    const { series, timeDomain, width } = this.props;
+    const xScale = createXScale(timeDomain, width);
     const timeSubDomain = selection.map(xScale.invert).map(Number);
     this.props.updateDomains(
       series.reduce(
@@ -104,7 +100,6 @@ class ContextChart extends Component {
       xAxisFormatter,
       xAxisHeight,
       xAxisPlacement,
-      xScalerFactory,
       zoomable,
     } = this.props;
 
@@ -112,7 +107,7 @@ class ContextChart extends Component {
     const timeDomain = Axes.time(domainsByItemId[firstItemId]);
     const timeSubDomain = Axes.time(subDomainsByItemId[firstItemId]);
     const height = this.getChartHeight();
-    const xScale = xScalerFactory(timeDomain, width);
+    const xScale = createXScale(timeDomain, width);
     const selection = timeSubDomain.map(xScale);
     const annotations = this.props.annotations.map(a => (
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
@@ -142,7 +137,6 @@ class ContextChart extends Component {
             series={series.map(s => ({ ...s, drawPoints: false }))}
             width={width}
             height={height}
-            xScalerFactory={xScalerFactory}
             yScalerFactory={this.getYScale}
             scaleY={false}
             scaleX={false}
@@ -169,7 +163,6 @@ export default props => (
       subDomainsByItemId,
       timeSubDomain,
       timeDomain,
-      xScalerFactory,
       updateDomains,
       series,
     }) => (
@@ -181,7 +174,6 @@ export default props => (
             {...props}
             timeDomain={timeDomain}
             timeSubDomain={timeSubDomain}
-            xScalerFactory={xScalerFactory}
             subDomainsByItemId={subDomainsByItemId}
             domainsByItemId={domainsByItemId}
             updateDomains={updateDomains}

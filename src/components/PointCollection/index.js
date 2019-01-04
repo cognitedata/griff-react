@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ScalerContext from '../../context/Scaler';
-import { createYScale } from '../../utils/scale-helpers';
+import { createYScale, createXScale } from '../../utils/scale-helpers';
 import Points from '../Points';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import Axes from '../../utils/Axes';
@@ -11,18 +11,10 @@ const propTypes = {
   height: PropTypes.number.isRequired,
   series: seriesPropType.isRequired,
   subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
-  // (domain, width) => [number, number]
-  xScalerFactory: PropTypes.func.isRequired,
 };
 const defaultProps = {};
 
-const PointCollection = ({
-  width,
-  height,
-  series,
-  subDomainsByItemId,
-  xScalerFactory,
-}) => {
+const PointCollection = ({ width, height, series, subDomainsByItemId }) => {
   const points = series
     .filter(s => !s.hidden && s.drawPoints !== false)
     .map(s => {
@@ -30,7 +22,7 @@ const PointCollection = ({
       // entirely sure why; I think it's because the collection's x domain is not
       // correctly calculated to the data's extent. I have not looked into it
       // because it doesn't really matter yet, but it will at some point.
-      const xScale = xScalerFactory(Axes.x(subDomainsByItemId[s.id]), width);
+      const xScale = createXScale(Axes.x(subDomainsByItemId[s.id]), width);
       const yScale = createYScale(
         Axes.y(subDomainsByItemId[s.collectionId || s.id]),
         height
@@ -71,12 +63,11 @@ PointCollection.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ subDomainsByItemId, series, xScalerFactory }) => (
+    {({ subDomainsByItemId, series }) => (
       <PointCollection
         {...props}
         series={series}
         subDomainsByItemId={subDomainsByItemId}
-        xScalerFactory={xScalerFactory}
       />
     )}
   </ScalerContext.Consumer>

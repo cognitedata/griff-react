@@ -5,11 +5,7 @@ import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import PointCollection from '../PointCollection';
 import InteractionLayer, { ZoomMode } from '../InteractionLayer';
-import { createLinearXScale } from '../../utils/scale-helpers';
-import GriffPropTypes, {
-  seriesPropType,
-  scalerFactoryFunc,
-} from '../../utils/proptypes';
+import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import XAxis from '../XAxis';
 import Layout from './Layout';
 import AxisPlacement from '../AxisPlacement';
@@ -31,7 +27,6 @@ const propTypes = {
   xAxisFormatter: PropTypes.func,
   xAxisPlacement: GriffPropTypes.axisPlacement,
   xAxisTicks: PropTypes.number,
-  xScalerFactory: scalerFactoryFunc.isRequired,
   // Number => String
   yAxisFormatter: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
@@ -91,7 +86,6 @@ const ScatterplotComponent = ({
   xAxisFormatter,
   xAxisPlacement,
   xAxisTicks,
-  xScalerFactory,
   yAxisFormatter,
   yAxisPlacement: propsYAxisPlacement,
   yAxisTicks,
@@ -165,7 +159,6 @@ const ScatterplotComponent = ({
             {...chartSize}
             onClick={onClick}
             zoomMode={ZoomMode.BOTH}
-            xScalerFactory={xScalerFactory}
             zoomAxes={{ x: zoomable, y: zoomable }}
           />
         </svg>
@@ -183,7 +176,6 @@ const ScatterplotComponent = ({
         <XAxis
           width={chartSize.width}
           height={X_AXIS_HEIGHT}
-          xScalerFactory={xScalerFactory}
           tickFormatter={xAxisFormatter}
           ticks={xAxisTicks}
           axis={Axes.x}
@@ -203,14 +195,13 @@ const SizedScatterplotComponent = sizeMe({
 })(ScatterplotComponent);
 
 const Scatterplot = props => (
-  <Scaler xScalerFactory={createLinearXScale}>
+  <Scaler>
     <ScalerContext.Consumer>
-      {({ collections, series, xScalerFactory }) => (
+      {({ collections, series }) => (
         <SizedScatterplotComponent
           {...props}
           collections={collections}
           series={series}
-          xScalerFactory={xScalerFactory}
         />
       )}
     </ScalerContext.Consumer>

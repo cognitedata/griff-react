@@ -385,17 +385,11 @@ ZoomRect.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({
-      xScalerFactory,
-      domainsByItemId,
-      subDomainsByItemId,
-      updateDomains,
-    }) => (
+    {({ domainsByItemId, subDomainsByItemId, updateDomains }) => (
       <ZoomRect
         {...props}
         domainsByItemId={domainsByItemId}
         subDomainsByItemId={subDomainsByItemId}
-        xScalerFactory={xScalerFactory}
         updateDomains={updateDomains}
       />
     )}

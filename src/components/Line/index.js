@@ -54,7 +54,7 @@ const Line = ({
   }
   let circles = null;
   if (drawPoints) {
-    const xSubDomain = xScale.domain().map(p => (p.getTime ? p.getTime() : p));
+    const xSubDomain = xScale.domain();
     circles = (
       <Points
         data={data.filter(d => {

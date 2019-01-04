@@ -1,10 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ScalerContext from '../../context/Scaler';
-import GriffPropTypes, {
-  seriesPropType,
-  scalerFactoryFunc,
-} from '../../utils/proptypes';
+import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 import Axes from '../../utils/Axes';
 
@@ -18,13 +15,11 @@ const propTypes = {
   }),
   // These are all populated by Griff.
   subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
-  xScalerFactory: scalerFactoryFunc,
 };
 
 const defaultProps = {
   axes: { x: 'x' },
   grid: null,
-  xScalerFactory: createXScale,
 };
 
 const DEFAULT_COLOR = '#666';
@@ -40,7 +35,6 @@ class GridLines extends React.Component {
       width,
       series,
       subDomainsByItemId,
-      xScalerFactory,
       axes,
     } = this.props;
 
@@ -168,7 +162,7 @@ class GridLines extends React.Component {
         // FIXME: Remove this when we support multiple X axes
         const timeSubDomain =
           subDomainsByItemId[Object.keys(subDomainsByItemId)[0]][axes.x];
-        const scale = xScalerFactory(timeSubDomain, width);
+        const scale = createXScale(timeSubDomain, width);
         const values = scale.ticks(x.ticks || Math.floor(width / 100) || 1);
         values.forEach(v => {
           lines.push(
@@ -225,12 +219,11 @@ GridLines.defaultProps = defaultProps;
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ series, subDomainsByItemId, xScalerFactory }) => (
+    {({ series, subDomainsByItemId }) => (
       <GridLines
         {...props}
         series={series}
         subDomainsByItemId={subDomainsByItemId}
-        xScalerFactory={xScalerFactory}
       />
     )}
   </ScalerContext.Consumer>

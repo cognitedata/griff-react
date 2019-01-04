@@ -11,7 +11,6 @@ import GriffPropTypes, {
   annotationPropType,
   rulerPropType,
   axisDisplayModeType,
-  scalerFactoryFunc,
 } from '../../utils/proptypes';
 import LineCollection from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
@@ -19,7 +18,6 @@ import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
 import Layout from './Layout';
-import { createXScale } from '../../utils/scale-helpers';
 import multiFormat from '../../utils/multiFormat';
 
 const propTypes = {
@@ -63,7 +61,6 @@ const propTypes = {
   onAxisMouseEnter: PropTypes.func,
   // (e, seriesId) => void
   onAxisMouseLeave: PropTypes.func,
-  xScalerFactory: scalerFactoryFunc,
   areas: PropTypes.arrayOf(areaPropType),
   /**
    * Pass in a callback function which will be given a defined area when the
@@ -117,7 +114,6 @@ const defaultProps = {
   xSubDomain: [],
   xAxisFormatter: multiFormat,
   xAxisPlacement: AxisPlacement.BOTTOM,
-  xScalerFactory: createXScale,
   yAxisDisplayMode: AxisDisplayMode.ALL,
   yAxisFormatter: Number,
   yAxisPlacement: AxisPlacement.RIGHT,
@@ -252,7 +248,6 @@ class LineChart extends Component {
       xSubDomain,
       ruler,
       width: propWidth,
-      xScalerFactory,
       xAxisHeight,
       xAxisFormatter,
       xAxisPlacement,
@@ -334,7 +329,6 @@ class LineChart extends Component {
         xAxis={
           <XAxis
             domain={xSubDomain}
-            xScalerFactory={xScalerFactory}
             height={xAxisHeight}
             placement={xAxisPlacement}
             tickFormatter={xAxisFormatter}
@@ -363,13 +357,12 @@ const SizedLineChart = sizeMe({ monitorHeight: true })(LineChart);
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ collections, series, xSubDomain, xScalerFactory, yAxisWidth }) => (
+    {({ collections, series, xSubDomain, yAxisWidth }) => (
       <SizedLineChart
         {...props}
         collections={collections}
         series={series}
         timeSubDomain={xSubDomain}
-        xScalerFactory={xScalerFactory}
         yAxisWidth={yAxisWidth}
       />
     )}
