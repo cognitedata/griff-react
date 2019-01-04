@@ -53,7 +53,6 @@ class InteractionLayer extends React.Component {
     series: seriesPropType,
     collections: GriffPropTypes.collections,
     timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-    timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
   };
 
@@ -99,26 +98,30 @@ class InteractionLayer extends React.Component {
   componentWillReceiveProps(nextProps) {
     const {
       // FIXME: Migrate this to `subDomainsByItemId`.
-      timeSubDomain: prevTimeSubDomain,
       subDomainsByItemId: prevSubDomainsByItemId,
       ruler,
       width: prevWidth,
     } = this.props;
     // FIXME: Don't assume a single time domain
     const {
-      timeSubDomain: nextTimeSubDomain,
       width: nextWidth,
       subDomainsByItemId: nextSubDomainsByItemId,
     } = nextProps;
     const { touchX, touchY } = this.state;
+
+    const prevTimeSubDomain = Axes.time(
+      prevSubDomainsByItemId[Object.keys(prevSubDomainsByItemId)[0]]
+    );
+    const nextTimeSubDomain = Axes.time(
+      nextSubDomainsByItemId[Object.keys(nextSubDomainsByItemId)[0]]
+    );
 
     if (
       ruler &&
       ruler.visible &&
       touchX !== null &&
       (!isEqual(prevTimeSubDomain, nextTimeSubDomain) ||
-        prevWidth !== nextWidth ||
-        !isEqual(prevSubDomainsByItemId, nextSubDomainsByItemId))
+        prevWidth !== nextWidth)
     ) {
       // keep track on ruler on subdomain update
       const prevXScale = createXScale(prevTimeSubDomain, prevWidth);
@@ -387,14 +390,16 @@ class InteractionLayer extends React.Component {
       width,
       subDomainsByItemId,
       // FIXME: Migrate this to `subDomainsByItemId`.
-      timeSubDomain,
     } = this.props;
     const newPoints = [];
     series.forEach(s => {
       if (!subDomainsByItemId[s.id]) {
         return;
       }
-      const { [Axes.y]: ySubDomain } = subDomainsByItemId[s.id];
+      const {
+        [Axes.time]: timeSubDomain,
+        [Axes.y]: ySubDomain,
+      } = subDomainsByItemId[s.id];
       const xScale = createXScale(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos);
       const { data, xAccessor, yAccessor } = s;
@@ -442,7 +447,10 @@ class InteractionLayer extends React.Component {
       });
       return;
     }
-    const { width, timeSubDomain } = this.props;
+    const { width, subDomainsByItemId } = this.props;
+    const timeSubDomain = Axes.time(
+      subDomainsByItemId[Object.keys(subDomainsByItemId)[0]]
+    );
     const xScale = createXScale(timeSubDomain, width);
     const xpos = xScale(timestamp);
     this.setRulerPoints(xpos);
@@ -610,18 +618,9 @@ class InteractionLayer extends React.Component {
 
 export default props => (
   <ScalerContext.Consumer>
-    {({
-      timeSubDomain,
-      timeDomain,
-      collections,
-      series,
-      subDomainsByItemId,
-    }) => (
+    {({ collections, series, subDomainsByItemId }) => (
       <InteractionLayer
         {...props}
-        // FIXME: Remove this crap
-        timeSubDomain={timeSubDomain}
-        timeDomain={timeDomain}
         collections={collections}
         series={series}
         subDomainsByItemId={subDomainsByItemId}

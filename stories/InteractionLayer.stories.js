@@ -5,35 +5,65 @@ import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { DataProvider, LineChart } from '../src';
-import { staticLoader } from './loaders';
+import { functionLoader, staticLoader } from './loaders';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
 storiesOf('InteractionLayer', module)
   .add('Ruler', () => (
-    <DataProvider
-      timeDomain={staticXDomain}
-      defaultLoader={staticLoader}
-      xAccessor={d => d.timestamp}
-      yAccessor={d => d.value}
-      series={[
-        { id: 1, color: 'steelblue', name: 'name1' },
-        { id: 2, color: 'maroon', name: 'name2' },
-      ]}
-    >
-      <LineChart
-        height={CHART_HEIGHT}
-        crosshair={false}
-        ruler={{
-          visible: true,
-          yLabel: point =>
-            `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
-          timeLabel: point =>
-            moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
-        }}
-      />
-    </DataProvider>
+    <React.Fragment>
+      <div style={{ height: 500 }}>
+        <DataProvider
+          timeDomain={staticXDomain}
+          defaultLoader={staticLoader}
+          xAccessor={d => d.timestamp}
+          yAccessor={d => d.value}
+          series={[
+            { id: 1, color: 'steelblue', name: 'name1' },
+            { id: 2, color: 'maroon', name: 'name2' },
+          ]}
+        >
+          <LineChart
+            height={CHART_HEIGHT}
+            crosshair={false}
+            ruler={{
+              visible: true,
+              yLabel: point =>
+                `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+              timeLabel: point =>
+                moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+            }}
+          />
+        </DataProvider>
+      </div>
+      <div style={{ height: 500 }}>
+        <DataProvider
+          timeDomain={staticXDomain}
+          defaultLoader={functionLoader(d =>
+            Math.sin((d / (staticXDomain[1] - staticXDomain[0])) * 2 * Math.PI)
+          )}
+          xAccessor={d => d.timestamp}
+          yAccessor={d => d.value}
+          series={[
+            { id: 1, color: 'steelblue', name: 'name1' },
+            { id: 2, color: 'maroon', name: 'name2' },
+          ]}
+        >
+          <LineChart
+            height={CHART_HEIGHT}
+            crosshair={false}
+            ruler={{
+              visible: true,
+              yLabel: point =>
+                `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+              timeLabel: point =>
+                moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+            }}
+          />
+        </DataProvider>
+      </div>
+    </React.Fragment>
   ))
   .add('Area (no zoom)', () => (
     <DataProvider

@@ -163,23 +163,6 @@ class Scaler extends Component {
 
     if (
       !isEqual(
-        prevProps.dataContext.timeSubDomain,
-        this.props.dataContext.timeSubDomain
-      )
-    ) {
-      // When timeSubDomain changes, we need to update everything downstream.
-      const subDomainsByItemId = { ...this.state.subDomainsByItemId };
-      Object.keys(subDomainsByItemId).forEach(itemId => {
-        subDomainsByItemId[itemId][
-          Axes.time
-        ] = this.props.dataContext.timeSubDomain;
-      });
-      // eslint-disable-next-line react/no-did-update-set-state
-      this.setState({ subDomainsByItemId });
-    }
-
-    if (
-      !isEqual(
         prevProps.dataContext.timeDomain,
         this.props.dataContext.timeDomain
       )
@@ -222,6 +205,24 @@ class Scaler extends Component {
 
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ domainsByItemId, subDomainsByItemId });
+
+      if (
+        !isEqual(
+          prevProps.dataContext.timeSubDomain,
+          this.props.dataContext.timeSubDomain
+        )
+      ) {
+        // When timeSubDomain changes, we need to update everything downstream.
+        const newSubDomainsByItemId = {};
+        Object.keys(this.state.subDomainsByItemId).forEach(itemId => {
+          newSubDomainsByItemId[itemId] = {
+            ...this.state.subDomainsByItemId[itemId],
+            [Axes.time]: this.props.dataContext.timeSubDomain,
+          };
+        });
+        // eslint-disable-next-line react/no-did-update-set-state
+        this.setState({ subDomainsByItemId: newSubDomainsByItemId });
+      }
     }
   }
 
