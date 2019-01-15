@@ -37,6 +37,22 @@ const defaultProps = {
   defaultColor: '#000',
 };
 
+const countDecimals = num => {
+  if (Math.floor(num) !== num) {
+    return num.toString().split('.')[1].length || 0;
+  }
+  return 0;
+};
+
+const findMaxDecimals = array => {
+  let decimalPlaces = 0;
+  array.forEach(num => {
+    decimalPlaces =
+      decimalPlaces < countDecimals(num) ? countDecimals(num) : decimalPlaces;
+  });
+  return decimalPlaces;
+};
+
 class YAxis extends Component {
   getItem = () =>
     this.props.series ? this.props.series : this.props.collection;
@@ -165,6 +181,7 @@ class YAxis extends Component {
     // same as for xAxis but consider height of the screen ~two times smaller
     const nTicks = Math.floor(height / 50) || 1;
     const values = scale.ticks(nTicks);
+    const maxDecimals = findMaxDecimals(values);
     const range = scale.range().map(r => r + halfStrokeWidth);
     return (
       <g
@@ -193,7 +210,7 @@ class YAxis extends Component {
             <g key={+v} opacity={1} transform={`translate(0, ${scale(v)})`}>
               <line {...lineProps} />
               <text className="tick-value" {...textProps}>
-                {tickFormatter(v)}
+                {tickFormatter(v).toFixed(maxDecimals)}
               </text>
             </g>
           );
