@@ -54,7 +54,7 @@
   },
   "author": "Cognite AS",
   "homepage": "https://griff.surge.sh/",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": "https://github.com/cognitedata/griff-react",
   "keywords": [
     "react-component"
