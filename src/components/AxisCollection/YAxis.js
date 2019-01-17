@@ -193,7 +193,7 @@ class YAxis extends Component {
             <g key={+v} opacity={1} transform={`translate(0, ${scale(v)})`}>
               <line {...lineProps} />
               <text className="tick-value" {...textProps}>
-                {tickFormatter(v)}
+                {tickFormatter(v, values)}
               </text>
             </g>
           );

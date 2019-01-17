@@ -180,7 +180,7 @@ class XAxis extends Component {
             <g key={+v} opacity={1} transform={tickTransformer(scale(v))}>
               <line stroke={stroke} {...lineProps} />
               <text className="tick-value" {...textProps}>
-                {tickFormatter(+v)}
+                {tickFormatter(+v, values)}
               </text>
             </g>
           );
