@@ -11,6 +11,25 @@ import { createXScale } from '../../utils/scale-helpers';
 
 const tickTransformer = v => `translate(${v}, 0)`;
 
+/**
+ * This is only used for rendering the ticks on the x-axis when it is used to
+ * render time. Everywhere else in the library, {@link createXScale} should be
+ * used to create scales.
+ *
+ * @param {number[]} domain
+ * @param {number} width
+ */
+const createTimeScale = (domain, width) =>
+  d3
+    .scaleTime()
+    .domain(domain)
+    .range([0, width]);
+
+const X_SCALER_FACTORY = {
+  [Axes.time]: createTimeScale,
+  [Axes.x]: createXScale,
+};
+
 const propTypes = {
   width: PropTypes.number,
   height: PropTypes.number,
@@ -112,7 +131,7 @@ class XAxis extends Component {
       subDomainsByItemId,
       scaled,
     } = this.props;
-    const scale = createXScale(
+    const scale = X_SCALER_FACTORY[a](
       (scaled ? subDomainsByItemId : domainsByItemId)[
         Object.keys(domainsByItemId)[0]
       ][a],
@@ -161,7 +180,7 @@ class XAxis extends Component {
             <g key={+v} opacity={1} transform={tickTransformer(scale(v))}>
               <line stroke={stroke} {...lineProps} />
               <text className="tick-value" {...textProps}>
-                {tickFormatter(v, values)}
+                {tickFormatter(+v, values)}
               </text>
             </g>
           );
