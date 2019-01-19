@@ -44,8 +44,10 @@ class RulerTooltip extends Component {
       <g
         transform={`translate(${xTranslate}, ${y})`}
         style={{ cursor: 'default' }}
+        className="ruler-tooltip"
       >
         <rect
+          className="ruler-tooltip-fill"
           fill="white"
           width={this.state.textWidth + padding}
           height={labelHeight}
@@ -57,6 +59,7 @@ class RulerTooltip extends Component {
           ry={3}
         />
         <text
+          className="ruler-tooltip-text"
           textAnchor="middle"
           alignmentBaseline="central"
           x={(this.state.textWidth + padding) / 2}
