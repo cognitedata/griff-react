@@ -97,7 +97,6 @@ class InteractionLayer extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     const {
-      // FIXME: Migrate this to `subDomainsByItemId`.
       subDomainsByItemId: prevSubDomainsByItemId,
       ruler,
       width: prevWidth,
