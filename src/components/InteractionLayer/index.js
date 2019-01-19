@@ -52,7 +52,6 @@ class InteractionLayer extends React.Component {
     // These are all populated by Griff.
     series: seriesPropType,
     collections: GriffPropTypes.collections,
-    timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
     subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
   };
 
