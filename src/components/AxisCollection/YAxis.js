@@ -21,6 +21,7 @@ const propTypes = {
   // Number => String
   tickFormatter: PropTypes.func.isRequired,
   defaultColor: PropTypes.string,
+  ticks: PropTypes.number,
 
   // These are populated by Griff.
   updateDomains: GriffPropTypes.updateDomains.isRequired,
@@ -35,6 +36,7 @@ const defaultProps = {
   onMouseLeave: null,
   yAxisPlacement: AxisPlacement.RIGHT,
   defaultColor: '#000',
+  ticks: 0,
 };
 
 class YAxis extends Component {
@@ -150,6 +152,7 @@ class YAxis extends Component {
       subDomainsByItemId,
       height,
       tickFormatter,
+      ticks,
     } = this.props;
 
     const item = this.getItem();
@@ -163,7 +166,7 @@ class YAxis extends Component {
     const tickSizeInner = axis.tickSizeInner();
     const tickPadding = axis.tickPadding();
     // same as for xAxis but consider height of the screen ~two times smaller
-    const nTicks = Math.floor(height / 50) || 1;
+    const nTicks = ticks || Math.floor(height / 50) || 1;
     const values = scale.ticks(nTicks);
     const range = scale.range().map(r => r + halfStrokeWidth);
     return (
