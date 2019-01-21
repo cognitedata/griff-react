@@ -412,6 +412,9 @@ storiesOf('LineChart', module)
 
       render() {
         const { yDomains, ySubDomains } = this.state;
+
+        const isEnabled = domain => (domain ? '(enabled)' : '(disabled)');
+
         return (
           <React.Fragment>
             <DataProvider
@@ -435,16 +438,16 @@ storiesOf('LineChart', module)
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
             <button onClick={() => this.setStaticDomain(1)}>
-              Set blue domain
+              Set blue domain {isEnabled(yDomains[1])}
             </button>
             <button onClick={() => this.setStaticSubDomain(1)}>
-              Set blue subdomain
+              Set blue subdomain {isEnabled(ySubDomains[1])}
             </button>
             <button onClick={() => this.setStaticDomain(2)}>
-              Set maroon domain
+              Set maroon domain {isEnabled(yDomains[2])}
             </button>
             <button onClick={() => this.setStaticSubDomain(2)}>
-              Set maroon subdomain
+              Set maroon subdomain {isEnabled(ySubDomains[2])}
             </button>
           </React.Fragment>
         );
