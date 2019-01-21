@@ -41,190 +41,241 @@ const defaultProps = {
   tickFormatter: Number,
 };
 
-class AxisCollection extends React.Component {
-  onAxisMouseEnter = seriesId =>
-    this.props.onMouseEnter ? e => this.props.onMouseEnter(e, seriesId) : null;
+const onAxisMouseEnter = (seriesId, { onMouseEnter }) =>
+  onMouseEnter ? e => onMouseEnter(e, seriesId) : null;
 
-  onAxisMouseLeave = seriesId =>
-    this.props.onMouseLeave ? e => this.props.onMouseLeave(e, seriesId) : null;
+const onAxisMouseLeave = (seriesId, { onMouseLeave }) =>
+  onMouseLeave ? e => onMouseLeave(e, seriesId) : null;
 
-  getAxisOffsets = () => {
-    const { collections, series, yAxisPlacement, yAxisWidth } = this.props;
+const axisFilter = mode => (s, { axisDisplayMode }) =>
+  !s.hidden && (s.yAxisDisplayMode || axisDisplayMode) === mode;
 
-    const numCollapsed = series
-      .concat(collections)
-      .filter(this.axisFilter(AxisDisplayMode.COLLAPSED)).length;
-    const axisFilter = this.axisFilter(AxisDisplayMode.ALL);
-    const numVisible =
-      series.reduce((count, s) => {
-        if (s.collectionId === undefined && axisFilter(s)) {
-          return count + 1;
-        }
-        return count;
-      }, 0) + collections.filter(this.axisFilter(AxisDisplayMode.ALL)).length;
+const ALL_FILTER = axisFilter(AxisDisplayMode.ALL);
+const COLLAPSED_FILTER = axisFilter(AxisDisplayMode.COLLAPSED);
 
-    switch (yAxisPlacement) {
-      case AxisPlacement.LEFT:
-        return {
-          collapsed: 0,
-          visible: numCollapsed ? yAxisWidth : 0,
-        };
-      case AxisPlacement.BOTH:
-        throw new Error(
-          'BOTH is not a valid option for AxisCollection -- please specify RIGHT or LEFT'
+const placementFilter = (s, { yAxisPlacement }) =>
+  !s.yAxisPlacement ||
+  s.yAxisPlacement === AxisPlacement.BOTH ||
+  s.yAxisPlacement === yAxisPlacement;
+
+const getAxisOffsets = ({
+  axisDisplayMode,
+  collections,
+  series,
+  yAxisPlacement,
+  yAxisWidth,
+}) => {
+  const numCollapsed = series
+    .concat(collections)
+    .filter(item => COLLAPSED_FILTER(item, { axisDisplayMode })).length;
+  const numVisible =
+    series.reduce((count, s) => {
+      if (s.collectionId === undefined && ALL_FILTER(s, { axisDisplayMode })) {
+        return count + 1;
+      }
+      return count;
+    }, 0) + collections.filter(c => ALL_FILTER(c, { axisDisplayMode })).length;
+
+  switch (yAxisPlacement) {
+    case AxisPlacement.LEFT:
+      return {
+        collapsed: 0,
+        visible: numCollapsed ? yAxisWidth : 0,
+      };
+    case AxisPlacement.BOTH:
+      throw new Error(
+        'BOTH is not a valid option for AxisCollection -- please specify RIGHT or LEFT'
+      );
+    case AxisPlacement.RIGHT:
+    case AxisPlacement.UNSPECIFIED:
+    default:
+      return {
+        collapsed: numVisible * yAxisWidth,
+        visible: 0,
+      };
+  }
+};
+
+const renderAllVisibleAxes = (
+  offsetx,
+  {
+    axisDisplayMode,
+    collections,
+    height,
+    onMouseEnter,
+    onMouseLeave,
+    series,
+    tickFormatter,
+    ticks,
+    yAxisPlacement,
+    yAxisWidth,
+    zoomable,
+  }
+) => {
+  let axisOffsetX = offsetx - yAxisWidth;
+
+  const filteredCollections = collections
+    .filter(c => ALL_FILTER(c, { axisDisplayMode }))
+    .filter(c => placementFilter(c, { yAxisPlacement }));
+  if (yAxisPlacement === AxisPlacement.LEFT) {
+    filteredCollections.reverse();
+  }
+
+  const filteredSeries = series.filter(
+    s =>
+      ALL_FILTER(s, { axisDisplayMode }) &&
+      placementFilter(s, { yAxisPlacement }) &&
+      s.collectionId === undefined
+  );
+  if (yAxisPlacement === AxisPlacement.LEFT) {
+    filteredSeries.reverse();
+  }
+
+  return []
+    .concat(
+      filteredSeries.map(s => {
+        axisOffsetX += yAxisWidth;
+        return (
+          <YAxis
+            key={`y-axis--${s.id}`}
+            offsetx={axisOffsetX}
+            zoomable={s.zoomable !== undefined ? s.zoomable : zoomable}
+            series={s}
+            height={height}
+            width={yAxisWidth}
+            onMouseEnter={onAxisMouseEnter(s.id, { onMouseEnter })}
+            onMouseLeave={onAxisMouseLeave(s.id, { onMouseLeave })}
+            tickFormatter={tickFormatter}
+            yAxisPlacement={yAxisPlacement}
+            ticks={ticks}
+          />
         );
-      case AxisPlacement.RIGHT:
-      case AxisPlacement.UNSPECIFIED:
-      default:
-        return {
-          collapsed: numVisible * yAxisWidth,
-          visible: 0,
-        };
-    }
-  };
-
-  axisFilter = mode => s =>
-    !s.hidden && (s.yAxisDisplayMode || this.props.axisDisplayMode) === mode;
-
-  placementFilter = s =>
-    !s.yAxisPlacement ||
-    s.yAxisPlacement === AxisPlacement.BOTH ||
-    s.yAxisPlacement === this.props.yAxisPlacement;
-
-  renderAllVisibleAxes = offsetx => {
-    const {
-      collections,
-      series,
-      zoomable,
-      height,
-      tickFormatter,
-      ticks,
-      yAxisPlacement,
-      yAxisWidth,
-    } = this.props;
-    let axisOffsetX = offsetx - yAxisWidth;
-
-    const filteredCollections = collections
-      .filter(this.axisFilter(AxisDisplayMode.ALL))
-      .filter(this.placementFilter);
-    if (yAxisPlacement === AxisPlacement.LEFT) {
-      filteredCollections.reverse();
-    }
-
-    const filteredSeries = series.filter(
-      s =>
-        this.axisFilter(AxisDisplayMode.ALL)(s) &&
-        this.placementFilter(s) &&
-        s.collectionId === undefined
+      })
+    )
+    .concat(
+      filteredCollections.map(c => {
+        axisOffsetX += yAxisWidth;
+        return (
+          <YAxis
+            key={`y-axis-collection-${c.id}`}
+            offsetx={axisOffsetX}
+            zoomable={c.zoomable !== undefined ? c.zoomable : zoomable}
+            collection={c}
+            height={height}
+            width={yAxisWidth}
+            onMouseEnter={onAxisMouseEnter(c.id, { onMouseEnter })}
+            onMouseLeave={onAxisMouseLeave(c.id, { onMouseLeave })}
+            tickFormatter={tickFormatter}
+            yAxisPlacement={yAxisPlacement}
+            ticks={ticks}
+          />
+        );
+      })
     );
-    if (yAxisPlacement === AxisPlacement.LEFT) {
-      filteredSeries.reverse();
-    }
+};
 
-    return []
-      .concat(
-        filteredSeries.map(s => {
-          axisOffsetX += yAxisWidth;
-          return (
-            <YAxis
-              key={`y-axis--${s.id}`}
-              offsetx={axisOffsetX}
-              zoomable={s.zoomable !== undefined ? s.zoomable : zoomable}
-              series={s}
-              height={height}
-              width={yAxisWidth}
-              onMouseEnter={this.onAxisMouseEnter(s.id)}
-              onMouseLeave={this.onAxisMouseLeave(s.id)}
-              tickFormatter={tickFormatter}
-              yAxisPlacement={yAxisPlacement}
-              ticks={ticks}
-            />
-          );
-        })
-      )
-      .concat(
-        filteredCollections.map(c => {
-          axisOffsetX += yAxisWidth;
-          return (
-            <YAxis
-              key={`y-axis-collection-${c.id}`}
-              offsetx={axisOffsetX}
-              zoomable={c.zoomable !== undefined ? c.zoomable : zoomable}
-              collection={c}
-              height={height}
-              width={yAxisWidth}
-              onMouseEnter={this.onAxisMouseEnter(c.id)}
-              onMouseLeave={this.onAxisMouseLeave(c.id)}
-              tickFormatter={tickFormatter}
-              yAxisPlacement={yAxisPlacement}
-              ticks={ticks}
-            />
-          );
-        })
-      );
-  };
-
-  renderPlaceholderAxis = offsetx => {
-    const {
-      collections,
-      height,
-      yAxisWidth,
-      series,
-      yAxisPlacement,
-    } = this.props;
-    const collapsed = series
-      .filter(s => this.placementFilter(s))
-      .concat(collections)
-      .filter(this.axisFilter(AxisDisplayMode.COLLAPSED));
-    // TODO: Should we only do this if there's more than 1?
-    if (collapsed.length) {
-      return (
-        <CollapsedAxis
-          key="y-axis--collapsed"
-          height={height}
-          offsetx={offsetx}
-          width={yAxisWidth}
-          onMouseEnter={this.onAxisMouseEnter('collapsed')}
-          onMouseLeave={this.onAxisMouseLeave('collapsed')}
-          yAxisPlacement={yAxisPlacement}
-        />
-      );
-    }
-    return null;
-  };
-
-  render() {
-    const { collections, height, series, yAxisWidth } = this.props;
-
-    const calculatedWidth = []
-      .concat(series)
-      .concat(collections)
-      .filter(item => item.collectionId === undefined)
-      .filter(this.axisFilter(AxisDisplayMode.ALL))
-      .filter(this.placementFilter)
-      .reduce((acc, item) => {
-        if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
-          return acc;
-        }
-        return acc + yAxisWidth;
-      }, series.filter(this.axisFilter(AxisDisplayMode.COLLAPSED)).length ? yAxisWidth : 0);
-
-    const {
-      collapsed: collapsedOffsetX,
-      visible: visibleOffsetX,
-    } = this.getAxisOffsets();
-
-    // We need to render all of the axes (even if they're hidden) in order to
-    // keep the zoom states in sync across show/hide toggles.
-    const axes = this.renderAllVisibleAxes(visibleOffsetX);
+const renderPlaceholderAxis = (
+  offsetx,
+  {
+    axisDisplayMode,
+    collections,
+    height,
+    onMouseEnter,
+    onMouseLeave,
+    series,
+    yAxisPlacement,
+    yAxisWidth,
+  }
+) => {
+  const collapsed = series
+    .filter(s => placementFilter(s, { yAxisPlacement }))
+    .concat(collections)
+    .filter(item => COLLAPSED_FILTER(item, { axisDisplayMode }));
+  // TODO: Should we only do this if there's more than 1?
+  if (collapsed.length) {
     return (
-      <svg width={calculatedWidth} height={height}>
-        {axes}
-        {this.renderPlaceholderAxis(collapsedOffsetX)}
-      </svg>
+      <CollapsedAxis
+        key="y-axis--collapsed"
+        height={height}
+        offsetx={offsetx}
+        width={yAxisWidth}
+        onMouseEnter={onAxisMouseEnter('collapsed', { onMouseEnter })}
+        onMouseLeave={onAxisMouseLeave('collapsed', { onMouseLeave })}
+        yAxisPlacement={yAxisPlacement}
+      />
     );
   }
-}
+  return null;
+};
+
+const AxisCollection = ({
+  axisDisplayMode,
+  collections,
+  height,
+  onMouseEnter,
+  onMouseLeave,
+  series,
+  tickFormatter,
+  ticks,
+  yAxisPlacement,
+  yAxisWidth,
+  zoomable,
+}) => {
+  const calculatedWidth = []
+    .concat(series)
+    .concat(collections)
+    .filter(item => item.collectionId === undefined)
+    .filter(item => ALL_FILTER(item, { axisDisplayMode }))
+    .filter(item => placementFilter(item, { yAxisPlacement }))
+    .reduce((acc, item) => {
+      if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+        return acc;
+      }
+      return acc + yAxisWidth;
+    }, series.filter(s => COLLAPSED_FILTER(s, { axisDisplayMode })).length ? yAxisWidth : 0);
+
+  const {
+    collapsed: collapsedOffsetX,
+    visible: visibleOffsetX,
+  } = getAxisOffsets({
+    axisDisplayMode,
+    collections,
+    series,
+    yAxisPlacement,
+    yAxisWidth,
+  });
+
+  // We need to render all of the axes (even if they're hidden) in order to
+  // keep the zoom states in sync across show/hide toggles.
+  const axes = renderAllVisibleAxes(visibleOffsetX, {
+    axisDisplayMode,
+    collections,
+    height,
+    onMouseEnter,
+    onMouseLeave,
+    series,
+    tickFormatter,
+    ticks,
+    yAxisPlacement,
+    yAxisWidth,
+    zoomable,
+  });
+  return (
+    <svg width={calculatedWidth} height={height}>
+      {axes}
+      {renderPlaceholderAxis(collapsedOffsetX, {
+        axisDisplayMode,
+        collections,
+        height,
+        onMouseEnter,
+        onMouseLeave,
+        series,
+        yAxisPlacement,
+        yAxisWidth,
+      })}
+    </svg>
+  );
+};
 AxisCollection.propTypes = propTypes;
 AxisCollection.defaultProps = defaultProps;
 
