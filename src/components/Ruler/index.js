@@ -49,6 +49,7 @@ const Ruler = ({ ruler, points, height, width }) => {
   return (
     <React.Fragment>
       <line
+        className="ruler-line"
         y1={0}
         y2={height}
         stroke="#ccc"
@@ -76,6 +77,7 @@ const Ruler = ({ ruler, points, height, width }) => {
         />,
         <circle
           key={`circle${point.name || point.y}`}
+          className="ruler-circle"
           r={3}
           cx={point.x}
           cy={point.y}
