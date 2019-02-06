@@ -35,10 +35,11 @@ class RulerTooltip extends Component {
 
   render() {
     const { labelHeight, color, label, x, y, padding, width } = this.props;
+    const { textWidth } = this.state;
 
     const xTranslate =
-      x + padding + this.state.textWidth > width
-        ? x - padding - padding - this.state.textWidth
+      x + padding + textWidth > width
+        ? x - padding - padding - textWidth
         : x + padding;
     return (
       <g
@@ -49,7 +50,7 @@ class RulerTooltip extends Component {
         <rect
           className="ruler-tooltip-fill"
           fill="white"
-          width={this.state.textWidth + padding}
+          width={textWidth + padding}
           height={labelHeight}
           stroke={color}
           strokeWidth="1"
@@ -62,7 +63,7 @@ class RulerTooltip extends Component {
           className="ruler-tooltip-text"
           textAnchor="middle"
           alignmentBaseline="central"
-          x={(this.state.textWidth + padding) / 2}
+          x={(textWidth + padding) / 2}
           y={labelHeight / 2}
           ref={ref => {
             this.textRef = ref;
