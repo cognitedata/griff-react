@@ -95,62 +95,61 @@ class Scaler extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    const { dataContext } = this.props;
+    const {
+      domainsByItemId: oldDomainsByItemId,
+      subDomainsByItemId: oldSubDomainsByItemId,
+    } = this.state;
     const changedSeries = findItemsWithChangedDomains(
       prevProps.dataContext.series,
-      this.props.dataContext.series
+      dataContext.series
     );
     const changedCollections = findItemsWithChangedDomains(
       prevProps.dataContext.collections,
-      this.props.dataContext.collections
+      dataContext.collections
     );
     if (changedSeries.length > 0 || changedCollections.length > 0) {
-      const domainsByItemId = { ...this.state.domainsByItemId };
-      const subDomainsByItemId = { ...this.state.subDomainsByItemId };
+      const domainsByItemId = { ...oldDomainsByItemId };
+      const subDomainsByItemId = { ...oldSubDomainsByItemId };
 
       []
         .concat(changedSeries)
         .concat(changedCollections)
         .forEach(item => {
           domainsByItemId[item.id] = {
-            [Axes.time]: this.props.dataContext.timeDomain || [
+            [Axes.time]: dataContext.timeDomain || [
               ...(item.timeDomain ||
-                stripPlaceholderDomain(
-                  Axes.time(this.state.domainsByItemId[item.id])
-                )),
+                stripPlaceholderDomain(Axes.time(oldDomainsByItemId[item.id]))),
             ],
             [Axes.x]: [
               ...(item.xDomain ||
-                stripPlaceholderDomain(
-                  Axes.x(this.state.domainsByItemId[item.id])
-                ) ||
+                stripPlaceholderDomain(Axes.x(oldDomainsByItemId[item.id])) ||
                 PLACEHOLDER_DOMAIN),
             ],
             [Axes.y]: [
               ...(item.yDomain ||
-                stripPlaceholderDomain(
-                  Axes.y(this.state.domainsByItemId[item.id])
-                ) ||
+                stripPlaceholderDomain(Axes.y(oldDomainsByItemId[item.id])) ||
                 PLACEHOLDER_DOMAIN),
             ],
           };
           subDomainsByItemId[item.id] = {
-            [Axes.time]: this.props.dataContext.timeSubDomain || [
+            [Axes.time]: dataContext.timeSubDomain || [
               ...(item.timeSubDomain ||
                 stripPlaceholderDomain(
-                  Axes.time(this.state.subDomainsByItemId[item.id])
+                  Axes.time(oldSubDomainsByItemId[item.id])
                 )),
             ],
             [Axes.x]: [
               ...(item.xSubDomain ||
                 stripPlaceholderDomain(
-                  Axes.x(this.state.subDomainsByItemId[item.id])
+                  Axes.x(oldSubDomainsByItemId[item.id])
                 ) ||
                 PLACEHOLDER_DOMAIN),
             ],
             [Axes.y]: [
               ...(item.ySubDomain ||
                 stripPlaceholderDomain(
-                  Axes.y(this.state.subDomainsByItemId[item.id])
+                  Axes.y(oldSubDomainsByItemId[item.id])
                 ) ||
                 PLACEHOLDER_DOMAIN),
             ],
@@ -161,28 +160,21 @@ class Scaler extends Component {
       return;
     }
 
-    if (
-      !isEqual(
-        prevProps.dataContext.timeDomain,
-        this.props.dataContext.timeDomain
-      )
-    ) {
+    if (!isEqual(prevProps.dataContext.timeDomain, dataContext.timeDomain)) {
       const { timeDomain: prevTimeDomain } = prevProps.dataContext;
-      const { timeDomain: nextTimeDomain } = this.props.dataContext;
+      const { timeDomain: nextTimeDomain } = dataContext;
 
       // When timeDomain changes, we need to update everything downstream.
-      const domainsByItemId = { ...this.state.domainsByItemId };
+      const domainsByItemId = { ...oldDomainsByItemId };
       Object.keys(domainsByItemId).forEach(itemId => {
         domainsByItemId[itemId][Axes.time] = nextTimeDomain;
       });
 
-      const subDomainsByItemId = { ...this.state.subDomainsByItemId };
+      const subDomainsByItemId = { ...oldSubDomainsByItemId };
       Object.keys(subDomainsByItemId).forEach(itemId => {
-        const { [Axes.time]: timeSubDomain } = this.state.subDomainsByItemId[
-          itemId
-        ];
+        const { [Axes.time]: timeSubDomain } = oldSubDomainsByItemId[itemId];
         subDomainsByItemId[itemId] = {
-          ...this.state.subDomainsByItemId[itemId],
+          ...oldSubDomainsByItemId[itemId],
         };
         const dt = timeSubDomain[1] - timeSubDomain[0];
         if (
@@ -207,17 +199,14 @@ class Scaler extends Component {
       this.setState({ domainsByItemId, subDomainsByItemId });
 
       if (
-        !isEqual(
-          prevProps.dataContext.timeSubDomain,
-          this.props.dataContext.timeSubDomain
-        )
+        !isEqual(prevProps.dataContext.timeSubDomain, dataContext.timeSubDomain)
       ) {
         // When timeSubDomain changes, we need to update everything downstream.
         const newSubDomainsByItemId = {};
-        Object.keys(this.state.subDomainsByItemId).forEach(itemId => {
+        Object.keys(oldSubDomainsByItemId).forEach(itemId => {
           newSubDomainsByItemId[itemId] = {
-            ...this.state.subDomainsByItemId[itemId],
-            [Axes.time]: this.props.dataContext.timeSubDomain,
+            ...oldSubDomainsByItemId[itemId],
+            [Axes.time]: dataContext.timeSubDomain,
           };
         });
         // eslint-disable-next-line react/no-did-update-set-state
@@ -226,37 +215,41 @@ class Scaler extends Component {
     }
   }
 
-  getDomainsByItemId = () =>
-    []
-      .concat(this.props.dataContext.series)
-      .concat(this.props.dataContext.collections)
+  getDomainsByItemId = () => {
+    const { dataContext } = this.props;
+    return []
+      .concat(dataContext.series)
+      .concat(dataContext.collections)
       .reduce(
         (acc, item) => ({
           ...acc,
           [item.id]: {
-            [Axes.time]: [...this.props.dataContext.timeDomain],
+            [Axes.time]: [...dataContext.timeDomain],
             [Axes.x]: [...(item.xDomain || PLACEHOLDER_DOMAIN)],
             [Axes.y]: [...(item.yDomain || PLACEHOLDER_DOMAIN)],
           },
         }),
         {}
       );
+  };
 
-  getSubDomainsByItemId = () =>
-    []
-      .concat(this.props.dataContext.series)
-      .concat(this.props.dataContext.collections)
+  getSubDomainsByItemId = () => {
+    const { dataContext } = this.props;
+    return []
+      .concat(dataContext.series)
+      .concat(dataContext.collections)
       .reduce(
         (acc, item) => ({
           ...acc,
           [item.id]: {
-            [Axes.time]: [...this.props.dataContext.timeSubDomain],
+            [Axes.time]: [...dataContext.timeSubDomain],
             [Axes.x]: [...(item.xSubDomain || PLACEHOLDER_DOMAIN)],
             [Axes.y]: [...(item.ySubDomain || PLACEHOLDER_DOMAIN)],
           },
         }),
         {}
       );
+  };
 
   /**
    * Update the subdomains for the given items. This is a patch update and will
@@ -280,6 +273,7 @@ class Scaler extends Component {
     // FIXME: This is not multi-series aware.
     let newTimeSubDomain = null;
 
+    const { dataContext } = this.props;
     const { domainsByItemId, subDomainsByItemId } = this.state;
     const newSubDomains = { ...subDomainsByItemId };
     Object.keys(changedDomainsById).forEach(itemId => {
@@ -287,9 +281,7 @@ class Scaler extends Component {
       Object.keys(changedDomainsById[itemId]).forEach(axis => {
         let newSubDomain = changedDomainsById[itemId][axis];
         if (axis === String(Axes.time)) {
-          newSubDomain = this.props.dataContext.limitTimeSubDomain(
-            newSubDomain
-          );
+          newSubDomain = dataContext.limitTimeSubDomain(newSubDomain);
         }
 
         const newSpan = newSubDomain[1] - newSubDomain[0];
@@ -302,7 +294,7 @@ class Scaler extends Component {
           ((domainsByItemId || {})[itemId] || {})[axis] ||
             (axis === String(Axes.time)
               ? // FIXME: Phase out this single timeDomain thing.
-                this.props.dataContext.timeDomain
+                dataContext.timeDomain
               : undefined)
         ) || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
 
@@ -333,13 +325,13 @@ class Scaler extends Component {
       callback ? () => callback(changedDomainsById) : undefined
     );
     if (newTimeSubDomain) {
-      this.props.dataContext.timeSubDomainChanged(newTimeSubDomain);
+      dataContext.timeSubDomainChanged(newTimeSubDomain);
     }
   };
 
   render() {
     const { domainsByItemId, subDomainsByItemId } = this.state;
-    const { dataContext } = this.props;
+    const { children, dataContext } = this.props;
     const ownContext = {
       updateDomains: this.updateDomains,
       domainsByItemId,
@@ -358,7 +350,7 @@ class Scaler extends Component {
 
     return (
       <ScalerContext.Provider value={finalContext}>
-        {this.props.children}
+        {children}
       </ScalerContext.Provider>
     );
   }
