@@ -65,21 +65,25 @@ const firstDefined = (first, ...others) => {
 };
 
 export default class DataProvider extends Component {
-  state = {
-    timeSubDomain: DataProvider.getTimeSubDomain(
-      this.props.timeDomain,
-      this.props.timeSubDomain,
-      this.props.limitTimeSubDomain
-    ),
-    timeDomain: this.props.timeDomain,
-    loaderConfig: {},
-    timeDomains: {},
-    timeSubDomains: {},
-    xDomains: {},
-    xSubDomains: {},
-    yDomains: {},
-    ySubDomains: {},
-  };
+  constructor(props) {
+    super(props);
+    const { limitTimeSubDomain, timeDomain, timeSubDomain } = props;
+    this.state = {
+      timeSubDomain: DataProvider.getTimeSubDomain(
+        timeDomain,
+        timeSubDomain,
+        limitTimeSubDomain
+      ),
+      timeDomain,
+      loaderConfig: {},
+      timeDomains: {},
+      timeSubDomains: {},
+      xDomains: {},
+      xSubDomains: {},
+      yDomains: {},
+      ySubDomains: {},
+    };
+  }
 
   static getDerivedStateFromProps(nextProps, prevState) {
     // Check if one of the series got removed from props
@@ -114,14 +118,23 @@ export default class DataProvider extends Component {
   }
 
   async componentDidMount() {
+    const { series } = this.props;
     this.startUpdateInterval();
-    await Promise.map(this.props.series, s => this.fetchData(s.id, 'MOUNTED'));
+    await Promise.map(series, s => this.fetchData(s.id, 'MOUNTED'));
   }
 
   async componentDidUpdate(prevProps) {
     // If new series are present in prop,
     // run the fetchData lifecycle for those series
-    const { updateInterval } = this.props;
+    const {
+      limitTimeSubDomain,
+      onTimeSubDomainChanged,
+      pointsPerSeries,
+      series,
+      timeDomain: propsTimeDomain,
+      timeSubDomain: propsTimeSubDomain,
+      updateInterval,
+    } = this.props;
     const { updateInterval: prevUpdateInterval } = prevProps;
     if (updateInterval !== prevUpdateInterval) {
       if (prevUpdateInterval) {
@@ -133,8 +146,8 @@ export default class DataProvider extends Component {
     }
 
     // check if pointsPerSeries changed in props -- if so fetch new data
-    if (this.props.pointsPerSeries !== prevProps.pointsPerSeries) {
-      await Promise.map(this.props.series, s =>
+    if (pointsPerSeries !== prevProps.pointsPerSeries) {
+      await Promise.map(series, s =>
         this.fetchData(s.id, 'UPDATE_POINTS_PER_SERIES')
       );
     }
@@ -143,11 +156,10 @@ export default class DataProvider extends Component {
     if (!prevSeries) {
       return;
     }
-    const { series } = this.props;
     const { timeSubDomain, timeDomain } = this.state;
 
-    if (!isEqual(this.props.timeSubDomain, prevProps.timeSubDomain)) {
-      this.timeSubDomainChanged(this.props.timeSubDomain);
+    if (!isEqual(propsTimeSubDomain, prevProps.timeSubDomain)) {
+      this.timeSubDomainChanged(propsTimeSubDomain);
     }
 
     const currentSeriesKeys = {};
@@ -169,25 +181,25 @@ export default class DataProvider extends Component {
     });
 
     // Check if timeDomain changed in props -- if so reset state.
-    if (!isEqual(this.props.timeDomain, prevProps.timeDomain)) {
+    if (!isEqual(propsTimeDomain, prevProps.timeDomain)) {
       const newTimeSubDomain = DataProvider.getTimeSubDomain(
-        this.props.timeDomain,
-        this.props.timeSubDomain,
-        this.props.limitTimeSubDomain
+        propsTimeDomain,
+        propsTimeSubDomain,
+        limitTimeSubDomain
       );
       // eslint-disable-next-line
       this.setState(
         {
-          timeDomain: this.props.timeDomain,
+          timeDomain: propsTimeDomain,
           timeSubDomain: newTimeSubDomain,
           loaderConfig: {},
           yDomains: {},
           ySubDomains: {},
         },
         () => {
-          this.props.series.map(s => this.fetchData(s.id, 'MOUNTED'));
-          if (this.props.onTimeSubDomainChanged) {
-            this.props.onTimeSubDomainChanged(newTimeSubDomain);
+          series.map(s => this.fetchData(s.id, 'MOUNTED'));
+          if (onTimeSubDomainChanged) {
+            onTimeSubDomainChanged(newTimeSubDomain);
           }
         }
       );
@@ -224,17 +236,19 @@ export default class DataProvider extends Component {
   };
 
   getSeriesObjects = () => {
+    const { collections, series } = this.props;
     const collectionsById = {};
-    (this.props.collections || []).forEach(c => {
+    (collections || []).forEach(c => {
       collectionsById[c.id] = c;
     });
-    return this.props.series.map(s =>
+    return series.map(s =>
       this.enrichSeries(s, collectionsById[s.collectionId || ''] || {})
     );
   };
 
   getSingleSeriesObject = id => {
-    const series = this.props.series.find(s => id === s.id);
+    const { collections, series: propsSeries } = this.props;
+    const series = propsSeries.find(s => id === s.id);
     if (!series) {
       throw new Error(
         `Trying to get single series object for id ${id} which is not defined in props.`
@@ -243,23 +257,28 @@ export default class DataProvider extends Component {
     return this.enrichSeries(
       series,
       series.collectionId
-        ? (this.props.collections || []).find(c => series.collectionId === c.id)
+        ? (collections || []).find(c => series.collectionId === c.id)
         : {}
     );
   };
 
   startUpdateInterval = () => {
-    const { updateInterval } = this.props;
+    const {
+      isTimeSubDomainSticky,
+      limitTimeSubDomain,
+      series,
+      updateInterval,
+    } = this.props;
     if (updateInterval) {
       clearInterval(this.fetchInterval);
       this.fetchInterval = setInterval(() => {
         const { timeDomain, timeSubDomain } = this.state;
         const newTimeDomain = timeDomain.map(d => d + updateInterval);
-        const newTimeSubDomain = this.props.isTimeSubDomainSticky
+        const newTimeSubDomain = isTimeSubDomainSticky
           ? DataProvider.getTimeSubDomain(
               newTimeDomain,
               timeSubDomain.map(d => d + updateInterval),
-              this.props.limitTimeSubDomain
+              limitTimeSubDomain
             )
           : timeSubDomain;
         this.setState(
@@ -268,7 +287,7 @@ export default class DataProvider extends Component {
             timeSubDomain: newTimeSubDomain,
           },
           () => {
-            this.props.series.map(s => this.fetchData(s.id, 'INTERVAL'));
+            series.map(s => this.fetchData(s.id, 'INTERVAL'));
           }
         );
       }, updateInterval);
@@ -427,8 +446,19 @@ export default class DataProvider extends Component {
   };
 
   fetchData = async (id, reason) => {
-    const { pointsPerSeries, defaultLoader } = this.props;
-    const { timeSubDomain, timeDomain } = this.state;
+    const {
+      defaultLoader,
+      onFetchData,
+      pointsPerSeries,
+      timeAccessor,
+      x0Accessor,
+      x1Accessor,
+      xAccessor,
+      y0Accessor,
+      y1Accessor,
+      yAccessor,
+    } = this.props;
+    const { timeDomain, timeSubDomain } = this.state;
     const seriesObject = this.getSingleSeriesObject(id);
     const loader = seriesObject.loader || defaultLoader;
     if (!loader) {
@@ -442,6 +472,11 @@ export default class DataProvider extends Component {
       oldSeries: seriesObject,
       reason,
     });
+    // This needs to happen after the loader comes back because the state can
+    // change while the load function is operating. If we make a copy of the
+    // state before the loader executes, then we'll trample any updates which
+    // may have happened while the loader was loading.
+    const { loaderConfig: originalLoaderConfig } = this.state;
     const loaderConfig = {
       data: [],
       id,
@@ -456,57 +491,64 @@ export default class DataProvider extends Component {
       reason === 'MOUNTED' ||
       (seriesObject.data.length === 0 && loaderConfig.data.length > 0)
     ) {
+      const {
+        timeDomains,
+        timeSubDomains,
+        xSubDomains,
+        ySubDomains,
+      } = this.state;
       const calculatedTimeDomain = calculateDomainFromData(
         loaderConfig.data,
-        loaderConfig.timeAccessor || this.props.timeAccessor
+        loaderConfig.timeAccessor || timeAccessor
       );
       const calculatedTimeSubDomain = calculatedTimeDomain;
       stateUpdates.timeDomains = {
-        ...this.state.timeDomains,
+        ...timeDomains,
         [id]: calculatedTimeDomain,
       };
       stateUpdates.timeSubDomains = {
-        ...this.state.timeSubDomains,
+        ...timeSubDomains,
         [id]: calculatedTimeSubDomain,
       };
 
       const xSubDomain = calculateDomainFromData(
         loaderConfig.data,
-        loaderConfig.xAccessor || this.props.xAccessor,
-        loaderConfig.x0Accessor || this.props.x0Accessor,
-        loaderConfig.x1Accessor || this.props.x1Accessor
+        loaderConfig.xAccessor || xAccessor,
+        loaderConfig.x0Accessor || x0Accessor,
+        loaderConfig.x1Accessor || x1Accessor
       );
       stateUpdates.xSubDomains = {
-        ...this.state.xSubDomains,
+        ...xSubDomains,
         [id]: xSubDomain,
       };
 
       const ySubDomain = calculateDomainFromData(
         loaderConfig.data,
-        loaderConfig.yAccessor || this.props.yAccessor,
-        loaderConfig.y0Accessor || this.props.y0Accessor,
-        loaderConfig.y1Accessor || this.props.y1Accessor
+        loaderConfig.yAccessor || yAccessor,
+        loaderConfig.y0Accessor || y0Accessor,
+        loaderConfig.y1Accessor || y1Accessor
       );
       stateUpdates.ySubDomains = {
-        ...this.state.ySubDomains,
+        ...ySubDomains,
         [id]: ySubDomain,
       };
     }
     stateUpdates.loaderConfig = {
-      ...this.state.loaderConfig,
+      ...originalLoaderConfig,
       [id]: { ...loaderConfig },
     };
     this.setState(stateUpdates, () => {
-      this.props.onFetchData({ ...loaderConfig });
+      onFetchData({ ...loaderConfig });
     });
   };
 
   timeSubDomainChanged = timeSubDomain => {
-    const current = this.state.timeSubDomain;
+    const { limitTimeSubDomain, onTimeSubDomainChanged, series } = this.props;
+    const { timeDomain, timeSubDomain: current } = this.state;
     const newTimeSubDomain = DataProvider.getTimeSubDomain(
-      this.state.timeDomain,
+      timeDomain,
       timeSubDomain,
-      this.props.limitTimeSubDomain
+      limitTimeSubDomain
     );
     if (isEqual(newTimeSubDomain, current)) {
       return;
@@ -514,13 +556,12 @@ export default class DataProvider extends Component {
 
     clearTimeout(this.timeSubDomainChangedTimeout);
     this.timeSubDomainChangedTimeout = setTimeout(
-      () =>
-        this.props.series.map(s => this.fetchData(s.id, 'UPDATE_SUBDOMAIN')),
+      () => series.map(s => this.fetchData(s.id, 'UPDATE_SUBDOMAIN')),
       250
     );
     this.setState({ timeSubDomain: newTimeSubDomain }, () => {
-      if (this.props.onTimeSubDomainChanged) {
-        this.props.onTimeSubDomainChanged(newTimeSubDomain);
+      if (onTimeSubDomainChanged) {
+        onTimeSubDomainChanged(newTimeSubDomain);
       }
     });
   };
@@ -528,11 +569,12 @@ export default class DataProvider extends Component {
   render() {
     const { loaderConfig, timeDomain, timeSubDomain } = this.state;
     const {
-      yAxisWidth,
       children,
+      collections,
+      limitTimeSubDomain,
       timeDomain: externalTimeDomain,
       timeSubDomain: externalTimeSubDomain,
-      collections,
+      yAxisWidth,
     } = this.props;
 
     if (Object.keys(loaderConfig).length === 0) {
@@ -620,7 +662,7 @@ export default class DataProvider extends Component {
       externalTimeSubDomain,
       yAxisWidth,
       timeSubDomainChanged: this.timeSubDomainChanged,
-      limitTimeSubDomain: this.props.limitTimeSubDomain,
+      limitTimeSubDomain,
     };
     return (
       <DataContext.Provider value={context}>
