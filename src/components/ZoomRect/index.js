@@ -120,11 +120,12 @@ class ZoomRect extends React.Component {
     } else {
       // We don't support more complicated gestures.
     }
+    const { onTouchMove, updateDomains } = this.props;
     if (updates) {
-      this.props.updateDomains(updates);
+      updateDomains(updates);
     }
-    if (this.props.onTouchMove) {
-      this.props.onTouchMove();
+    if (onTouchMove) {
+      onTouchMove();
     }
   };
 
@@ -147,8 +148,9 @@ class ZoomRect extends React.Component {
       // We don't support more complicated gestures, so any more than 2 fingers
       // touching the screen are ignored.
     }
-    if (this.props.onTouchMoveEnd) {
-      this.props.onTouchMoveEnd();
+    const { onTouchMoveEnd } = this.props;
+    if (onTouchMoveEnd) {
+      onTouchMoveEnd();
     }
   };
 
@@ -307,10 +309,11 @@ class ZoomRect extends React.Component {
     };
 
     const updates = {};
+    const { subDomainsByItemId, updateDomains } = this.props;
     itemIds.forEach(itemId => {
       updates[itemId] = {};
       Axes.ALL.filter(axis => zoomAxes[axis]).forEach(axis => {
-        const subDomain = (this.props.subDomainsByItemId[itemId] || {})[axis];
+        const subDomain = (subDomainsByItemId[itemId] || {})[axis];
         const subDomainRange = subDomain[1] - subDomain[0];
         let newSubDomain = null;
         if (sourceEvent.deltaY) {
@@ -345,7 +348,7 @@ class ZoomRect extends React.Component {
         }
       });
     });
-    this.props.updateDomains(updates);
+    updateDomains(updates);
   };
 
   render() {
