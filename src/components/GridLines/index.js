@@ -51,39 +51,43 @@ const GridLines = ({
         (dict, id) => ({ ...dict, [id]: true }),
         {}
       );
-      series.filter(s => seriesIdMap[s.id]).forEach(s => {
-        // This is heavily inspired by YAxis -- maybe we could consolidate?
-        const scale = createYScale(Axes.y(subDomainsByItemId[s.id]), height);
-        const nTicks = y.count || Math.floor(height / 50) || 1;
-        const values = scale.ticks(nTicks);
+      series
+        .filter(s => seriesIdMap[s.id])
+        .forEach(s => {
+          // This is heavily inspired by YAxis -- maybe we could consolidate?
+          const scale = createYScale(Axes.y(subDomainsByItemId[s.id]), height);
+          const nTicks = y.count || Math.floor(height / 50) || 1;
+          const values = scale.ticks(nTicks);
 
-        values.forEach(v => {
-          lines.push(
-            <line
-              key={`horizontal-${s.id}-${v}`}
-              className="grid-line grid-line-horizontal"
-              opacity={y.opacity || grid.opacity || DEFAULT_OPACITY}
-              stroke={
-                y.color === null
-                  ? s.color
-                  : y.color || grid.color || DEFAULT_COLOR
-              }
-              strokeWidth={
-                y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
-              }
-              x1={0}
-              x2={width}
-              y1={
-                (y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) / 2
-              }
-              y2={
-                (y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) / 2
-              }
-              transform={`translate(0, ${scale(v)})`}
-            />
-          );
+          values.forEach(v => {
+            lines.push(
+              <line
+                key={`horizontal-${s.id}-${v}`}
+                className="grid-line grid-line-horizontal"
+                opacity={y.opacity || grid.opacity || DEFAULT_OPACITY}
+                stroke={
+                  y.color === null
+                    ? s.color
+                    : y.color || grid.color || DEFAULT_COLOR
+                }
+                strokeWidth={
+                  y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
+                }
+                x1={0}
+                x2={width}
+                y1={
+                  (y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) /
+                  2
+                }
+                y2={
+                  (y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) /
+                  2
+                }
+                transform={`translate(0, ${scale(v)})`}
+              />
+            );
+          });
         });
-      });
     } else if (y.pixels) {
       for (
         let position = (height % y.pixels) / 2;

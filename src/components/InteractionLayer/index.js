@@ -583,15 +583,9 @@ class InteractionLayer extends React.Component {
       <React.Fragment>
         {lines}
         {annotations}
-        {ruler.visible &&
-          points.length && (
-            <Ruler
-              ruler={ruler}
-              points={points}
-              width={width}
-              height={height}
-            />
-          )}
+        {ruler.visible && points.length && (
+          <Ruler ruler={ruler} points={points} width={width} height={height} />
+        )}
         {areas}
         {areaBeingDefined}
         <ZoomRect

@@ -227,12 +227,17 @@ const AxisCollection = ({
     .filter(item => item.collectionId === undefined)
     .filter(item => ALL_FILTER(item, { axisDisplayMode }))
     .filter(item => placementFilter(item, { yAxisPlacement }))
-    .reduce((acc, item) => {
-      if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
-        return acc;
-      }
-      return acc + yAxisWidth;
-    }, series.filter(s => COLLAPSED_FILTER(s, { axisDisplayMode })).length ? yAxisWidth : 0);
+    .reduce(
+      (acc, item) => {
+        if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+          return acc;
+        }
+        return acc + yAxisWidth;
+      },
+      series.filter(s => COLLAPSED_FILTER(s, { axisDisplayMode })).length
+        ? yAxisWidth
+        : 0
+    );
 
   const {
     collapsed: collapsedOffsetX,
