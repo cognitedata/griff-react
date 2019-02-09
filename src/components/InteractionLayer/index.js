@@ -89,8 +89,9 @@ class InteractionLayer extends React.Component {
   };
 
   componentDidMount() {
-    if (this.props.ruler.timestamp) {
-      this.setRulerPosition(this.props.ruler.timestamp);
+    const { ruler } = this.props;
+    if (ruler.timestamp) {
+      this.setRulerPosition(ruler.timestamp);
     }
   }
 
@@ -148,7 +149,8 @@ class InteractionLayer extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.onAreaDefined && !this.props.onAreaDefined) {
+    const { onAreaDefined, ruler } = this.props;
+    if (prevProps.onAreaDefined && !onAreaDefined) {
       // They no longer care about areas; if we're building one, then remove it.
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({
@@ -156,13 +158,14 @@ class InteractionLayer extends React.Component {
       });
     }
 
-    if (this.props.ruler.timestamp !== prevProps.ruler.timestamp) {
-      this.setRulerPosition(this.props.ruler.timestamp);
+    if (ruler.timestamp !== prevProps.ruler.timestamp) {
+      this.setRulerPosition(ruler.timestamp);
     }
   }
 
   onMouseDown = e => {
-    if (this.props.onAreaDefined) {
+    const { onAreaDefined } = this.props;
+    if (onAreaDefined) {
       this.mouseDown = true;
       const xpos = e.nativeEvent.offsetX;
       const ypos = e.nativeEvent.offsetY;
@@ -489,6 +492,8 @@ class InteractionLayer extends React.Component {
 
   render() {
     const {
+      annotations: propsAnnotations,
+      areas: propsAreas,
       collections,
       height,
       crosshair,
@@ -532,10 +537,10 @@ class InteractionLayer extends React.Component {
     // FIXME: Don't rely on a single time domain
     const timeSubDomain = Axes.time(subDomainsByItemId[series[0].id]);
     const xScale = createXScale(timeSubDomain, width);
-    const annotations = this.props.annotations.map(a => (
+    const annotations = propsAnnotations.map(a => (
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
     ));
-    const areas = this.props.areas.map(a => {
+    const areas = propsAreas.map(a => {
       const scaledArea = {
         ...a,
       };
@@ -583,15 +588,9 @@ class InteractionLayer extends React.Component {
       <React.Fragment>
         {lines}
         {annotations}
-        {ruler.visible &&
-          points.length && (
-            <Ruler
-              ruler={ruler}
-              points={points}
-              width={width}
-              height={height}
-            />
-          )}
+        {ruler.visible && points.length && (
+          <Ruler ruler={ruler} points={points} width={width} height={height} />
+        )}
         {areas}
         {areaBeingDefined}
         <ZoomRect

@@ -174,16 +174,19 @@ const getYAxisCollectionWidth = (
 
   const isDisplayModeALL = displayModeFilter(AxisDisplayMode.ALL);
 
-  return filteredItems.reduce((totalWidth, item) => {
-    if (!isDisplayModeALL(item)) {
-      return totalWidth;
-    }
-    // COLLAPSED items are already accounted-for with the initial value.
-    if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
-      return totalWidth;
-    }
-    return totalWidth + yAxisWidth;
-  }, hasCollapsed ? yAxisWidth : 0);
+  return filteredItems.reduce(
+    (totalWidth, item) => {
+      if (!isDisplayModeALL(item)) {
+        return totalWidth;
+      }
+      // COLLAPSED items are already accounted-for with the initial value.
+      if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+        return totalWidth;
+      }
+      return totalWidth + yAxisWidth;
+    },
+    hasCollapsed ? yAxisWidth : 0
+  );
 };
 
 const getYAxisPlacement = ({ collections, series, yAxisPlacement }) => {

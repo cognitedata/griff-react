@@ -40,7 +40,8 @@ class Brush extends React.Component {
   }
 
   onMouseDownOverlay = e => {
-    if (!this.props.zoomable) {
+    const { zoomable } = this.props;
+    if (!zoomable) {
       return;
     }
     this.setState({
@@ -50,7 +51,8 @@ class Brush extends React.Component {
   };
 
   onMouseDownHandleEast = () => {
-    if (!this.props.zoomable) {
+    const { zoomable } = this.props;
+    if (!zoomable) {
       return;
     }
     this.setState({
@@ -59,7 +61,8 @@ class Brush extends React.Component {
   };
 
   onMouseDownHandleWest = () => {
-    if (!this.props.zoomable) {
+    const { zoomable } = this.props;
+    if (!zoomable) {
       return;
     }
     this.setState({
@@ -68,7 +71,8 @@ class Brush extends React.Component {
   };
 
   onMouseDownSelection = e => {
-    if (!this.props.zoomable) {
+    const { zoomable } = this.props;
+    if (!zoomable) {
       return;
     }
     this.setState({
@@ -78,7 +82,8 @@ class Brush extends React.Component {
   };
 
   onMouseUpSelection = () => {
-    if (!this.props.zoomable) {
+    const { zoomable } = this.props;
+    if (!zoomable) {
       return;
     }
     this.setState({
@@ -87,7 +92,8 @@ class Brush extends React.Component {
   };
 
   onMouseUp = () => {
-    if (!this.props.zoomable) {
+    const { zoomable } = this.props;
+    if (!zoomable) {
       return;
     }
     this.setState({
@@ -101,10 +107,17 @@ class Brush extends React.Component {
   };
 
   onMouseMove = e => {
-    if (!this.props.zoomable) {
+    const { onUpdateSelection, zoomable } = this.props;
+    const {
+      isDraggingHandleEast,
+      isDraggingHandleWest,
+      isDraggingOverlay,
+      isDraggingSelection,
+    } = this.state;
+    if (!zoomable) {
       return;
     }
-    if (this.state.isDraggingHandleEast) {
+    if (isDraggingHandleEast) {
       const position = e.nativeEvent.offsetX;
       const { selection } = this.props;
       if (position < selection[0]) {
@@ -115,8 +128,8 @@ class Brush extends React.Component {
         return;
       }
       const newSelection = [selection[0], position];
-      this.props.onUpdateSelection(newSelection);
-    } else if (this.state.isDraggingHandleWest) {
+      onUpdateSelection(newSelection);
+    } else if (isDraggingHandleWest) {
       const position = e.nativeEvent.offsetX;
       const { selection } = this.props;
       if (position > selection[1]) {
@@ -128,7 +141,7 @@ class Brush extends React.Component {
       }
       const newSelection = [position, selection[1]];
       this.onUpdateSelection(newSelection);
-    } else if (this.state.isDraggingSelection) {
+    } else if (isDraggingSelection) {
       const { selection, width } = this.props;
       const { dragStartSelection } = this.state;
       const position = e.nativeEvent.offsetX;
@@ -138,19 +151,20 @@ class Brush extends React.Component {
         this.setState({
           dragStartSelection: position,
         });
-        this.props.onUpdateSelection(newSelection);
+        onUpdateSelection(newSelection);
       }
-    } else if (this.state.isDraggingOverlay) {
+    } else if (isDraggingOverlay) {
       const { dragStartOverlay } = this.state;
       const newSelection = [dragStartOverlay, e.nativeEvent.offsetX].sort(
         (a, b) => a - b
       );
-      this.props.onUpdateSelection(newSelection);
+      onUpdateSelection(newSelection);
     }
   };
 
   onUpdateSelection = selection => {
-    this.props.onUpdateSelection(selection);
+    const { onUpdateSelection } = this.props;
+    onUpdateSelection(selection);
   };
 
   render() {
