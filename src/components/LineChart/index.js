@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
 import AxisCollection from '../AxisCollection';
-import GridLines from '../GridLines';
 import ScalerContext from '../../context/Scaler';
 import ContextChart from '../ContextChart';
 import GriffPropTypes, {
@@ -18,6 +17,7 @@ import AxisDisplayMode from './AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
 import Layout from './Layout';
 import multiFormat from '../../utils/multiFormat';
+import Axes from '../../utils/Axes';
 
 const propTypes = {
   // Disable the ESLinter for this because they'll show up from react-sizeme.
@@ -28,7 +28,6 @@ const propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
   }),
-  grid: GriffPropTypes.grid,
   width: PropTypes.number,
   height: PropTypes.number,
   zoomable: PropTypes.bool,
@@ -75,10 +74,12 @@ const propTypes = {
   pointWidth: PropTypes.number,
   // Number => String
   xAxisFormatter: PropTypes.func,
+
+  // The following props are all supplied by internals (eg, React).
+  children: PropTypes.arrayOf(PropTypes.node),
 };
 
 const defaultProps = {
-  grid: null,
   zoomable: true,
   contextChart: {
     visible: true,
@@ -122,6 +123,7 @@ const defaultProps = {
   onAreaDefined: null,
   onAreaClicked: null,
   pointWidth: 6,
+  children: [],
 };
 
 const getXAxisHeight = (xAxisHeight, xAxisPlacement) => {
@@ -219,9 +221,9 @@ const LineChart = props => {
   const {
     annotations,
     areas,
+    children,
     contextChart,
     crosshair,
-    grid,
     height: propHeight,
     onAreaDefined,
     onAreaClicked,
@@ -272,12 +274,19 @@ const LineChart = props => {
       yAxisPlacement={getYAxisPlacement(props)}
       lineChart={
         <svg width={chartSize.width} height={chartSize.height}>
-          <GridLines
-            grid={grid}
-            height={chartSize.height}
-            width={chartSize.width}
-            axes={{ x: 'time' }}
-          />
+          {React.Children.map(children, child => {
+            const childProps = {
+              ...chartSize,
+              axes: {
+                ...(child.props || {}).axes,
+                [Axes.x]:
+                  ((child.props || {}).axes || {}).x === undefined
+                    ? String(Axes.time)
+                    : child.props.axes.x,
+              },
+            };
+            return React.cloneElement(child, childProps);
+          })}
           <LineCollection
             height={chartSize.height}
             width={chartSize.width}
