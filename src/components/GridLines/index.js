@@ -6,14 +6,19 @@ import { createYScale, createXScale } from '../../utils/scale-helpers';
 import Axes from '../../utils/Axes';
 
 const propTypes = {
-  grid: GriffPropTypes.grid,
-  height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
-  series: seriesPropType.isRequired,
   axes: PropTypes.shape({
     x: PropTypes.oneOf(['x', 'time']),
   }),
+  color: GriffPropTypes.grid.color,
+  opacity: GriffPropTypes.grid.opacity,
+  strokeWidth: GriffPropTypes.grid.strokeWidth,
+  x: GriffPropTypes.grid.x,
+  y: GriffPropTypes.grid.y,
+
   // These are all populated by Griff.
+  height: PropTypes.number.isRequired,
+  width: PropTypes.number.isRequired,
+  series: seriesPropType.isRequired,
   subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
 
@@ -27,18 +32,17 @@ const DEFAULT_OPACITY = 0.6;
 const DEFAULT_STROKE_WIDTH = 1;
 
 const GridLines = ({
-  grid,
-  height,
-  width,
-  series,
-  subDomainsByItemId,
   axes,
+  color,
+  height,
+  opacity,
+  series,
+  strokeWidth,
+  subDomainsByItemId,
+  width,
+  x,
+  y,
 }) => {
-  if (!grid) {
-    return null;
-  }
-
-  const { x, y } = grid;
   if (!x && !y) {
     return null;
   }
@@ -64,25 +68,17 @@ const GridLines = ({
               <line
                 key={`horizontal-${s.id}-${v}`}
                 className="grid-line grid-line-horizontal"
-                opacity={y.opacity || grid.opacity || DEFAULT_OPACITY}
+                opacity={y.opacity || opacity || DEFAULT_OPACITY}
                 stroke={
-                  y.color === null
-                    ? s.color
-                    : y.color || grid.color || DEFAULT_COLOR
+                  y.color === null ? s.color : y.color || color || DEFAULT_COLOR
                 }
                 strokeWidth={
-                  y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
+                  y.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH
                 }
                 x1={0}
                 x2={width}
-                y1={
-                  (y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) /
-                  2
-                }
-                y2={
-                  (y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) /
-                  2
-                }
+                y1={(y.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH) / 2}
+                y2={(y.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH) / 2}
                 transform={`translate(0, ${scale(v)})`}
               />
             );
@@ -102,11 +98,9 @@ const GridLines = ({
             x2={width}
             y1={position}
             y2={position}
-            stroke={y.color || grid.color || DEFAULT_COLOR}
-            strokeWidth={
-              y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
-            }
-            opacity={y.opacity || grid.opacity || DEFAULT_OPACITY}
+            stroke={y.color || color || DEFAULT_COLOR}
+            strokeWidth={y.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH}
+            opacity={y.opacity || opacity || DEFAULT_OPACITY}
           />
         );
       }
@@ -125,11 +119,9 @@ const GridLines = ({
             x2={width}
             y1={position}
             y2={position}
-            stroke={y.color || grid.color || DEFAULT_COLOR}
-            strokeWidth={
-              y.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
-            }
-            opacity={y.opacity || grid.opacity || DEFAULT_OPACITY}
+            stroke={y.color || color || DEFAULT_COLOR}
+            strokeWidth={y.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH}
+            opacity={y.opacity || opacity || DEFAULT_OPACITY}
           />
         );
       }
@@ -151,11 +143,9 @@ const GridLines = ({
             y2={height}
             x1={position}
             x2={position}
-            stroke={x.color || grid.color || DEFAULT_COLOR}
-            strokeWidth={
-              x.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
-            }
-            opacity={x.opacity || grid.opacity || DEFAULT_OPACITY}
+            stroke={x.color || color || DEFAULT_COLOR}
+            strokeWidth={x.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH}
+            opacity={x.opacity || opacity || DEFAULT_OPACITY}
           />
         );
       }
@@ -171,15 +161,13 @@ const GridLines = ({
           <line
             key={`vertical-${+v}`}
             className="grid-line grid-line-vertical"
-            opacity={x.opacity || grid.opacity || DEFAULT_OPACITY}
-            stroke={x.color || grid.color || DEFAULT_COLOR}
-            strokeWidth={
-              x.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
-            }
+            opacity={x.opacity || opacity || DEFAULT_OPACITY}
+            stroke={x.color || color || DEFAULT_COLOR}
+            strokeWidth={x.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH}
             y1={0}
             y2={height}
-            x1={(x.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) / 2}
-            x2={(x.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH) / 2}
+            x1={(x.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH) / 2}
+            x2={(x.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH) / 2}
             transform={`translate(${scale(v)}, 0)`}
           />
         );
@@ -199,11 +187,9 @@ const GridLines = ({
             y2={height}
             x1={position}
             x2={position}
-            stroke={x.color || grid.color || DEFAULT_COLOR}
-            strokeWidth={
-              x.strokeWidth || grid.strokeWidth || DEFAULT_STROKE_WIDTH
-            }
-            opacity={x.opacity || grid.opacity || DEFAULT_OPACITY}
+            stroke={x.color || color || DEFAULT_COLOR}
+            strokeWidth={x.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH}
+            opacity={x.opacity || opacity || DEFAULT_OPACITY}
           />
         );
       }

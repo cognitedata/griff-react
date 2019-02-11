@@ -9,14 +9,12 @@ import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import XAxis from '../XAxis';
 import Layout from './Layout';
 import AxisPlacement from '../AxisPlacement';
-import GridLines from '../GridLines';
 import Axes from '../../utils/Axes';
 import AxisCollection from '../AxisCollection';
 import LineCollection from '../LineCollection';
 import AxisDisplayMode from '../LineChart/AxisDisplayMode';
 
 const propTypes = {
-  grid: GriffPropTypes.grid,
   size: PropTypes.shape({
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
@@ -33,10 +31,12 @@ const propTypes = {
   yAxisTicks: PropTypes.number,
   collections: GriffPropTypes.collections.isRequired,
   series: seriesPropType.isRequired,
+
+  // The following props are all supplied internally (eg, by React).
+  children: PropTypes.arrayOf(PropTypes.node),
 };
 
 const defaultProps = {
-  grid: null,
   zoomable: true,
   onClick: null,
   xAxisFormatter: Number,
@@ -45,6 +45,8 @@ const defaultProps = {
   yAxisFormatter: Number,
   yAxisPlacement: AxisPlacement.RIGHT,
   yAxisTicks: null,
+
+  children: [],
 };
 
 const Y_AXIS_WIDTH = 50;
@@ -77,8 +79,8 @@ const getYAxisPlacement = ({ collections, series, yAxisPlacement }) => {
 };
 
 const ScatterplotComponent = ({
+  children,
   collections,
-  grid,
   series,
   size: { width, height },
   zoomable,
@@ -148,7 +150,19 @@ const ScatterplotComponent = ({
     <Layout
       chart={
         <svg style={{ width: '100%', height: '100%' }}>
-          <GridLines grid={grid} {...chartSize} />
+          {React.Children.map(children, child => {
+            const childProps = {
+              ...chartSize,
+              axes: {
+                ...(child.props || {}).axes,
+                [Axes.x]:
+                  ((child.props || {}).axes || {}).x === undefined
+                    ? String(Axes.x)
+                    : child.props.axes.x,
+              },
+            };
+            return React.cloneElement(child, childProps);
+          })}
           <PointCollection {...chartSize} />
           <LineCollection
             {...chartSize}

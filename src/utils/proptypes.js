@@ -149,7 +149,7 @@ const multipleSeries = PropTypes.arrayOf(singleSeries);
 /**
  * Specification for the grid rendered under the data.
  */
-const grid = PropTypes.shape({
+const grid = {
   /** Color of the lines (default: #000) */
   color: PropTypes.string,
   /** Thickness of the lines (default: 1) */
@@ -228,7 +228,7 @@ const grid = PropTypes.shape({
      */
     opacity: PropTypes.number,
   }),
-});
+};
 
 const updateDomains = PropTypes.func;
 

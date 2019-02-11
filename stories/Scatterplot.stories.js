@@ -3,7 +3,13 @@ import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import moment from 'moment';
-import { DataProvider, Scatterplot, AxisPlacement, ContextChart } from '../src';
+import {
+  AxisPlacement,
+  ContextChart,
+  DataProvider,
+  GridLines,
+  Scatterplot,
+} from '../src';
 import { staticLoader, functionLoader } from './loaders';
 
 const mapping = {
@@ -394,12 +400,9 @@ storiesOf('Scatterplot', module)
         xAccessor={d => +d.x}
         yAccessor={d => +d.y}
       >
-        <Scatterplot
-          zoomable
-          grid={{ x: { ticks: 5 }, y: { count: 5, seriesIds: ['1 2'] } }}
-          xAxisTicks={5}
-          yAxisTicks={5}
-        />
+        <Scatterplot zoomable xAxisTicks={5} yAxisTicks={5}>
+          <GridLines x={{ ticks: 5 }} y={{ count: 5, seriesIds: ['1 2'] }} />
+        </Scatterplot>
       </DataProvider>
     </div>
   ))
