@@ -745,7 +745,8 @@ DataProvider.propTypes = {
   // loaderConfig => void
   // called whenever data is fetched by the loader
   onFetchData: PropTypes.func,
-  // Callback when fetching data from backend returns an error
+  // error => void
+  // Callback when data loader throws an error
   onFetchDataError: PropTypes.func,
 };
 
