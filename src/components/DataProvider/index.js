@@ -457,6 +457,7 @@ export default class DataProvider extends Component {
       y0Accessor,
       y1Accessor,
       yAccessor,
+      onFetchDataError,
     } = this.props;
     const { timeDomain, timeSubDomain } = this.state;
     const seriesObject = this.getSingleSeriesObject(id);
@@ -464,14 +465,19 @@ export default class DataProvider extends Component {
     if (!loader) {
       throw new Error(`Series ${id} does not have a loader.`);
     }
-    const loaderResult = await loader({
-      id,
-      timeDomain,
-      timeSubDomain,
-      pointsPerSeries,
-      oldSeries: seriesObject,
-      reason,
-    });
+    let loaderResult = {};
+    try {
+      loaderResult = await loader({
+        id,
+        timeDomain,
+        timeSubDomain,
+        pointsPerSeries,
+        oldSeries: seriesObject,
+        reason,
+      });
+    } catch (e) {
+      onFetchDataError(e);
+    }
     // This needs to happen after the loader comes back because the state can
     // change while the load function is operating. If we make a copy of the
     // state before the loader executes, then we'll trample any updates which
@@ -739,6 +745,8 @@ DataProvider.propTypes = {
   // loaderConfig => void
   // called whenever data is fetched by the loader
   onFetchData: PropTypes.func,
+  // Callback when fetching data from backend returns an error
+  onFetchDataError: PropTypes.func,
 };
 
 DataProvider.defaultProps = {
@@ -771,4 +779,8 @@ DataProvider.defaultProps = {
   isTimeSubDomainSticky: false,
   limitTimeSubDomain: xSubDomain => xSubDomain,
   onFetchData: () => {},
+  // Just rethrow the error if there is no custom error handler
+  onFetchDataError: e => {
+    throw e;
+  },
 };
