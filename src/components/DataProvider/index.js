@@ -466,17 +466,18 @@ export default class DataProvider extends Component {
       throw new Error(`Series ${id} does not have a loader.`);
     }
     let loaderResult = {};
+    const params = {
+      id,
+      timeDomain,
+      timeSubDomain,
+      pointsPerSeries,
+      oldSeries: seriesObject,
+      reason,
+    };
     try {
-      loaderResult = await loader({
-        id,
-        timeDomain,
-        timeSubDomain,
-        pointsPerSeries,
-        oldSeries: seriesObject,
-        reason,
-      });
+      loaderResult = await loader(params);
     } catch (e) {
-      onFetchDataError(e);
+      onFetchDataError(e, params);
     }
     // This needs to happen after the loader comes back because the state can
     // change while the load function is operating. If we make a copy of the
@@ -745,7 +746,7 @@ DataProvider.propTypes = {
   // loaderConfig => void
   // called whenever data is fetched by the loader
   onFetchData: PropTypes.func,
-  // error => void
+  // (error, params) => void
   // Callback when data loader throws an error
   onFetchDataError: PropTypes.func,
 };
