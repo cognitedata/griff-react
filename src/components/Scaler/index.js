@@ -332,20 +332,16 @@ class Scaler extends Component {
   render() {
     const { domainsByItemId, subDomainsByItemId } = this.state;
     const { children, dataContext } = this.props;
-    const ownContext = {
+
+    const finalContext = {
+      // Pick what we need out of the dataContext instead of spreading the
+      // entire object into the context.
+      collections: dataContext.collections,
+      series: dataContext.series,
+
       updateDomains: this.updateDomains,
       domainsByItemId,
       subDomainsByItemId,
-    };
-
-    const enrichedContext = {
-      timeSubDomain: dataContext.timeSubDomain || dataContext.timeDomain,
-    };
-
-    const finalContext = {
-      ...dataContext,
-      ...enrichedContext,
-      ...ownContext,
     };
 
     return (

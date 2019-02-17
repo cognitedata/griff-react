@@ -98,4 +98,16 @@ storiesOf('AxisCollection', module)
         <AxisCollection height={300} yAxisPlacement={AxisPlacement.RIGHT} />
       </DataProvider>
     </React.Fragment>
+  ))
+  .add('yAxisWidth', () => (
+    <React.Fragment>
+      <DataProvider
+        defaultLoader={staticLoader}
+        timeDomain={staticXDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <AxisCollection height={300} />
+        <AxisCollection height={300} yAxisWidth={100} />
+      </DataProvider>
+    </React.Fragment>
   ));

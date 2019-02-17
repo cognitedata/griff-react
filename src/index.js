@@ -9,5 +9,6 @@ export { default as GridLines } from './components/GridLines';
 export { default as GriffPropTypes } from './utils/proptypes';
 export { default as Line } from './components/Line';
 export { default as LineChart } from './components/LineChart';
+export { default as ScalerContext } from './context/Scaler';
 export { default as Scatterplot } from './components/Scatterplot';
 export { default as XAxis } from './components/XAxis';
