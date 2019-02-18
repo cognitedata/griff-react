@@ -4,7 +4,7 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import moment from 'moment';
 import Plot from 'react-plotly.js';
-import { ContextChart, DataProvider, ScalerContext, LineChart } from '../src';
+import { ContextChart, DataProvider, ScalerContext } from '../src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
@@ -107,7 +107,9 @@ storiesOf('Plotly.js', module)
                       [id]: {
                         time: autorange
                           ? domainsByItemId[id].time
-                          : [lowerTime, upperTime],
+                          : [lowerTime, upperTime].map(d =>
+                              new Date(d).getTime()
+                            ),
                       },
                     }),
                     {}
