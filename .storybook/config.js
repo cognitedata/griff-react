@@ -1,7 +1,6 @@
 import React from 'react';
 import { configure, addDecorator } from '@storybook/react';
 import { withInfo, setDefaults } from '@storybook/addon-info';
-import '@storybook/addon-actions/register';
 
 // automatically import all files ending in *.stories.js
 const req = require.context('../stories', true, /.stories.js$/);

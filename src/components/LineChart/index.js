@@ -75,6 +75,8 @@ const propTypes = {
   // Number => String
   xAxisFormatter: PropTypes.func,
 
+  yAxisWidth: PropTypes.number,
+
   // The following props are all supplied by internals (eg, React).
   children: PropTypes.arrayOf(PropTypes.node),
 };
@@ -246,6 +248,7 @@ const LineChart = props => {
     xAxisPlacement,
     yAxisDisplayMode,
     yAxisFormatter,
+    yAxisWidth,
     zoomable,
   } = props;
 
@@ -324,6 +327,7 @@ const LineChart = props => {
           onMouseLeave={onAxisMouseLeave}
           height={chartSize.height}
           tickFormatter={yAxisFormatter}
+          yAxisWidth={yAxisWidth}
         />
       }
       xAxis={
@@ -356,14 +360,8 @@ const SizedLineChart = sizeMe({ monitorHeight: true })(LineChart);
 
 export default props => (
   <ScalerContext.Consumer>
-    {({ collections, series, xSubDomain, yAxisWidth }) => (
-      <SizedLineChart
-        {...props}
-        collections={collections}
-        series={series}
-        timeSubDomain={xSubDomain}
-        yAxisWidth={yAxisWidth}
-      />
+    {({ collections, series }) => (
+      <SizedLineChart {...props} collections={collections} series={series} />
     )}
   </ScalerContext.Consumer>
 );
