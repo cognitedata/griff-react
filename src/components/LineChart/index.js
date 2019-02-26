@@ -46,6 +46,8 @@ const propTypes = {
   xSubDomain: PropTypes.arrayOf(PropTypes.number),
   xAxisHeight: PropTypes.number,
   contextChart: GriffPropTypes.contextChart,
+  yAxisWidth: PropTypes.number,
+  yAxisTicks: PropTypes.number,
   ruler: rulerPropType,
   annotations: PropTypes.arrayOf(annotationPropType),
   // Number => String
@@ -107,6 +109,7 @@ const defaultProps = {
   xAxisHeight: 50,
   // eslint-disable-next-line react/default-props-match-prop-types
   yAxisWidth: 50,
+  yAxisTicks: null,
   width: 0,
   height: 0,
   xSubDomain: [],
@@ -236,11 +239,13 @@ const LineChart = props => {
     xSubDomain,
     ruler,
     width: propWidth,
-    xAxisHeight,
     xAxisFormatter,
+    xAxisHeight,
     xAxisPlacement,
     yAxisDisplayMode,
     yAxisFormatter,
+    yAxisTicks,
+    yAxisWidth,
     zoomable,
   } = props;
 
@@ -312,6 +317,8 @@ const LineChart = props => {
           onMouseLeave={onAxisMouseLeave}
           height={chartSize.height}
           tickFormatter={yAxisFormatter}
+          yAxisWidth={yAxisWidth}
+          ticks={yAxisTicks}
         />
       }
       xAxis={
