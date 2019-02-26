@@ -34,7 +34,7 @@ const propTypes = {
   width: PropTypes.number,
   height: PropTypes.number,
   stroke: PropTypes.string,
-  // Number => String
+  // (number, values) => String
   tickFormatter: PropTypes.func,
   ticks: PropTypes.number,
   placement: GriffPropTypes.axisPlacement,
