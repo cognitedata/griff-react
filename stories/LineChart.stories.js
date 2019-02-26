@@ -60,6 +60,15 @@ storiesOf('LineChart', module)
       />
     </DataProvider>
   ))
+  .add('Custom # of y-axis ticks', () => (
+    <DataProvider
+      defaultLoader={staticLoader}
+      timeDomain={staticXDomain}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+    >
+      <LineChart height={CHART_HEIGHT} yAxisTicks={15} />
+    </DataProvider>
+  ))
   .add('Multiple', () => (
     <React.Fragment>
       <DataProvider
