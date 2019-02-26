@@ -18,7 +18,7 @@ const propTypes = {
   onMouseEnter: PropTypes.func,
   onMouseLeave: PropTypes.func,
   yAxisPlacement: GriffPropTypes.axisPlacement,
-  // Number => String
+  // (number, values) => String
   tickFormatter: PropTypes.func.isRequired,
   defaultColor: PropTypes.string,
   ticks: PropTypes.number,
@@ -220,7 +220,7 @@ const YAxis = ({
           <g key={+v} opacity={1} transform={`translate(0, ${scale(v)})`}>
             <line {...lineProps} />
             <text className="tick-value" {...textProps}>
-              {tickFormatter(v, values)}
+              {tickFormatter(+v, values)}
             </text>
           </g>
         );
