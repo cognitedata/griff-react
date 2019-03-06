@@ -1026,4 +1026,18 @@ storiesOf('LineChart', module)
         onBlur={() => {}}
       />
     </DataProvider>
+  ))
+  .add('onUpdateDomains', () => (
+    <DataProvider
+      defaultLoader={staticLoader}
+      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      timeDomain={staticXDomain}
+      xSubDomain={[
+        Date.now() - 1000 * 60 * 60 * 24 * 30,
+        Date.now() - 1000 * 60 * 60 * 24 * 10,
+      ]}
+      onUpdateDomains={action('onUpdateDomains')}
+    >
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>
   ));

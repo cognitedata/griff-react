@@ -582,6 +582,7 @@ export default class DataProvider extends Component {
       timeDomain: externalTimeDomain,
       timeSubDomain: externalTimeSubDomain,
       yAxisWidth,
+      onUpdateDomains,
     } = this.props;
 
     if (Object.keys(loaderConfig).length === 0) {
@@ -670,6 +671,7 @@ export default class DataProvider extends Component {
       yAxisWidth,
       timeSubDomainChanged: this.timeSubDomainChanged,
       limitTimeSubDomain,
+      onUpdateDomains,
     };
     return (
       <DataContext.Provider value={context}>
@@ -729,6 +731,8 @@ DataProvider.propTypes = {
   collections: GriffPropTypes.collections,
   // xSubDomain => void
   onTimeSubDomainChanged: PropTypes.func,
+  // newSubDomainsPerItem => void
+  onUpdateDomains: PropTypes.func,
   opacity: PropTypes.number,
   /** (datapoint, index, datapoints) => number */
   opacityAccessor: PropTypes.func,
@@ -757,6 +761,7 @@ DataProvider.defaultProps = {
   drawPoints: null,
   drawLines: undefined,
   onTimeSubDomainChanged: null,
+  onUpdateDomains: null,
   opacity: 1.0,
   opacityAccessor: null,
   pointsPerSeries: 250,
