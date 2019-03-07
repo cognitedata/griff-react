@@ -77,6 +77,7 @@ class Scaler extends Component {
       externalXSubDomain: PropTypes.arrayOf(PropTypes.number),
       series: seriesPropType.isRequired,
       collections: GriffPropTypes.collections.isRequired,
+      onUpdateDomains: PropTypes.func,
     }).isRequired,
   };
 
@@ -328,6 +329,10 @@ class Scaler extends Component {
         }
       });
     });
+    // expose newSubDomains to DataProvider
+    if (this.props.dataContext.onUpdateDomains) {
+      this.props.dataContext.onUpdateDomains(newSubDomains);
+    }
     this.setState(
       { subDomainsByItemId: newSubDomains },
       callback ? () => callback(changedDomainsById) : undefined
