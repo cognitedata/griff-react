@@ -320,6 +320,10 @@ class Scaler extends Component {
         }
       });
     });
+    // expose newSubDomains to DataProvider
+    if (dataContext.onUpdateDomains) {
+      dataContext.onUpdateDomains(newSubDomains);
+    }
     this.setState(
       { subDomainsByItemId: newSubDomains },
       callback ? () => callback(changedDomainsById) : undefined
