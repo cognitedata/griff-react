@@ -235,9 +235,10 @@ storiesOf('InteractionLayer', module)
       };
 
       onAreaClicked = (area, xpos, ypos) => {
+        const { areas } = this.state;
         action('Area clicked')(area, xpos, ypos);
         this.setState({
-          areas: this.state.areas.filter(a => a.id !== area.id),
+          areas: areas.filter(a => a.id !== area.id),
         });
         return true;
       };
@@ -328,7 +329,8 @@ storiesOf('InteractionLayer', module)
       }
 
       onAreaDefined = area => {
-        const newAreas = [...this.state.areas];
+        const { areas } = this.state;
+        const newAreas = [...areas];
         for (let i = 0; i < area.start.points.length; i += 1) {
           const newArea = {
             id: area.id,
@@ -418,8 +420,10 @@ storiesOf('InteractionLayer', module)
       }
 
       toggleOnAreaDefined = () => {
+        const { onAreaDefined } = this.state;
         this.setState({
-          onAreaDefined: this.state.onAreaDefined ? null : console.log,
+          // eslint-disable-next-line no-console
+          onAreaDefined: onAreaDefined ? null : console.log,
         });
       };
 
