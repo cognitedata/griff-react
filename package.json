@@ -21,7 +21,7 @@
     "storybook": "start-storybook -p 9001 -c .storybook",
     "storybook:build": "build-storybook -c .storybook -o .out",
     "demo:build": "nwb build-react-component src/index.js",
-    "lint": "eslint src",
+    "lint": "eslint src stories",
     "prepush": "yarn lint",
     "release": "rm -f .babelrc && yarn build && node scripts/publish-release.js"
   },

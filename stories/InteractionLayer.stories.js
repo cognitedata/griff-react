@@ -422,6 +422,7 @@ storiesOf('InteractionLayer', module)
       toggleOnAreaDefined = () => {
         const { onAreaDefined } = this.state;
         this.setState({
+          // eslint-disable-next-line no-console
           onAreaDefined: onAreaDefined ? null : console.log,
         });
       };
