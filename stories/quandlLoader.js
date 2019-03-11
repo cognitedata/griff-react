@@ -8,13 +8,16 @@ const calculateGranularity = (domain, pps) => {
   if (diff / (1000 * 60 * 60 * 24) < pps) {
     // Can we show daily
     return 'daily';
-  } else if (diff / (1000 * 60 * 60 * 24 * 7) < pps) {
+  }
+  if (diff / (1000 * 60 * 60 * 24 * 7) < pps) {
     // Can we show weekly
     return 'weekly';
-  } else if (diff / (1000 * 60 * 60 * 24 * 30) < pps) {
+  }
+  if (diff / (1000 * 60 * 60 * 24 * 30) < pps) {
     // Can we show monthly
     return 'monthly';
-  } else if (diff / (1000 * 60 * 60 * 24 * 30 * 3) < pps) {
+  }
+  if (diff / (1000 * 60 * 60 * 24 * 30 * 3) < pps) {
     return 'quarterly';
   }
   return 'annualy';

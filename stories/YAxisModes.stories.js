@@ -143,6 +143,7 @@ storiesOf('Y-Axis Modes', module)
               />
             </DataProvider>
             <button
+              type="button"
               onClick={() =>
                 this.setState({
                   yAxisDisplayMode: AxisDisplayMode.ALL,
@@ -152,6 +153,7 @@ storiesOf('Y-Axis Modes', module)
               ALL
             </button>
             <button
+              type="button"
               onClick={() =>
                 this.setState({
                   yAxisDisplayMode: AxisDisplayMode.NONE,
@@ -161,6 +163,7 @@ storiesOf('Y-Axis Modes', module)
               NONE
             </button>
             <button
+              type="button"
               onClick={() =>
                 this.setState({
                   yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
@@ -237,8 +240,9 @@ storiesOf('Y-Axis Modes', module)
       };
 
       expandAll = (e, seriesId) => {
+        const { series: stateSeries } = this.state;
         if (seriesId === 'collapsed') {
-          const series = this.state.series.map(s => ({
+          const series = stateSeries.map(s => ({
             ...s,
             yAxisDisplayMode: AxisDisplayMode.ALL,
           }));
@@ -252,8 +256,9 @@ storiesOf('Y-Axis Modes', module)
       };
 
       collapseSome = () => {
+        const { series: stateSeries } = this.state;
         this.collapseTimer = setTimeout(() => {
-          const series = this.state.series.map(s => ({
+          const series = stateSeries.map(s => ({
             ...s,
             yAxisDisplayMode:
               s.id === 1 || s.id === 3
@@ -333,11 +338,12 @@ storiesOf('Y-Axis Modes', module)
       };
 
       expandAll = (e, seriesId) => {
+        const { collections, series: stateSeries } = this.state;
         if (seriesId === 'collapsed') {
           const expand = s => ({ ...s, yAxisDisplayMode: AxisDisplayMode.ALL });
           this.setState({
-            series: this.state.series.map(expand),
-            collections: this.state.collections.map(expand),
+            series: stateSeries.map(expand),
+            collections: collections.map(expand),
           });
         }
         if (this.collapseTimer) {
@@ -346,16 +352,17 @@ storiesOf('Y-Axis Modes', module)
       };
 
       collapseSome = () => {
+        const { collections, series: stateSeries } = this.state;
         this.collapseTimer = setTimeout(() => {
           this.setState({
-            series: this.state.series.map(s => ({
+            series: stateSeries.map(s => ({
               ...s,
               yAxisDisplayMode:
                 s.id === 1 || s.id === 3 || s.id === 5
                   ? AxisDisplayMode.COLLAPSED
                   : AxisDisplayMode.ALL,
             })),
-            collections: this.state.collections.map(s => ({
+            collections: collections.map(s => ({
               ...s,
               yAxisDisplayMode:
                 s.id === 'default-collapsed'
@@ -414,6 +421,7 @@ storiesOf('Y-Axis Modes', module)
               />
             </DataProvider>
             <button
+              type="button"
               onClick={() =>
                 this.setState({
                   yAxisDisplayMode: AxisDisplayMode.ALL,
@@ -423,6 +431,7 @@ storiesOf('Y-Axis Modes', module)
               ALL
             </button>
             <button
+              type="button"
               onClick={() =>
                 this.setState({
                   yAxisDisplayMode: AxisDisplayMode.NONE,
@@ -432,6 +441,7 @@ storiesOf('Y-Axis Modes', module)
               NONE
             </button>
             <button
+              type="button"
               onClick={() =>
                 this.setState({
                   yAxisDisplayMode: AxisDisplayMode.COLLAPSED,

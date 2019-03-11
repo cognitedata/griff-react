@@ -226,10 +226,16 @@ storiesOf('LineChart', module)
             <p>
               All of the components should be entirely contained in the red box
             </p>
-            <button onClick={() => this.setState({ width: nextWidth })}>
+            <button
+              type="button"
+              onClick={() => this.setState({ width: nextWidth })}
+            >
               change to {nextWidth} pixels wide
             </button>
-            <button onClick={() => this.setState({ height: nextHeight })}>
+            <button
+              type="button"
+              onClick={() => this.setState({ height: nextHeight })}
+            >
               change to {nextHeight} pixels high
             </button>
             <div
@@ -376,8 +382,12 @@ storiesOf('LineChart', module)
             >
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
-            <button onClick={() => this.toggleHide(1)}>Hide series 1</button>
-            <button onClick={() => this.toggleHide(2)}>Hide series 2</button>
+            <button type="button" onClick={() => this.toggleHide(1)}>
+              Hide series 1
+            </button>
+            <button type="button" onClick={() => this.toggleHide(2)}>
+              Hide series 2
+            </button>
           </React.Fragment>
         );
       }
@@ -446,16 +456,16 @@ storiesOf('LineChart', module)
             >
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
-            <button onClick={() => this.setStaticDomain(1)}>
+            <button type="button" onClick={() => this.setStaticDomain(1)}>
               Set blue domain {isEnabled(yDomains[1])}
             </button>
-            <button onClick={() => this.setStaticSubDomain(1)}>
+            <button type="button" onClick={() => this.setStaticSubDomain(1)}>
               Set blue subdomain {isEnabled(ySubDomains[1])}
             </button>
-            <button onClick={() => this.setStaticDomain(2)}>
+            <button type="button" onClick={() => this.setStaticDomain(2)}>
               Set maroon domain {isEnabled(yDomains[2])}
             </button>
-            <button onClick={() => this.setStaticSubDomain(2)}>
+            <button type="button" onClick={() => this.setStaticSubDomain(2)}>
               Set maroon subdomain {isEnabled(ySubDomains[2])}
             </button>
           </React.Fragment>
@@ -590,11 +600,12 @@ storiesOf('LineChart', module)
       };
 
       toggleZoom = id => {
-        action('zoomed')(`${id} - ${!this.state.yZoomable[id]}`);
+        const { yZoomable } = this.state;
+        action('zoomed')(`${id} - ${!yZoomable[id]}`);
         this.setState({
           yZoomable: {
-            ...this.state.yZoomable,
-            [id]: !this.state.yZoomable[id],
+            ...yZoomable,
+            [id]: !yZoomable[id],
           },
         });
       };
@@ -614,14 +625,15 @@ storiesOf('LineChart', module)
               <LineChart height={CHART_HEIGHT} zoomable={zoomable} />
             </DataProvider>
             <button
-              onClick={() => this.setState({ zoomable: !this.state.zoomable })}
+              type="button"
+              onClick={() => this.setState({ zoomable: !zoomable })}
             >
               Toggle x zoom [{zoomable ? 'on' : 'off'}]
             </button>
-            <button onClick={() => this.toggleZoom(1)}>
+            <button type="button" onClick={() => this.toggleZoom(1)}>
               Toggle y1 zoom [{yZoomable[1] !== false ? 'on' : 'off'}]
             </button>
-            <button onClick={() => this.toggleZoom(2)}>
+            <button type="button" onClick={() => this.toggleZoom(2)}>
               Toggle y2 zoom [{yZoomable[2] !== false ? 'on' : 'off'}]
             </button>
           </React.Fragment>
@@ -651,7 +663,7 @@ storiesOf('LineChart', module)
         const { xDomain } = this.state;
         return (
           <div>
-            <button onClick={this.toggleXDomain}>
+            <button type="button" onClick={this.toggleXDomain}>
               {isEqual(xDomain, staticXDomain)
                 ? 'Shrink xDomain'
                 : 'Reset base domain'}
@@ -763,21 +775,19 @@ storiesOf('LineChart', module)
       };
 
       render() {
+        const { isFirst } = this.state;
         return (
           <React.Fragment>
             <button
-              onClick={() => this.setState({ isFirst: !this.state.isFirst })}
+              type="button"
+              onClick={() => this.setState({ isFirst: !isFirst })}
             >
-              {this.state.isFirst
-                ? `Switch xSubDomain`
-                : `Switch back xSubDomain`}
+              {isFirst ? `Switch xSubDomain` : `Switch back xSubDomain`}
             </button>
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              timeSubDomain={
-                this.state.isFirst ? xSubDomainFirst : xSubDomainSecond
-              }
+              timeSubDomain={isFirst ? xSubDomainFirst : xSubDomainSecond}
               series={[
                 { id: 1, color: 'steelblue' },
                 { id: 2, color: 'maroon' },
