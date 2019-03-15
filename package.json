@@ -26,7 +26,6 @@
     "release": "rm -f .babelrc && yarn build && node scripts/publish-release.js"
   },
   "dependencies": {
-    "antd": "^3.4.1",
     "bluebird": "^3.5.1",
     "d3": "4.10.0",
     "immutable": "^3.8.2",
