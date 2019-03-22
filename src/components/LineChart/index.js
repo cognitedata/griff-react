@@ -16,7 +16,7 @@ import XAxis from '../XAxis';
 import AxisDisplayMode from './AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
 import Layout from './Layout';
-import multiFormat from '../../utils/multiFormat';
+import { multiFormat } from '../../utils/multiFormat';
 import Axes from '../../utils/Axes';
 
 const propTypes = {

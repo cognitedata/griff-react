@@ -23,7 +23,13 @@
     "demo:build": "nwb build-react-component src/index.js",
     "lint": "eslint src stories",
     "prepush": "yarn lint",
-    "release": "rm -f .babelrc && yarn build && node scripts/publish-release.js"
+    "release": "rm -f .babelrc && yarn build && node scripts/publish-release.js",
+    "check": "gts check",
+    "compile": "tsc -p .",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run check"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
@@ -42,7 +48,13 @@
     "@storybook/addon-actions": "^4.1.11",
     "@storybook/addon-info": "^4.1.11",
     "@storybook/react": "^4.1.11",
+    "@types/d3": "^5.7.1",
+    "@types/react": "^16.8.8",
+    "@types/react-dom": "^16.8.3",
+    "awesome-typescript-loader": "^5.2.1",
     "axios": "^0.17.1",
+    "csstype": "^2.6.3",
+    "gts": "^0.9.0",
     "husky": "^0.14.3",
     "moment": "^2.19.3",
     "nodemon": "^1.17.4",
@@ -51,7 +63,9 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-plotly.js": "^2.2.0",
-    "semver": "^5.5.0"
+    "semver": "^5.5.0",
+    "source-map-loader": "^0.2.4",
+    "typescript": "^3.3.4000"
   },
   "author": "Cognite AS",
   "homepage": "https://griff.surge.sh/",

@@ -9,7 +9,7 @@ import {
   DataProvider,
   GridLines,
   Scatterplot,
-} from '../src';
+} from '../build/src';
 import { staticLoader, functionLoader } from './loaders';
 
 const mapping = {
