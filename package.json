@@ -27,9 +27,9 @@
     "check": "gts check",
     "compile": "tsc -p .",
     "fix": "gts fix",
-    "prepare": "npm run compile",
-    "pretest": "npm run compile",
-    "posttest": "npm run check"
+    "prepare": "yarn compile",
+    "pretest": "yarn compile",
+    "posttest": "yarn check"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
