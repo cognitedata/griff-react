@@ -34,7 +34,7 @@
     "react-sizeme": "^2.5.2"
   },
   "peerDependencies": {
-    "react": "16.x"
+    "react": "^16.8.0"
   },
   "devDependencies": {
     "@cognite/eslint-config": "^1.0.6",
@@ -48,7 +48,7 @@
     "nodemon": "^1.17.4",
     "nwb": "^0.21.0",
     "plotly.js": "^1.44.4",
-    "react": "^16.2.0",
+    "react": "^16.8.5",
     "react-dom": "^16.2.0",
     "react-plotly.js": "^2.2.0",
     "semver": "^5.5.0"
