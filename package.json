@@ -24,12 +24,10 @@
     "lint": "eslint src stories",
     "prepush": "yarn lint",
     "release": "rm -f .babelrc && yarn build && node scripts/publish-release.js",
-    "check": "gts check",
     "compile": "tsc -p .",
     "fix": "gts fix",
     "prepare": "yarn compile",
-    "pretest": "yarn compile",
-    "posttest": "yarn check"
+    "pretest": "yarn compile"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
