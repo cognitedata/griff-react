@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import { render } from 'react-dom';
 import moment from 'moment';
-import { DataProvider, LineChart } from '../../src';
+import { DataProvider, LineChart } from '../../build/src';
 
 const randomData = () => {
   const data = [];

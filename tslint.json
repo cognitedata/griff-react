@@ -1,0 +1,13 @@
+{
+  "extends": "gts/tslint.json",
+  "rules": {
+    "no-default-export": false,
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-pascal-case"
+    ],
+    "max-line-length": [true, 100]
+  }
+}
