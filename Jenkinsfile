@@ -75,8 +75,15 @@ podTemplate(
           pullRequest.comment("${PR_COMMENT_MARKER}The storybook for this PR is hosted on https://${BASE_URL_PR}${env.CHANGE_ID}.surge.sh")
         }
       } else {
-        if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME == '0.3') {
-          sh('yarn release')
+        if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ /^\d+\.\d+$/) {
+          try{
+            sh('yarn release')
+            message = readFile('publish.msg')
+            slackSend channel: '#griff', color: '#00CC00', message: msg
+          } catch (e) {
+            slackSend channel: '#griff', color: '#CC0000', message: "Release of `${env.BRANCH_NAME}` failed to publish!\n>${gitCommit}\n${env.RUN_DISPLAY_URL}\n\n@channel"
+            throw e;
+          }
         }
         stage('Deploy storybook') {
           sh('yarn global add surge')

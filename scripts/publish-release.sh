@@ -36,6 +36,11 @@ else
   echo "github remote already exists; skipping"
 fi
 
-yarn publish --new-version "$VERSION"
+echo yarn publish --new-version "$VERSION"
 
-git push github --tags
+echo git push github --tags
+
+if [[ ! -z $VERSION ]]; then
+  echo "New version published: $VERSION" > publish.msg
+  echo "https://www.npmjs.com/package/@cognite/griff-react" >> publish.msg
+fi
