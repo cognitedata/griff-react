@@ -45,6 +45,7 @@ podTemplate(
     def gitCommit
     stage('Checkout code') {
       checkout(scm)
+      gitCommit = sh(returnStdout: true, script: 'git rev-list --oneline --max-count=1 HEAD').trim()
     }
     container('node') {
       stage('Install dependencies') {
