@@ -45,6 +45,7 @@ podTemplate(
     def gitCommit
     stage('Checkout code') {
       checkout(scm)
+      gitCommit = sh(returnStdout: true, script: 'git rev-list --oneline --max-count=1 HEAD').trim()
     }
     container('node') {
       stage('Install dependencies') {
@@ -78,7 +79,7 @@ podTemplate(
         if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ /^\d+\.\d+$/) {
           try{
             sh('yarn release')
-            message = readFile('publish.msg')
+            msg = readFile('publish.msg')
             slackSend channel: '#griff', color: '#00CC00', message: msg
           } catch (e) {
             slackSend channel: '#griff', color: '#CC0000', message: "Release of `${env.BRANCH_NAME}` failed to publish!\n>${gitCommit}\n${env.RUN_DISPLAY_URL}\n\n@channel"
