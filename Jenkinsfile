@@ -77,13 +77,15 @@ podTemplate(
         }
       } else {
         if (env.BRANCH_NAME == 'master' || env.BRANCH_NAME ==~ /^\d+\.\d+$/) {
-          try{
-            sh('yarn release')
-            msg = readFile('publish.msg')
-            slackSend channel: '#griff', color: '#00CC00', message: msg
-          } catch (e) {
-            slackSend channel: '#griff', color: '#CC0000', message: "Release of `${env.BRANCH_NAME}` failed to publish!\n>${gitCommit}\n${env.RUN_DISPLAY_URL}\n\n@channel"
-            throw e;
+          stage('Publish release') {
+            try{
+              sh('yarn release')
+              msg = readFile('publish.msg')
+              slackSend channel: '#griff', color: '#00CC00', message: msg
+            } catch (e) {
+              slackSend channel: '#griff', color: '#CC0000', message: "Release of `${env.BRANCH_NAME}` failed to publish!\n>${gitCommit}\n${env.RUN_DISPLAY_URL}\n\n@channel"
+              throw e;
+            }
           }
         }
         stage('Deploy storybook') {

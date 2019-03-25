@@ -36,9 +36,9 @@ else
   echo "github remote already exists; skipping"
 fi
 
-echo yarn publish --new-version "$VERSION"
+yarn publish --new-version "$VERSION"
 
-echo git push github --tags
+git push github --tags
 
 if [[ ! -z $VERSION ]]; then
   echo "New version published: $VERSION" > publish.msg
