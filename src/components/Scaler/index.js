@@ -197,21 +197,21 @@ class Scaler extends Component {
 
       // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ domainsByItemId, subDomainsByItemId });
+    }
 
-      if (
-        !isEqual(prevProps.dataContext.timeSubDomain, dataContext.timeSubDomain)
-      ) {
-        // When timeSubDomain changes, we need to update everything downstream.
-        const newSubDomainsByItemId = {};
-        Object.keys(oldSubDomainsByItemId).forEach(itemId => {
-          newSubDomainsByItemId[itemId] = {
-            ...oldSubDomainsByItemId[itemId],
-            [Axes.time]: dataContext.timeSubDomain,
-          };
-        });
-        // eslint-disable-next-line react/no-did-update-set-state
-        this.setState({ subDomainsByItemId: newSubDomainsByItemId });
-      }
+    if (
+      !isEqual(prevProps.dataContext.timeSubDomain, dataContext.timeSubDomain)
+    ) {
+      // When timeSubDomain changes, we need to update everything downstream.
+      const newSubDomainsByItemId = {};
+      Object.keys(oldSubDomainsByItemId).forEach(itemId => {
+        newSubDomainsByItemId[itemId] = {
+          ...oldSubDomainsByItemId[itemId],
+          [Axes.time]: dataContext.timeSubDomain,
+        };
+      });
+      // eslint-disable-next-line react/no-did-update-set-state
+      this.setState({ subDomainsByItemId: newSubDomainsByItemId });
     }
   }
 
