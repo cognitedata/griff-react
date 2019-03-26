@@ -42,5 +42,7 @@ git push github --tags
 
 if [[ ! -z $VERSION ]]; then
   echo "New version published: $VERSION" > publish.msg
+  GIT_COMMIT=$(git rev-list --oneline --max-count=1 HEAD)
+  echo "> $GIT_COMMIT" >> publish.msg
   echo "https://www.npmjs.com/package/@cognite/griff-react" >> publish.msg
 fi
