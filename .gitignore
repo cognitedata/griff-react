@@ -1,9 +1,7 @@
 .DS_Store
 .out
-/build
 /coverage
 /demo/dist
-/dist
 /node_modules
 /umd
 es/

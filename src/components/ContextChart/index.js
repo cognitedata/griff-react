@@ -8,7 +8,7 @@ import Annotation from '../Annotation';
 import GriffPropTypes, { annotationPropType } from '../../utils/proptypes';
 import Brush from '../Brush';
 import AxisPlacement from '../AxisPlacement';
-import { multiFormat } from '../../utils/multiFormat';
+import multiFormat from '../../utils/multiFormat';
 import Axes from '../../utils/Axes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 import { stripPlaceholderDomain } from '../Scaler';
