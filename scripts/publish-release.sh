@@ -8,6 +8,9 @@ set -e
 # Enable verbose debugging.
 set -o xtrace
 
+# Save the git commit before anything gets committed.
+GIT_COMMIT=$(git rev-list --oneline --max-count=1 HEAD)
+
 # If we're going to be pushing anything, then we might need to set up the git
 # environment first.
 
@@ -42,7 +45,6 @@ git push github --tags
 
 if [[ ! -z $VERSION ]]; then
   echo "New version published: $VERSION" > publish.msg
-  GIT_COMMIT=$(git rev-list --oneline --max-count=1 HEAD)
   echo "> $GIT_COMMIT" >> publish.msg
   echo "https://www.npmjs.com/package/@cognite/griff-react" >> publish.msg
 fi
