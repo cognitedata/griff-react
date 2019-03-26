@@ -1,7 +1,7 @@
 import React from 'react';
 import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
-import { AxisDisplayMode, DataProvider, LineChart } from '../build/src';
+import { AxisDisplayMode, DataProvider, LineChart } from '../src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];

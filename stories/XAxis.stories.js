@@ -2,7 +2,7 @@ import React from 'react';
 import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
-import { DataProvider, XAxis, AxisPlacement } from '../build/src';
+import { DataProvider, XAxis, AxisPlacement } from '../src';
 import { staticLoader } from './loaders';
 
 storiesOf('XAxis', module)
