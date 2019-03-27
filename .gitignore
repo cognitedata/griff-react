@@ -1,8 +1,12 @@
 .DS_Store
 .out
+.rpt2_cache/
+/build
 /coverage
 /demo/dist
+/dist
 /node_modules
+/storybook-static
 /umd
 es/
 lib/
