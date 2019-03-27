@@ -49,7 +49,7 @@
     "nwb": "^0.21.0",
     "plotly.js": "^1.44.4",
     "react": "^16.8.5",
-    "react-dom": "^16.2.0",
+    "react-dom": "^16.8.5",
     "react-plotly.js": "^2.2.0",
     "semver": "^5.5.0"
   },
