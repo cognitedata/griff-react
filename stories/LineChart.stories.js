@@ -483,8 +483,77 @@ storiesOf('LineChart', module)
     const exampleAnnotations = [
       {
         id: 1,
-        data: [series[40].timestamp, series[60].timestamp],
+        timeBounds: { min: series[40].timestamp, max: series[60].timestamp },
         color: 'black',
+      },
+      {
+        id: 2,
+        seriesBounds: {
+          id: 1,
+          min: 0.2,
+          max: 0.4,
+        },
+        color: 'red',
+      },
+      {
+        id: 3,
+        seriesBounds: {
+          id: 2,
+          min: 0.6,
+          max: 0.9,
+        },
+        timeBounds: { min: series[120].timestamp, max: series[160].timestamp },
+        color: 'green',
+      },
+    ];
+    return (
+      <DataProvider
+        defaultLoader={staticLoader}
+        timeDomain={staticXDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart height={CHART_HEIGHT} annotations={exampleAnnotations} />
+      </DataProvider>
+    );
+  })
+  .add('Annotations with infinite bounds', () => {
+    const series = staticLoader({
+      id: 1,
+      reason: 'MOUNTED',
+      timeDomain: staticXDomain,
+    }).data;
+    const exampleAnnotations = [
+      {
+        id: 1,
+        timeBounds: { min: series[60].timestamp },
+        color: 'black',
+      },
+      {
+        id: 2,
+        timeBounds: { max: series[40].timestamp },
+        color: 'black',
+      },
+      {
+        id: 3,
+        seriesBounds: { id: 1, min: 0.8 },
+        color: 'red',
+      },
+      {
+        id: 4,
+        seriesBounds: { id: 1, max: 0.2 },
+        color: 'red',
+      },
+      {
+        id: 5,
+        timeBounds: { min: series[120].timestamp },
+        seriesBounds: { id: 2, min: 0.3 },
+        color: 'green',
+      },
+      {
+        id: 6,
+        timeBounds: { max: series[140].timestamp },
+        seriesBounds: { id: 2, max: 0.2 },
+        color: 'blue',
       },
     ];
     return (

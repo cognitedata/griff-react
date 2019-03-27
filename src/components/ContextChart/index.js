@@ -106,9 +106,26 @@ const ContextChart = ({
   });
   const xScale = createXScale(timeDomain, width);
   const selection = timeSubDomain.map(xScale);
-  const annotations = propsAnnotations.map(a => (
-    <Annotation key={a.id} {...a} height={height} xScale={xScale} />
-  ));
+
+  const annotations = propsAnnotations.map(a => {
+    let yScale = null;
+
+    if (a.seriesBounds) {
+      const serie = series.find(s1 => s1.id === a.seriesBounds.id);
+      yScale = createYScale(serie.ySubDomain, height);
+    }
+
+    return (
+      <Annotation
+        key={a.id}
+        height={height}
+        width={width}
+        xScale={xScale}
+        yScale={yScale}
+        {...a}
+      />
+    );
+  });
 
   const xAxis = (
     <XAxis

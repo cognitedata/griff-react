@@ -537,9 +537,28 @@ class InteractionLayer extends React.Component {
     // FIXME: Don't rely on a single time domain
     const timeSubDomain = Axes.time(subDomainsByItemId[series[0].id]);
     const xScale = createXScale(timeSubDomain, width);
-    const annotations = propsAnnotations.map(a => (
-      <Annotation key={a.id} {...a} height={height} xScale={xScale} />
-    ));
+
+    const annotations = propsAnnotations.map(a => {
+      let yScale = null;
+
+      if (a.seriesBounds) {
+        const serie = series.find(s1 => s1.id === a.seriesBounds.id);
+        const ySubDomain = Axes.y(subDomainsByItemId[serie.id]);
+        yScale = createYScale(ySubDomain, height);
+      }
+
+      return (
+        <Annotation
+          key={a.id}
+          height={height}
+          width={width}
+          xScale={xScale}
+          yScale={yScale}
+          {...a}
+        />
+      );
+    });
+
     const areas = propsAreas.map(a => {
       const scaledArea = {
         ...a,

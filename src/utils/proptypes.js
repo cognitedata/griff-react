@@ -52,6 +52,15 @@ export const domainPropType = PropTypes.arrayOf(PropTypes.number.isRequired);
 
 export const annotationShape = {
   data: PropTypes.arrayOf(PropTypes.number),
+  timeBounds: PropTypes.shape({
+    min: PropTypes.number,
+    max: PropTypes.number,
+  }),
+  seriesBounds: PropTypes.shape({
+    id: idPropType.isRequired,
+    min: PropTypes.number,
+    max: PropTypes.number,
+  }),
   xScale: PropTypes.func,
   height: PropTypes.number,
   id: PropTypes.number,
