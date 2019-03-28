@@ -169,7 +169,12 @@ const Layout = ({
     >
       <div
         className="lines-container"
-        style={{ gridArea: 'chart', height: '100%' }}
+        style={{
+          gridArea: 'chart',
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+        }}
       >
         {lineChart}
       </div>
