@@ -1,10 +1,11 @@
 import React from 'react';
 import { annotationShape } from '../../utils/proptypes';
-import { boundedSeries } from '../utils/boundedseries';
+import { boundedSeries } from '../../utils/boundedseries';
 
 const Annotation = ({
   timeBounds,
   seriesBounds,
+  data,
   xScale,
   yScale,
   height,
@@ -15,6 +16,13 @@ const Annotation = ({
 }) => {
   const xBounds = { min: 0, max: 0 };
   const yBounds = { min: 0, max: 0 };
+
+  if (data) {
+    xBounds.min = data[0] ? xScale(data[0] || Number.MIN_SAFE_INTEGER) : 0;
+    xBounds.max = data[1]
+      ? xScale(data[1] || Number.MAX_SAFE_INTEGER)
+      : Number.MAX_SAFE_INTEGER;
+  }
 
   if (timeBounds) {
     xBounds.min = timeBounds.min
@@ -49,7 +57,9 @@ const Annotation = ({
           : height
       }
       width={
-        timeBounds ? Math.abs(boundedSeries(xBounds.max - xBounds.min)) : width
+        timeBounds || data
+          ? Math.abs(boundedSeries(xBounds.max - xBounds.min))
+          : width
       }
       style={{ stroke: color, fill: color, fillOpacity }}
     />

@@ -474,6 +474,30 @@ storiesOf('LineChart', module)
     }
     return <SpecifyDomain />;
   })
+
+  .add('Annotations (old props)', () => {
+    const series = staticLoader({
+      id: 1,
+      reason: 'MOUNTED',
+      timeDomain: staticXDomain,
+    }).data;
+    const exampleAnnotations = [
+      {
+        id: 1,
+        data: [series[10].timestamp, series[20].timestamp],
+        color: 'orange',
+      },
+    ];
+    return (
+      <DataProvider
+        defaultLoader={staticLoader}
+        timeDomain={staticXDomain}
+        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      >
+        <LineChart height={CHART_HEIGHT} annotations={exampleAnnotations} />
+      </DataProvider>
+    );
+  })
   .add('Annotations', () => {
     const series = staticLoader({
       id: 1,
