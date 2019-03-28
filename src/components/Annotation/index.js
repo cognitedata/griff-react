@@ -1,11 +1,6 @@
 import React from 'react';
 import { annotationShape } from '../../utils/proptypes';
-
-// HTML has an issue with drawing points somewhere in the 30-35M range.
-// There's no point in drawing pixels more than 30k pixels outside of the range
-// so this hack will work for a while.
-// Without this, when zoomed far enough in the line will disappear.
-const boundedValue = value => Math.min(Math.max(value, -30000), 30000);
+import { boundedSeries } from '../utils/boundedseries';
 
 const Annotation = ({
   timeBounds,
@@ -46,15 +41,15 @@ const Annotation = ({
     <rect
       key={id}
       className={`griff-annotation griff-annotation-${id}`}
-      x={boundedValue(xBounds.min)}
-      y={boundedValue(yBounds.min)}
+      x={boundedSeries(xBounds.min)}
+      y={boundedSeries(yBounds.min)}
       height={
         seriesBounds
-          ? Math.abs(boundedValue(yBounds.max - yBounds.min))
+          ? Math.abs(boundedSeries(yBounds.max - yBounds.min))
           : height
       }
       width={
-        timeBounds ? Math.abs(boundedValue(xBounds.max - xBounds.min)) : width
+        timeBounds ? Math.abs(boundedSeries(xBounds.max - xBounds.min)) : width
       }
       style={{ stroke: color, fill: color, fillOpacity }}
     />
