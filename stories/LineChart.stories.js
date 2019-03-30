@@ -2,7 +2,6 @@ import React from 'react';
 import moment from 'moment';
 import Select from 'react-select';
 import isEqual from 'lodash.isequal';
-import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { DataProvider, LineChart, Brush } from '../build/src';
@@ -885,7 +884,7 @@ storiesOf('LineChart', module)
         return (
           <React.Fragment>
             <Select
-              multi
+              isMulti
               value={series}
               options={options}
               onChange={this.onChangeSeries}

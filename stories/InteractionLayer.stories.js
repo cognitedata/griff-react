@@ -1,7 +1,6 @@
 import React from 'react';
 import * as d3 from 'd3';
 import moment from 'moment';
-import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { DataProvider, LineChart } from '../build/src';

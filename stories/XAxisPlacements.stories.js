@@ -1,5 +1,4 @@
 import React from 'react';
-import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { DataProvider, LineChart, AxisPlacement } from '../build/src';
 import { staticLoader } from './loaders';
