@@ -10,7 +10,7 @@ import { functionLoader, staticLoader } from './loaders';
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
-storiesOf('InteractionLayer', module)
+storiesOf('components/InteractionLayer', module)
   .add('Ruler', () => (
     <React.Fragment>
       <div style={{ height: 500 }}>
