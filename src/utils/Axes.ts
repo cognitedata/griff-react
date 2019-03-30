@@ -5,7 +5,7 @@ import { Domain } from '../external';
  */
 export type DomainDimension = 'time' | 'x' | 'y';
 
-export interface ItemWithDomains {
+export interface Domains {
   time: Domain;
   x: Domain;
   y: Domain;
@@ -13,11 +13,11 @@ export interface ItemWithDomains {
 
 /**
  * A {@code Dimension} is a function which is linked to a particular axis of
- * measurement, like time. This function takes in an {@code ItemWithDomains}
+ * measurement, like time. This function takes in an {@code Domains}
  * and spits out the Domain (or {@code [0, 0]} if there isn't one).
  */
 export interface Dimension extends Function {
-  (input: ItemWithDomains): Domain;
+  (input: Domains): Domain;
   toString: () => string;
 }
 
@@ -27,7 +27,7 @@ export interface Dimension extends Function {
  * @param key the {@code Domain} that this {@code Dimension} operates on
  */
 const dimension = (key: DomainDimension): Dimension => {
-  const functor: Dimension = (input: ItemWithDomains) => {
+  const functor: Dimension = (input: Domains) => {
     if (!input) {
       return [0, 0];
     }
