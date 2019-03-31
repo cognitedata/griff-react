@@ -1,5 +1,4 @@
 import React from 'react';
-import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import moment from 'moment';
@@ -26,7 +25,7 @@ const seriesToPlotly = ({ color, data, id }, subDomainsByItemId) => {
   };
 };
 
-storiesOf('Plotly.js', module)
+storiesOf('Plotly', module)
   .addDecorator(story => (
     <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
       {story()}

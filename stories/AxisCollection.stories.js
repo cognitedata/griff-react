@@ -1,5 +1,4 @@
 import React from 'react';
-import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import moment from 'moment';
@@ -9,7 +8,7 @@ import AxisCollection from '../build/src/components/AxisCollection';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
 
-storiesOf('AxisCollection', module)
+storiesOf('components/AxisCollection', module)
   .addDecorator(story => (
     <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
       {story()}

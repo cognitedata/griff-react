@@ -1,7 +1,6 @@
 import React from 'react';
 import * as d3 from 'd3';
 import moment from 'moment';
-import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import { DataProvider, LineChart } from '../build/src';
@@ -10,7 +9,7 @@ import { functionLoader, staticLoader } from './loaders';
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
-storiesOf('InteractionLayer', module)
+storiesOf('components/InteractionLayer', module)
   .add('Ruler', () => (
     <React.Fragment>
       <div style={{ height: 500 }}>

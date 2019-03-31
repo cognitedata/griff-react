@@ -1,11 +1,10 @@
 import React from 'react';
-import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
 import { DataProvider, XAxis, AxisPlacement } from '../build/src';
 import { staticLoader } from './loaders';
 
-storiesOf('XAxis', module)
+storiesOf('components/XAxis', module)
   .addDecorator(story => (
     <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
       {story()}

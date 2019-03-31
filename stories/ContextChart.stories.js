@@ -1,5 +1,4 @@
 import React from 'react';
-import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
 import { AxisPlacement, ContextChart, DataProvider } from '../build/src';
@@ -15,7 +14,7 @@ const exampleAnnotations = [
   },
 ];
 
-storiesOf('ContextChart', module)
+storiesOf('components/ContextChart', module)
   .addDecorator(story => (
     <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
       {story()}
