@@ -14,7 +14,7 @@ const exampleAnnotations = [
   },
 ];
 
-storiesOf('ContextChart', module)
+storiesOf('components/ContextChart', module)
   .addDecorator(story => (
     <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
       {story()}
