@@ -1,4 +1,3 @@
-import 'react-select/dist/react-select.css';
 import { action } from '@storybook/addon-actions';
 
 const randomData = ({

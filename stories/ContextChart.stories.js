@@ -1,5 +1,4 @@
 import React from 'react';
-import 'react-select/dist/react-select.css';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
 import { AxisPlacement, ContextChart, DataProvider } from '../build/src';

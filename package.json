@@ -31,7 +31,6 @@
     "d3": "4.10.0",
     "immutable": "^3.8.2",
     "lodash.isequal": "^4.5.0",
-    "react-select": "^1.2.1",
     "react-sizeme": "^2.5.2"
   },
   "peerDependencies": {
@@ -68,6 +67,7 @@
     "react": "^16.8.5",
     "react-dom": "^16.8.5",
     "react-plotly.js": "^2.2.0",
+    "react-select": "^2.4.2",
     "rollup": "^1.7.3",
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-typescript2": "^0.20.1",
