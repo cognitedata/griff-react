@@ -9,7 +9,7 @@ import AxisCollection from '../build/src/components/AxisCollection';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
 
-storiesOf('AxisCollection', module)
+storiesOf('components/AxisCollection', module)
   .addDecorator(story => (
     <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
       {story()}
