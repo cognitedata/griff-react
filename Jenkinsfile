@@ -24,9 +24,9 @@ podTemplate(
                                   ),
                                 ],
                                 resourceRequestCpu: '2000m',
-                                resourceRequestMemory: '2500Mi',
+                                resourceRequestMemory: '5000Mi',
                                 resourceLimitCpu: '2000m',
-                                resourceLimitMemory: '2500Mi',
+                                resourceLimitMemory: '5000Mi',
                                 ttyEnabled: true)
   ],
   envVars: [
@@ -54,7 +54,8 @@ podTemplate(
       }
 
       stage('Build storybook') {
-        sh('yarn storybook:build')
+        // Increase the heap size.
+        sh("export NODE_OPTIONS='--max-old-space-size=2048' ; yarn storybook:build")
       }
       if (env.CHANGE_ID) {
         // This needs to follow the delete-pr.sh step because we don't want to
