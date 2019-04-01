@@ -1,43 +1,53 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import ScalerContext from '../../context/Scaler';
-import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 import Axes from '../../utils/Axes';
+import { ItemId, Series } from '../../external';
+import { DomainsByItemId } from '../Scaler/index';
+import { SizeProps, ItemIdMap } from '../../internal';
 
-const propTypes = {
-  axes: PropTypes.shape({
-    x: PropTypes.oneOf(['x', 'time']),
-  }),
-  color: GriffPropTypes.grid.color,
-  opacity: GriffPropTypes.grid.opacity,
-  strokeWidth: GriffPropTypes.grid.strokeWidth,
-  x: GriffPropTypes.grid.x,
-  y: GriffPropTypes.grid.y,
+export interface GridX {
+  pixels?: number;
+  count?: number;
+  color?: string;
+  strokeWidth?: number;
+  opacity?: number;
+  ticks?: number;
+}
 
-  // These are all populated by Griff.
-  height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
-  series: seriesPropType.isRequired,
-  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
-};
+export interface GridY {
+  pixels?: number;
+  seriesIds?: ItemId[];
+  count?: number;
+  color?: string;
+  strokeWidth?: number;
+  opacity?: number;
+  ticks?: number;
+}
 
-const defaultProps = {
-  axes: { x: 'x' },
-  grid: null,
-};
+export interface Props {
+  axes?: {
+    x: 'time' | 'x';
+  };
+  color?: string;
+  opacity?: number;
+  strokeWidth?: number;
+  x?: GridX;
+  y?: GridY;
+}
 
-const DEFAULT_COLOR = '#666';
-const DEFAULT_OPACITY = 0.6;
-const DEFAULT_STROKE_WIDTH = 1;
+interface InternalProps {
+  series: Series[];
+  subDomainsByItemId: DomainsByItemId;
+}
 
-const GridLines = ({
-  axes,
-  color,
+const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
+  axes = { x: 'x' },
+  color = '#666',
   height,
-  opacity,
+  opacity = 0.6,
   series,
-  strokeWidth,
+  strokeWidth = 1,
   subDomainsByItemId,
   width,
   x,
@@ -51,7 +61,7 @@ const GridLines = ({
 
   if (y) {
     if (y.seriesIds) {
-      const seriesIdMap = y.seriesIds.reduce(
+      const seriesIdMap: ItemIdMap<Series> = y.seriesIds.reduce(
         (dict, id) => ({ ...dict, [id]: true }),
         {}
       );
@@ -68,17 +78,13 @@ const GridLines = ({
               <line
                 key={`horizontal-${s.id}-${v}`}
                 className="grid-line grid-line-horizontal"
-                opacity={y.opacity || opacity || DEFAULT_OPACITY}
-                stroke={
-                  y.color === null ? s.color : y.color || color || DEFAULT_COLOR
-                }
-                strokeWidth={
-                  y.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH
-                }
+                opacity={y.opacity || opacity}
+                stroke={y.color === null ? s.color : y.color || color}
+                strokeWidth={y.strokeWidth || strokeWidth}
                 x1={0}
                 x2={width}
-                y1={(y.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH) / 2}
-                y2={(y.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH) / 2}
+                y1={(y.strokeWidth || strokeWidth) / 2}
+                y2={(y.strokeWidth || strokeWidth) / 2}
                 transform={`translate(0, ${scale(v)})`}
               />
             );
@@ -98,9 +104,9 @@ const GridLines = ({
             x2={width}
             y1={position}
             y2={position}
-            stroke={y.color || color || DEFAULT_COLOR}
-            strokeWidth={y.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH}
-            opacity={y.opacity || opacity || DEFAULT_OPACITY}
+            stroke={y.color || color}
+            strokeWidth={y.strokeWidth || strokeWidth}
+            opacity={y.opacity || opacity}
           />
         );
       }
@@ -119,9 +125,9 @@ const GridLines = ({
             x2={width}
             y1={position}
             y2={position}
-            stroke={y.color || color || DEFAULT_COLOR}
-            strokeWidth={y.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH}
-            opacity={y.opacity || opacity || DEFAULT_OPACITY}
+            stroke={y.color || color}
+            strokeWidth={y.strokeWidth || strokeWidth}
+            opacity={y.opacity || opacity}
           />
         );
       }
@@ -143,9 +149,9 @@ const GridLines = ({
             y2={height}
             x1={position}
             x2={position}
-            stroke={x.color || color || DEFAULT_COLOR}
-            strokeWidth={x.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH}
-            opacity={x.opacity || opacity || DEFAULT_OPACITY}
+            stroke={x.color || color}
+            strokeWidth={x.strokeWidth || strokeWidth}
+            opacity={x.opacity || opacity}
           />
         );
       }
@@ -161,13 +167,13 @@ const GridLines = ({
           <line
             key={`vertical-${+v}`}
             className="grid-line grid-line-vertical"
-            opacity={x.opacity || opacity || DEFAULT_OPACITY}
-            stroke={x.color || color || DEFAULT_COLOR}
-            strokeWidth={x.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH}
+            opacity={x.opacity || opacity}
+            stroke={x.color || color}
+            strokeWidth={x.strokeWidth || strokeWidth}
             y1={0}
             y2={height}
-            x1={(x.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH) / 2}
-            x2={(x.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH) / 2}
+            x1={(x.strokeWidth || strokeWidth) / 2}
+            x2={(x.strokeWidth || strokeWidth) / 2}
             transform={`translate(${scale(v)}, 0)`}
           />
         );
@@ -187,26 +193,25 @@ const GridLines = ({
             y2={height}
             x1={position}
             x2={position}
-            stroke={x.color || color || DEFAULT_COLOR}
-            strokeWidth={x.strokeWidth || strokeWidth || DEFAULT_STROKE_WIDTH}
-            opacity={x.opacity || opacity || DEFAULT_OPACITY}
+            stroke={x.color || color}
+            strokeWidth={x.strokeWidth || strokeWidth}
+            opacity={x.opacity || opacity}
           />
         );
       }
     }
   }
 
-  return lines;
+  return <g>{lines}</g>;
 };
 
-GridLines.propTypes = propTypes;
-GridLines.defaultProps = defaultProps;
-
-export default props => (
+export default ({ width, height, ...props }: Props & SizeProps) => (
   <ScalerContext.Consumer>
-    {({ series, subDomainsByItemId }) => (
+    {({ series, subDomainsByItemId }: any) => (
       <GridLines
         {...props}
+        width={width}
+        height={height}
         series={series}
         subDomainsByItemId={subDomainsByItemId}
       />
