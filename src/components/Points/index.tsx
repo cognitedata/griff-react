@@ -1,51 +1,33 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import GriffPropTypes, {
-  dataPointPropType,
-  accessorFuncPropType,
-  scaleFuncPropType,
-} from '../../utils/proptypes';
+import * as React from 'react';
 import { boundedSeries } from '../../utils/boundedseries';
+import { Datapoint, PointRenderer, AccessorFunction } from '../../external';
+import { ScalerFunction } from '../../utils/scale-helpers';
 
-const propTypes = {
-  data: PropTypes.arrayOf(dataPointPropType).isRequired,
-  drawPoints: GriffPropTypes.drawPoints,
-  xAccessor: accessorFuncPropType.isRequired,
-  x0Accessor: accessorFuncPropType,
-  x1Accessor: accessorFuncPropType,
-  yAccessor: accessorFuncPropType.isRequired,
-  y0Accessor: accessorFuncPropType,
-  y1Accessor: accessorFuncPropType,
-  xScale: scaleFuncPropType.isRequired,
-  yScale: scaleFuncPropType.isRequired,
-  color: PropTypes.string.isRequired,
-  opacity: PropTypes.number,
-  opacityAccessor: PropTypes.func,
-  pointFilter: PropTypes.func,
-  pointWidth: PropTypes.number,
-  pointWidthAccessor: PropTypes.func,
-  strokeWidth: PropTypes.number,
-};
-
-const defaultProps = {
-  drawPoints: false,
-  opacity: 1,
-  opacityAccessor: null,
-  pointFilter: () => true,
-  pointWidth: null,
-  pointWidthAccessor: null,
-  strokeWidth: null,
-  x0Accessor: null,
-  x1Accessor: null,
-  y0Accessor: null,
-  y1Accessor: null,
-};
+export interface Props {
+  drawPoints?: boolean | PointRenderer;
+  color?: string;
+  opacity?: number;
+  opacityAccessor?: AccessorFunction;
+  pointFilter?: (d: Datapoint, i: number, arr: Datapoint[]) => boolean;
+  pointWidth?: number;
+  pointWidthAccessor?: AccessorFunction;
+  strokeWidth?: number;
+  data: Datapoint[];
+  xAccessor: AccessorFunction;
+  x0Accessor: AccessorFunction;
+  x1Accessor: AccessorFunction;
+  yAccessor: AccessorFunction;
+  y0Accessor: AccessorFunction;
+  y1Accessor: AccessorFunction;
+  xScale: ScalerFunction;
+  yScale: ScalerFunction;
+}
 
 const defaultMinMaxAccessor = () => undefined;
 
-const Points = ({
+const Points: React.FunctionComponent<Props> = ({
   data,
-  drawPoints,
+  drawPoints = false,
   xAccessor,
   x0Accessor,
   x1Accessor,
@@ -55,9 +37,9 @@ const Points = ({
   xScale,
   yScale,
   color,
-  opacity,
+  opacity = 1,
   opacityAccessor,
-  pointFilter,
+  pointFilter = () => true,
   pointWidth,
   pointWidthAccessor,
   strokeWidth,
@@ -71,13 +53,13 @@ const Points = ({
       xAccessor,
       x0Accessor || defaultMinMaxAccessor,
       x1Accessor || defaultMinMaxAccessor,
-    ].map(f => +boundedSeries(xScale(f(d))));
+    ].map(func => +boundedSeries(xScale(func(d, i, arr))));
 
     const [y, y0, y1] = [
       yAccessor,
       y0Accessor || defaultMinMaxAccessor,
       y1Accessor || defaultMinMaxAccessor,
-    ].map(f => +boundedSeries(yScale(f(d))));
+    ].map(func => +boundedSeries(yScale(func(d, i, arr))));
 
     let width = 0;
     if (pointWidthAccessor) {
@@ -154,8 +136,5 @@ const Points = ({
   });
   return <g>{points}</g>;
 };
-
-Points.propTypes = propTypes;
-Points.defaultProps = defaultProps;
 
 export default Points;

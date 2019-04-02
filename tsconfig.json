@@ -8,10 +8,8 @@
     "jsx": "react",
     "allowJs": true,
     "module": "es2015",
-    "lib": [
-      "es2015",
-      "dom"
-    ]
+    "lib": ["es2015", "dom"],
+    "moduleResolution": "node"
   },
   "include": [
     "src/*.js",
