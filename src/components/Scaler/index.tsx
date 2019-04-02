@@ -33,7 +33,7 @@ export interface Props {
   dataContext: DataContext;
 }
 
-interface DomainsByItemId {
+export interface DomainsByItemId {
   [itemId: string]: Domains;
 }
 
@@ -165,10 +165,10 @@ class Scaler extends React.Component<Props, State> {
 
       [...changedSeries, ...changedCollections].forEach(item => {
         domainsByItemId[item.id] = {
-          time: dataContext.timeDomain || [
-            ...(item.timeDomain ||
+          time:
+            dataContext.timeDomain ||
+            (item.timeDomain ||
               stripPlaceholderDomain(Axes.time(oldDomainsByItemId[item.id]))),
-          ],
           x:
             item.xDomain ||
             stripPlaceholderDomain(Axes.x(oldDomainsByItemId[item.id])) ||
@@ -179,12 +179,12 @@ class Scaler extends React.Component<Props, State> {
             PLACEHOLDER_DOMAIN,
         };
         subDomainsByItemId[item.id] = {
-          time: dataContext.timeSubDomain || [
-            ...(item.timeSubDomain ||
+          time:
+            dataContext.timeSubDomain ||
+            (item.timeSubDomain ||
               stripPlaceholderDomain(
                 Axes.time(oldSubDomainsByItemId[item.id])
               )),
-          ],
           x:
             item.xSubDomain ||
             stripPlaceholderDomain(Axes.x(oldSubDomainsByItemId[item.id])) ||
