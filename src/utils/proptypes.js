@@ -81,6 +81,7 @@ export const rulerPropType = PropTypes.shape({
   // a timestamp representing the initial position of the ruler
   timestamp: PropTypes.number,
   // a function that determines the position of the timestamp
+  // (defaultPosition:number, { height:number, toolTipHeight:number, timeLabelMargin:number}) => number
   getTimeLabelPosition: PropTypes.func,
 });
 
