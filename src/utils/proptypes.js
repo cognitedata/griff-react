@@ -80,6 +80,7 @@ export const rulerPropType = PropTypes.shape({
   yLabel: PropTypes.func.isRequired,
   // a timestamp representing the initial position of the ruler
   timestamp: PropTypes.number,
+  // a function that determines the position of the timestamp
   getTimeLabelPosition: PropTypes.func,
 });
 

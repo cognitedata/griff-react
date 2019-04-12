@@ -856,6 +856,30 @@ storiesOf('LineChart', module)
           }}
         />
       </DataProvider>
+      <h3>With custom ruler timestamp position</h3>
+      <DataProvider
+        defaultLoader={liveLoader}
+        timeDomain={liveXDomain}
+        updateInterval={33}
+        series={[
+          { id: 1, color: 'steelblue', name: 'name1' },
+          { id: 2, color: 'maroon', name: 'name2' },
+        ]}
+      >
+        <LineChart
+          height={CHART_HEIGHT}
+          crosshair={false}
+          ruler={{
+            visible: true,
+            yLabel: point =>
+              `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+            timeLabel: point =>
+              moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+            timestamp: Date.now() - 1000 * 10,
+            getTimeLabelPosition: defaultPosition => defaultPosition - 100,
+          }}
+        />
+      </DataProvider>
     </div>
   ))
 

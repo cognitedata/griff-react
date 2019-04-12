@@ -41,11 +41,13 @@ const calculateY = (points, yTooltipPosition) => {
 
 const Ruler = ({ ruler, points, height, width }) => {
   const timeLabelMargin = 5;
+  const defaultTimeTooltipPosition = height - labelHeight - timeLabelMargin;
+  const metadata = { height, labelHeight, timeLabelMargin };
   // The fixed position of a x-axis label which is the same for all highlighted points
   const timeTooltipPosition =
     typeof ruler.getTimeLabelPosition === 'function'
-      ? ruler.getTimeLabelPosition(height, labelHeight)
-      : height - labelHeight - timeLabelMargin;
+      ? ruler.getTimeLabelPosition(defaultTimeTooltipPosition, metadata)
+      : defaultTimeTooltipPosition;
   const pointsObject = calculateY(points, timeTooltipPosition);
   const firstPoint = points[0];
   return (
