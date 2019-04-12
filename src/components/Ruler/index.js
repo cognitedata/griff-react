@@ -40,12 +40,16 @@ const calculateY = (points, yTooltipPosition) => {
 };
 
 const Ruler = ({ ruler, points, height, width }) => {
-  const xTooltipMargin = 5;
+  const timeLabelMargin = 5;
+  const defaultTimeTooltipPosition = height - labelHeight - timeLabelMargin;
+  const metadata = { height, labelHeight, timeLabelMargin };
   // The fixed position of a x-axis label which is the same for all highlighted points
-  const xTooltipPosition = height - labelHeight - xTooltipMargin;
-  const pointsObject = calculateY(points, xTooltipPosition);
+  const timeTooltipPosition =
+    typeof ruler.getTimeLabelPosition === 'function'
+      ? ruler.getTimeLabelPosition(defaultTimeTooltipPosition, metadata)
+      : defaultTimeTooltipPosition;
+  const pointsObject = calculateY(points, timeTooltipPosition);
   const firstPoint = points[0];
-
   return (
     <React.Fragment>
       <line
@@ -62,7 +66,7 @@ const Ruler = ({ ruler, points, height, width }) => {
         color={firstPoint.color}
         label={ruler.timeLabel(firstPoint)}
         x={firstPoint.x}
-        y={xTooltipPosition}
+        y={timeTooltipPosition}
         width={width}
       />
       {points.map(point => [
