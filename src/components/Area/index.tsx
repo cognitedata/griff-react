@@ -1,8 +1,25 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import { coordinatePropType } from '../../utils/proptypes';
 
-const Area = ({ start, end, color, opacity }) => {
+export interface Position {
+  xpos: number;
+  ypos: number;
+}
+
+export interface Props {
+  start: Position;
+  end?: Position;
+  color?: string;
+  opacity?: number;
+}
+
+const Area: React.FunctionComponent<Props> = ({
+  start,
+  end,
+  color = '#000',
+  opacity = 0.15,
+}) => {
   if (!start || !end) {
     return null;
   }
@@ -32,7 +49,7 @@ Area.propTypes = {
 Area.defaultProps = {
   color: '#000',
   opacity: 0.15,
-  end: null,
+  end: undefined,
 };
 
 export default Area;
