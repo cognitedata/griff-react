@@ -6,7 +6,7 @@ export interface Props {
   label: string;
   x: number;
   y: number;
-  width: number;
+  chartWidth: number;
   padding?: number;
 }
 
@@ -31,11 +31,19 @@ class RulerTooltip extends React.Component<Props, State> {
   };
 
   render() {
-    const { labelHeight, color, label, x, y, padding = 10, width } = this.props;
+    const {
+      labelHeight,
+      color,
+      label,
+      x,
+      y,
+      padding = 10,
+      chartWidth,
+    } = this.props;
     const { textHeight, textWidth } = this.state;
 
     const xTranslate =
-      x + padding + textWidth > width
+      x + 2 * padding + textWidth > chartWidth
         ? x - padding - padding - textWidth
         : x + padding;
 
