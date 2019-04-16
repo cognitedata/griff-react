@@ -84,9 +84,9 @@ const Ruler: React.FunctionComponent<Props> = ({
 
   const xScale = (x: number) => x;
 
-  const timeLabelMargin = 15;
+  const timeLabelMargin = 5;
   const defaultTimeTooltipPosition =
-    chartHeight - labelHeight - timeLabelMargin;
+    chartHeight - labelHeight - 2 * timeLabelMargin;
   const metadata = { height: chartHeight, labelHeight, timeLabelMargin };
   // The fixed position of a x-axis label which is the same for all highlighted points
   const timeTooltipPosition = getTimeLabelPosition
