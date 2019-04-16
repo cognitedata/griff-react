@@ -1,15 +1,38 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
 import * as d3 from 'd3';
 import { SizeMe } from 'react-sizeme';
-import GriffPropTypes from '../../utils/proptypes';
-import AxisPlacement from '../AxisPlacement';
+import AxisPlacement, {
+  AxisPlacement as AxisPlacementType,
+} from '../AxisPlacement';
 import ScalerContext from '../../context/Scaler';
 import ZoomRect from '../ZoomRect';
-import Axes from '../../utils/Axes';
-import { createXScale } from '../../utils/scale-helpers';
+import { createXScale, ScalerFunctionFactory } from '../../utils/scale-helpers';
+import { Domain, Series } from '../../external';
+import { DomainsByItemId } from '../Scaler';
 
-const tickTransformer = v => `translate(${v}, 0)`;
+export interface Props {
+  axis: 'time' | 'x';
+  placement: AxisPlacementType;
+  scaled: boolean;
+  stroke: string;
+  tickFormatter: TickFormatter;
+  ticks: number;
+  height: number;
+}
+
+interface ScalerProps {
+  domainsByItemId: DomainsByItemId;
+  subDomainsByItemId: DomainsByItemId;
+  series: Series[];
+}
+
+interface SizeProps {
+  width: number;
+}
+
+export type TickFormatter = (value: number, values: number[]) => string;
+
+const tickTransformer = (v: number) => `translate(${v}, 0)`;
 
 /**
  * This is only used for rendering the ticks on the x-axis when it is used to
@@ -19,46 +42,31 @@ const tickTransformer = v => `translate(${v}, 0)`;
  * @param {number[]} domain
  * @param {number} width
  */
-const createTimeScale = (domain, width) =>
+const createTimeScale = (
+  domain: Domain,
+  width: number
+): d3.ScaleTime<number, number> =>
   d3
     .scaleTime()
     .domain(domain)
     .range([0, width]);
 
-const X_SCALER_FACTORY = {
-  [Axes.time]: createTimeScale,
-  [Axes.x]: createXScale,
+const X_SCALER_FACTORY: { [dimension: string]: ScalerFunctionFactory } = {
+  time: createTimeScale,
+  x: createXScale,
 };
 
-const propTypes = {
-  width: PropTypes.number,
-  height: PropTypes.number,
-  stroke: PropTypes.string,
-  // (number, values) => String
-  tickFormatter: PropTypes.func,
-  ticks: PropTypes.number,
-  placement: GriffPropTypes.axisPlacement,
-  scaled: PropTypes.bool,
-  axis: GriffPropTypes.axes,
-
-  // These are provided by Griff.
-  series: GriffPropTypes.multipleSeries.isRequired,
-  domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
-  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
-};
-
-const defaultProps = {
-  stroke: 'black',
-  width: 1,
-  height: 50,
-  ticks: 0,
-  placement: AxisPlacement.BOTTOM,
-  tickFormatter: Number,
-  scaled: true,
-  axis: Axes.time,
-};
-
-const getLineProps = ({ tickSizeInner, strokeWidth, height, placement }) => {
+const getLineProps = ({
+  tickSizeInner,
+  strokeWidth,
+  height,
+  placement,
+}: {
+  tickSizeInner: number;
+  strokeWidth: number;
+  height: number;
+  placement: AxisPlacementType;
+}) => {
   switch (placement) {
     case AxisPlacement.TOP:
       return {
@@ -84,6 +92,12 @@ const getPathString = ({
   range,
   strokeWidth,
   tickSizeOuter,
+}: {
+  height: number;
+  placement: AxisPlacementType;
+  range: Domain;
+  strokeWidth: number;
+  tickSizeOuter: number;
 }) => {
   switch (placement) {
     case AxisPlacement.TOP:
@@ -111,6 +125,12 @@ const getTextProps = ({
   strokeWidth,
   tickPadding,
   tickSizeInner,
+}: {
+  height: number;
+  placement: AxisPlacementType;
+  strokeWidth: number;
+  tickPadding: number;
+  tickSizeInner: number;
 }) => {
   switch (placement) {
     case AxisPlacement.TOP:
@@ -128,23 +148,25 @@ const getTextProps = ({
   }
 };
 
-const XAxis = ({
-  axis: a,
+const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
+  axis: a = 'time',
   domainsByItemId,
-  height,
-  placement,
-  scaled,
+  height = 50,
+  placement = AxisPlacement.BOTTOM,
+  scaled = true,
   series,
-  stroke,
+  stroke = 'black',
   subDomainsByItemId,
-  tickFormatter,
-  ticks,
-  width,
+  tickFormatter = Number,
+  ticks = 0,
+  width = 1,
 }) => {
-  const scale = X_SCALER_FACTORY[a](
-    (scaled ? subDomainsByItemId : domainsByItemId)[
-      Object.keys(domainsByItemId)[0]
-    ][a],
+  const domain = (scaled ? subDomainsByItemId : domainsByItemId)[
+    Object.keys(domainsByItemId)[0]
+  ];
+  // @ts-ignore
+  const scale: d3.ScaleLinear<number, number> = X_SCALER_FACTORY[a](
+    domain[a],
     width
   );
   const axis = d3.axisBottom(scale);
@@ -160,7 +182,8 @@ const XAxis = ({
   // regular 1280 display. So by dividing width by ~100
   // we can achieve appropriate amount of ticks for any width.
   const values = scale.ticks(ticks || Math.floor(width / 100) || 1);
-  const range = scale.range().map(r => r + halfStrokeWidth);
+  // @ts-ignore - This is a domain
+  const range: Domain = scale.range().map(r => r + halfStrokeWidth);
   const pathString = getPathString({
     height,
     placement,
@@ -168,6 +191,19 @@ const XAxis = ({
     strokeWidth,
     tickSizeOuter,
   });
+
+  const textProps = {
+    fill: stroke,
+    dy: '0.71em',
+    ...getTextProps({
+      height,
+      placement,
+      strokeWidth,
+      tickPadding,
+      tickSizeInner,
+    }),
+  };
+
   const axisElement = (
     <g
       className="axis x-axis"
@@ -186,12 +222,6 @@ const XAxis = ({
             strokeWidth,
             tickSizeInner,
           }),
-        };
-
-        const textProps = {
-          fill: stroke,
-          dy: '0.71em',
-          ...getTextProps({ strokeWidth, tickPadding, tickSizeInner }),
         };
         return (
           <g key={+v} opacity={1} transform={tickTransformer(scale(v))}>
@@ -222,14 +252,11 @@ const XAxis = ({
   );
 };
 
-XAxis.propTypes = propTypes;
-XAxis.defaultProps = defaultProps;
-
-export default props => (
+export default (props: Props) => (
   <ScalerContext.Consumer>
-    {({ domainsByItemId, subDomainsByItemId, series }) => (
+    {({ domainsByItemId, subDomainsByItemId, series }: ScalerProps) => (
       <SizeMe monitorWidth>
-        {({ size }) => (
+        {({ size }: { size: SizeProps }) => (
           <XAxis
             series={series}
             {...props}
