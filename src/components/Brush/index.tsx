@@ -1,30 +1,42 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import { Domain } from '../../external';
 
-const propTypes = {
-  handleColor: PropTypes.string,
-  height: PropTypes.number.isRequired,
-  onUpdateSelection: PropTypes.func.isRequired,
-  selection: PropTypes.arrayOf(PropTypes.number).isRequired,
-  selectionColor: PropTypes.string,
-  outsideColor: PropTypes.string,
-  width: PropTypes.number.isRequired,
-  handleWidth: PropTypes.number,
-  zoomable: PropTypes.bool,
-};
+export type OnUpdateSelection = (domain: Domain) => void;
 
-const defaultProps = {
-  handleColor: '#333',
-  selectionColor: 'none',
-  outsideColor: '#777',
-  zoomable: true,
-  handleWidth: 2,
-};
+export interface Props {
+  height: number;
+  width: number;
+  onUpdateSelection: OnUpdateSelection;
+  selection: Domain;
 
-class Brush extends React.Component {
-  state = {
-    dragStartOverlay: null,
-    dragStartSelection: null,
+  selectionColor?: string;
+  outsideColor?: string;
+  handleColor?: string;
+  handleWidth?: number;
+  zoomable?: true;
+}
+
+interface State {
+  dragStartOverlay?: number;
+  dragStartSelection?: number;
+  isDraggingHandleEast: boolean;
+  isDraggingHandleWest: boolean;
+  isDraggingOverlay: boolean;
+  isDraggingSelection: boolean;
+}
+
+class Brush extends React.Component<Props, State> {
+  static defaultProps = {
+    handleColor: '#333',
+    selectionColor: 'none',
+    outsideColor: '#777',
+    zoomable: true,
+    handleWidth: 2,
+  };
+
+  state: State = {
+    dragStartOverlay: undefined,
+    dragStartSelection: undefined,
     isDraggingHandleEast: false,
     isDraggingHandleWest: false,
     isDraggingOverlay: false,
@@ -39,7 +51,7 @@ class Brush extends React.Component {
     window.removeEventListener('mouseup', this.onMouseUp);
   }
 
-  onMouseDownOverlay = e => {
+  onMouseDownOverlay = (e: React.MouseEvent<SVGRectElement, MouseEvent>) => {
     const { zoomable } = this.props;
     if (!zoomable) {
       return;
@@ -70,7 +82,7 @@ class Brush extends React.Component {
     });
   };
 
-  onMouseDownSelection = e => {
+  onMouseDownSelection = (e: React.MouseEvent<SVGRectElement, MouseEvent>) => {
     const { zoomable } = this.props;
     if (!zoomable) {
       return;
@@ -101,12 +113,12 @@ class Brush extends React.Component {
       isDraggingHandleWest: false,
       isDraggingOverlay: false,
       isDraggingSelection: false,
-      dragStartOverlay: null,
-      dragStartSelection: null,
+      dragStartOverlay: undefined,
+      dragStartSelection: undefined,
     });
   };
 
-  onMouseMove = e => {
+  onMouseMove = (e: React.MouseEvent<SVGAElement, MouseEvent>) => {
     const { onUpdateSelection, zoomable } = this.props;
     const {
       isDraggingHandleEast,
@@ -127,7 +139,7 @@ class Brush extends React.Component {
         });
         return;
       }
-      const newSelection = [selection[0], position];
+      const newSelection: Domain = [selection[0], position];
       onUpdateSelection(newSelection);
     } else if (isDraggingHandleWest) {
       const position = e.nativeEvent.offsetX;
@@ -139,14 +151,15 @@ class Brush extends React.Component {
         });
         return;
       }
-      const newSelection = [position, selection[1]];
+      const newSelection: Domain = [position, selection[1]];
       this.onUpdateSelection(newSelection);
     } else if (isDraggingSelection) {
       const { selection, width } = this.props;
       const { dragStartSelection } = this.state;
       const position = e.nativeEvent.offsetX;
-      const dx = position - dragStartSelection;
-      const newSelection = selection.map(d => d + dx);
+      const dx = position - (dragStartSelection || 0);
+      // @ts-ignore - We know this is a Domain.
+      const newSelection: Domain = selection.map(d => d + dx);
       if (newSelection[0] >= 0 && newSelection[1] <= width) {
         this.setState({
           dragStartSelection: position,
@@ -155,14 +168,16 @@ class Brush extends React.Component {
       }
     } else if (isDraggingOverlay) {
       const { dragStartOverlay } = this.state;
-      const newSelection = [dragStartOverlay, e.nativeEvent.offsetX].sort(
-        (a, b) => a - b
-      );
+      // @ts-ignore - We know this is a Domain.
+      const newSelection: Domain = [
+        dragStartOverlay || 0,
+        e.nativeEvent.offsetX,
+      ].sort((a, b) => a - b);
       onUpdateSelection(newSelection);
     }
   };
 
-  onUpdateSelection = selection => {
+  onUpdateSelection = (selection: Domain) => {
     const { onUpdateSelection } = this.props;
     onUpdateSelection(selection);
   };
@@ -182,7 +197,7 @@ class Brush extends React.Component {
     const disabledCursor = zoomable ? null : 'inherit';
     const handleTargetWidth = 10;
     return (
-      <g fill="none" stoke="#777" onMouseMove={this.onMouseMove}>
+      <g fill="none" stroke="#777" onMouseMove={this.onMouseMove}>
         <rect
           className="before-selection"
           fill={outsideColor}
@@ -267,8 +282,5 @@ class Brush extends React.Component {
     );
   }
 }
-
-Brush.propTypes = propTypes;
-Brush.defaultProps = defaultProps;
 
 export default Brush;
