@@ -583,7 +583,12 @@ class InteractionLayer extends React.Component {
         {lines}
         {annotations}
         {ruler.visible && points.length && (
-          <Ruler ruler={ruler} points={points} width={width} height={height} />
+          <Ruler
+            ruler={ruler}
+            points={points}
+            chartWidth={width}
+            chartHeight={height}
+          />
         )}
         {areas}
         {areaBeingDefined}
