@@ -63,12 +63,12 @@ export const annotationPropType = PropTypes.shape(annotationShape);
 
 export const pointPropType = PropTypes.shape({
   id: idPropType,
-  name: PropTypes.string,
-  color: PropTypes.string,
-  timestamp: PropTypes.number,
+  name: PropTypes.string.isRequired,
+  color: PropTypes.string.isRequired,
+  timestamp: PropTypes.number.isRequired,
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  x: PropTypes.number,
-  y: PropTypes.number,
+  x: PropTypes.number.isRequired,
+  y: PropTypes.number.isRequired,
 });
 
 // TODO: Do we have any required fields on this?

@@ -385,13 +385,7 @@ class InteractionLayer extends React.Component {
   };
 
   getRulerPoints = xpos => {
-    const {
-      series,
-      height,
-      width,
-      subDomainsByItemId,
-      // FIXME: Migrate this to `subDomainsByItemId`.
-    } = this.props;
+    const { series, height, width, subDomainsByItemId } = this.props;
     const newPoints = [];
     series.forEach(s => {
       if (!subDomainsByItemId[s.id]) {
@@ -589,7 +583,12 @@ class InteractionLayer extends React.Component {
         {lines}
         {annotations}
         {ruler.visible && points.length && (
-          <Ruler ruler={ruler} points={points} width={width} height={height} />
+          <Ruler
+            ruler={ruler}
+            points={points}
+            chartWidth={width}
+            chartHeight={height}
+          />
         )}
         {areas}
         {areaBeingDefined}
