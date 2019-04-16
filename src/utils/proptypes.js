@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { AxisDisplayMode } from '..';
+import AxisDisplayMode from '../components/LineChart/AxisDisplayMode';
 import AxisPlacement from '../components/AxisPlacement';
 import Axes from './Axes';
 
