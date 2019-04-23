@@ -1,6 +1,4 @@
-export {
-  default as AxisDisplayMode,
-} from './components/LineChart/AxisDisplayMode';
+export { default as AxisDisplayMode } from './utils/AxisDisplayMode';
 export { default as AxisPlacement } from './components/AxisPlacement';
 export { default as Brush } from './components/Brush';
 export { default as ContextChart } from './components/ContextChart';

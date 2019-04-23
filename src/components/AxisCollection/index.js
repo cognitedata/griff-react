@@ -7,7 +7,7 @@ import GriffPropTypes, {
   seriesPropType,
   axisDisplayModeType,
 } from '../../utils/proptypes';
-import AxisDisplayMode from '../LineChart/AxisDisplayMode';
+import AxisDisplayMode from '../../utils/AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {

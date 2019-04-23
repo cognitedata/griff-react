@@ -7,7 +7,7 @@ import GriffPropTypes, {
 } from '../../utils/proptypes';
 import ScalerContext from '../../context/Scaler';
 import Line from '../Line';
-import AxisDisplayMode from '../LineChart/AxisDisplayMode';
+import AxisDisplayMode from '../../utils/AxisDisplayMode';
 import Axes from '../../utils/Axes';
 
 const LineCollection = props => {

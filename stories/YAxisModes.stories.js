@@ -9,42 +9,38 @@ const CHART_HEIGHT = 500;
 
 storiesOf('Y-Axis Modes', module)
   .add('Mouse events', () => {
-    // eslint-disable-next-line
-    class MouseEvents extends React.Component {
-      state = {
-        series: [
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon' },
-          { id: 3, color: 'orange' },
-          { id: 4, color: 'green' },
-        ],
-      };
-
-      mouseEvent = (e, seriesId) => {
-        action('Axis mouse event')(e.type, seriesId);
-      };
-
-      render() {
-        const { series, yAxisDisplayMode } = this.state;
-        return (
-          <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-              series={series}
-            >
-              <LineChart
-                height={CHART_HEIGHT}
-                yAxisDisplayMode={yAxisDisplayMode}
-                onAxisMouseEnter={this.mouseEvent}
-                onAxisMouseLeave={this.mouseEvent}
-              />
-            </DataProvider>
-          </React.Fragment>
-        );
-      }
-    }
-    return <MouseEvents />;
+    const mouseEvent = (e, seriesId) => {
+      action('Axis mouse event')(e.type, seriesId);
+    };
+    return (
+      <React.Fragment>
+        <DataProvider
+          defaultLoader={staticLoader}
+          timeDomain={staticXDomain}
+          series={[
+            { id: 1, color: 'steelblue' },
+            { id: 2, color: 'maroon' },
+            {
+              id: 3,
+              color: 'orange',
+              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+            },
+            {
+              id: 4,
+              color: 'green',
+              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
+            },
+          ]}
+        >
+          <LineChart
+            height={CHART_HEIGHT}
+            yAxisDisplayMode={AxisDisplayMode.ALL}
+            onAxisMouseEnter={mouseEvent}
+            onAxisMouseLeave={mouseEvent}
+          />
+        </DataProvider>
+      </React.Fragment>
+    );
   })
   .add('Without y axis', () => (
     <DataProvider
