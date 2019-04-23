@@ -19,8 +19,8 @@ export interface Datapoint {
 
 export type AccessorFunction = (
   d: Datapoint,
-  i: number,
-  arr: Datapoint[]
+  i?: number,
+  arr?: Datapoint[]
 ) => number;
 
 export interface PointRendererMetadata {
