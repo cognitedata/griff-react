@@ -12,7 +12,7 @@ import AxisPlacement from '../AxisPlacement';
 import Axes from '../../utils/Axes';
 import AxisCollection from '../AxisCollection';
 import LineCollection from '../LineCollection';
-import AxisDisplayMode from '../LineChart/AxisDisplayMode';
+import AxisDisplayModes from '../LineChart/AxisDisplayMode';
 
 const propTypes = {
   size: PropTypes.shape({
@@ -101,7 +101,7 @@ const ScatterplotComponent = ({
     (acc, c) => ({
       ...acc,
       // Will this collection have its own axis?
-      [c.id]: !c.hidden && c.yAxisDisplayMode !== AxisDisplayMode.NONE,
+      [c.id]: !c.hidden && c.yAxisDisplayMode !== AxisDisplayModes.NONE,
     }),
     {}
   );
@@ -114,7 +114,7 @@ const ScatterplotComponent = ({
         // If it's hidden, it won't have an axis.
         !s.hidden &&
         // If it has a non-hidden axis, it will not have an axis.
-        s.yAxisDisplayMode !== AxisDisplayMode.NONE &&
+        s.yAxisDisplayMode !== AxisDisplayModes.NONE &&
         // If it's in a collection, it gets special behavior ...
         ((s.collectionId &&
           // If it's in an unknown collection, it will have an axis.

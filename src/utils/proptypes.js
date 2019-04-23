@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import AxisDisplayMode from '../components/LineChart/AxisDisplayMode';
+import AxisDisplayModes from '../components/LineChart/AxisDisplayMode';
 import AxisPlacement from '../components/AxisPlacement';
 import Axes from './Axes';
 
@@ -135,7 +135,7 @@ const collection = PropTypes.shape({
   opacity: PropTypes.number,
   strokeWidth: PropTypes.number,
   xAccessor: PropTypes.func,
-  yAxisDisplayMode: PropTypes.instanceOf(AxisDisplayMode),
+  yAxisDisplayMode: PropTypes.instanceOf(AxisDisplayModes),
   yAccessor: PropTypes.func,
   y0Accessor: PropTypes.func,
   y1Accessor: PropTypes.func,

@@ -7,7 +7,7 @@ import GriffPropTypes, {
 } from '../../utils/proptypes';
 import ScalerContext from '../../context/Scaler';
 import Line from '../Line';
-import AxisDisplayMode from '../LineChart/AxisDisplayMode';
+import AxisDisplayModes from '../LineChart/AxisDisplayMode';
 import Axes from '../../utils/Axes';
 
 const LineCollection = props => {
@@ -30,7 +30,7 @@ const LineCollection = props => {
     .map(
       s =>
         `${s.id}-${s.collectionId || 0}-${
-          (s.yAxisDisplayMode || AxisDisplayMode.ALL).id
+          (s.yAxisDisplayMode || AxisDisplayModes.ALL).id
         }`
     )
     .join('/')}`;

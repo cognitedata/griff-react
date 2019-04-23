@@ -13,7 +13,7 @@ import GriffPropTypes, {
 import LineCollection from '../LineCollection';
 import InteractionLayer from '../InteractionLayer';
 import XAxis from '../XAxis';
-import AxisDisplayMode from './AxisDisplayMode';
+import AxisDisplayModes from './AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
 import Layout from './Layout';
 import { multiFormat } from '../../utils/multiFormat';
@@ -117,7 +117,7 @@ const defaultProps = {
   xSubDomain: [],
   xAxisFormatter: multiFormat,
   xAxisPlacement: AxisPlacement.BOTTOM,
-  yAxisDisplayMode: AxisDisplayMode.ALL,
+  yAxisDisplayMode: AxisDisplayModes.ALL,
   yAxisFormatter: Number,
   // eslint-disable-next-line react/default-props-match-prop-types
   yAxisPlacement: AxisPlacement.RIGHT,
@@ -175,10 +175,10 @@ const getYAxisCollectionWidth = (
     );
 
   const hasCollapsed =
-    filteredItems.filter(displayModeFilter(AxisDisplayMode.COLLAPSED)).length >
+    filteredItems.filter(displayModeFilter(AxisDisplayModes.COLLAPSED)).length >
     0;
 
-  const isDisplayModeALL = displayModeFilter(AxisDisplayMode.ALL);
+  const isDisplayModeALL = displayModeFilter(AxisDisplayModes.ALL);
 
   return filteredItems.reduce(
     (totalWidth, item) => {
@@ -186,7 +186,7 @@ const getYAxisCollectionWidth = (
         return totalWidth;
       }
       // COLLAPSED items are already accounted-for with the initial value.
-      if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+      if (item.yAxisDisplayMode === AxisDisplayModes.COLLAPSED) {
         return totalWidth;
       }
       return totalWidth + yAxisWidth;

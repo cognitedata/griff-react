@@ -7,7 +7,7 @@ import GriffPropTypes, {
   seriesPropType,
   axisDisplayModeType,
 } from '../../utils/proptypes';
-import AxisDisplayMode from '../LineChart/AxisDisplayMode';
+import AxisDisplayModes from '../LineChart/AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
 
 const propTypes = {
@@ -34,7 +34,7 @@ const defaultProps = {
   zoomable: true,
   ticks: 5,
   yAxisWidth: 50,
-  axisDisplayMode: AxisDisplayMode.ALL,
+  axisDisplayMode: AxisDisplayModes.ALL,
   yAxisPlacement: AxisPlacement.RIGHT,
   onMouseEnter: null,
   onMouseLeave: null,
@@ -50,8 +50,8 @@ const onAxisMouseLeave = (seriesId, { onMouseLeave }) =>
 const axisFilter = mode => (s, { axisDisplayMode }) =>
   !s.hidden && (s.yAxisDisplayMode || axisDisplayMode) === mode;
 
-const ALL_FILTER = axisFilter(AxisDisplayMode.ALL);
-const COLLAPSED_FILTER = axisFilter(AxisDisplayMode.COLLAPSED);
+const ALL_FILTER = axisFilter(AxisDisplayModes.ALL);
+const COLLAPSED_FILTER = axisFilter(AxisDisplayModes.COLLAPSED);
 
 const placementFilter = (s, { yAxisPlacement }) =>
   !s.yAxisPlacement ||
@@ -229,7 +229,7 @@ const AxisCollection = ({
     .filter(item => placementFilter(item, { yAxisPlacement }))
     .reduce(
       (acc, item) => {
-        if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
+        if (item.yAxisDisplayMode === AxisDisplayModes.COLLAPSED) {
           return acc;
         }
         return acc + yAxisWidth;
