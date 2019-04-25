@@ -12,7 +12,7 @@ import AxisPlacement from '../AxisPlacement';
 import Axes from '../../utils/Axes';
 import AxisCollection from '../AxisCollection';
 import LineCollection from '../LineCollection';
-import AxisDisplayMode from '../LineChart/AxisDisplayMode';
+import AxisDisplayMode from '../../utils/AxisDisplayMode';
 
 const propTypes = {
   size: PropTypes.shape({
