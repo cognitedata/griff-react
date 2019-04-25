@@ -14,11 +14,11 @@ export interface Props {
   strokeWidth?: number;
   data: Datapoint[];
   xAccessor: AccessorFunction;
-  x0Accessor: AccessorFunction;
-  x1Accessor: AccessorFunction;
+  x0Accessor?: AccessorFunction;
+  x1Accessor?: AccessorFunction;
   yAccessor: AccessorFunction;
-  y0Accessor: AccessorFunction;
-  y1Accessor: AccessorFunction;
+  y0Accessor?: AccessorFunction;
+  y1Accessor?: AccessorFunction;
   xScale: ScalerFunction;
   yScale: ScalerFunction;
 }
@@ -49,17 +49,19 @@ const Points: React.FunctionComponent<Props> = ({
   }
 
   const points = data.filter(pointFilter).map((d, i, arr) => {
-    const [x, x0, x1] = [
-      xAccessor,
-      x0Accessor || defaultMinMaxAccessor,
-      x1Accessor || defaultMinMaxAccessor,
-    ].map(func => +boundedSeries(xScale(func(d, i, arr))));
+    const [x, x0, x1] = [xAccessor, x0Accessor, x1Accessor].map(func => {
+      if (!func) {
+        return Number.NaN;
+      }
+      return +boundedSeries(xScale(func(d, i, arr)));
+    });
 
-    const [y, y0, y1] = [
-      yAccessor,
-      y0Accessor || defaultMinMaxAccessor,
-      y1Accessor || defaultMinMaxAccessor,
-    ].map(func => +boundedSeries(yScale(func(d, i, arr))));
+    const [y, y0, y1] = [yAccessor, y0Accessor, y1Accessor].map(func => {
+      if (!func) {
+        return Number.NaN;
+      }
+      return +boundedSeries(yScale(func(d, i, arr)));
+    });
 
     let width = 0;
     if (pointWidthAccessor) {
