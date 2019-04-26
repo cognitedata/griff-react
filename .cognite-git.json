@@ -1,10 +1,4 @@
 {
   "base": "origin/master",
-  "reviewers": [
-    "alexchan150",
-    "danlevings",
-    "evancharlton",
-    "stonecrafter",
-    "valerii-cognite"
-  ]
+  "reviewers": ["danlevings", "evancharlton", "stonecrafter", "valerii-cognite"]
 }
