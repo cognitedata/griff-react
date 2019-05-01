@@ -23,8 +23,6 @@ export interface Props {
   yScale: ScalerFunction;
 }
 
-const defaultMinMaxAccessor = () => undefined;
-
 const Points: React.FunctionComponent<Props> = ({
   data,
   drawPoints = false,

@@ -13,7 +13,7 @@ export interface Props {
   yAccessor: AccessorFunction;
   y0Accessor?: AccessorFunction;
   y1Accessor?: AccessorFunction;
-  color: string;
+  color?: string;
   step?: boolean;
   hidden?: boolean;
   drawPoints?: boolean;
@@ -32,7 +32,7 @@ const Line: React.FunctionComponent<Props> = ({
   y0Accessor,
   y1Accessor,
   yScale,
-  color,
+  color = '#000',
   step = false,
   hidden = false,
   drawPoints = false,

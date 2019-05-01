@@ -1,26 +1,47 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import { createXScale, createYScale } from '../../utils/scale-helpers';
-import GriffPropTypes, {
-  seriesPropType,
-  scalerFactoryFunc,
-} from '../../utils/proptypes';
+import * as React from 'react';
+import {
+  createXScale,
+  createYScale,
+  ScalerFunction,
+} from '../../utils/scale-helpers';
 import ScalerContext from '../../context/Scaler';
 import Line from '../Line';
 import AxisDisplayMode from '../../utils/AxisDisplayMode';
-import Axes from '../../utils/Axes';
+import Axes, { Dimension } from '../../utils/Axes';
+import { Series } from '../../external';
+import { DomainsByItemId } from '../Scaler';
 
-const LineCollection = props => {
+const { time, x } = Axes;
+
+export interface Props {
+  width: number;
+  height: number;
+  xAxis: Dimension;
+  series?: Series[];
+  pointWidth?: number;
+  scaleX?: boolean;
+  yScalerFactory?: (series: Series, height: number) => ScalerFunction;
+}
+
+interface InternalProps {
+  series: Series[];
+  domainsByItemId: DomainsByItemId;
+  subDomainsByItemId: DomainsByItemId;
+}
+
+const LineCollection: React.FunctionComponent<
+  Props & InternalProps
+> = props => {
   const {
     domainsByItemId,
     subDomainsByItemId,
-    series,
+    series = new Array<Series>(),
     width,
     height,
-    xAxis,
+    xAxis = time,
     yScalerFactory,
-    pointWidth,
-    scaleX,
+    pointWidth = 6,
+    scaleX = true,
   } = props;
   if (!subDomainsByItemId) {
     return null;
@@ -62,7 +83,7 @@ const LineCollection = props => {
         pointWidth={s.pointWidth || pointWidth}
       />,
     ];
-  }, []);
+  }, new Array<React.ReactElement>());
   return (
     <g width={width} height={height}>
       <clipPath id={clipPath}>
@@ -73,31 +94,9 @@ const LineCollection = props => {
   );
 };
 
-LineCollection.propTypes = {
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
-  xAxis: PropTypes.oneOf(Axes.HORIZONTAL),
-  series: seriesPropType,
-  pointWidth: PropTypes.number,
-  scaleX: PropTypes.bool,
-
-  // These are provided by Griff
-  yScalerFactory: scalerFactoryFunc,
-  domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
-  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
-};
-
-LineCollection.defaultProps = {
-  series: [],
-  pointWidth: 6,
-  scaleX: true,
-  xAxis: Axes.time,
-  yScalerFactory: null,
-};
-
-export default props => (
+export default (props: Props) => (
   <ScalerContext.Consumer>
-    {({ domainsByItemId, subDomainsByItemId, series }) => (
+    {({ domainsByItemId, subDomainsByItemId, series }: InternalProps) => (
       <LineCollection
         series={series}
         {...props}

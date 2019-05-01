@@ -1,4 +1,5 @@
 import { ItemId, Domain, AccessorFunction } from './external';
+import { AxisDisplayMode } from './utils/AxisDisplayMode';
 
 export interface Item {
   id: ItemId;
@@ -19,6 +20,8 @@ export interface Item {
   xSubDomain?: Domain;
   yDomain?: Domain;
   ySubDomain?: Domain;
+  yAxisDisplayMode?: AxisDisplayMode;
+  pointWidth?: number;
 }
 
 export interface SizeProps {
