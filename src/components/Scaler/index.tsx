@@ -3,8 +3,8 @@ import * as PropTypes from 'prop-types';
 import DataContext from '../../context/Data';
 import ScalerContext from '../../context/Scaler';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
-import Axes, { Domains, Dimension } from '../../utils/Axes';
-import { Domain, Series, Collection, ItemId } from '../../external';
+import Axes, { Domains } from '../../utils/Axes';
+import { Domain, Series, Collection } from '../../external';
 import { Item } from '../../internal';
 
 // TODO: Move this to DataProvider.
@@ -52,8 +52,11 @@ const FRONT_OF_WINDOW_THRESHOLD = 0.05;
  * Provide a placeholder domain so that we can test for validity later, but
  * it can be safely operated on like a real domain.
  */
-export const PLACEHOLDER_DOMAIN: Domain = [0, 0];
-PLACEHOLDER_DOMAIN.placeholder = true;
+export const placeholder = (min: number, max: number): Domain => {
+  const domain: Domain = [min, max];
+  domain.placeholder = true;
+  return domain;
+};
 
 const haveDomainsChanged = (before: Item, after: Item) =>
   before.timeDomain !== after.timeDomain ||
@@ -86,7 +89,7 @@ const findItemsWithChangedDomains = (
 };
 
 export const stripPlaceholderDomain = (domain: Domain): Domain | undefined => {
-  if (isEqual(PLACEHOLDER_DOMAIN, domain)) {
+  if (domain && domain.placeholder) {
     return undefined;
   }
   return domain;
@@ -173,11 +176,11 @@ class Scaler extends React.Component<Props, State> {
           x:
             item.xDomain ||
             stripPlaceholderDomain(Axes.x(oldDomainsByItemId[item.id])) ||
-            PLACEHOLDER_DOMAIN,
+            placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
           y:
             item.yDomain ||
             stripPlaceholderDomain(Axes.y(oldDomainsByItemId[item.id])) ||
-            PLACEHOLDER_DOMAIN,
+            placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
         };
         subDomainsByItemId[item.id] = {
           time:
@@ -189,11 +192,11 @@ class Scaler extends React.Component<Props, State> {
           x:
             item.xSubDomain ||
             stripPlaceholderDomain(Axes.x(oldSubDomainsByItemId[item.id])) ||
-            PLACEHOLDER_DOMAIN,
+            placeholder(0, 1),
           y:
             item.ySubDomain ||
             stripPlaceholderDomain(Axes.y(oldSubDomainsByItemId[item.id])) ||
-            PLACEHOLDER_DOMAIN,
+            placeholder(0, 1),
         };
       });
       // eslint-disable-next-line react/no-did-update-set-state
@@ -263,8 +266,14 @@ class Scaler extends React.Component<Props, State> {
         ...acc,
         [item.id]: {
           time: [...dataContext.timeDomain],
-          x: [...(item.xDomain || PLACEHOLDER_DOMAIN)],
-          y: [...(item.yDomain || PLACEHOLDER_DOMAIN)],
+          x: [
+            ...(item.xDomain ||
+              placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)),
+          ],
+          y: [
+            ...(item.yDomain ||
+              placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)),
+          ],
         },
       }),
       {}
@@ -278,8 +287,8 @@ class Scaler extends React.Component<Props, State> {
         ...acc,
         [item.id]: {
           time: [...dataContext.timeSubDomain],
-          x: [...(item.xSubDomain || PLACEHOLDER_DOMAIN)],
-          y: [...(item.ySubDomain || PLACEHOLDER_DOMAIN)],
+          x: [...(item.xSubDomain || placeholder(0, 1))],
+          y: [...(item.ySubDomain || placeholder(0, 1))],
         },
       }),
       {}
@@ -332,14 +341,15 @@ class Scaler extends React.Component<Props, State> {
           subDomainsByItemId[itemId][axis] || newSubDomain;
         const existingSpan = existingSubDomain[1] - existingSubDomain[0];
 
-        const limits = stripPlaceholderDomain(
-          // @ts-ignore - We know that "axis" here is a Dimension string.
-          ((domainsByItemId || {})[itemId] || {})[axis] ||
-            (axis === String(Axes.time)
-              ? // FIXME: Phase out this single timeDomain thing.
-                dataContext.timeDomain
-              : undefined)
-        ) || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
+        const limits =
+          stripPlaceholderDomain(
+            // @ts-ignore - We know that "axis" here is a Dimension string.
+            ((domainsByItemId || {})[itemId] || {})[axis] ||
+              (axis === String(Axes.time)
+                ? // FIXME: Phase out this single timeDomain thing.
+                  dataContext.timeDomain
+                : undefined)
+          ) || placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
 
         if (newSpan === existingSpan) {
           // This is a translation; check the bounds.

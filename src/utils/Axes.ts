@@ -1,4 +1,5 @@
 import { Domain } from '../external';
+import { placeholder } from '../components/Scaler';
 
 /**
  * We only currently recognize three dimensions: time, x, and y.
@@ -29,7 +30,7 @@ export interface Dimension extends Function {
 const dimension = (key: DomainDimension): Dimension => {
   const functor: Dimension = (input: Domains) => {
     if (!input) {
-      return [0, 0];
+      return placeholder(0, 0);
     }
     return input[key];
   };

@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
-import Scaler, { PLACEHOLDER_DOMAIN } from '../Scaler';
+import Scaler from '../Scaler';
 
 export const calculateDomainFromData = (
   data,
@@ -99,6 +99,16 @@ const smallerDomain = (domain, subDomain) => {
   return [Math.max(domain[0], subDomain[0]), Math.min(domain[1], subDomain[1])];
 };
 
+const boundedDomain = (a, b) => {
+  if (a && b) {
+    return [Math.min(a[0], b[0]), Math.max(a[1], b[1])];
+  }
+  return a || b;
+};
+
+const MIN_MAX_DOMAIN = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
+MIN_MAX_DOMAIN.placeholder = true;
+
 const DEFAULT_ACCESSORS = {
   time: d => d.timestamp,
   x: d => d.x,
@@ -113,12 +123,12 @@ const DEFAULT_SERIES_CONFIG = {
   timeAccessor: DEFAULT_ACCESSORS.time,
   xAccessor: DEFAULT_ACCESSORS.x,
   yAccessor: DEFAULT_ACCESSORS.y,
-  timeDomain: PLACEHOLDER_DOMAIN,
-  timeSubDomain: PLACEHOLDER_DOMAIN,
-  xDomain: PLACEHOLDER_DOMAIN,
-  xSubDomain: PLACEHOLDER_DOMAIN,
-  yDomain: PLACEHOLDER_DOMAIN,
-  ySubDomain: PLACEHOLDER_DOMAIN,
+  timeDomain: undefined,
+  timeSubDomain: undefined,
+  xDomain: undefined,
+  xSubDomain: undefined,
+  yDomain: undefined,
+  ySubDomain: undefined,
   pointWidth: 6,
   strokeWidth: 1,
 };
@@ -553,82 +563,84 @@ export default class DataProvider extends Component {
 
     const seriesObjects = this.getSeriesObjects();
 
-    // Compute the domains for all of the collections with one pass over all of
-    // the series objects.
-    const collectionDomains = seriesObjects.reduce(
-      (
-        acc,
-        {
-          collectionId,
-          timeDomain: seriesTimeDomain = [
-            Number.MAX_SAFE_INTEGER,
-            Number.MIN_SAFE_INTEGER,
-          ],
-          timeSubDomain: seriesTimeSubDomain = [
-            Number.MAX_SAFE_INTEGER,
-            Number.MIN_SAFE_INTEGER,
-          ],
-          yDomain: seriesYDomain = [
-            Number.MAX_SAFE_INTEGER,
-            Number.MIN_SAFE_INTEGER,
-          ],
-          ySubDomain: seriesYSubDomain = [
-            Number.MAX_SAFE_INTEGER,
-            Number.MIN_SAFE_INTEGER,
-          ],
-        }
-      ) => {
-        if (!collectionId) {
-          return acc;
-        }
-        const {
-          timeDomain: existingTimeDomain,
-          timeSubDomain: existingTimeSubDomain,
-          yDomain: existingYDomain,
-          ySubDomain: existingYSubDomain,
-        } = acc[collectionId] || {
-          timeDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
-          timeSubDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
-          yDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
-          ySubDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
-        };
-        return {
-          ...acc,
-          [collectionId]: {
-            timeDomain: [
-              Math.min(existingTimeDomain[0], seriesTimeDomain[0]),
-              Math.max(existingTimeDomain[1], seriesTimeDomain[1]),
-            ],
-            timeSubDomain: [
-              Math.min(existingTimeSubDomain[0], seriesTimeSubDomain[0]),
-              Math.max(existingTimeSubDomain[1], seriesTimeSubDomain[1]),
-            ],
-            yDomain: [
-              Math.min(existingYDomain[0], seriesYDomain[0]),
-              Math.max(existingYDomain[1], seriesYDomain[1]),
-            ],
-            ySubDomain: [
-              Math.min(existingYSubDomain[0], seriesYSubDomain[0]),
-              Math.max(existingYSubDomain[1], seriesYSubDomain[1]),
-            ],
-          },
-        };
-      },
-      {}
-    );
+    // // Compute the domains for all of the collections with one pass over all of
+    // // the series objects.
+    const domainsByCollectionId = seriesObjects.reduce((acc, series) => {
+      const { collectionId } = series;
+      if (!collectionId) {
+        return acc;
+      }
+
+      const {
+        timeDomain: seriesTimeDomain,
+        timeSubDomain: seriesTimeSubDomain,
+        xDomain: seriesXDomain,
+        xSubDomain: seriesXSubDomain,
+        yDomain: seriesYDomain,
+        ySubDomain: seriesYSubDomain,
+      } = series;
+
+      const {
+        timeDomain: collectionTimeDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+        timeSubDomain: collectionTimeSubDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+        xDomain: collectionXDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+        xSubDomain: collectionXSubDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+        yDomain: collectionYDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+        ySubDomain: collectionYSubDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+      } = acc[collectionId] || {};
+
+      return {
+        ...acc,
+        [collectionId]: {
+          timeDomain: seriesTimeDomain
+            ? boundedDomain(collectionTimeDomain, seriesTimeDomain)
+            : undefined,
+          timeSubDomain: boundedDomain(
+            collectionTimeSubDomain,
+            seriesTimeSubDomain
+          ),
+          xDomain: seriesXDomain
+            ? boundedDomain(collectionXDomain, seriesXDomain)
+            : undefined,
+          xSubDomain: boundedDomain(collectionXSubDomain, seriesXSubDomain),
+          yDomain: seriesYDomain
+            ? boundedDomain(collectionYDomain, seriesYDomain)
+            : undefined,
+          ySubDomain: boundedDomain(collectionYSubDomain, seriesYSubDomain),
+        },
+      };
+    }, {});
 
     // Then we want to enrich the collection objects with their above-computed
     // domains.
     const collectionsWithDomains = Object.keys(collectionsById).reduce(
       (acc, id) => {
-        if (!collectionDomains[id]) {
+        if (!domainsByCollectionId[id]) {
           return acc;
         }
         return [
           ...acc,
           {
             ...collectionsById[id],
-            ...collectionDomains[id],
+            ...domainsByCollectionId[id],
           },
         ];
       },
@@ -648,10 +660,33 @@ export default class DataProvider extends Component {
         // It's pointing to a collection that doesn't exist.
         delete copy.collectionId;
       } else {
-        copy.timeDomain = [...collectionDomains[collectionId].timeDomain];
-        copy.timeSubDomain = [...collectionDomains[collectionId].timeSubDomain];
-        copy.yDomain = [...collectionDomains[collectionId].yDomain];
-        copy.ySubDomain = [...collectionDomains[collectionId].ySubDomain];
+        const {
+          timeDomain: collectionTimeDomain,
+          timeSubDomain: collectionTimeSubDomain,
+          xDomain: collectionXDomain,
+          xSubDomain: collectionXSubDomain,
+          yDomain: collectionYDomain,
+          ySubDomain: collectionYSubDomain,
+        } = domainsByCollectionId[collectionId] || {};
+
+        if (collectionTimeDomain) {
+          copy.timeDomain = collectionTimeDomain;
+        }
+        if (collectionTimeSubDomain) {
+          copy.timeSubDomain = collectionTimeSubDomain;
+        }
+        if (collectionXDomain) {
+          copy.xDomain = collectionXDomain;
+        }
+        if (collectionXSubDomain) {
+          copy.xSubDomain = collectionXSubDomain;
+        }
+        if (collectionYDomain) {
+          copy.yDomain = collectionYDomain;
+        }
+        if (collectionYSubDomain) {
+          copy.ySubDomain = collectionYSubDomain;
+        }
       }
       return copy;
     });

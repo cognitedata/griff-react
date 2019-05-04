@@ -36,7 +36,7 @@ const Line: React.FunctionComponent<Props> = ({
   step = false,
   hidden = false,
   drawPoints = false,
-  strokeWidth = 6,
+  strokeWidth = 1,
   opacity = 1,
   pointWidth = 6,
   pointWidthAccessor,
