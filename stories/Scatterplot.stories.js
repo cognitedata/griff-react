@@ -279,14 +279,14 @@ storiesOf('Scatterplot', module)
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
-            series={[
-              { id: '1 2', color: 'steelblue', collectionId: 'scatter' },
-              { id: 'sum-y', color: 'maroon', collectionId: 'scatter' },
-            ]}
-            collections={[{ id: 'scatter' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawPoints
           >
+            <Collection id="scatter">
+              <Series id="1 2" color="steelblue" />
+              <Series id="sum-y" color="maroon" />
+            </Collection>
             <Scatterplot zoomable />
           </DataProvider>
         </div>
