@@ -680,11 +680,12 @@ storiesOf('Scatterplot', module)
           defaultLoader={scatterplotFunctionLoader}
           timeDomain={[+moment().subtract(1, 'year'), +moment()]}
           pointsPerSeries={100}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
+          drawPoints
         >
+          <Series id="1 2" color="steelblue" />
           <Scatterplot zoomable={false} />
         </DataProvider>
       </div>
