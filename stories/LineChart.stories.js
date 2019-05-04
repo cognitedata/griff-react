@@ -203,8 +203,10 @@ storiesOf('LineChart', module)
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <LineChart />
       </DataProvider>
     </div>
