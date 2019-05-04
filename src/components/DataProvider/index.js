@@ -255,7 +255,7 @@ export default class DataProvider extends Component {
   };
 
   getSeriesObjects = () => {
-    const { timeAccessor, xAccessor, yAccessor } = this.props;
+    const { drawPoints, timeAccessor, xAccessor, yAccessor } = this.props;
     const {
       collectionsById,
       seriesById,
@@ -271,6 +271,7 @@ export default class DataProvider extends Component {
           : {};
       const completedSeries = {
         ...DEFAULT_SERIES_CONFIG,
+        drawPoints,
         timeAccessor,
         xAccessor,
         yAccessor,

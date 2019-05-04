@@ -540,33 +540,30 @@ storiesOf('LineChart', module)
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
         pointsPerSeries={100}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon', drawPoints: true },
-        ]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" drawPoints />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
         pointsPerSeries={100}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon', drawPoints: true, pointWidth: 10 },
-        ]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" drawPoints pointWidth={10} />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
         pointsPerSeries={100}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon', drawPoints: true },
-        ]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" drawPoints />
         <LineChart height={CHART_HEIGHT} pointWidth={4} />
       </DataProvider>
       <DataProvider
@@ -579,11 +576,10 @@ storiesOf('LineChart', module)
             fill={color}
           />
         )}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon', drawPoints: true },
-        ]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} pointWidth={4} />
       </DataProvider>
     </React.Fragment>
