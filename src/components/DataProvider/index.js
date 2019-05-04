@@ -43,13 +43,12 @@ const deleteUndefinedFromObject = obj => {
   if (!obj) {
     return {};
   }
-  const newObject = {};
-  Object.keys(obj).forEach(k => {
+  return Object.keys(obj).reduce((acc, k) => {
     if (obj[k] !== undefined) {
-      newObject[k] = obj[k];
+      return { ...acc, [k]: obj[k] };
     }
-  });
-  return newObject;
+    return acc;
+  }, {});
 };
 
 /**
@@ -62,6 +61,24 @@ const firstDefined = (first, ...others) => {
     return first;
   }
   return firstDefined(others[0], ...others.splice(1));
+};
+
+const DEFAULT_SERIES_CONFIG = {
+  color: 'black',
+  data: [],
+  hidden: false,
+  drawPoints: false,
+  timeAccessor: d => d.timestamp,
+  xAccessor: d => d.x,
+  yAccessor: d => d.value,
+  timeDomain: PLACEHOLDER_DOMAIN,
+  timeSubDomain: PLACEHOLDER_DOMAIN,
+  xDomain: PLACEHOLDER_DOMAIN,
+  xSubDomain: PLACEHOLDER_DOMAIN,
+  yDomain: PLACEHOLDER_DOMAIN,
+  ySubDomain: PLACEHOLDER_DOMAIN,
+  pointWidth: 6,
+  strokeWidth: 1,
 };
 
 export default class DataProvider extends Component {
@@ -82,46 +99,41 @@ export default class DataProvider extends Component {
       xSubDomains: {},
       yDomains: {},
       ySubDomains: {},
+      seriesById: {},
     };
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    // Check if one of the series got removed from props
-    // If so, delete the respective keys in loaderconfig
-    // This is important so we don't cache the values if it gets readded later
-    const { loaderConfig, yDomains, ySubDomains } = prevState;
-    const { series } = nextProps;
-    const seriesKeys = {};
-    series.forEach(s => {
-      seriesKeys[s.id] = true;
-    });
-    const newLoaderConfig = { ...loaderConfig };
-    const newYDomains = { ...yDomains };
-    const newYSubDomains = { ...ySubDomains };
-    let shouldUpdate = false;
-    Object.keys(loaderConfig).forEach(key => {
-      if (!seriesKeys[key]) {
-        // Clean up
-        delete newLoaderConfig[key];
-        delete newYDomains[key];
-        shouldUpdate = true;
-      }
-    });
-    if (shouldUpdate) {
-      return {
-        loaderConfig: newLoaderConfig,
-        yDomains: newYDomains,
-        ySubDomains: newYSubDomains,
-      };
-    }
-    return null;
-  }
-
-  async componentDidMount() {
-    const { series } = this.props;
-    this.startUpdateInterval();
-    await Promise.map(series, s => this.fetchData(s.id, 'MOUNTED'));
-  }
+  // static getDerivedStateFromProps(nextProps, prevState) {
+  // // Check if one of the series got removed from props
+  // // If so, delete the respective keys in loaderconfig
+  // // This is important so we don't cache the values if it gets readded later
+  // const { loaderConfig, yDomains, ySubDomains } = prevState;
+  // const { series } = nextProps;
+  // const seriesKeys = {};
+  // series.forEach(s => {
+  //   seriesKeys[s.id] = true;
+  // });
+  // const newLoaderConfig = { ...loaderConfig };
+  // const newYDomains = { ...yDomains };
+  // const newYSubDomains = { ...ySubDomains };
+  // let shouldUpdate = false;
+  // Object.keys(loaderConfig).forEach(key => {
+  //   if (!seriesKeys[key]) {
+  //     // Clean up
+  //     delete newLoaderConfig[key];
+  //     delete newYDomains[key];
+  //     shouldUpdate = true;
+  //   }
+  // });
+  // if (shouldUpdate) {
+  //   return {
+  //     loaderConfig: newLoaderConfig,
+  //     yDomains: newYDomains,
+  //     ySubDomains: newYSubDomains,
+  //   };
+  // }
+  // return null;
+  // }
 
   async componentDidUpdate(prevProps) {
     // If new series are present in prop,
@@ -243,6 +255,14 @@ export default class DataProvider extends Component {
     });
     return series.map(s =>
       this.enrichSeries(s, collectionsById[s.collectionId || ''] || {})
+    );
+  };
+
+  getNewSeriesObjects = () => {
+    const { seriesById } = this.state;
+    return Object.keys(seriesById).reduce(
+      (acc, id) => [...acc, seriesById[id]],
+      []
     );
   };
 
@@ -459,8 +479,11 @@ export default class DataProvider extends Component {
       yAccessor,
       onFetchDataError,
     } = this.props;
-    const { timeDomain, timeSubDomain } = this.state;
-    const seriesObject = this.getSingleSeriesObject(id);
+    const { timeDomain, timeSubDomain, seriesById } = this.state;
+    const seriesObject = seriesById[id]; // this.getSingleSeriesObject(id);
+    if (!seriesObject) {
+      return;
+    }
     const loader = seriesObject.loader || defaultLoader;
     if (!loader) {
       throw new Error(`Series ${id} does not have a loader.`);
@@ -479,74 +502,114 @@ export default class DataProvider extends Component {
     } catch (e) {
       onFetchDataError(e, params);
     }
-    // This needs to happen after the loader comes back because the state can
-    // change while the load function is operating. If we make a copy of the
-    // state before the loader executes, then we'll trample any updates which
-    // may have happened while the loader was loading.
-    const { loaderConfig: originalLoaderConfig } = this.state;
-    const loaderConfig = {
-      data: [],
-      id,
-      ...loaderResult,
-      reason,
-      yAccessor: seriesObject.yAccessor,
-      y0Accessor: seriesObject.y0Accessor,
-      y1Accessor: seriesObject.y1Accessor,
-    };
-    const stateUpdates = {};
-    if (
-      reason === 'MOUNTED' ||
-      (seriesObject.data.length === 0 && loaderConfig.data.length > 0)
-    ) {
-      const {
-        timeDomains,
-        timeSubDomains,
-        xSubDomains,
-        ySubDomains,
-      } = this.state;
-      const calculatedTimeDomain = calculateDomainFromData(
-        loaderConfig.data,
-        loaderConfig.timeAccessor || timeAccessor
-      );
-      const calculatedTimeSubDomain = calculatedTimeDomain;
-      stateUpdates.timeDomains = {
-        ...timeDomains,
-        [id]: calculatedTimeDomain,
-      };
-      stateUpdates.timeSubDomains = {
-        ...timeSubDomains,
-        [id]: calculatedTimeSubDomain,
-      };
 
-      const xSubDomain = calculateDomainFromData(
-        loaderConfig.data,
-        loaderConfig.xAccessor || xAccessor,
-        loaderConfig.x0Accessor || x0Accessor,
-        loaderConfig.x1Accessor || x1Accessor
-      );
-      stateUpdates.xSubDomains = {
-        ...xSubDomains,
-        [id]: xSubDomain,
-      };
+    this.setState(
+      ({ seriesById: { [id]: freshSeries }, seriesById: freshSeriesById }) => {
+        const series = {
+          ...freshSeries,
+          ...loaderResult,
+        };
 
-      const ySubDomain = calculateDomainFromData(
-        loaderConfig.data,
-        loaderConfig.yAccessor || yAccessor,
-        loaderConfig.y0Accessor || y0Accessor,
-        loaderConfig.y1Accessor || y1Accessor
-      );
-      stateUpdates.ySubDomains = {
-        ...ySubDomains,
-        [id]: ySubDomain,
-      };
-    }
-    stateUpdates.loaderConfig = {
-      ...originalLoaderConfig,
-      [id]: { ...loaderConfig },
-    };
-    this.setState(stateUpdates, () => {
-      onFetchData({ ...loaderConfig });
-    });
+        if (
+          // We couldn't have any data before
+          reason === 'MOUNTED' ||
+          // Or we didn't have data before, but do now!
+          (freshSeries.data.length === 0 && loaderResult.data.length > 0)
+        ) {
+          series.timeDomain = calculateDomainFromData(
+            series.data,
+            series.timeAccessor
+          );
+          series.xDomain = calculateDomainFromData(
+            series.data,
+            series.xAccessor,
+            series.x0Accessor,
+            series.x1Accessor
+          );
+          series.yDomain = calculateDomainFromData(
+            series.data,
+            series.yAccessor,
+            series.y0Accessor,
+            series.y1Accessor
+          );
+
+          series.timeSubDomain = series.timeDomain;
+          series.xSubDomain = series.xDomain;
+          series.ySubDomain = series.yDomain;
+        }
+
+        return {
+          seriesById: {
+            ...freshSeriesById,
+            [id]: series,
+          },
+        };
+      },
+      () => {
+        const {
+          seriesById: { [id]: series },
+        } = this.state;
+        onFetchData({ ...series });
+      }
+    );
+    // // This needs to happen after the loader comes back because the state can
+    // // change while the load function is operating. If we make a copy of the
+    // // state before the loader executes, then we'll trample any updates which
+    // // may have happened while the loader was loading.
+    // const stateUpdates = {};
+    // if (
+    //   reason === 'MOUNTED' ||
+    //   (seriesObject.data.length === 0 && loaderConfig.data.length > 0)
+    // ) {
+    //   const {
+    //     timeDomains,
+    //     timeSubDomains,
+    //     xSubDomains,
+    //     ySubDomains,
+    //   } = this.state;
+    //   const calculatedTimeDomain = calculateDomainFromData(
+    //     loaderConfig.data,
+    //     loaderConfig.timeAccessor || timeAccessor
+    //   );
+    //   const calculatedTimeSubDomain = calculatedTimeDomain;
+    //   stateUpdates.timeDomains = {
+    //     ...timeDomains,
+    //     [id]: calculatedTimeDomain,
+    //   };
+    //   stateUpdates.timeSubDomains = {
+    //     ...timeSubDomains,
+    //     [id]: calculatedTimeSubDomain,
+    //   };
+
+    //   const xSubDomain = calculateDomainFromData(
+    //     loaderConfig.data,
+    //     loaderConfig.xAccessor || xAccessor,
+    //     loaderConfig.x0Accessor || x0Accessor,
+    //     loaderConfig.x1Accessor || x1Accessor
+    //   );
+    //   stateUpdates.xSubDomains = {
+    //     ...xSubDomains,
+    //     [id]: xSubDomain,
+    //   };
+
+    //   const ySubDomain = calculateDomainFromData(
+    //     loaderConfig.data,
+    //     loaderConfig.yAccessor || yAccessor,
+    //     loaderConfig.y0Accessor || y0Accessor,
+    //     loaderConfig.y1Accessor || y1Accessor
+    //   );
+    //   stateUpdates.ySubDomains = {
+    //     ...ySubDomains,
+    //     [id]: ySubDomain,
+    //   };
+    // }
+    // stateUpdates.loaderConfig = {
+    //   ...originalLoaderConfig,
+    //   [id]: { ...loaderConfig },
+    // };
+    // this.setState(stateUpdates, () => {
+    //   onFetchData({ ...loaderConfig });
+    // });
   };
 
   timeSubDomainChanged = timeSubDomain => {
@@ -573,6 +636,48 @@ export default class DataProvider extends Component {
     });
   };
 
+  registerSeries = ({ id, ...series }) => {
+    this.setState(
+      ({ seriesById }) => ({
+        seriesById: {
+          ...seriesById,
+          [id]: {
+            ...DEFAULT_SERIES_CONFIG,
+            ...deleteUndefinedFromObject(series),
+            id,
+          },
+        },
+      }),
+      () => {
+        this.fetchData(id, 'MOUNTED');
+      }
+    );
+
+    // Return an unregistration so that we can do some cleanup.
+    return () => {
+      this.setState(({ seriesById }) => {
+        const copy = { ...seriesById };
+        delete copy[id];
+        return {
+          seriesById: copy,
+        };
+      });
+    };
+  };
+
+  updateSeries = ({ id, ...series }) => {
+    this.setState(({ seriesById }) => ({
+      seriesById: {
+        ...seriesById,
+        [id]: {
+          ...deleteUndefinedFromObject(seriesById[id]),
+          ...deleteUndefinedFromObject(series),
+          id,
+        },
+      },
+    }));
+  };
+
   render() {
     const { loaderConfig, timeDomain, timeSubDomain } = this.state;
     const {
@@ -585,11 +690,14 @@ export default class DataProvider extends Component {
       onUpdateDomains,
     } = this.props;
 
+    const newSeries = this.getNewSeriesObjects();
+
     if (Object.keys(loaderConfig).length === 0) {
       // Do not bother, loader hasn't given any data yet.
-      return null;
+      // return null;
     }
-    const seriesObjects = this.getSeriesObjects();
+
+    const seriesObjects = newSeries;
 
     // Compute the domains for all of the collections with one pass over all of
     // the series objects.
@@ -672,6 +780,8 @@ export default class DataProvider extends Component {
       timeSubDomainChanged: this.timeSubDomainChanged,
       limitTimeSubDomain,
       onUpdateDomains,
+      registerSeries: this.registerSeries,
+      updateSeries: this.updateSeries,
     };
     return (
       <DataContext.Provider value={context}>
