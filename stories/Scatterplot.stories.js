@@ -403,10 +403,11 @@ storiesOf('Scatterplot', module)
       <DataProvider
         defaultLoader={scatterplotloader}
         timeDomain={[0, 1]}
-        series={[{ id: '1 2', color: 'steelblue' }]}
         xAccessor={d => +d.x}
         yAccessor={d => +d.y}
+        drawPoints
       >
+        <Series id="1 2" color="steelblue" />
         <Scatterplot zoomable xAxisTicks={5} yAxisTicks={5}>
           <GridLines x={{ ticks: 5 }} y={{ count: 5, seriesIds: ['1 2'] }} />
         </Scatterplot>
