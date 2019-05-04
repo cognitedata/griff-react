@@ -430,10 +430,11 @@ storiesOf('Scatterplot', module)
             <DataProvider
               defaultLoader={scatterplotloader}
               timeDomain={[0, 1]}
-              series={[{ id: '1 2', color: 'steelblue' }]}
               xAccessor={d => +d.x}
               yAccessor={d => +d.y}
+              drawPoints
             >
+              <Series id="1 2" color="steelblue" />
               <Scatterplot zoomable yAxisPlacement={placement} />
             </DataProvider>
           </div>
@@ -453,10 +454,11 @@ storiesOf('Scatterplot', module)
             <DataProvider
               defaultLoader={scatterplotloader}
               timeDomain={[0, 1]}
-              series={[{ id: '1 2', color: 'steelblue' }]}
               xAccessor={d => +d.x}
               yAccessor={d => +d.y}
+              drawPoints
             >
+              <Series id="1 2" color="steelblue" />
               <Scatterplot zoomable xAxisPlacement={placement} />
             </DataProvider>
           </div>
@@ -473,10 +475,11 @@ storiesOf('Scatterplot', module)
         <DataProvider
           defaultLoader={scatterplotloader}
           timeDomain={[0, 1]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
+          drawPoints
         >
+          <Series id="1 2" color="steelblue" />
           <Scatterplot
             zoomable
             xAxisPlacement={AxisPlacement.BOTH}

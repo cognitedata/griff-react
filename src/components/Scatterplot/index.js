@@ -53,8 +53,8 @@ const Y_AXIS_WIDTH = 50;
 const X_AXIS_HEIGHT = 50;
 
 const getYAxisPlacement = ({ collections, series, yAxisPlacement }) => {
-  const yAxisPlacements = []
-    .concat(series.filter(s => s.collectionId === undefined))
+  const yAxisPlacements = series
+    .filter(s => s.collectionId === undefined)
     .concat(collections)
     .reduce((acc, item) => {
       const placement = item.yAxisPlacement || yAxisPlacement;
@@ -132,7 +132,7 @@ const ScatterplotComponent = ({
   const yAxisPlacement = getYAxisPlacement({
     collections,
     series,
-    propsYAxisPlacement,
+    yAxisPlacement: propsYAxisPlacement,
   });
 
   chartSize.width -= visibleAxes * Y_AXIS_WIDTH;
