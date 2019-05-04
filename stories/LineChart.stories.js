@@ -326,19 +326,21 @@ storiesOf('LineChart', module)
     );
   })
   .add('min/max with raw points', () => {
-    const y0Accessor = d => d[1] - 0.5;
-    const y1Accessor = d => d[1] + 0.5;
+    const y0Accessor = d => d.value - 0.5;
+    const y1Accessor = d => d.value + 0.5;
     return (
       <DataProvider
-        defaultLoader={customAccessorLoader}
+        defaultLoader={staticLoader}
         timeDomain={staticXDomain}
-        timeAccessor={d => d[0]}
-        yAccessor={d => d[1]}
-        series={[
-          { id: 10, color: 'steelblue', y0Accessor, y1Accessor },
-          { id: 2, color: 'maroon', drawPoints: true },
-        ]}
+        series={[]}
       >
+        <Series
+          id="1"
+          color="steelblue"
+          y0Accessor={y0Accessor}
+          y1Accessor={y1Accessor}
+        />
+        <Series id="2" color="maroon" drawPoints />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     );
