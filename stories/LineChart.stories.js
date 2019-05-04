@@ -822,11 +822,10 @@ storiesOf('LineChart', module)
         defaultLoader={liveLoader}
         timeDomain={liveXDomain}
         updateInterval={33}
-        series={[
-          { id: 1, color: 'steelblue', name: 'name1' },
-          { id: 2, color: 'maroon', name: 'name2' },
-        ]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" name="name1" />
+        <Series id="2" color="maroon" name="name2" />
         <LineChart
           height={CHART_HEIGHT}
           crosshair={false}
@@ -844,11 +843,10 @@ storiesOf('LineChart', module)
         defaultLoader={liveLoader}
         timeDomain={liveXDomain}
         updateInterval={33}
-        series={[
-          { id: 1, color: 'steelblue', name: 'name1' },
-          { id: 2, color: 'maroon', name: 'name2' },
-        ]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" name="name1" />
+        <Series id="2" color="maroon" name="name2" />
         <LineChart
           height={CHART_HEIGHT}
           crosshair={false}
@@ -867,11 +865,10 @@ storiesOf('LineChart', module)
         defaultLoader={liveLoader}
         timeDomain={liveXDomain}
         updateInterval={33}
-        series={[
-          { id: 1, color: 'steelblue', name: 'name1' },
-          { id: 2, color: 'maroon', name: 'name2' },
-        ]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" name="name1" />
+        <Series id="2" color="maroon" name="name2" />
         <LineChart
           height={CHART_HEIGHT}
           crosshair={false}
