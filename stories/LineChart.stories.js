@@ -441,21 +441,20 @@ storiesOf('LineChart', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                {
-                  id: 1,
-                  color: 'steelblue',
-                  yDomain: yDomains[1],
-                  ySubDomain: ySubDomains[1],
-                },
-                {
-                  id: 2,
-                  color: 'maroon',
-                  yDomain: yDomains[2],
-                  ySubDomain: ySubDomains[2],
-                },
-              ]}
+              series={[]}
             >
+              <Series
+                id="1"
+                color="steelblue"
+                yDomain={yDomains[1]}
+                ySubDomain={ySubDomains[1]}
+              />
+              <Series
+                id="2"
+                color="maroon"
+                yDomain={yDomains[2]}
+                ySubDomain={ySubDomains[2]}
+              />
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
             <button type="button" onClick={() => this.setStaticDomain(1)}>

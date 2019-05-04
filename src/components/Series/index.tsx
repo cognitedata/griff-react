@@ -126,6 +126,8 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
     y0Accessor,
     y1Accessor,
     step,
+    yDomain,
+    ySubDomain,
   ]);
   return null;
 };

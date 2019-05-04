@@ -256,7 +256,13 @@ export default class DataProvider extends Component {
 
   getSeriesObjects = () => {
     const { timeAccessor, xAccessor, yAccessor } = this.props;
-    const { collectionsById, seriesById } = this.state;
+    const {
+      collectionsById,
+      seriesById,
+      timeSubDomains,
+      xSubDomains,
+      ySubDomains,
+    } = this.state;
     return Object.keys(seriesById).reduce((acc, id) => {
       const series = seriesById[id];
       const collection =
@@ -268,6 +274,9 @@ export default class DataProvider extends Component {
         timeAccessor,
         xAccessor,
         yAccessor,
+        timeSubDomain: timeSubDomains[id],
+        xSubDomain: xSubDomains[id],
+        ySubDomain: ySubDomains[id],
         ...collection,
         ...series,
       };
@@ -346,50 +355,61 @@ export default class DataProvider extends Component {
     }
 
     this.setState(
-      ({ seriesById: { [id]: freshSeries }, seriesById: freshSeriesById }) => {
+      ({
+        seriesById: { [id]: freshSeries },
+        seriesById: freshSeriesById,
+        timeSubDomains: freshTimeSubDomains,
+        xSubDomains: freshXSubDomains,
+        ySubDomains: freshYSubDomains,
+      }) => {
+        const stateUpdates = {};
+
         const series = {
           ...freshSeries,
           ...loaderResult,
         };
 
         if (
-          // We couldn't have any data before
+          // We either couldn't have any data before ...
           reason === 'MOUNTED' ||
-          // Or we didn't have data before, but do now!
+          // ... or we didn't have data before, but do now!
           (freshSeries.data.length === 0 && loaderResult.data.length > 0)
         ) {
-          series.timeDomain =
-            series.timeDomain ||
-            calculateDomainFromData(
+          stateUpdates.timeSubDomains = {
+            ...freshTimeSubDomains,
+            [id]: calculateDomainFromData(
               series.data,
               series.timeAccessor || timeAccessor || DEFAULT_ACCESSORS.time
-            );
-          series.xSubDomain =
-            series.xSubDomain ||
-            calculateDomainFromData(
+            ),
+          };
+          stateUpdates.xSubDomains = {
+            ...freshXSubDomains,
+            [id]: calculateDomainFromData(
               series.data,
               series.xAccessor || xAccessor || DEFAULT_ACCESSORS.x,
               series.x0Accessor || x0Accessor,
               series.x1Accessor || x1Accessor
-            );
-          series.ySubDomain =
-            series.ySubDomain ||
-            calculateDomainFromData(
+            ),
+          };
+          stateUpdates.ySubDomains = {
+            ...freshYSubDomains,
+            [id]: calculateDomainFromData(
               series.data,
               series.yAccessor || yAccessor || DEFAULT_ACCESSORS.y,
               series.y0Accessor || y0Accessor,
               series.y1Accessor || y1Accessor
-            );
+            ),
+          };
 
           series.timeSubDomain = series.timeSubDomain || series.timeDomain;
         }
 
-        return {
-          seriesById: {
-            ...freshSeriesById,
-            [id]: series,
-          },
+        stateUpdates.seriesById = {
+          ...freshSeriesById,
+          [id]: series,
         };
+
+        return stateUpdates;
       },
       () => {
         const {
@@ -552,11 +572,7 @@ export default class DataProvider extends Component {
         ...seriesById,
         [id]: deleteUndefinedFromObject({
           ...seriesById[id],
-          // We need to strip undefined fields here so that we don't clobber
-          // calculated fields from seriesById[id] (such as domains/subdomains).
-          // If they want to explicitly reset a property to the default, they
-          // will need to set it to null.
-          ...deleteUndefinedFromObject(series),
+          ...series,
           id,
         }),
       },
