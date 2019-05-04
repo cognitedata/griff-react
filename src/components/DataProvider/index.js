@@ -238,7 +238,11 @@ export default class DataProvider extends Component {
       drawPoints,
       timeAccessor,
       xAccessor,
+      x0Accessor,
+      x1Accessor,
       yAccessor,
+      y0Accessor,
+      y1Accessor,
       timeDomain,
       timeSubDomain,
       xDomain,
@@ -272,7 +276,11 @@ export default class DataProvider extends Component {
         opacityAccessor,
         timeAccessor,
         xAccessor,
+        x0Accessor,
+        x1Accessor,
         yAccessor,
+        y0Accessor,
+        y1Accessor,
         timeSubDomain: smallerDomain(
           timeDomain,
           timeSubDomain || timeSubDomains[id]
