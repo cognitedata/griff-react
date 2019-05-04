@@ -354,24 +354,30 @@ export default class DataProvider extends Component {
           // Or we didn't have data before, but do now!
           (freshSeries.data.length === 0 && loaderResult.data.length > 0)
         ) {
-          series.timeDomain = calculateDomainFromData(
-            series.data,
-            series.timeAccessor || DEFAULT_ACCESSORS.time
-          );
-          series.xSubDomain = calculateDomainFromData(
-            series.data,
-            series.xAccessor || DEFAULT_ACCESSORS.x,
-            series.x0Accessor,
-            series.x1Accessor
-          );
-          series.ySubDomain = calculateDomainFromData(
-            series.data,
-            series.yAccessor || DEFAULT_ACCESSORS.y,
-            series.y0Accessor,
-            series.y1Accessor
-          );
+          series.timeDomain =
+            series.timeDomain ||
+            calculateDomainFromData(
+              series.data,
+              series.timeAccessor || DEFAULT_ACCESSORS.time
+            );
+          series.xSubDomain =
+            series.xSubDomain ||
+            calculateDomainFromData(
+              series.data,
+              series.xAccessor || DEFAULT_ACCESSORS.x,
+              series.x0Accessor,
+              series.x1Accessor
+            );
+          series.ySubDomain =
+            series.ySubDomain ||
+            calculateDomainFromData(
+              series.data,
+              series.yAccessor || DEFAULT_ACCESSORS.y,
+              series.y0Accessor,
+              series.y1Accessor
+            );
 
-          series.timeSubDomain = series.timeDomain;
+          series.timeSubDomain = series.timeSubDomain || series.timeDomain;
         }
 
         return {

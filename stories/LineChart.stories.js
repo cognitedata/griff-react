@@ -4,7 +4,7 @@ import Select from 'react-select';
 import isEqual from 'lodash.isequal';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { DataProvider, LineChart, Brush } from '../build/src';
+import { DataProvider, LineChart, Brush, Series } from '../build/src';
 import quandlLoader from './quandlLoader';
 
 import {
@@ -29,8 +29,10 @@ storiesOf('LineChart', module)
     <DataProvider
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      series={[]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
@@ -38,11 +40,10 @@ storiesOf('LineChart', module)
     <DataProvider
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        { id: 1, color: 'steelblue', ySubDomain: [0, 5] },
-        { id: 2, color: 'maroon', ySubDomain: [-1, 1] },
-      ]}
+      series={[]}
     >
+      <Series id="1" color="steelblue" ySubDomain={[0, 5]} />
+      <Series id="2" color="maroon" ySubDomain={[-1, 1]} />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
