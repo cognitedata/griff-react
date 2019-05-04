@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ItemId } from '../../external';
+import { ItemId, AccessorFunction } from '../../external';
 import Data from '../../context/Data';
 import { Domain } from 'domain';
 
@@ -16,6 +16,13 @@ export interface Props {
   hidden?: boolean;
   loader?: LoaderFunction;
 
+  timeAccessor?: AccessorFunction;
+  xAccessor?: AccessorFunction;
+  x0Accessor?: AccessorFunction;
+  x1Accessor?: AccessorFunction;
+  yAccessor?: AccessorFunction;
+  y0Accessor?: AccessorFunction;
+  y1Accessor?: AccessorFunction;
   yDomain?: Domain;
   ySubDomain?: Domain;
 }
@@ -48,6 +55,13 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
   ySubDomain,
   hidden,
   loader,
+  timeAccessor,
+  xAccessor,
+  x0Accessor,
+  x1Accessor,
+  yAccessor,
+  y0Accessor,
+  y1Accessor,
 }) => {
   // This only happens once, when the component is first mounted.
   React.useEffect(() => {
@@ -62,6 +76,13 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
       ySubDomain,
       hidden,
       loader,
+      timeAccessor,
+      xAccessor,
+      x0Accessor,
+      x1Accessor,
+      yAccessor,
+      y0Accessor,
+      y1Accessor,
     });
   }, []);
 
@@ -78,8 +99,29 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
       ySubDomain,
       hidden,
       loader,
+      timeAccessor,
+      xAccessor,
+      x0Accessor,
+      x1Accessor,
+      yAccessor,
+      y0Accessor,
+      y1Accessor,
     });
-  }, [color, drawPoints, pointWidth, strokeWidth, hidden, loader]);
+  }, [
+    color,
+    drawPoints,
+    pointWidth,
+    strokeWidth,
+    hidden,
+    loader,
+    timeAccessor,
+    xAccessor,
+    x0Accessor,
+    x1Accessor,
+    yAccessor,
+    y0Accessor,
+    y1Accessor,
+  ]);
   return null;
 };
 

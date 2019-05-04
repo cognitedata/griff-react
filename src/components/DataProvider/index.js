@@ -358,23 +358,23 @@ export default class DataProvider extends Component {
             series.timeDomain ||
             calculateDomainFromData(
               series.data,
-              series.timeAccessor || DEFAULT_ACCESSORS.time
+              series.timeAccessor || timeAccessor || DEFAULT_ACCESSORS.time
             );
           series.xSubDomain =
             series.xSubDomain ||
             calculateDomainFromData(
               series.data,
-              series.xAccessor || DEFAULT_ACCESSORS.x,
-              series.x0Accessor,
-              series.x1Accessor
+              series.xAccessor || xAccessor || DEFAULT_ACCESSORS.x,
+              series.x0Accessor || x0Accessor,
+              series.x1Accessor || x1Accessor
             );
           series.ySubDomain =
             series.ySubDomain ||
             calculateDomainFromData(
               series.data,
-              series.yAccessor || DEFAULT_ACCESSORS.y,
-              series.y0Accessor,
-              series.y1Accessor
+              series.yAccessor || yAccessor || DEFAULT_ACCESSORS.y,
+              series.y0Accessor || y0Accessor,
+              series.y1Accessor || y1Accessor
             );
 
           series.timeSubDomain = series.timeSubDomain || series.timeDomain;

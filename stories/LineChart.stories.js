@@ -277,25 +277,29 @@ storiesOf('LineChart', module)
       timeDomain={staticXDomain}
       timeAccessor={d => d[0]}
       yAccessor={d => d[1]}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      series={[]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
   .add('min/max', () => {
-    const y0Accessor = d => d[1] - 0.5;
-    const y1Accessor = d => d[1] + 0.5;
+    const y0Accessor = d => d.value - 0.5;
+    const y1Accessor = d => d.value + 0.5;
     return (
       <DataProvider
-        defaultLoader={customAccessorLoader}
+        defaultLoader={staticLoader}
         timeDomain={staticXDomain}
-        timeAccessor={d => d[0]}
-        yAccessor={d => d[1]}
-        series={[
-          { id: 10, color: 'steelblue', y0Accessor, y1Accessor },
-          { id: 2, color: 'maroon' },
-        ]}
+        series={[]}
       >
+        <Series
+          id="1"
+          color="steelblue"
+          y0Accessor={y0Accessor}
+          y1Accessor={y1Accessor}
+        />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     );
