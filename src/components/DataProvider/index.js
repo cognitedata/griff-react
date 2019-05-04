@@ -785,7 +785,7 @@ DataProvider.propTypes = {
   pointsPerSeries: PropTypes.number,
   children: PropTypes.node.isRequired,
   defaultLoader: PropTypes.func,
-  series: seriesPropType.isRequired,
+  series: seriesPropType,
   collections: GriffPropTypes.collections,
   // xSubDomain => void
   onTimeSubDomainChanged: PropTypes.func,
@@ -848,4 +848,5 @@ DataProvider.defaultProps = {
   onFetchDataError: e => {
     throw e;
   },
+  series: [],
 };

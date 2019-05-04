@@ -1,14 +1,25 @@
 import * as React from 'react';
 import Data from '../../context/Data';
-import { ItemId, Domain } from '../../external';
+import { ItemId, Domain, AccessorFunction } from '../../external';
 
 export interface Props {
   id: ItemId;
-
   color?: string;
   drawPoints?: boolean;
   pointWidth?: number;
   strokeWidth?: number;
+  hidden?: boolean;
+  step?: boolean;
+  zoomable?: boolean;
+  name?: string;
+  timeAccessor?: AccessorFunction;
+  xAccessor?: AccessorFunction;
+  x0Accessor?: AccessorFunction;
+  x1Accessor?: AccessorFunction;
+  yAccessor?: AccessorFunction;
+  y0Accessor?: AccessorFunction;
+  y1Accessor?: AccessorFunction;
+  yDomain?: Domain;
   ySubDomain?: Domain;
 }
 
@@ -34,33 +45,39 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
 
   children,
 
-  color,
-  drawPoints,
-  pointWidth,
-  strokeWidth,
-  ySubDomain,
+  ...props
 }) => {
   React.useEffect(() => {
     return registerCollection({
       id,
-      color,
-      drawPoints,
-      pointWidth,
-      strokeWidth,
-      ySubDomain,
+      ...props,
     });
   }, []);
 
   React.useEffect(() => {
     return updateCollection({
       id,
-      color,
-      drawPoints,
-      pointWidth,
-      strokeWidth,
-      ySubDomain,
+      ...props,
     });
-  }, [color, drawPoints, pointWidth, strokeWidth, ySubDomain]);
+  }, [
+    props.color,
+    props.drawPoints,
+    props.pointWidth,
+    props.strokeWidth,
+    props.hidden,
+    props.step,
+    props.zoomable,
+    props.name,
+    props.timeAccessor,
+    props.xAccessor,
+    props.x0Accessor,
+    props.x1Accessor,
+    props.yAccessor,
+    props.y0Accessor,
+    props.y1Accessor,
+    props.yDomain,
+    props.ySubDomain,
+  ]);
 
   return React.Children.map(children, child => {
     if (!child) {

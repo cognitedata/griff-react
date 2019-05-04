@@ -3,12 +3,12 @@ import { ItemId, AccessorFunction } from '../../external';
 import Data from '../../context/Data';
 import { Domain } from 'domain';
 
+// TODO: Move this to DataProvider (and define it properly over there)
 type LoaderFunction = (params: any) => any;
 
 export interface Props {
   id: ItemId;
   collectionId?: ItemId;
-  debug?: boolean;
   color?: string;
   drawPoints?: boolean;
   pointWidth?: number;
@@ -18,7 +18,6 @@ export interface Props {
   step?: boolean;
   zoomable?: boolean;
   name?: string;
-
   timeAccessor?: AccessorFunction;
   xAccessor?: AccessorFunction;
   x0Accessor?: AccessorFunction;
@@ -48,50 +47,17 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
   collectionId,
   registerSeries,
   updateSeries,
+  children,
 
   // Below are all of the series props.
-  color,
-  drawPoints,
-  pointWidth,
-  strokeWidth,
-  yDomain,
-  ySubDomain,
-  hidden,
-  loader,
-  timeAccessor,
-  xAccessor,
-  x0Accessor,
-  x1Accessor,
-  yAccessor,
-  y0Accessor,
-  y1Accessor,
-  step,
-  zoomable,
-  name,
+  ...props
 }) => {
   // This only happens once, when the component is first mounted.
   React.useEffect(() => {
     return registerSeries({
       id,
       collectionId,
-      color,
-      drawPoints,
-      pointWidth,
-      strokeWidth,
-      yDomain,
-      ySubDomain,
-      hidden,
-      loader,
-      timeAccessor,
-      xAccessor,
-      x0Accessor,
-      x1Accessor,
-      yAccessor,
-      y0Accessor,
-      y1Accessor,
-      step,
-      zoomable,
-      name,
+      ...props,
     });
   }, []);
 
@@ -100,44 +66,27 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
   React.useEffect(() => {
     return updateSeries({
       id,
-      color,
-      drawPoints,
-      pointWidth,
-      strokeWidth,
-      yDomain,
-      ySubDomain,
-      hidden,
-      loader,
-      timeAccessor,
-      xAccessor,
-      x0Accessor,
-      x1Accessor,
-      yAccessor,
-      y0Accessor,
-      y1Accessor,
-      step,
-      zoomable,
-      name,
+      ...props,
     });
   }, [
-    color,
-    drawPoints,
-    pointWidth,
-    strokeWidth,
-    hidden,
-    loader,
-    timeAccessor,
-    xAccessor,
-    x0Accessor,
-    x1Accessor,
-    yAccessor,
-    y0Accessor,
-    y1Accessor,
-    step,
-    yDomain,
-    ySubDomain,
-    zoomable,
-    name,
+    props.color,
+    props.drawPoints,
+    props.pointWidth,
+    props.strokeWidth,
+    props.hidden,
+    props.loader,
+    props.step,
+    props.zoomable,
+    props.name,
+    props.timeAccessor,
+    props.xAccessor,
+    props.x0Accessor,
+    props.x1Accessor,
+    props.yAccessor,
+    props.y0Accessor,
+    props.y1Accessor,
+    props.yDomain,
+    props.ySubDomain,
   ]);
   return null;
 };
