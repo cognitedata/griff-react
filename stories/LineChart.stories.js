@@ -1066,7 +1066,7 @@ storiesOf('LineChart', module)
   .add('onUpdateDomains', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      series={[]}
       timeDomain={staticXDomain}
       xSubDomain={[
         Date.now() - 1000 * 60 * 60 * 24 * 30,
@@ -1074,6 +1074,8 @@ storiesOf('LineChart', module)
       ]}
       onUpdateDomains={action('onUpdateDomains')}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ));
