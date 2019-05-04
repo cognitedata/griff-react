@@ -130,8 +130,10 @@ storiesOf('LineChart', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={staticXDomain}
-          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+          series={[]}
         >
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <LineChart />
         </DataProvider>
       </div>
@@ -146,8 +148,10 @@ storiesOf('LineChart', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={staticXDomain}
-          series={[{ id: 2, color: 'steelblue' }, { id: 3, color: 'maroon' }]}
+          series={[]}
         >
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <LineChart contextChart={{ visible: false }} />
         </DataProvider>
       </div>
@@ -162,8 +166,10 @@ storiesOf('LineChart', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={staticXDomain}
-          series={[{ id: 3, color: 'steelblue' }, { id: 4, color: 'maroon' }]}
+          series={[]}
         >
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <LineChart
             contextChart={{
               visible: true,
@@ -183,8 +189,10 @@ storiesOf('LineChart', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={staticXDomain}
-          series={[{ id: 3, color: 'steelblue' }, { id: 4, color: 'maroon' }]}
+          series={[]}
         >
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <LineChart xAxisHeight={25} />
         </DataProvider>
       </div>
