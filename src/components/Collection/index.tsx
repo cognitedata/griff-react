@@ -6,6 +6,7 @@ import { AxisPlacement } from '../AxisPlacement';
 export interface Props {
   id: ItemId;
   color?: string;
+  drawLines?: boolean;
   drawPoints?: boolean;
   pointWidth?: number;
   strokeWidth?: number;
@@ -63,6 +64,7 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
     });
   }, [
     props.color,
+    props.drawLines,
     props.drawPoints,
     props.pointWidth,
     props.strokeWidth,

@@ -11,6 +11,7 @@ export interface Props {
   id: ItemId;
   collectionId?: ItemId;
   color?: string;
+  drawLines?: boolean;
   drawPoints?: boolean;
   pointWidth?: number;
   strokeWidth?: number;
@@ -72,6 +73,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
     });
   }, [
     props.color,
+    props.drawLines,
     props.drawPoints,
     props.pointWidth,
     props.strokeWidth,

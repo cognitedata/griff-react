@@ -699,15 +699,15 @@ storiesOf('Scatterplot', module)
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
-            series={[
-              { id: 'sincos', color: '#ACF39D' },
-              { id: 'sintan', color: '#E85F5C' },
-              { id: 'pow', color: '#9CFFFA' },
-            ]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            strokeWidth={1}
             drawLines
+            drawPoints
           >
+            <Series id="sincos" color="#ACF39D" />
+            <Series id="sintan" color="#E85F5C" />
+            <Series id="pow" color="#9CFFFA" />
             <Scatterplot zoomable />
           </DataProvider>
         </div>
@@ -718,21 +718,20 @@ storiesOf('Scatterplot', module)
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
-            series={[
-              { id: 'sincos', color: '#ACF39D', drawLines: true },
-              {
-                id: 'sintan',
-                color: '#E85F5C',
-                drawLines: true,
-                drawPoints: false,
-                strokeWidth: 20,
-                opacity: 0.2,
-              },
-              { id: 'pow', color: '#9CFFFA' },
-            ]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawPoints
           >
+            <Series id="sincos" color="#ACF39D" drawLines />
+            <Series
+              id="sintan"
+              color="#E85F5C"
+              drawLines
+              drawPoints={false}
+              strokeWidth={20}
+              opacity={0.2}
+            />
+            <Series id="pow" color="#9CFFFA" />
             <Scatterplot zoomable />
           </DataProvider>
         </div>
@@ -743,23 +742,21 @@ storiesOf('Scatterplot', module)
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
-            series={[
-              { id: 'sincos', color: '#ACF39D', collectionId: 'scatter' },
-              { id: 'sintan', color: '#E85F5C', collectionId: 'scatter' },
-              { id: 'pow', color: '#9CFFFA' },
-            ]}
-            collections={[
-              {
-                id: 'scatter',
-                color: 'black',
-                drawLines: true,
-                drawPoints: false,
-                strokeWidth: 1,
-              },
-            ]}
+            series={[]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
           >
+            <Collection
+              id="scatter"
+              color="black"
+              drawLines
+              drawPoints={false}
+              strokeWidth={1}
+            >
+              <Series id="sincos" color="#ACF39D" collectionId="scatter" />
+              <Series id="sintan" color="#E85F5C" collectionId="scatter" />
+              <Series id="pow" color="#9CFFFA" />
+            </Collection>
             <Scatterplot zoomable />
           </DataProvider>
         </div>

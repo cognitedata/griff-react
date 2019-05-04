@@ -235,6 +235,7 @@ export default class DataProvider extends Component {
 
   getSeriesObjects = () => {
     const {
+      drawLines,
       drawPoints,
       timeAccessor,
       xAccessor,
@@ -269,6 +270,7 @@ export default class DataProvider extends Component {
           : {};
       const completedSeries = {
         ...DEFAULT_SERIES_CONFIG,
+        drawLines,
         drawPoints,
         pointWidth,
         strokeWidth,
