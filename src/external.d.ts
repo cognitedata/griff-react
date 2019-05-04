@@ -1,7 +1,7 @@
 import { Item } from './internal';
 
 export * from './components/AxisPlacement';
-export type Domain = [number, number];
+export type Domain = [number, number] & { placeholder?: boolean };
 
 export type ItemId = string | number;
 

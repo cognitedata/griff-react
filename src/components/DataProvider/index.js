@@ -63,6 +63,12 @@ const firstDefined = (first, ...others) => {
   return firstDefined(others[0], ...others.splice(1));
 };
 
+const DEFAULT_ACCESSORS = {
+  time: d => d.timestamp,
+  x: d => d.x,
+  y: d => d.value,
+};
+
 const DEFAULT_SERIES_CONFIG = {
   color: 'black',
   data: [],
@@ -99,6 +105,7 @@ export default class DataProvider extends Component {
       xSubDomains: {},
       yDomains: {},
       ySubDomains: {},
+      collectionsById: {},
       seriesById: {},
     };
   }
@@ -247,12 +254,21 @@ export default class DataProvider extends Component {
     return newTimeSubDomain;
   };
 
-  getNewSeriesObjects = () => {
-    const { seriesById } = this.state;
-    return Object.keys(seriesById).reduce(
-      (acc, id) => [...acc, seriesById[id]],
-      []
-    );
+  getSeriesObjects = () => {
+    const { collectionsById, seriesById } = this.state;
+    return Object.keys(seriesById).reduce((acc, id) => {
+      const series = seriesById[id];
+      const collection =
+        series.collectionId !== undefined
+          ? collectionsById[series.collectionId] || {}
+          : {};
+      const completedSeries = {
+        ...DEFAULT_SERIES_CONFIG,
+        ...collection,
+        ...series,
+      };
+      return [...acc, completedSeries];
+    }, []);
   };
 
   startUpdateInterval = () => {
@@ -340,24 +356,22 @@ export default class DataProvider extends Component {
         ) {
           series.timeDomain = calculateDomainFromData(
             series.data,
-            series.timeAccessor
+            series.timeAccessor || DEFAULT_ACCESSORS.time
           );
-          series.xDomain = calculateDomainFromData(
+          series.xSubDomain = calculateDomainFromData(
             series.data,
-            series.xAccessor,
+            series.xAccessor || DEFAULT_ACCESSORS.x,
             series.x0Accessor,
             series.x1Accessor
           );
-          series.yDomain = calculateDomainFromData(
+          series.ySubDomain = calculateDomainFromData(
             series.data,
-            series.yAccessor,
+            series.yAccessor || DEFAULT_ACCESSORS.y,
             series.y0Accessor,
             series.y1Accessor
           );
 
           series.timeSubDomain = series.timeDomain;
-          series.xSubDomain = series.xDomain;
-          series.ySubDomain = series.yDomain;
         }
 
         return {
@@ -458,16 +472,51 @@ export default class DataProvider extends Component {
     });
   };
 
+  registerCollection = ({ id, ...collection }) => {
+    this.setState(({ collectionsById }) => ({
+      collectionsById: {
+        ...collectionsById,
+        [id]: deleteUndefinedFromObject({
+          ...collection,
+          id,
+        }),
+      },
+    }));
+
+    // Return an unregistration so that we can do some cleanup.
+    return () => {
+      this.setState(({ collectionsById }) => {
+        const copy = { ...collectionsById };
+        delete copy[id];
+        return {
+          collectionsById: copy,
+        };
+      });
+    };
+  };
+
+  updateCollection = ({ id, ...collection }) => {
+    this.setState(({ collectionsById }) => ({
+      collectionsById: {
+        ...collectionsById,
+        [id]: deleteUndefinedFromObject({
+          ...collectionsById[id],
+          ...collection,
+          id,
+        }),
+      },
+    }));
+  };
+
   registerSeries = ({ id, ...series }) => {
     this.setState(
       ({ seriesById }) => ({
         seriesById: {
           ...seriesById,
-          [id]: {
-            ...DEFAULT_SERIES_CONFIG,
-            ...deleteUndefinedFromObject(series),
+          [id]: deleteUndefinedFromObject({
+            ...series,
             id,
-          },
+          }),
         },
       }),
       () => {
@@ -491,20 +540,19 @@ export default class DataProvider extends Component {
     this.setState(({ seriesById }) => ({
       seriesById: {
         ...seriesById,
-        [id]: {
-          ...deleteUndefinedFromObject(seriesById[id]),
-          ...deleteUndefinedFromObject(series),
+        [id]: deleteUndefinedFromObject({
+          ...seriesById[id],
+          ...series,
           id,
-        },
+        }),
       },
     }));
   };
 
   render() {
-    const { loaderConfig, timeDomain, timeSubDomain } = this.state;
+    const { collectionsById, timeDomain, timeSubDomain } = this.state;
     const {
       children,
-      collections,
       limitTimeSubDomain,
       timeDomain: externalTimeDomain,
       timeSubDomain: externalTimeSubDomain,
@@ -512,41 +560,53 @@ export default class DataProvider extends Component {
       onUpdateDomains,
     } = this.props;
 
-    const newSeries = this.getNewSeriesObjects();
-
-    if (Object.keys(loaderConfig).length === 0) {
-      // Do not bother, loader hasn't given any data yet.
-      // return null;
-    }
-
-    const seriesObjects = newSeries;
+    const seriesObjects = this.getSeriesObjects();
 
     // Compute the domains for all of the collections with one pass over all of
     // the series objects.
     const collectionDomains = seriesObjects.reduce(
       (
         acc,
-        { collectionId, yDomain: seriesDomain, ySubDomain: seriesXSubDomain }
+        {
+          collectionId,
+          timeDomain: seriesTimeDomain,
+          timeSubDomain: seriesTimeSubDomain,
+          yDomain: seriesYDomain,
+          ySubDomain: seriesYSubDomain,
+        }
       ) => {
         if (!collectionId) {
           return acc;
         }
-        const { yDomain: existingDomain, ySubDomain: existingYSubDomain } = acc[
-          collectionId
-        ] || {
+        const {
+          timeDomain: existingTimeDomain,
+          timeSubDomain: existingTimeSubDomain,
+          yDomain: existingYDomain,
+          ySubDomain: existingYSubDomain,
+        } = acc[collectionId] || {
+          timeDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
+          timeSubDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
           yDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
           ySubDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
         };
         return {
           ...acc,
           [collectionId]: {
+            timeDomain: [
+              Math.min(existingTimeDomain[0], seriesTimeDomain[0]),
+              Math.max(existingTimeDomain[1], seriesTimeDomain[1]),
+            ],
+            timeSubDomain: [
+              Math.min(existingTimeSubDomain[0], seriesTimeSubDomain[0]),
+              Math.max(existingTimeSubDomain[1], seriesTimeSubDomain[1]),
+            ],
             yDomain: [
-              Math.min(existingDomain[0], seriesDomain[0]),
-              Math.max(existingDomain[1], seriesDomain[1]),
+              Math.min(existingYDomain[0], seriesYDomain[0]),
+              Math.max(existingYDomain[1], seriesYDomain[1]),
             ],
             ySubDomain: [
-              Math.min(existingYSubDomain[0], seriesXSubDomain[0]),
-              Math.max(existingYSubDomain[1], seriesXSubDomain[1]),
+              Math.min(existingYSubDomain[0], seriesYSubDomain[0]),
+              Math.max(existingYSubDomain[1], seriesYSubDomain[1]),
             ],
           },
         };
@@ -556,39 +616,44 @@ export default class DataProvider extends Component {
 
     // Then we want to enrich the collection objects with their above-computed
     // domains.
-    const collectionsById = {};
-    const collectionsWithDomains = [];
-    collections.forEach(c => {
-      if (collectionDomains[c.id]) {
-        const withDomain = {
-          ...c,
-          ...collectionDomains[c.id],
-        };
-        collectionsWithDomains.push(withDomain);
-        collectionsById[c.id] = withDomain;
-      }
-    });
+    const collectionsWithDomains = Object.keys(collectionsById).reduce(
+      (acc, id) => {
+        if (!collectionDomains[id]) {
+          return acc;
+        }
+        return [
+          ...acc,
+          {
+            ...collectionsById[id],
+            ...collectionDomains[id],
+          },
+        ];
+      },
+      []
+    );
 
     // Then take a final pass over all of the series and replace their
     // yDomain and ySubDomain arrays with the one from their collections (if
     // they're a member of a collection).
     const collectedSeries = seriesObjects.map(s => {
-      if (s.collectionId !== undefined) {
-        const copy = {
-          ...s,
-        };
-        if (!collectionsById[copy.collectionId]) {
-          // It's pointing to a collection that doesn't exist.
-          copy.collectionId = undefined;
-          return copy;
-        }
-        copy.yDomain = [...collectionsById[copy.collectionId].yDomain];
-        copy.ySubDomain = [...collectionsById[copy.collectionId].ySubDomain];
-        return copy;
+      const { collectionId } = s;
+      if (collectionId === undefined) {
+        return s;
       }
-      return s;
+      const copy = { ...s };
+      if (!collectionsById[collectionId]) {
+        // It's pointing to a collection that doesn't exist.
+        delete copy.collectionId;
+      } else {
+        copy.timeDomain = [...collectionDomains[collectionId].timeDomain];
+        copy.timeSubDomain = [...collectionDomains[collectionId].timeSubDomain];
+        copy.yDomain = [...collectionDomains[collectionId].yDomain];
+        copy.ySubDomain = [...collectionDomains[collectionId].ySubDomain];
+      }
+      return copy;
     });
 
+    console.log('TCL: render -> collectedSeries', collectedSeries);
     const context = {
       series: collectedSeries,
       collections: collectionsWithDomains,
@@ -602,6 +667,8 @@ export default class DataProvider extends Component {
       timeSubDomainChanged: this.timeSubDomainChanged,
       limitTimeSubDomain,
       onUpdateDomains,
+      registerCollection: this.registerCollection,
+      updateCollection: this.updateCollection,
       registerSeries: this.registerSeries,
       updateSeries: this.updateSeries,
     };

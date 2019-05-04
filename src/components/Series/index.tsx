@@ -4,6 +4,7 @@ import Data from '../../context/Data';
 
 export interface Props {
   id: ItemId;
+  collectionId?: ItemId;
   debug?: boolean;
   color?: string;
   drawPoints?: boolean;
@@ -11,11 +12,13 @@ export interface Props {
   strokeWidth?: number;
 }
 
-type UnregisterSeriesFunction = () => void;
+export type UnregisterSeriesFunction = () => void;
 
-type RegisterSeriesFunction = (seriesProps: Props) => UnregisterSeriesFunction;
+export type RegisterSeriesFunction = (
+  seriesProps: Props
+) => UnregisterSeriesFunction;
 
-type UpdateSeriesFunction = (seriesProps: Props) => void;
+export type UpdateSeriesFunction = (seriesProps: Props) => void;
 
 interface InternalProps {
   registerSeries: RegisterSeriesFunction;
@@ -24,7 +27,7 @@ interface InternalProps {
 
 const Series: React.FunctionComponent<Props & InternalProps> = ({
   id,
-  debug = true,
+  collectionId,
   registerSeries,
   updateSeries,
 
@@ -38,6 +41,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
   React.useEffect(() => {
     return registerSeries({
       id,
+      collectionId,
       color,
       drawPoints,
       pointWidth,
@@ -63,9 +67,11 @@ export default (props: Props) => (
   <Data.Consumer>
     {({ registerSeries, updateSeries }: InternalProps) => (
       <Series
-        {...props}
+        // These need to come before the props so that Collection can replace
+        // them to make the magical linking work.
         registerSeries={registerSeries}
         updateSeries={updateSeries}
+        {...props}
       />
     )}
   </Data.Consumer>

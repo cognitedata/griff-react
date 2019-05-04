@@ -53,6 +53,7 @@ const FRONT_OF_WINDOW_THRESHOLD = 0.05;
  * it can be safely operated on like a real domain.
  */
 export const PLACEHOLDER_DOMAIN: Domain = [0, 0];
+PLACEHOLDER_DOMAIN.placeholder = true;
 
 const haveDomainsChanged = (before: Item, after: Item) =>
   before.timeDomain !== after.timeDomain ||
