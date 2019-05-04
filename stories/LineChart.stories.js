@@ -378,19 +378,10 @@ storiesOf('LineChart', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                {
-                  id: 1,
-                  color: 'steelblue',
-                  hidden: hiddenSeries[1],
-                },
-                {
-                  id: 2,
-                  color: 'maroon',
-                  hidden: hiddenSeries[2],
-                },
-              ]}
+              series={[]}
             >
+              <Series id="1" color="steelblue" hidden={hiddenSeries[1]} />
+              <Series id="2" color="maroon" hidden={hiddenSeries[2]} />
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
             <button type="button" onClick={() => this.toggleHide(1)}>

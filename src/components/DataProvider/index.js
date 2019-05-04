@@ -548,7 +548,11 @@ export default class DataProvider extends Component {
         ...seriesById,
         [id]: deleteUndefinedFromObject({
           ...seriesById[id],
-          ...series,
+          // We need to strip undefined fields here so that we don't clobber
+          // calculated fields from seriesById[id] (such as domains/subdomains).
+          // If they want to explicitly reset a property to the default, they
+          // will need to set it to null.
+          ...deleteUndefinedFromObject(series),
           id,
         }),
       },
