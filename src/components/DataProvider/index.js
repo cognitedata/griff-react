@@ -247,38 +247,11 @@ export default class DataProvider extends Component {
     return newTimeSubDomain;
   };
 
-  getSeriesObjects = () => {
-    const { collections, series } = this.props;
-    const collectionsById = {};
-    (collections || []).forEach(c => {
-      collectionsById[c.id] = c;
-    });
-    return series.map(s =>
-      this.enrichSeries(s, collectionsById[s.collectionId || ''] || {})
-    );
-  };
-
   getNewSeriesObjects = () => {
     const { seriesById } = this.state;
     return Object.keys(seriesById).reduce(
       (acc, id) => [...acc, seriesById[id]],
       []
-    );
-  };
-
-  getSingleSeriesObject = id => {
-    const { collections, series: propsSeries } = this.props;
-    const series = propsSeries.find(s => id === s.id);
-    if (!series) {
-      throw new Error(
-        `Trying to get single series object for id ${id} which is not defined in props.`
-      );
-    }
-    return this.enrichSeries(
-      series,
-      series.collectionId
-        ? (collections || []).find(c => series.collectionId === c.id)
-        : {}
     );
   };
 
@@ -314,157 +287,6 @@ export default class DataProvider extends Component {
     }
   };
 
-  enrichSeries = (series, collection = {}) => {
-    const {
-      drawPoints,
-      drawLines,
-      opacity,
-      opacityAccessor,
-      pointWidth,
-      pointWidthAccessor,
-      strokeWidth,
-      timeAccessor,
-      timeDomain: propTimeDomain,
-      timeSubDomain,
-      xAccessor,
-      x0Accessor,
-      x1Accessor,
-      xDomain: propXDomain,
-      xSubDomain: propXSubDomain,
-      y0Accessor,
-      y1Accessor,
-      yAccessor,
-      yDomain: propYDomain,
-      ySubDomain: propYSubDomain,
-    } = this.props;
-    const {
-      loaderConfig,
-      timeDomains,
-      timeSubDomains,
-      xDomains,
-      xSubDomains,
-      yDomains,
-      ySubDomains,
-    } = this.state;
-    const yDomain =
-      collection.yDomain ||
-      series.yDomain ||
-      propYDomain ||
-      yDomains[series.id] ||
-      PLACEHOLDER_DOMAIN;
-    const xDomain =
-      collection.xDomain ||
-      series.xDomain ||
-      propXDomain ||
-      xDomains[series.id] ||
-      PLACEHOLDER_DOMAIN;
-    const timeDomain =
-      collection.timeDomain ||
-      series.timeDomain ||
-      timeDomains[series.id] ||
-      propTimeDomain ||
-      PLACEHOLDER_DOMAIN;
-    return {
-      hidden: collection.hidden,
-      data: [],
-      ...deleteUndefinedFromObject(loaderConfig[series.id]),
-      ...deleteUndefinedFromObject(series),
-      drawPoints: firstDefined(
-        (loaderConfig[series.id] || {}).drawPoints,
-        series.drawPoints,
-        collection.drawPoints,
-        drawPoints
-      ),
-      drawLines: firstDefined(
-        (loaderConfig[series.id] || {}).drawLines,
-        series.drawLines,
-        collection.drawLines,
-        drawLines
-      ),
-      timeAccessor: firstDefined(
-        series.timeAccessor,
-        collection.timeAccessor,
-        timeAccessor
-      ),
-      xAccessor: firstDefined(
-        series.xAccessor,
-        collection.xAccessor,
-        xAccessor
-      ),
-      x0Accessor: firstDefined(
-        series.x0Accessor,
-        collection.x0Accessor,
-        x0Accessor
-      ),
-      x1Accessor: firstDefined(
-        series.x1Accessor,
-        collection.x1Accessor,
-        x1Accessor
-      ),
-      yAccessor: firstDefined(
-        series.yAccessor,
-        collection.yAccessor,
-        yAccessor
-      ),
-      y0Accessor: firstDefined(
-        series.y0Accessor,
-        collection.y0Accessor,
-        y0Accessor
-      ),
-      y1Accessor: firstDefined(
-        series.y1Accessor,
-        collection.y1Accessor,
-        y1Accessor
-      ),
-      strokeWidth: firstDefined(
-        series.strokeWidth,
-        collection.strokeWidth,
-        strokeWidth
-      ),
-      pointWidth: firstDefined(
-        series.pointWidth,
-        collection.pointWidth,
-        pointWidth
-      ),
-      pointWidthAccessor: firstDefined(
-        series.pointWidthAccessor,
-        collection.pointWidthAccessor,
-        pointWidthAccessor
-      ),
-      opacity: firstDefined(series.opacity, collection.opacity, opacity),
-      opacityAccessor: firstDefined(
-        series.opacityAccessor,
-        collection.opacityAccessor,
-        opacityAccessor
-      ),
-      yAxisDisplayMode:
-        (series.collectionId
-          ? collection.yAxisDisplayMode
-          : series.yAxisDisplayMode) || collection.yAxisDisplayMode,
-      timeDomain,
-      timeSubDomain:
-        collection.timeSubDomain ||
-        series.timeSubDomain ||
-        timeSubDomains[series.id] ||
-        timeSubDomain ||
-        timeDomain,
-      xDomain,
-      xSubDomain:
-        collection.xSubDomain ||
-        series.xSubDomain ||
-        propXSubDomain ||
-        xSubDomains[series.id] ||
-        xDomain,
-      yDomain,
-      ySubDomain:
-        collection.ySubDomain ||
-        series.ySubDomain ||
-        propYSubDomain ||
-        ySubDomains[series.id] ||
-        yDomain,
-    };
-  };
-
   fetchData = async (id, reason) => {
     const {
       defaultLoader,
@@ -480,7 +302,7 @@ export default class DataProvider extends Component {
       onFetchDataError,
     } = this.props;
     const { timeDomain, timeSubDomain, seriesById } = this.state;
-    const seriesObject = seriesById[id]; // this.getSingleSeriesObject(id);
+    const seriesObject = seriesById[id];
     if (!seriesObject) {
       return;
     }
