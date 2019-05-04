@@ -87,6 +87,18 @@ const getTimeSubDomain = (
   return newTimeSubDomain;
 };
 
+const smallerDomain = (domain, subDomain) => {
+  if (!domain && !subDomain) {
+    return undefined;
+  }
+
+  if (!domain || !subDomain) {
+    return domain || subDomain;
+  }
+
+  return [Math.max(domain[0], subDomain[0]), Math.min(domain[1], subDomain[1])];
+};
+
 const DEFAULT_ACCESSORS = {
   time: d => d.timestamp,
   x: d => d.x,
@@ -227,8 +239,11 @@ export default class DataProvider extends Component {
       timeAccessor,
       xAccessor,
       yAccessor,
+      timeDomain,
       timeSubDomain,
+      xDomain,
       xSubDomain,
+      yDomain,
       ySubDomain,
     } = this.props;
     const {
@@ -250,9 +265,15 @@ export default class DataProvider extends Component {
         timeAccessor,
         xAccessor,
         yAccessor,
-        timeSubDomain: timeSubDomain || timeSubDomains[id],
-        xSubDomain: xSubDomain || xSubDomains[id],
-        ySubDomain: ySubDomain || ySubDomains[id],
+        timeSubDomain: smallerDomain(
+          timeDomain,
+          timeSubDomain || timeSubDomains[id]
+        ),
+        xSubDomain: smallerDomain(xDomain, xSubDomain || xSubDomains[id]),
+        ySubDomain: smallerDomain(yDomain, ySubDomain || ySubDomains[id]),
+        timeDomain,
+        xDomain,
+        yDomain,
         ...collection,
         ...series,
       };

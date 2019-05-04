@@ -303,10 +303,11 @@ storiesOf('Scatterplot', module)
             timeDomain={[0, 1]}
             xDomain={[-1, 2]}
             yDomain={[-1, 2]}
-            series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawPoints
           >
+            <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
           </DataProvider>
         </div>
@@ -318,10 +319,11 @@ storiesOf('Scatterplot', module)
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
             xDomain={[-1, 2]}
-            series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawPoints
           >
+            <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
           </DataProvider>
         </div>
@@ -333,10 +335,11 @@ storiesOf('Scatterplot', module)
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
             yDomain={[-1, 2]}
-            series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawPoints
           >
+            <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
           </DataProvider>
         </div>
@@ -347,10 +350,11 @@ storiesOf('Scatterplot', module)
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
-            series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawPoints
           >
+            <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
           </DataProvider>
         </div>
@@ -363,10 +367,11 @@ storiesOf('Scatterplot', module)
             timeDomain={[0, 1]}
             xDomain={[0.25, 0.75]}
             yDomain={[0.25, 0.75]}
-            series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawPoints
           >
+            <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
           </DataProvider>
         </div>
