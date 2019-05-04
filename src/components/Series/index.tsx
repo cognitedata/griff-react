@@ -3,6 +3,8 @@ import { ItemId } from '../../external';
 import Data from '../../context/Data';
 import { Domain } from 'domain';
 
+type LoaderFunction = (params: any) => any;
+
 export interface Props {
   id: ItemId;
   collectionId?: ItemId;
@@ -12,6 +14,7 @@ export interface Props {
   pointWidth?: number;
   strokeWidth?: number;
   hidden?: boolean;
+  loader?: LoaderFunction;
 
   yDomain?: Domain;
   ySubDomain?: Domain;
@@ -44,6 +47,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
   yDomain,
   ySubDomain,
   hidden,
+  loader,
 }) => {
   // This only happens once, when the component is first mounted.
   React.useEffect(() => {
@@ -57,6 +61,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
       yDomain,
       ySubDomain,
       hidden,
+      loader,
     });
   }, []);
 
@@ -72,8 +77,9 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
       yDomain,
       ySubDomain,
       hidden,
+      loader,
     });
-  }, [color, drawPoints, pointWidth, strokeWidth, hidden]);
+  }, [color, drawPoints, pointWidth, strokeWidth, hidden, loader]);
   return null;
 };
 

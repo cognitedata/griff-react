@@ -108,14 +108,10 @@ storiesOf('LineChart', module)
   ))
   .add('Single-value in y axis', () => (
     <React.Fragment>
-      <DataProvider
-        timeDomain={staticXDomain}
-        series={[
-          { id: 1, color: 'steelblue', loader: monoLoader(0) },
-          { id: 2, color: 'maroon', loader: monoLoader(0.5) },
-          { id: 3, color: 'orange', loader: monoLoader(-0.5) },
-        ]}
-      >
+      <DataProvider timeDomain={staticXDomain} series={[]}>
+        <Series id="1" color="steelblue" loader={monoLoader(0)} />
+        <Series id="2" color="maroon" loader={monoLoader(0.5)} />
+        <Series id="3" color="orange" loader={monoLoader(-0.5)} />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     </React.Fragment>
