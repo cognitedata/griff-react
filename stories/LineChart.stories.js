@@ -51,8 +51,10 @@ storiesOf('LineChart', module)
     <DataProvider
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      series={[]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart
         height={CHART_HEIGHT}
         xAxisFormatter={n => n / 1000}
@@ -64,8 +66,10 @@ storiesOf('LineChart', module)
     <DataProvider
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      series={[]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisTicks={15} />
     </DataProvider>
   ))
@@ -74,30 +78,30 @@ storiesOf('LineChart', module)
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon' },
-          { id: 3, color: 'orange' },
-        ]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <Series id="3" color="orange" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon' },
-          { id: 3, color: 'orange', hidden: true },
-        ]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <Series id="3" color="orange" hidden />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     </React.Fragment>
