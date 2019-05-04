@@ -74,9 +74,9 @@ const DEFAULT_SERIES_CONFIG = {
   data: [],
   hidden: false,
   drawPoints: false,
-  timeAccessor: d => d.timestamp,
-  xAccessor: d => d.x,
-  yAccessor: d => d.value,
+  timeAccessor: DEFAULT_ACCESSORS.time,
+  xAccessor: DEFAULT_ACCESSORS.x,
+  yAccessor: DEFAULT_ACCESSORS.y,
   timeDomain: PLACEHOLDER_DOMAIN,
   timeSubDomain: PLACEHOLDER_DOMAIN,
   xDomain: PLACEHOLDER_DOMAIN,
@@ -255,6 +255,7 @@ export default class DataProvider extends Component {
   };
 
   getSeriesObjects = () => {
+    const { timeAccessor, xAccessor, yAccessor } = this.props;
     const { collectionsById, seriesById } = this.state;
     return Object.keys(seriesById).reduce((acc, id) => {
       const series = seriesById[id];
@@ -264,6 +265,9 @@ export default class DataProvider extends Component {
           : {};
       const completedSeries = {
         ...DEFAULT_SERIES_CONFIG,
+        timeAccessor,
+        xAccessor,
+        yAccessor,
         ...collection,
         ...series,
       };
@@ -663,7 +667,6 @@ export default class DataProvider extends Component {
       return copy;
     });
 
-    console.log('TCL: render -> collectedSeries', collectedSeries);
     const context = {
       series: collectedSeries,
       collections: collectionsWithDomains,
