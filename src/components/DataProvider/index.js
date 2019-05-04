@@ -362,7 +362,7 @@ export default class DataProvider extends Component {
       timeDomain,
       timeSubDomain,
       pointsPerSeries,
-      oldSeries: seriesObject,
+      oldSeries: { data: [], ...seriesObject },
       reason,
     };
     try {

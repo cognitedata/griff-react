@@ -143,8 +143,8 @@ const scatterplotFunctionLoader = ({
     }
   }
 
-  const data = []
-    .concat(oldSeries.data.filter(d => d.timestamp <= timeSubDomain[0]))
+  const data = oldSeries.data
+    .filter(d => d.timestamp <= timeSubDomain[0])
     .concat(newData)
     .concat(oldSeries.data.filter(d => d.timestamp >= timeSubDomain[1]));
 
@@ -657,11 +657,12 @@ storiesOf('Scatterplot', module)
           defaultLoader={scatterplotFunctionLoader}
           timeDomain={[+moment().subtract(1, 'year'), +moment()]}
           pointsPerSeries={100}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
+          drawPoints
         >
+          <Series id="1 2" color="steelblue" />
           <div style={{ height: 500 }}>
             <Scatterplot zoomable />
           </div>
