@@ -8,6 +8,7 @@ import {
   DataProvider,
   GridLines,
   Scatterplot,
+  Series,
 } from '../build/src';
 import { staticLoader, functionLoader } from './loaders';
 
@@ -209,10 +210,11 @@ storiesOf('Scatterplot', module)
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
-            series={[{ id: '1 2', color: 'steelblue' }]}
+            series={[]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
           >
+            <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
           </DataProvider>
         </div>
