@@ -245,6 +245,8 @@ export default class DataProvider extends Component {
       xSubDomain,
       yDomain,
       ySubDomain,
+      pointWidth,
+      strokeWidth,
     } = this.props;
     const {
       collectionsById,
@@ -262,6 +264,8 @@ export default class DataProvider extends Component {
       const completedSeries = {
         ...DEFAULT_SERIES_CONFIG,
         drawPoints,
+        pointWidth,
+        strokeWidth,
         timeAccessor,
         xAccessor,
         yAccessor,
