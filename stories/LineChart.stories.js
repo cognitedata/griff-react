@@ -1026,10 +1026,7 @@ storiesOf('LineChart', module)
           <div>
             <DataProvider
               defaultLoader={staticLoader}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
+              series={[]}
               timeDomain={staticXDomain}
               timeSubDomain={[
                 Date.now() - 1000 * 60 * 60 * 24 * 15,
@@ -1037,6 +1034,8 @@ storiesOf('LineChart', module)
               ]}
               limitTimeSubDomain={this.limitXSubDomain}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
           </div>
