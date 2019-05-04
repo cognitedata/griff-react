@@ -184,36 +184,14 @@ export default class DataProvider extends Component {
       );
     }
 
-    const { series: prevSeries } = prevProps;
-    if (!prevSeries) {
-      return;
-    }
-    const { timeSubDomain, timeDomain } = this.state;
-
     if (!isEqual(propsTimeSubDomain, prevProps.timeSubDomain)) {
       this.timeSubDomainChanged(propsTimeSubDomain);
     }
 
-    const currentSeriesKeys = {};
-    series.forEach(s => {
-      currentSeriesKeys[s.id] = true;
-    });
-    const prevSeriesKeys = {};
-    prevSeries.forEach(p => {
-      prevSeriesKeys[p.id] = true;
-    });
-    const newSeries = series.filter(s => prevSeriesKeys[s.id] !== true);
-    await Promise.map(newSeries, async ({ id }) => {
-      await this.fetchData(id, 'MOUNTED');
-      if (!isEqual(timeSubDomain, timeDomain)) {
-        // The series got added when zoomed in,
-        // Need to also fetch a higher-granularity version on mount
-        await this.fetchData(id, 'UPDATE_SUBDOMAIN');
-      }
-    });
-
     // Check if timeDomain changed in props -- if so reset state.
     if (!isEqual(propsTimeDomain, prevProps.timeDomain)) {
+      const { seriesById } = this.state;
+
       const newTimeSubDomain = getTimeSubDomain(
         propsTimeDomain,
         propsTimeSubDomain,
@@ -227,7 +205,7 @@ export default class DataProvider extends Component {
           ySubDomains: {},
         },
         () => {
-          series.map(s => this.fetchData(s.id, 'MOUNTED'));
+          Object.keys(seriesById).map(id => this.fetchData(id, 'MOUNTED'));
           if (onTimeSubDomainChanged) {
             onTimeSubDomainChanged(newTimeSubDomain);
           }

@@ -568,40 +568,35 @@ storiesOf('LineChart', module)
     }
     return <ZoomToggle />;
   })
-  .add('Dynamic x domain', () => {
+  .add('Dynamic time domain', () => {
     class DynamicXDomain extends React.Component {
       state = {
-        xDomain: staticXDomain,
+        timeDomain: staticXDomain,
       };
 
-      toggleXDomain = () => {
-        const { xDomain } = this.state;
-        const newDomain = isEqual(xDomain, staticXDomain)
+      toggleTimeDomain = () => {
+        const { timeDomain } = this.state;
+        const newDomain = isEqual(timeDomain, staticXDomain)
           ? [
               staticXDomain[0] - 100000000 * 50,
               staticXDomain[1] + 100000000 * 50,
             ]
           : staticXDomain;
-        this.setState({ xDomain: newDomain });
+        this.setState({ timeDomain: newDomain });
       };
 
       render() {
-        const { xDomain } = this.state;
+        const { timeDomain } = this.state;
         return (
           <div>
-            <button type="button" onClick={this.toggleXDomain}>
-              {isEqual(xDomain, staticXDomain)
-                ? 'Shrink xDomain'
+            <button type="button" onClick={this.toggleTimeDomain}>
+              {isEqual(timeDomain, staticXDomain)
+                ? 'Shrink timeDomain'
                 : 'Reset base domain'}
             </button>
-            <DataProvider
-              defaultLoader={staticLoader}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
-              timeDomain={xDomain}
-            >
+            <DataProvider defaultLoader={staticLoader} timeDomain={timeDomain}>
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
           </div>
