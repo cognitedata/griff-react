@@ -972,18 +972,17 @@ storiesOf('LineChart', module)
     }
     return <BrushComponent />;
   })
-  .add('Sticky x subdomain', () => (
+  .add('Sticky time subdomain', () => (
     <DataProvider
       defaultLoader={liveLoader}
       timeDomain={liveXDomain}
       timeSubDomain={[Date.now() - 1000 * 20, Date.now() - 1000 * 10]}
       updateInterval={33}
-      series={[
-        { id: 1, color: 'steelblue', name: 'name1' },
-        { id: 2, color: 'maroon', name: 'name2' },
-      ]}
+      series={[]}
       isTimeSubDomainSticky
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
