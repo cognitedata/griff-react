@@ -922,11 +922,11 @@ storiesOf('LineChart', module)
               defaultLoader={quandlLoader}
               pointsPerSeries={100}
               timeDomain={xDomain}
-              series={series.map(s => ({
-                id: s.value,
-                color: colors[s.value],
-              }))}
+              series={[]}
             >
+              {series.map(s => (
+                <Series key={s.value} id={s.value} color={colors[s.value]} />
+              ))}
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
           </React.Fragment>
