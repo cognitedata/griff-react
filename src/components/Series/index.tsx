@@ -16,6 +16,7 @@ export interface Props {
   hidden?: boolean;
   loader?: LoaderFunction;
   step?: boolean;
+  zoomable?: boolean;
 
   timeAccessor?: AccessorFunction;
   xAccessor?: AccessorFunction;
@@ -64,6 +65,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
   y0Accessor,
   y1Accessor,
   step,
+  zoomable,
 }) => {
   // This only happens once, when the component is first mounted.
   React.useEffect(() => {
@@ -86,6 +88,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
       y0Accessor,
       y1Accessor,
       step,
+      zoomable,
     });
   }, []);
 
@@ -110,6 +113,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
       y0Accessor,
       y1Accessor,
       step,
+      zoomable,
     });
   }, [
     color,
@@ -128,6 +132,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
     step,
     yDomain,
     ySubDomain,
+    zoomable,
   ]);
   return null;
 };

@@ -620,11 +620,10 @@ storiesOf('LineChart', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                { id: 1, color: 'steelblue', zoomable: yZoomable[1] },
-                { id: 2, color: 'maroon', zoomable: yZoomable[2] },
-              ]}
+              series={[]}
             >
+              <Series id="1" color="steelblue" zoomable={yZoomable[1]} />
+              <Series id="2" color="maroon" zoomable={yZoomable[2]} />
               <LineChart height={CHART_HEIGHT} zoomable={zoomable} />
             </DataProvider>
             <button
