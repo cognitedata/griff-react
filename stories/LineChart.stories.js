@@ -986,7 +986,7 @@ storiesOf('LineChart', module)
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
-  .add('Sticky x subdomain and ruler', () => (
+  .add('Sticky time subdomain and ruler', () => (
     <DataProvider
       defaultLoader={liveLoader}
       timeDomain={liveXDomain}
@@ -1009,9 +1009,9 @@ storiesOf('LineChart', module)
       />
     </DataProvider>
   ))
-  .add('Limit x subdomain', () => {
-    class LimitXSubDomain extends React.Component {
-      limitXSubDomain = subDomain => {
+  .add('Limit time subdomain', () => {
+    class LimitTimeSubDomain extends React.Component {
+      limitTimeSubDomain = subDomain => {
         const subDomainLength = subDomain[1] - subDomain[0];
         const subDomainEnd = Math.min(
           subDomain[1],
@@ -1032,7 +1032,7 @@ storiesOf('LineChart', module)
                 Date.now() - 1000 * 60 * 60 * 24 * 15,
                 Date.now() - 1000 * 60 * 60 * 24 * 10,
               ]}
-              limitTimeSubDomain={this.limitXSubDomain}
+              limitTimeSubDomain={this.limitTimeSubDomain}
             >
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
@@ -1042,7 +1042,7 @@ storiesOf('LineChart', module)
         );
       }
     }
-    return <LimitXSubDomain />;
+    return <LimitTimeSubDomain />;
   })
   .add('onMouseOut', () => (
     <DataProvider
