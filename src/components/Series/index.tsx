@@ -95,11 +95,9 @@ export default (props: Props) => (
   <Data.Consumer>
     {({ registerSeries, updateSeries }: InternalProps) => (
       <Series
-        // These need to come before the props so that Collection can replace
-        // them to make the magical linking work.
+        {...props}
         registerSeries={registerSeries}
         updateSeries={updateSeries}
-        {...props}
       />
     )}
   </Data.Consumer>
