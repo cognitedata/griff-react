@@ -1,13 +1,18 @@
 import * as React from 'react';
 import Data from '../../context/Data';
-import { ItemId, Domain, AccessorFunction } from '../../external';
+import {
+  ItemId,
+  Domain,
+  AccessorFunction,
+  PointRenderer,
+} from '../../external';
 import { AxisPlacement } from '../AxisPlacement';
 
 export interface Props {
   id: ItemId;
   color?: string;
   drawLines?: boolean;
-  drawPoints?: boolean;
+  drawPoints?: boolean | PointRenderer;
   pointWidth?: number;
   strokeWidth?: number;
   hidden?: boolean;

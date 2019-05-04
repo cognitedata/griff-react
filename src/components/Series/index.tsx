@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ItemId, AccessorFunction } from '../../external';
+import { ItemId, AccessorFunction, PointRenderer } from '../../external';
 import Data from '../../context/Data';
 import { Domain } from 'domain';
 import { AxisPlacement } from '../AxisPlacement';
@@ -12,7 +12,7 @@ export interface Props {
   collectionId?: ItemId;
   color?: string;
   drawLines?: boolean;
-  drawPoints?: boolean;
+  drawPoints?: boolean | PointRenderer;
   pointWidth?: number;
   strokeWidth?: number;
   hidden?: boolean;

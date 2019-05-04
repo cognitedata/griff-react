@@ -771,11 +771,11 @@ storiesOf('Scatterplot', module)
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
-            series={[{ id: '1 2', color: 'steelblue' }]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
             drawPoints={latestPointRenderer}
           >
+            <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
           </DataProvider>
         </div>
@@ -786,21 +786,15 @@ storiesOf('Scatterplot', module)
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
-            series={[
-              {
-                id: '1 2',
-                color: 'steelblue',
-                drawPoints: latestPointRenderer,
-              },
-              {
-                id: '2 3',
-                color: 'maroon',
-                drawPoints: latestPointRenderer,
-              },
-            ]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
           >
+            <Series
+              id="1 2"
+              color="steelblue"
+              drawPoints={latestPointRenderer}
+            />
+            <Series id="2 3" color="maroon" drawPoints={latestPointRenderer} />
             <Scatterplot zoomable />
           </DataProvider>
         </div>
@@ -811,20 +805,13 @@ storiesOf('Scatterplot', module)
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
-            series={[
-              { id: '1 2', color: 'steelblue', collectionId: 'scatter' },
-              { id: '2 3', color: 'maroon', collectionId: 'scatter' },
-            ]}
-            collections={[
-              {
-                id: 'scatter',
-                color: 'black',
-                drawPoints: latestPointRenderer,
-              },
-            ]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
           >
+            <Collection id="scatter" drawPoints={latestPointRenderer}>
+              <Series id="1 2" color="steelblue" />
+              <Series id="3 4" color="maroon" />
+            </Collection>
             <Scatterplot zoomable />
           </DataProvider>
         </div>
