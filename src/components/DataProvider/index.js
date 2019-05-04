@@ -247,6 +247,8 @@ export default class DataProvider extends Component {
       ySubDomain,
       pointWidth,
       strokeWidth,
+      opacity,
+      opacityAccessor,
     } = this.props;
     const {
       collectionsById,
@@ -266,6 +268,8 @@ export default class DataProvider extends Component {
         drawPoints,
         pointWidth,
         strokeWidth,
+        opacity,
+        opacityAccessor,
         timeAccessor,
         xAccessor,
         yAccessor,
