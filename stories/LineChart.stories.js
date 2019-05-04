@@ -762,18 +762,18 @@ storiesOf('LineChart', module)
       </DataProvider>
     </React.Fragment>
   ))
-  .add('Dynamic x sub domain', () => {
-    const xSubDomainFirst = [
+  .add('Dynamic time sub domain', () => {
+    const timeSubDomainFirst = [
       Date.now() - 1000 * 60 * 60 * 24 * 20,
       Date.now() - 1000 * 60 * 60 * 24 * 10,
     ];
 
-    const xSubDomainSecond = [
+    const timeSubDomainSecond = [
       Date.now() - 1000 * 60 * 60 * 24 * 10,
       Date.now(),
     ];
 
-    class CustomXSubDomain extends React.Component {
+    class CustomTimeSubDomain extends React.Component {
       state = {
         isFirst: true,
       };
@@ -786,24 +786,23 @@ storiesOf('LineChart', module)
               type="button"
               onClick={() => this.setState({ isFirst: !isFirst })}
             >
-              {isFirst ? `Switch xSubDomain` : `Switch back xSubDomain`}
+              {isFirst ? `Switch timeSubDomain` : `Switch back timeSubDomain`}
             </button>
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              timeSubDomain={isFirst ? xSubDomainFirst : xSubDomainSecond}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
+              timeSubDomain={isFirst ? timeSubDomainFirst : timeSubDomainSecond}
+              series={[]}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
           </React.Fragment>
         );
       }
     }
-    return <CustomXSubDomain />;
+    return <CustomTimeSubDomain />;
   })
   .add('Live loading', () => (
     <DataProvider
