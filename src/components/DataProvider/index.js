@@ -63,6 +63,30 @@ const firstDefined = (first, ...others) => {
   return firstDefined(others[0], ...others.splice(1));
 };
 
+const getTimeSubDomain = (
+  timeDomain,
+  timeSubDomain,
+  // eslint-disable-next-line no-shadow
+  limitTimeSubDomain = timeSubDomain => timeSubDomain
+) => {
+  if (!timeSubDomain) {
+    return timeDomain;
+  }
+  const newTimeSubDomain = limitTimeSubDomain(timeSubDomain);
+  const timeDomainLength = timeDomain[1] - timeDomain[0];
+  const timeSubDomainLength = newTimeSubDomain[1] - newTimeSubDomain[0];
+  if (timeDomainLength < timeSubDomainLength) {
+    return timeDomain;
+  }
+  if (newTimeSubDomain[0] < timeDomain[0]) {
+    return [timeDomain[0], timeDomain[0] + timeSubDomainLength];
+  }
+  if (newTimeSubDomain[1] > timeDomain[1]) {
+    return [timeDomain[1] - timeSubDomainLength, timeDomain[1]];
+  }
+  return newTimeSubDomain;
+};
+
 const DEFAULT_ACCESSORS = {
   time: d => d.timestamp,
   x: d => d.x,
@@ -92,7 +116,7 @@ export default class DataProvider extends Component {
     super(props);
     const { limitTimeSubDomain, timeDomain, timeSubDomain } = props;
     this.state = {
-      timeSubDomain: DataProvider.getTimeSubDomain(
+      timeSubDomain: getTimeSubDomain(
         timeDomain,
         timeSubDomain,
         limitTimeSubDomain
@@ -142,6 +166,14 @@ export default class DataProvider extends Component {
   // return undefined;
   // }
 
+  componentDidMount() {
+    const { updateInterval } = this.props;
+
+    if (updateInterval) {
+      this.startUpdateInterval();
+    }
+  }
+
   async componentDidUpdate(prevProps) {
     // If new series are present in prop,
     // run the fetchData lifecycle for those series
@@ -156,12 +188,7 @@ export default class DataProvider extends Component {
     } = this.props;
     const { updateInterval: prevUpdateInterval } = prevProps;
     if (updateInterval !== prevUpdateInterval) {
-      if (prevUpdateInterval) {
-        clearInterval(this.fetchInterval);
-      }
-      if (updateInterval) {
-        this.startUpdateInterval();
-      }
+      this.startUpdateInterval();
     }
 
     // check if pointsPerSeries changed in props -- if so fetch new data
@@ -201,7 +228,7 @@ export default class DataProvider extends Component {
 
     // Check if timeDomain changed in props -- if so reset state.
     if (!isEqual(propsTimeDomain, prevProps.timeDomain)) {
-      const newTimeSubDomain = DataProvider.getTimeSubDomain(
+      const newTimeSubDomain = getTimeSubDomain(
         propsTimeDomain,
         propsTimeSubDomain,
         limitTimeSubDomain
@@ -227,32 +254,10 @@ export default class DataProvider extends Component {
   }
 
   componentWillUnmount() {
-    clearInterval(this.fetchInterval);
+    if (this.fetchInterval) {
+      clearInterval(this.fetchInterval);
+    }
   }
-
-  static getTimeSubDomain = (
-    timeDomain,
-    timeSubDomain,
-    // eslint-disable-next-line no-shadow
-    limitTimeSubDomain = timeSubDomain => timeSubDomain
-  ) => {
-    if (!timeSubDomain) {
-      return timeDomain;
-    }
-    const newTimeSubDomain = limitTimeSubDomain(timeSubDomain);
-    const timeDomainLength = timeDomain[1] - timeDomain[0];
-    const timeSubDomainLength = newTimeSubDomain[1] - newTimeSubDomain[0];
-    if (timeDomainLength < timeSubDomainLength) {
-      return timeDomain;
-    }
-    if (newTimeSubDomain[0] < timeDomain[0]) {
-      return [timeDomain[0], timeDomain[0] + timeSubDomainLength];
-    }
-    if (newTimeSubDomain[1] > timeDomain[1]) {
-      return [timeDomain[1] - timeSubDomainLength, timeDomain[1]];
-    }
-    return newTimeSubDomain;
-  };
 
   getSeriesObjects = () => {
     const {
@@ -293,35 +298,39 @@ export default class DataProvider extends Component {
     }, []);
   };
 
-  startUpdateInterval = () => {
+  onUpdateInterval = () => {
     const {
       isTimeSubDomainSticky,
       limitTimeSubDomain,
-      series,
       updateInterval,
     } = this.props;
-    if (updateInterval) {
+    const { seriesById, timeDomain, timeSubDomain } = this.state;
+    const newTimeDomain = timeDomain.map(d => d + updateInterval);
+    const newTimeSubDomain = isTimeSubDomainSticky
+      ? getTimeSubDomain(
+          newTimeDomain,
+          timeSubDomain.map(d => d + updateInterval),
+          limitTimeSubDomain
+        )
+      : timeSubDomain;
+    this.setState(
+      {
+        timeDomain: newTimeDomain,
+        timeSubDomain: newTimeSubDomain,
+      },
+      () => {
+        Object.keys(seriesById).map(id => this.fetchData(id, 'INTERVAL'));
+      }
+    );
+  };
+
+  startUpdateInterval = () => {
+    const { updateInterval } = this.props;
+    if (this.fetchInterval) {
       clearInterval(this.fetchInterval);
-      this.fetchInterval = setInterval(() => {
-        const { timeDomain, timeSubDomain } = this.state;
-        const newTimeDomain = timeDomain.map(d => d + updateInterval);
-        const newTimeSubDomain = isTimeSubDomainSticky
-          ? DataProvider.getTimeSubDomain(
-              newTimeDomain,
-              timeSubDomain.map(d => d + updateInterval),
-              limitTimeSubDomain
-            )
-          : timeSubDomain;
-        this.setState(
-          {
-            timeDomain: newTimeDomain,
-            timeSubDomain: newTimeSubDomain,
-          },
-          () => {
-            series.map(s => this.fetchData(s.id, 'INTERVAL'));
-          }
-        );
-      }, updateInterval);
+    }
+    if (updateInterval) {
+      this.fetchInterval = setInterval(this.onUpdateInterval, updateInterval);
     }
   };
 
@@ -490,7 +499,7 @@ export default class DataProvider extends Component {
   timeSubDomainChanged = timeSubDomain => {
     const { limitTimeSubDomain, onTimeSubDomainChanged, series } = this.props;
     const { timeDomain, timeSubDomain: current } = this.state;
-    const newTimeSubDomain = DataProvider.getTimeSubDomain(
+    const newTimeSubDomain = getTimeSubDomain(
       timeDomain,
       timeSubDomain,
       limitTimeSubDomain

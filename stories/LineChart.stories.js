@@ -809,8 +809,10 @@ storiesOf('LineChart', module)
       defaultLoader={liveLoader}
       timeDomain={liveXDomain}
       updateInterval={33}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+      series={[]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
