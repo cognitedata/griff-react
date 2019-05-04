@@ -15,11 +15,7 @@ storiesOf('components/Series', module)
     </div>
   ))
   .add('Basic', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      series={[]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
@@ -97,7 +93,6 @@ storiesOf('components/Series', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[]}
             >
               {Object.keys(COLORS).map(id => (
                 <Series

@@ -264,6 +264,7 @@ export default class DataProvider extends Component {
       strokeWidth,
       opacity,
       opacityAccessor,
+      pointWidthAccessor,
     } = this.props;
     const {
       collectionsById,
@@ -286,6 +287,7 @@ export default class DataProvider extends Component {
         strokeWidth,
         opacity,
         opacityAccessor,
+        pointWidthAccessor,
         timeAccessor,
         xAccessor,
         x0Accessor,

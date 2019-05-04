@@ -583,14 +583,13 @@ storiesOf('Scatterplot', module)
         <DataProvider
           defaultLoader={scatterplotloader}
           timeDomain={[0, 1]}
-          series={[
-            { id: '1 2', color: 'steelblue' },
-            { id: '3 4', color: 'maroon' },
-          ]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
           pointWidthAccessor={d => ((+d.x + +d.y) / 2) * 16 + 1}
+          drawPoints
         >
+          <Series id="1 2" color="steelblue" />
+          <Series id="3 4" color="maroon" />
           <Scatterplot zoomable />
         </DataProvider>
       </div>
@@ -742,7 +741,6 @@ storiesOf('Scatterplot', module)
           <DataProvider
             defaultLoader={scatterplotloader}
             timeDomain={[0, 1]}
-            series={[]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
           >
