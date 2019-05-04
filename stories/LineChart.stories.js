@@ -992,12 +992,11 @@ storiesOf('LineChart', module)
       timeDomain={liveXDomain}
       timeSubDomain={[Date.now() - 1000 * 20, Date.now() - 1000 * 10]}
       updateInterval={33}
-      series={[
-        { id: 1, color: 'steelblue', name: 'name1' },
-        { id: 2, color: 'maroon', name: 'name2' },
-      ]}
+      series={[]}
       isTimeSubDomainSticky
     >
+      <Series id="1" color="steelblue" name="name1" />
+      <Series id="2" color="maroon" name="name2" />
       <LineChart
         height={CHART_HEIGHT}
         ruler={{
