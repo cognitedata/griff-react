@@ -349,18 +349,11 @@ storiesOf('LineChart', module)
     <DataProvider
       defaultLoader={quandlLoader}
       timeDomain={[+moment().subtract(10, 'year'), +moment()]}
-      series={[
-        {
-          id: 'COM/COFFEE_BRZL',
-          color: 'steelblue',
-        },
-        {
-          id: 'COM/COFFEE_CLMB',
-          color: 'red',
-        },
-      ]}
+      series={[]}
       pointsPerSeries={100}
     >
+      <Series id="COM/COFFEE_BRZL" color="steelblue" />
+      <Series id="COM/COFFEE_CLMB" color="red" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
