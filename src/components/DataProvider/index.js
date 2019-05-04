@@ -122,49 +122,13 @@ export default class DataProvider extends Component {
         limitTimeSubDomain
       ),
       timeDomain,
-      loaderConfig: {},
-      timeDomains: {},
       timeSubDomains: {},
-      xDomains: {},
       xSubDomains: {},
-      yDomains: {},
       ySubDomains: {},
       collectionsById: {},
       seriesById: {},
     };
   }
-
-  // static getDerivedStateFromProps(nextProps, prevState) {
-  // // Check if one of the series got removed from props
-  // // If so, delete the respective keys in loaderconfig
-  // // This is important so we don't cache the values if it gets readded later
-  // const { loaderConfig, yDomains, ySubDomains } = prevState;
-  // const { series } = nextProps;
-  // const seriesKeys = {};
-  // series.forEach(s => {
-  //   seriesKeys[s.id] = true;
-  // });
-  // const newLoaderConfig = { ...loaderConfig };
-  // const newYDomains = { ...yDomains };
-  // const newYSubDomains = { ...ySubDomains };
-  // let shouldUpdate = false;
-  // Object.keys(loaderConfig).forEach(key => {
-  //   if (!seriesKeys[key]) {
-  //     // Clean up
-  //     delete newLoaderConfig[key];
-  //     delete newYDomains[key];
-  //     shouldUpdate = true;
-  //   }
-  // });
-  // if (shouldUpdate) {
-  //   return {
-  //     loaderConfig: newLoaderConfig,
-  //     yDomains: newYDomains,
-  //     ySubDomains: newYSubDomains,
-  //   };
-  // }
-  // return undefined;
-  // }
 
   componentDidMount() {
     const { updateInterval } = this.props;
@@ -238,8 +202,6 @@ export default class DataProvider extends Component {
         {
           timeDomain: propsTimeDomain,
           timeSubDomain: newTimeSubDomain,
-          loaderConfig: {},
-          yDomains: {},
           ySubDomains: {},
         },
         () => {
@@ -436,64 +398,6 @@ export default class DataProvider extends Component {
         onFetchData({ ...series });
       }
     );
-    // // This needs to happen after the loader comes back because the state can
-    // // change while the load function is operating. If we make a copy of the
-    // // state before the loader executes, then we'll trample any updates which
-    // // may have happened while the loader was loading.
-    // const stateUpdates = {};
-    // if (
-    //   reason === 'MOUNTED' ||
-    //   (seriesObject.data.length === 0 && loaderConfig.data.length > 0)
-    // ) {
-    //   const {
-    //     timeDomains,
-    //     timeSubDomains,
-    //     xSubDomains,
-    //     ySubDomains,
-    //   } = this.state;
-    //   const calculatedTimeDomain = calculateDomainFromData(
-    //     loaderConfig.data,
-    //     loaderConfig.timeAccessor || timeAccessor
-    //   );
-    //   const calculatedTimeSubDomain = calculatedTimeDomain;
-    //   stateUpdates.timeDomains = {
-    //     ...timeDomains,
-    //     [id]: calculatedTimeDomain,
-    //   };
-    //   stateUpdates.timeSubDomains = {
-    //     ...timeSubDomains,
-    //     [id]: calculatedTimeSubDomain,
-    //   };
-
-    //   const xSubDomain = calculateDomainFromData(
-    //     loaderConfig.data,
-    //     loaderConfig.xAccessor || xAccessor,
-    //     loaderConfig.x0Accessor || x0Accessor,
-    //     loaderConfig.x1Accessor || x1Accessor
-    //   );
-    //   stateUpdates.xSubDomains = {
-    //     ...xSubDomains,
-    //     [id]: xSubDomain,
-    //   };
-
-    //   const ySubDomain = calculateDomainFromData(
-    //     loaderConfig.data,
-    //     loaderConfig.yAccessor || yAccessor,
-    //     loaderConfig.y0Accessor || y0Accessor,
-    //     loaderConfig.y1Accessor || y1Accessor
-    //   );
-    //   stateUpdates.ySubDomains = {
-    //     ...ySubDomains,
-    //     [id]: ySubDomain,
-    //   };
-    // }
-    // stateUpdates.loaderConfig = {
-    //   ...originalLoaderConfig,
-    //   [id]: { ...loaderConfig },
-    // };
-    // this.setState(stateUpdates, () => {
-    //   onFetchData({ ...loaderConfig });
-    // });
   };
 
   timeSubDomainChanged = timeSubDomain => {
