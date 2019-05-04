@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ItemId, AccessorFunction } from '../../external';
 import Data from '../../context/Data';
 import { Domain } from 'domain';
+import { AxisPlacement } from '../AxisPlacement';
 
 // TODO: Move this to DataProvider (and define it properly over there)
 type LoaderFunction = (params: any) => any;
@@ -27,6 +28,7 @@ export interface Props {
   y1Accessor?: AccessorFunction;
   yDomain?: Domain;
   ySubDomain?: Domain;
+  yAxisPlacement?: AxisPlacement;
 }
 
 export type UnregisterSeriesFunction = () => void;
@@ -87,6 +89,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
     props.y1Accessor,
     props.yDomain,
     props.ySubDomain,
+    props.yAxisPlacement,
   ]);
   return null;
 };

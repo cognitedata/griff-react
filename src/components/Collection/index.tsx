@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Data from '../../context/Data';
 import { ItemId, Domain, AccessorFunction } from '../../external';
+import { AxisPlacement } from '../AxisPlacement';
 
 export interface Props {
   id: ItemId;
@@ -21,6 +22,7 @@ export interface Props {
   y1Accessor?: AccessorFunction;
   yDomain?: Domain;
   ySubDomain?: Domain;
+  yAxisPlacement?: AxisPlacement;
 }
 
 type UnregisterCollectionFunction = () => void;
@@ -77,6 +79,7 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
     props.y1Accessor,
     props.yDomain,
     props.ySubDomain,
+    props.yAxisPlacement,
   ]);
 
   return React.Children.map(children, child => {
