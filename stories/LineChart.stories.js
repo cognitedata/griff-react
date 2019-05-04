@@ -4,7 +4,13 @@ import Select from 'react-select';
 import isEqual from 'lodash.isequal';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { DataProvider, LineChart, Brush, Series } from '../build/src';
+import {
+  DataProvider,
+  LineChart,
+  Brush,
+  Series,
+  Collection,
+} from '../build/src';
 import quandlLoader from './quandlLoader';
 
 import {
@@ -697,8 +703,10 @@ storiesOf('LineChart', module)
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
         ySubDomain={[0.25, 0.5]}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <h1>Set on Series</h1>
@@ -709,11 +717,10 @@ storiesOf('LineChart', module)
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
-        series={[
-          { id: 3, color: 'steelblue', ySubDomain: [0.25, 0.5] },
-          { id: 4, color: 'maroon' },
-        ]}
+        series={[]}
       >
+        <Series id="1" color="steelblue" ySubDomain={[0.25, 0.5]} />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <h1>Set on Collection</h1>
@@ -724,17 +731,13 @@ storiesOf('LineChart', module)
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
-        collections={[{ id: 'all', color: 'green', ySubDomain: [0.0, 0.5] }]}
-        series={[
-          {
-            id: 3,
-            collectionId: 'all',
-            color: 'steelblue',
-            ySubDomain: [0.25, 0.5],
-          },
-          { id: 4, collectionId: 'all', color: 'maroon' },
-        ]}
+        collections={[]}
+        series={[]}
       >
+        <Collection id="all" ySubDomain={[0.0, 0.5]} color="green">
+          <Series id="1" color="steelblue" ySubDomain={[0.25, 0.5]} />
+          <Series id="2" color="maroon" />
+        </Collection>
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <h1>Set on Series with yDomain</h1>
@@ -746,16 +749,15 @@ storiesOf('LineChart', module)
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
-        series={[
-          {
-            id: 3,
-            color: 'steelblue',
-            ySubDomain: [0.25, 0.75],
-            yDomain: [-1, 2],
-          },
-          { id: 4, color: 'maroon' },
-        ]}
+        series={[]}
       >
+        <Series
+          id="1"
+          color="steelblue"
+          ySubDomain={[0.25, 0.75]}
+          yDomain={[-1, 2]}
+        />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     </React.Fragment>

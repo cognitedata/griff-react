@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Data from '../../context/Data';
-import { ItemId } from '../../external';
+import { ItemId, Domain } from '../../external';
 
 export interface Props {
   id: ItemId;
@@ -9,6 +9,7 @@ export interface Props {
   drawPoints?: boolean;
   pointWidth?: number;
   strokeWidth?: number;
+  ySubDomain?: Domain;
 }
 
 type UnregisterCollectionFunction = () => void;
@@ -37,6 +38,7 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
   drawPoints,
   pointWidth,
   strokeWidth,
+  ySubDomain,
 }) => {
   React.useEffect(() => {
     return registerCollection({
@@ -45,6 +47,7 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
       drawPoints,
       pointWidth,
       strokeWidth,
+      ySubDomain,
     });
   }, []);
 
@@ -55,8 +58,9 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
       drawPoints,
       pointWidth,
       strokeWidth,
+      ySubDomain,
     });
-  }, [color, drawPoints, pointWidth, strokeWidth]);
+  }, [color, drawPoints, pointWidth, strokeWidth, ySubDomain]);
 
   return React.Children.map(children, child => {
     if (!child) {

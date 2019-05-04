@@ -10,8 +10,8 @@ import Scaler, { PLACEHOLDER_DOMAIN } from '../Scaler';
 export const calculateDomainFromData = (
   data,
   accessor,
-  minAccessor = null,
-  maxAccessor = null
+  minAccessor = undefined,
+  maxAccessor = undefined
 ) => {
   // if there is no data, hard code the domain
   if (!data || !data.length) {
@@ -139,7 +139,7 @@ export default class DataProvider extends Component {
   //     ySubDomains: newYSubDomains,
   //   };
   // }
-  // return null;
+  // return undefined;
   // }
 
   async componentDidUpdate(prevProps) {
@@ -255,7 +255,15 @@ export default class DataProvider extends Component {
   };
 
   getSeriesObjects = () => {
-    const { drawPoints, timeAccessor, xAccessor, yAccessor } = this.props;
+    const {
+      drawPoints,
+      timeAccessor,
+      xAccessor,
+      yAccessor,
+      timeSubDomain,
+      xSubDomain,
+      ySubDomain,
+    } = this.props;
     const {
       collectionsById,
       seriesById,
@@ -275,9 +283,9 @@ export default class DataProvider extends Component {
         timeAccessor,
         xAccessor,
         yAccessor,
-        timeSubDomain: timeSubDomains[id],
-        xSubDomain: xSubDomains[id],
-        ySubDomain: ySubDomains[id],
+        timeSubDomain: timeSubDomain || timeSubDomains[id],
+        xSubDomain: xSubDomain || xSubDomains[id],
+        ySubDomain: ySubDomain || ySubDomains[id],
         ...collection,
         ...series,
       };
@@ -600,10 +608,22 @@ export default class DataProvider extends Component {
         acc,
         {
           collectionId,
-          timeDomain: seriesTimeDomain,
-          timeSubDomain: seriesTimeSubDomain,
-          yDomain: seriesYDomain,
-          ySubDomain: seriesYSubDomain,
+          timeDomain: seriesTimeDomain = [
+            Number.MAX_SAFE_INTEGER,
+            Number.MIN_SAFE_INTEGER,
+          ],
+          timeSubDomain: seriesTimeSubDomain = [
+            Number.MAX_SAFE_INTEGER,
+            Number.MIN_SAFE_INTEGER,
+          ],
+          yDomain: seriesYDomain = [
+            Number.MAX_SAFE_INTEGER,
+            Number.MIN_SAFE_INTEGER,
+          ],
+          ySubDomain: seriesYSubDomain = [
+            Number.MAX_SAFE_INTEGER,
+            Number.MIN_SAFE_INTEGER,
+          ],
         }
       ) => {
         if (!collectionId) {
@@ -786,32 +806,32 @@ DataProvider.propTypes = {
 
 DataProvider.defaultProps = {
   collections: [],
-  defaultLoader: null,
-  drawPoints: null,
+  defaultLoader: undefined,
+  drawPoints: undefined,
   drawLines: undefined,
-  onTimeSubDomainChanged: null,
-  onUpdateDomains: null,
+  onTimeSubDomainChanged: undefined,
+  onUpdateDomains: undefined,
   opacity: 1.0,
-  opacityAccessor: null,
+  opacityAccessor: undefined,
   pointsPerSeries: 250,
-  pointWidth: null,
-  pointWidthAccessor: null,
-  strokeWidth: null,
-  timeDomain: null,
-  timeSubDomain: null,
-  xDomain: null,
-  xSubDomain: null,
+  pointWidth: undefined,
+  pointWidthAccessor: undefined,
+  strokeWidth: undefined,
+  timeDomain: undefined,
+  timeSubDomain: undefined,
+  xDomain: undefined,
+  xSubDomain: undefined,
   updateInterval: 0,
   timeAccessor: d => d.timestamp,
-  x0Accessor: null,
-  x1Accessor: null,
+  x0Accessor: undefined,
+  x1Accessor: undefined,
   xAccessor: d => d.timestamp,
-  y0Accessor: null,
-  y1Accessor: null,
+  y0Accessor: undefined,
+  y1Accessor: undefined,
   yAccessor: d => d.value,
   yAxisWidth: 50,
-  yDomain: null,
-  ySubDomain: null,
+  yDomain: undefined,
+  ySubDomain: undefined,
   isTimeSubDomainSticky: false,
   limitTimeSubDomain: xSubDomain => xSubDomain,
   onFetchData: () => {},
