@@ -1,6 +1,6 @@
 import * as React from 'react';
 import Data from '../../context/Data';
-import { ItemProps, WATCHED_PROP_NAMES } from '../Series';
+import { ItemProps, WATCHED_PROP_NAMES, Props as SeriesProps } from '../Series';
 import { ItemId } from '../../external';
 
 export interface Props extends ItemProps {
@@ -43,7 +43,7 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
       id,
       ...props,
     });
-    // @ts-ignore
+    // @ts-ignore - It's okay for props[name] to be implicit any.
   }, WATCHED_PROP_NAMES.map(name => props[name]));
 
   if (React.Children.count(children) === 0) {
@@ -51,12 +51,10 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
   }
 
   return React.Children.map(children, child => {
-    if (!child) {
+    if (!child || !React.isValidElement(child)) {
       return null;
     }
-    // @ts-ignore
-    return React.cloneElement(child, {
-      // @ts-ignore
+    return React.cloneElement(child as React.ReactElement<SeriesProps>, {
       ...child.props,
       collectionId: id,
     });
