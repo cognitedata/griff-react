@@ -161,9 +161,20 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   ticks = 0,
   width = 1,
 }) => {
-  const domain = (scaled ? subDomainsByItemId : domainsByItemId)[
-    Object.keys(domainsByItemId)[0]
-  ];
+  if (series.length === 0) {
+    return null;
+  }
+
+  // TODO: Update this to be multi-series aware. Right now this assumes one
+  // single x axis, which isn't scalable.
+  const domain = (scaled ? subDomainsByItemId : domainsByItemId)[series[0].id];
+
+  // The system hasn't fully booted-up yet (domains / subdomains are still being
+  // calculated and populated), so we need to wait a heartbeat.
+  if (!domain) {
+    return null;
+  }
+
   // @ts-ignore
   const scale: d3.ScaleLinear<number, number> = X_SCALER_FACTORY[a](
     domain[a],

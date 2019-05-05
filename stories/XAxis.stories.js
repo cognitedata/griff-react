@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
-import { DataProvider, XAxis, AxisPlacement } from '../build/src';
+import { DataProvider, XAxis, AxisPlacement, Series } from '../build/src';
 import { staticLoader } from './loaders';
 
 storiesOf('components/XAxis', module)
@@ -16,10 +16,10 @@ storiesOf('components/XAxis', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
+          <Series id="1" color="steelblue" />
           <XAxis />
         </DataProvider>
       </div>
@@ -27,10 +27,10 @@ storiesOf('components/XAxis', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
+          <Series id="1" color="steelblue" />
           <XAxis />
         </DataProvider>
       </div>
@@ -42,10 +42,10 @@ storiesOf('components/XAxis', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
+          <Series id="1" color="steelblue" />
           <XAxis />
         </DataProvider>
       </div>
@@ -53,10 +53,10 @@ storiesOf('components/XAxis', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
+          <Series id="1" color="steelblue" />
           <XAxis stroke="red" />
         </DataProvider>
       </div>
@@ -68,10 +68,10 @@ storiesOf('components/XAxis', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
+          <Series id="1" color="steelblue" />
           <XAxis />
         </DataProvider>
       </div>
@@ -79,10 +79,10 @@ storiesOf('components/XAxis', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
+          <Series id="1" color="steelblue" />
           <XAxis placement={AxisPlacement.TOP} />
         </DataProvider>
       </div>
@@ -94,10 +94,10 @@ storiesOf('components/XAxis', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
+          <Series id="1" color="steelblue" />
           <XAxis />
         </DataProvider>
       </div>
@@ -105,10 +105,10 @@ storiesOf('components/XAxis', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
+          <Series id="1" color="steelblue" />
           <XAxis tickFormatter={n => moment(n).fromNow()} />
         </DataProvider>
       </div>
@@ -120,10 +120,10 @@ storiesOf('components/XAxis', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
+          <Series id="1" color="steelblue" />
           <XAxis />
         </DataProvider>
       </div>
@@ -131,11 +131,11 @@ storiesOf('components/XAxis', module)
         <DataProvider
           defaultLoader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
-          series={[{ id: '1 2', color: 'steelblue' }]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
-          <XAxis ticks={2} />
+          <Series id="1" color="steelblue" />
+          <XAxis ticks={20} tickFormatter={() => ''} />
         </DataProvider>
       </div>
     </React.Fragment>
