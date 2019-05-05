@@ -1,7 +1,12 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
-import { AxisPlacement, ContextChart, DataProvider } from '../build/src';
+import {
+  AxisPlacement,
+  ContextChart,
+  DataProvider,
+  Series,
+} from '../build/src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
@@ -23,11 +28,9 @@ storiesOf('components/ContextChart', module)
   .add('default', () => (
     <React.Fragment>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <ContextChart />
         </DataProvider>
       </div>
@@ -36,11 +39,9 @@ storiesOf('components/ContextChart', module)
   .add('height', () => (
     <React.Fragment>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <ContextChart height={500} />
         </DataProvider>
       </div>
@@ -49,11 +50,9 @@ storiesOf('components/ContextChart', module)
   .add('annotations', () => (
     <React.Fragment>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <ContextChart annotations={exampleAnnotations} />
         </DataProvider>
       </div>
@@ -62,20 +61,14 @@ storiesOf('components/ContextChart', module)
   .add('zoomable', () => (
     <React.Fragment>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
           <ContextChart zoomable />
         </DataProvider>
       </div>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <ContextChart zoomable={false} />
         </DataProvider>
       </div>
@@ -84,11 +77,9 @@ storiesOf('components/ContextChart', module)
   .add('xAxisFormatter', () => (
     <React.Fragment>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <ContextChart
             xAxisFormatter={date =>
               `${(
@@ -105,11 +96,9 @@ storiesOf('components/ContextChart', module)
   .add('xAxisPlacement', () => (
     <React.Fragment>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <ContextChart xAxisPlacement={AxisPlacement.TOP} />
         </DataProvider>
       </div>
