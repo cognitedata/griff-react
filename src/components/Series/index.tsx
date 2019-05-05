@@ -3,6 +3,7 @@ import { ItemId, AccessorFunction, PointRenderer } from '../../external';
 import Data from '../../context/Data';
 import { Domain } from 'domain';
 import { AxisPlacement } from '../AxisPlacement';
+import { AxisDisplayMode } from '../../utils/AxisDisplayMode';
 
 // TODO: Move this to DataProvider (and define it properly over there)
 type LoaderFunction = (params: any) => any;
@@ -30,6 +31,7 @@ export interface Props {
   yDomain?: Domain;
   ySubDomain?: Domain;
   yAxisPlacement?: AxisPlacement;
+  yAxisDisplayMode?: AxisDisplayMode;
 }
 
 export type UnregisterSeriesFunction = () => void;
@@ -92,6 +94,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
     props.yDomain,
     props.ySubDomain,
     props.yAxisPlacement,
+    props.yAxisDisplayMode,
   ]);
   return null;
 };

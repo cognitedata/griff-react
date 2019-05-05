@@ -174,7 +174,6 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   if (!domain) {
     return null;
   }
-  console.log('TCL: placement', placement);
 
   // @ts-ignore
   const scale: d3.ScaleLinear<number, number> = X_SCALER_FACTORY[a](

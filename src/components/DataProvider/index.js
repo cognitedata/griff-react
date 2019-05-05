@@ -253,12 +253,7 @@ export default class DataProvider extends Component {
     } = this.state;
     return Object.keys(seriesById).reduce((acc, id) => {
       const series = seriesById[id];
-      const collection =
-        series.collectionId !== undefined
-          ? collectionsById[series.collectionId] || {}
-          : {};
-      const completedSeries = {
-        ...DEFAULT_SERIES_CONFIG,
+      const dataProvider = {
         drawLines,
         drawPoints,
         pointWidth,
@@ -273,6 +268,20 @@ export default class DataProvider extends Component {
         yAccessor,
         y0Accessor,
         y1Accessor,
+      };
+      const collection =
+        series.collectionId !== undefined
+          ? collectionsById[series.collectionId] || {}
+          : {};
+      const completedSeries = {
+        // First copy in the base-level configuration.
+        ...DEFAULT_SERIES_CONFIG,
+
+        // Then the global props from DataProvider, if any are set.
+        ...dataProvider,
+
+        // Then the domains because these are in the DataProvider state, which
+        // supercedes the props.
         timeSubDomain: smallerDomain(
           timeDomain,
           timeSubDomain || timeSubDomains[id]
@@ -282,7 +291,11 @@ export default class DataProvider extends Component {
         timeDomain,
         xDomain,
         yDomain,
+
+        // Next, copy over defaults from the parent collection, if there is one.
         ...collection,
+
+        // Finally, the series configuration itself.
         ...series,
       };
       return [...acc, completedSeries];

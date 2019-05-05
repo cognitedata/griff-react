@@ -7,6 +7,7 @@ import {
   PointRenderer,
 } from '../../external';
 import { AxisPlacement } from '../AxisPlacement';
+import { AxisDisplayMode } from '../../utils/AxisDisplayMode';
 
 export interface Props {
   id: ItemId;
@@ -29,6 +30,7 @@ export interface Props {
   yDomain?: Domain;
   ySubDomain?: Domain;
   yAxisPlacement?: AxisPlacement;
+  yAxisDisplayMode?: AxisDisplayMode;
 }
 
 type UnregisterCollectionFunction = () => void;
@@ -87,6 +89,7 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
     props.yDomain,
     props.ySubDomain,
     props.yAxisPlacement,
+    props.yAxisDisplayMode,
   ]);
 
   return React.Children.map(children, child => {
