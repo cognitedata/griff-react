@@ -5,6 +5,8 @@ import {
   LineChart,
   AxisPlacement,
   AxisDisplayMode,
+  Series,
+  Collection,
 } from '../build/src';
 import { staticLoader } from './loaders';
 
@@ -17,20 +19,20 @@ storiesOf('Y-Axis Placement', module)
       key="series"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        { id: 1, color: 'steelblue', collectionId: '1+2' },
-        { id: 2, color: 'maroon', collectionId: '1+2' },
-      ]}
-      collections={[{ id: '1+2', color: 'red' }]}
     >
+      <Collection id="1+2" color="red">
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+      </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
   ])
@@ -39,20 +41,20 @@ storiesOf('Y-Axis Placement', module)
       key="series"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
     </DataProvider>,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        { id: 1, color: 'steelblue', collectionId: '1+2' },
-        { id: 2, color: 'maroon', collectionId: '1+2' },
-      ]}
-      collections={[{ id: '1+2', color: 'red' }]}
     >
+      <Collection id="1+2" color="red">
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+      </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
     </DataProvider>,
   ])
@@ -61,20 +63,20 @@ storiesOf('Y-Axis Placement', module)
       key="series"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
     </DataProvider>,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        { id: 1, color: 'steelblue', collectionId: '1+2' },
-        { id: 2, color: 'maroon', collectionId: '1+2' },
-      ]}
-      collections={[{ id: '1+2', color: 'red' }]}
     >
+      <Collection id="1+2" color="red">
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+      </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
     </DataProvider>,
   ])
@@ -83,20 +85,20 @@ storiesOf('Y-Axis Placement', module)
       key="series"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        { id: 1, color: 'steelblue', collectionId: '1+2' },
-        { id: 2, color: 'maroon', collectionId: '1+2' },
-      ]}
-      collections={[{ id: '1+2', color: 'red' }]}
     >
+      <Collection id="1+2" color="red">
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+      </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>,
   ])
@@ -105,36 +107,22 @@ storiesOf('Y-Axis Placement', module)
       key="series"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        { id: 1, color: 'steelblue', yAxisPlacement: AxisPlacement.LEFT },
-        { id: 2, color: 'maroon', yAxisPlacement: AxisPlacement.RIGHT },
-      ]}
     >
+      <Series id="1" color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
+      <Series id="2" color="maroon" yAxisPlacement={AxisPlacement.RIGHT} />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        {
-          id: 1,
-          color: 'steelblue',
-          collectionId: '1',
-          yAxisPlacement: AxisPlacement.LEFT,
-        },
-        {
-          id: 2,
-          color: 'maroon',
-          collectionId: '2',
-          yAxisPlacement: AxisPlacement.RIGHT,
-        },
-      ]}
-      collections={[
-        { id: '1', color: 'red', yAxisPlacement: AxisPlacement.LEFT },
-        { id: '2', color: 'blue', yAxisPlacement: AxisPlacement.RIGHT },
-      ]}
     >
+      <Collection id="1" color="red" yAxisPlacement={AxisPlacement.LEFT}>
+        <Series id="1" color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
+      </Collection>
+      <Collection id="2" color="blue" yAxisPlacement={AxisPlacement.RIGHT}>
+        <Series id="2" color="maroon" yAxisPlacement={AxisPlacement.RIGHT} />
+      </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
   ])
@@ -143,44 +131,26 @@ storiesOf('Y-Axis Placement', module)
       key="series"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        { id: 1, color: 'steelblue', yAxisPlacement: AxisPlacement.LEFT },
-        { id: 2, color: 'maroon', yAxisPlacement: AxisPlacement.RIGHT },
-        { id: 3, color: 'orange', yAxisPlacement: AxisPlacement.BOTH },
-      ]}
     >
+      <Series id={1} color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
+      <Series id={2} color="maroon" yAxisPlacement={AxisPlacement.RIGHT} />
+      <Series id={3} color="orange" yAxisPlacement={AxisPlacement.BOTH} />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        {
-          id: 1,
-          color: 'steelblue',
-          collectionId: '1',
-          yAxisPlacement: AxisPlacement.LEFT,
-        },
-        {
-          id: 2,
-          color: 'maroon',
-          collectionId: '2',
-          yAxisPlacement: AxisPlacement.RIGHT,
-        },
-        {
-          id: 3,
-          color: 'orange',
-          collectionId: '3',
-          yAxisPlacement: AxisPlacement.BOTH,
-        },
-      ]}
-      collections={[
-        { id: '1', color: 'red', yAxisPlacement: AxisPlacement.LEFT },
-        { id: '2', color: 'blue', yAxisPlacement: AxisPlacement.RIGHT },
-        { id: '3', color: 'green', yAxisPlacement: AxisPlacement.BOTH },
-      ]}
     >
+      <Collection id="1" color="red" yAxisPlacement={AxisPlacement.LEFT}>
+        <Series id="1" color="steelblue" />
+      </Collection>
+      <Collection id="2" color="blue" yAxisPlacement={AxisPlacement.RIGHT}>
+        <Series id="2" color="maroon" />
+      </Collection>
+      <Collection id="3" color="green" yAxisPlacement={AxisPlacement.BOTH}>
+        <Series id="3" color="orange" />
+      </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
   ])
@@ -189,44 +159,26 @@ storiesOf('Y-Axis Placement', module)
       key="series"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        { id: 1, color: 'steelblue', yAxisPlacement: AxisPlacement.LEFT },
-        { id: 2, color: 'maroon', yAxisPlacement: AxisPlacement.RIGHT },
-        { id: 3, color: 'orange', yAxisPlacement: AxisPlacement.BOTH },
-      ]}
     >
+      <Series id={1} color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
+      <Series id={2} color="maroon" yAxisPlacement={AxisPlacement.RIGHT} />
+      <Series id={3} color="orange" yAxisPlacement={AxisPlacement.BOTH} />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
     </DataProvider>,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        {
-          id: 1,
-          color: 'steelblue',
-          collectionId: '1',
-          yAxisPlacement: AxisPlacement.LEFT,
-        },
-        {
-          id: 2,
-          color: 'maroon',
-          collectionId: '2',
-          yAxisPlacement: AxisPlacement.RIGHT,
-        },
-        {
-          id: 3,
-          color: 'orange',
-          collectionId: '3',
-          yAxisPlacement: AxisPlacement.BOTH,
-        },
-      ]}
-      collections={[
-        { id: '1', color: 'red', yAxisPlacement: AxisPlacement.LEFT },
-        { id: '2', color: 'blue', yAxisPlacement: AxisPlacement.RIGHT },
-        { id: '3', color: 'green', yAxisPlacement: AxisPlacement.BOTH },
-      ]}
     >
+      <Collection id="1" color="red" yAxisPlacement={AxisPlacement.LEFT}>
+        <Series id="1" color="steelblue" />
+      </Collection>
+      <Collection id="2" color="blue" yAxisPlacement={AxisPlacement.RIGHT}>
+        <Series id="2" color="maroon" />
+      </Collection>
+      <Collection id="3" color="green" yAxisPlacement={AxisPlacement.BOTH}>
+        <Series id="3" color="orange" />
+      </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
     </DataProvider>,
   ])
@@ -235,33 +187,20 @@ storiesOf('Y-Axis Placement', module)
       key="series"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        { id: 1, color: 'steelblue', yAxisPlacement: AxisPlacement.LEFT },
-        { id: 2, color: 'maroon', yAxisPlacement: AxisPlacement.LEFT },
-      ]}
     >
+      <Series id="1" color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
+      <Series id="2" color="maroon" yAxisPlacement={AxisPlacement.LEFT} />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
     </DataProvider>,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        {
-          id: 1,
-          color: 'steelblue',
-          collectionId: '1+2',
-        },
-        {
-          id: 2,
-          color: 'maroon',
-          collectionId: '1+2',
-        },
-      ]}
-      collections={[
-        { id: '1+2', color: 'red', yAxisPlacement: AxisPlacement.LEFT },
-      ]}
     >
+      <Collection id="1+2" color="red" yAxisPlacement={AxisPlacement.LEFT}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+      </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
     </DataProvider>,
   ])
@@ -270,11 +209,9 @@ storiesOf('Y-Axis Placement', module)
       key="series"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        { id: 1, color: 'steelblue', yAxisPlacement: AxisPlacement.LEFT },
-        { id: 2, color: 'maroon' },
-      ]}
     >
+      <Series id="1" color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
     </DataProvider>,
   ])
@@ -283,41 +220,28 @@ storiesOf('Y-Axis Placement', module)
       key="series"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        {
-          id: 1,
-          color: 'steelblue',
-          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-        },
-        { id: 2, color: 'maroon', yAxisDisplayMode: AxisDisplayMode.COLLAPSED },
-      ]}
     >
-      <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
+      <LineChart
+        height={CHART_HEIGHT}
+        yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+        yAxisPlacement={AxisPlacement.BOTH}
+      />
     </DataProvider>,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        {
-          id: 1,
-          color: 'steelblue',
-          collectionId: '1+2',
-        },
-        {
-          id: 2,
-          color: 'maroon',
-          collectionId: '1+2',
-        },
-      ]}
-      collections={[
-        {
-          id: '1+2',
-          color: 'red',
-          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-        },
-      ]}
     >
+      <Collection
+        id="1+2"
+        color="red"
+        yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+      >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+      </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>,
   ])
@@ -326,43 +250,38 @@ storiesOf('Y-Axis Placement', module)
       key="series"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        {
-          id: 1,
-          color: 'steelblue',
-          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-        },
-        { id: 2, color: 'maroon', yAxisDisplayMode: AxisDisplayMode.COLLAPSED },
-        { id: 2, color: 'orange', yAxisDisplayMode: AxisDisplayMode.ALL },
-      ]}
     >
+      <Series
+        id="1"
+        color="steelblue"
+        yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+      />
+      <Series
+        id="2"
+        color="maroon"
+        yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+      />
+      <Series id="3" color="orange" yAxisDisplayMode={AxisDisplayMode.ALL} />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
-      series={[
-        {
-          id: 1,
-          color: 'steelblue',
-          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-        },
-        {
-          id: 2,
-          color: 'maroon',
-          collectionId: '1+2',
-          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-        },
-        {
-          id: 2,
-          color: 'orange',
-          collectionId: '1+2',
-          yAxisDisplayMode: AxisDisplayMode.ALL,
-        },
-      ]}
-      collections={[{ id: '1+2', color: 'red' }]}
     >
+      <Collection id="all" color="red">
+        <Series
+          id="1"
+          color="steelblue"
+          yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+        />
+        <Series
+          id="2"
+          color="maroon"
+          yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+        />
+        <Series id="3" color="orange" yAxisDisplayMode={AxisDisplayMode.ALL} />
+      </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>,
   ]);
