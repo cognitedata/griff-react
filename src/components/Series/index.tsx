@@ -104,7 +104,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
       id,
       ...props,
     });
-    // @ts-ignore
+    // @ts-ignore - It's okay for props[name] to be implicit any.
   }, WATCHED_PROP_NAMES.map(name => props[name]).concat(props.collectionId));
   return null;
 };

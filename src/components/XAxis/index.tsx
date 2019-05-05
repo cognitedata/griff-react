@@ -175,7 +175,8 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
     return null;
   }
 
-  // @ts-ignore
+  // @ts-ignore - I think that TypeScript is wrong here because nothing here
+  // will be void .. ?
   const scale: d3.ScaleLinear<number, number> = X_SCALER_FACTORY[a](
     domain[a],
     width

@@ -61,7 +61,7 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
   });
 };
 
-export default (props: Props) => (
+export default (props: Props & { children: React.ReactNode[] }) => (
   <Data.Consumer>
     {({ registerCollection, updateCollection }: InternalProps) => (
       <Collection
@@ -69,10 +69,7 @@ export default (props: Props) => (
         updateCollection={updateCollection}
         {...props}
       >
-        {
-          // @ts-ignore
-          props.children
-        }
+        {props.children}
       </Collection>
     )}
   </Data.Consumer>
