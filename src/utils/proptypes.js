@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import AxisDisplayModes from '../utils/AxisDisplayMode';
 import AxisPlacement from '../components/AxisPlacement';
-import Axes from './Axes';
 
 const idPropType = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
