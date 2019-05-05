@@ -2,7 +2,12 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import moment from 'moment';
-import { AxisPlacement, DataProvider, AxisDisplayMode } from '../build/src';
+import {
+  AxisPlacement,
+  DataProvider,
+  AxisDisplayMode,
+  Series,
+} from '../build/src';
 import { staticLoader } from './loaders';
 import AxisCollection from '../build/src/components/AxisCollection';
 
@@ -16,22 +21,18 @@ storiesOf('components/AxisCollection', module)
   ))
   .add('default', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <AxisCollection height={300} />
       </DataProvider>
     </React.Fragment>
   ))
   .add('ticks', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <AxisCollection height={300} ticks={20} />
         <AxisCollection height={300} ticks={2} />
       </DataProvider>
@@ -39,11 +40,9 @@ storiesOf('components/AxisCollection', module)
   ))
   .add('zoomable', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <AxisCollection height={300} zoomable />
         <AxisCollection height={300} zoomable={false} />
       </DataProvider>
@@ -51,11 +50,9 @@ storiesOf('components/AxisCollection', module)
   ))
   .add('axisDisplayMode', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <AxisCollection height={300} axisDisplayMode={AxisDisplayMode.ALL} />
         <AxisCollection
           height={300}
@@ -67,11 +64,9 @@ storiesOf('components/AxisCollection', module)
   ))
   .add('events', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <AxisCollection
           height={300}
           onMouseEnter={action('onMouseEnter')}
@@ -88,11 +83,9 @@ storiesOf('components/AxisCollection', module)
   ))
   .add('placement', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <AxisCollection height={300} yAxisPlacement={AxisPlacement.LEFT} />
         <AxisCollection height={300} yAxisPlacement={AxisPlacement.RIGHT} />
       </DataProvider>
@@ -100,11 +93,9 @@ storiesOf('components/AxisCollection', module)
   ))
   .add('yAxisWidth', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <AxisCollection height={300} />
         <AxisCollection height={300} yAxisWidth={100} />
       </DataProvider>

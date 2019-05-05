@@ -15,11 +15,7 @@ storiesOf('components/Collection', module)
     </div>
   ))
   .add('Basic', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      series={[]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="collection">
         <Series id="1" />
       </Collection>
@@ -100,7 +96,6 @@ storiesOf('components/Collection', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[]}
             >
               <Collection
                 id="collection"
