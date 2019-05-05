@@ -32,6 +32,9 @@ export interface Props {
   ySubDomain?: Domain;
   yAxisPlacement?: AxisPlacement;
   yAxisDisplayMode?: AxisDisplayMode;
+  pointWidthAccessor?: AccessorFunction;
+  opacity?: number;
+  opacityAccessor?: AccessorFunction;
 }
 
 export type UnregisterSeriesFunction = () => void;
@@ -95,6 +98,9 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
     props.ySubDomain,
     props.yAxisPlacement,
     props.yAxisDisplayMode,
+    props.pointWidthAccessor,
+    props.opacity,
+    props.opacityAccessor,
   ]);
   return null;
 };

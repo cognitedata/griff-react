@@ -1,6 +1,12 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { DataProvider, LineChart, Series } from '../build/src';
+import {
+  DataProvider,
+  LineChart,
+  Series,
+  AxisPlacement,
+  AxisDisplayMode,
+} from '../build/src';
 
 import { staticLoader } from './loaders';
 
@@ -21,92 +27,136 @@ storiesOf('components/Series', module)
     </DataProvider>
   ))
   .add('Change props', () => {
-    const COLORS = {
-      'steelblue-maroon': ['steelblue', 'maroon'],
-      'orange-gray': ['orange', 'gray'],
+    const pointRenderer = (
+      d,
+      i,
+      arr,
+      { x, y, color, opacity, opacityAccessor }
+    ) => {
+      const width = Math.floor(((d.value * 100) % 5) + 3);
+      return (
+        <circle
+          key={`${x}-${y}`}
+          className="point"
+          r={width / 2}
+          opacity={opacityAccessor ? opacityAccessor(d, i, arr) : opacity}
+          cx={x}
+          cy={y}
+          fill={color}
+        />
+      );
+    };
+    pointRenderer.toString = () => 'custom renderer';
+
+    const pointWidthAccessor = d => Math.floor(((d.value * 100) % 5) + 3);
+    pointWidthAccessor.toString = () => 'custom widths';
+
+    const opacityAccessor = d => ((d.value * 100) % 100) / 100;
+    opacityAccessor.toString = () => 'custom opacity';
+
+    const IDS = ['first', 'second'];
+    const OPTIONS = {
+      color: ['maroon', 'steelblue', 'gray'],
+      drawLines: [true, false],
+      drawPoints: [true, false, pointRenderer],
+      pointWidth: [4, 6, 8, 10],
+      pointWidthAccessor: [pointWidthAccessor],
+      opacity: [0.25, 0.5, 0.75, 1],
+      opacityAccessor: [opacityAccessor],
+      strokeWidth: [1, 2, 3, 4, 5, 6],
+      hidden: [true, false],
+      step: [true, false],
+      zoomable: [true, false],
+      name: ['readable-name'],
+      yDomain: [[-1, 2], [0, 10], [0.25, 0.75]],
+      ySubDomain: [[-1, 2], [0, 10], [0.25, 0.75]],
+      yAxisPlacement: [
+        AxisPlacement.LEFT,
+        AxisPlacement.RIGHT,
+        AxisPlacement.BOTH,
+        AxisPlacement.UNSPECIFIED,
+      ],
+      yAxisDisplayMode: [
+        AxisDisplayMode.ALL,
+        AxisDisplayMode.COLLAPSED,
+        AxisDisplayMode.NONE,
+      ],
     };
 
     class Stateful extends React.Component {
-      state = {
-        clicks: {},
-      };
+      state = {};
 
-      onClick = (id, type) => () => {
-        this.setState(({ clicks }) => ({
-          clicks: {
-            ...clicks,
-            [id]: {
-              ...clicks[id],
-              [type]: this.getClicks(id, type) + 1,
-            },
+      setProperty = (id, key, value) => () => {
+        this.setState(state => ({
+          [key]: {
+            ...state[key],
+            [id]: value,
           },
         }));
       };
 
-      getClicks = (id, type) => {
-        const { clicks } = this.state;
-        return +((clicks[id] || { [type]: 0 })[type] || 0);
+      renderToggles = key => {
+        const { [key]: values = {} } = this.state;
+        return IDS.map(id => (
+          <div key={id} style={{ display: 'flex', flexDirection: 'column' }}>
+            {OPTIONS[key].map(value => (
+              <button
+                key={`${key}-${value}`}
+                disabled={values[id] === value}
+                type="button"
+                onClick={this.setProperty(id, key, value)}
+              >
+                {String(value)}
+              </button>
+            ))}
+            <button
+              disabled={values[id] === undefined}
+              type="button"
+              onClick={this.setProperty(id, key, undefined)}
+            >
+              reset to default
+            </button>
+          </div>
+        ));
       };
+
+      renderPropertyTable = () => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 1fr' }}>
+          <div>property</div>
+          {IDS.map(id => (
+            <div key={id} style={{ textAlign: 'center' }}>
+              {id}
+            </div>
+          ))}
+          {Object.keys(OPTIONS).map(option => (
+            <React.Fragment key={option}>
+              <div key={option}>{option}</div>
+              {this.renderToggles(option)}
+            </React.Fragment>
+          ))}
+        </div>
+      );
 
       render() {
         return (
           <div>
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-              }}
-            >
-              {Object.keys(COLORS).map(id => (
-                <div key={id} style={{ textAlign: 'center', fontWeight: 700 }}>
-                  {id}
-                </div>
-              ))}
-              {Object.keys(COLORS).map(id => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={this.onClick(id, 'color')}
-                >
-                  color
-                </button>
-              ))}
-              {Object.keys(COLORS).map(id => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={this.onClick(id, 'drawPoints')}
-                >
-                  drawPoints
-                </button>
-              ))}
-              {Object.keys(COLORS).map(id => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={this.onClick(id, 'pointWidth')}
-                >
-                  pointWidth
-                </button>
-              ))}
-            </div>
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
             >
-              {Object.keys(COLORS).map(id => (
-                <Series
-                  key={id}
-                  id={id}
-                  color={
-                    COLORS[id][this.getClicks(id, 'color') % COLORS[id].length]
-                  }
-                  drawPoints={Boolean(this.getClicks(id, 'drawPoints') % 2)}
-                  pointWidth={(this.getClicks(id, 'pointWidth') % 10) + 3}
-                />
-              ))}
+              {IDS.map(id => {
+                const options = Object.keys(OPTIONS).reduce((acc, option) => {
+                  const { [option]: values = {} } = this.state;
+                  return {
+                    ...acc,
+                    [option]: values[id],
+                  };
+                }, {});
+                return <Series key={id} id={id} {...options} />;
+              })}
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
+            {this.renderPropertyTable()}
           </div>
         );
       }
