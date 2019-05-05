@@ -1,36 +1,10 @@
 import * as React from 'react';
 import Data from '../../context/Data';
-import {
-  ItemId,
-  Domain,
-  AccessorFunction,
-  PointRenderer,
-} from '../../external';
-import { AxisPlacement } from '../AxisPlacement';
-import { AxisDisplayMode } from '../../utils/AxisDisplayMode';
+import { ItemProps, WATCHED_PROP_NAMES } from '../Series';
+import { ItemId } from '../../external';
 
-export interface Props {
+export interface Props extends ItemProps {
   id: ItemId;
-  color?: string;
-  drawLines?: boolean;
-  drawPoints?: boolean | PointRenderer;
-  pointWidth?: number;
-  strokeWidth?: number;
-  hidden?: boolean;
-  step?: boolean;
-  zoomable?: boolean;
-  name?: string;
-  timeAccessor?: AccessorFunction;
-  xAccessor?: AccessorFunction;
-  x0Accessor?: AccessorFunction;
-  x1Accessor?: AccessorFunction;
-  yAccessor?: AccessorFunction;
-  y0Accessor?: AccessorFunction;
-  y1Accessor?: AccessorFunction;
-  yDomain?: Domain;
-  ySubDomain?: Domain;
-  yAxisPlacement?: AxisPlacement;
-  yAxisDisplayMode?: AxisDisplayMode;
 }
 
 type UnregisterCollectionFunction = () => void;
@@ -50,9 +24,9 @@ interface InternalProps {
 // @ts-ignore
 const Collection: React.FunctionComponent<Props & InternalProps> = ({
   id,
+
   registerCollection,
   updateCollection,
-
   children,
 
   ...props
@@ -69,28 +43,7 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
       id,
       ...props,
     });
-  }, [
-    props.color,
-    props.drawLines,
-    props.drawPoints,
-    props.pointWidth,
-    props.strokeWidth,
-    props.hidden,
-    props.step,
-    props.zoomable,
-    props.name,
-    props.timeAccessor,
-    props.xAccessor,
-    props.x0Accessor,
-    props.x1Accessor,
-    props.yAccessor,
-    props.y0Accessor,
-    props.y1Accessor,
-    props.yDomain,
-    props.ySubDomain,
-    props.yAxisPlacement,
-    props.yAxisDisplayMode,
-  ]);
+  }, WATCHED_PROP_NAMES.map(name => props[name]));
 
   return React.Children.map(children, child => {
     if (!child) {

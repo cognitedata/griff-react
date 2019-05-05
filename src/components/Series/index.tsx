@@ -8,9 +8,7 @@ import { AxisDisplayMode } from '../../utils/AxisDisplayMode';
 // TODO: Move this to DataProvider (and define it properly over there)
 type LoaderFunction = (params: any) => any;
 
-export interface Props {
-  id: ItemId;
-  collectionId?: ItemId;
+export interface ItemProps {
   color?: string;
   drawLines?: boolean;
   drawPoints?: boolean | PointRenderer;
@@ -35,6 +33,38 @@ export interface Props {
   pointWidthAccessor?: AccessorFunction;
   opacity?: number;
   opacityAccessor?: AccessorFunction;
+}
+
+export const WATCHED_PROP_NAMES = [
+  'color',
+  'drawLines',
+  'drawPoints',
+  'pointWidth',
+  'strokeWidth',
+  'hidden',
+  'loader',
+  'step',
+  'zoomable',
+  'name',
+  'timeAccessor',
+  'xAccessor',
+  'x0Accessor',
+  'x1Accessor',
+  'yAccessor',
+  'y0Accessor',
+  'y1Accessor',
+  'yDomain',
+  'ySubDomain',
+  'yAxisPlacement',
+  'yAxisDisplayMode',
+  'pointWidthAccessor',
+  'opacity',
+  'opacityAccessor',
+];
+
+export interface Props extends ItemProps {
+  id: ItemId;
+  collectionId?: ItemId;
 }
 
 export type UnregisterSeriesFunction = () => void;
@@ -76,32 +106,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
       id,
       ...props,
     });
-  }, [
-    props.color,
-    props.drawLines,
-    props.drawPoints,
-    props.pointWidth,
-    props.strokeWidth,
-    props.hidden,
-    props.loader,
-    props.step,
-    props.zoomable,
-    props.name,
-    props.timeAccessor,
-    props.xAccessor,
-    props.x0Accessor,
-    props.x1Accessor,
-    props.yAccessor,
-    props.y0Accessor,
-    props.y1Accessor,
-    props.yDomain,
-    props.ySubDomain,
-    props.yAxisPlacement,
-    props.yAxisDisplayMode,
-    props.pointWidthAccessor,
-    props.opacity,
-    props.opacityAccessor,
-  ]);
+  }, WATCHED_PROP_NAMES.map(name => props[name]));
   return null;
 };
 

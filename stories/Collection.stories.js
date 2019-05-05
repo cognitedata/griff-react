@@ -58,7 +58,7 @@ storiesOf('components/Collection', module)
     opacityAccessor.toString = () => 'custom opacity';
 
     const COLLECTION_ID = 'collect';
-    const IDS = ['first', 'second'];
+    const SERIES_IDS = ['first', 'second'];
     const OPTIONS = {
       color: ['maroon', 'steelblue', 'gray'],
       drawLines: [true, false],
@@ -101,7 +101,7 @@ storiesOf('components/Collection', module)
 
       renderToggles = key => {
         const { [key]: values = {} } = this.state;
-        return [COLLECTION_ID, ...IDS].map(id => (
+        return [COLLECTION_ID, ...SERIES_IDS].map(id => (
           <div key={id} style={{ display: 'flex', flexDirection: 'column' }}>
             {OPTIONS[key].map(value => (
               <button
@@ -129,7 +129,7 @@ storiesOf('components/Collection', module)
           style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 1fr 1fr' }}
         >
           <div>property</div>
-          {[COLLECTION_ID, ...IDS].map(id => (
+          {[COLLECTION_ID, ...SERIES_IDS].map(id => (
             <div key={id} style={{ textAlign: 'center' }}>
               {id}
             </div>
@@ -158,7 +158,7 @@ storiesOf('components/Collection', module)
               timeDomain={staticXDomain}
             >
               <Collection id={COLLECTION_ID} {...collectionOptions}>
-                {IDS.map(id => {
+                {SERIES_IDS.map(id => {
                   const options = Object.keys(OPTIONS).reduce((acc, option) => {
                     const { [option]: values = {} } = this.state;
                     return {

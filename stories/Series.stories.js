@@ -54,7 +54,7 @@ storiesOf('components/Series', module)
     const opacityAccessor = d => ((d.value * 100) % 100) / 100;
     opacityAccessor.toString = () => 'custom opacity';
 
-    const IDS = ['first', 'second'];
+    const SERIES_IDS = ['first', 'second'];
     const OPTIONS = {
       color: ['maroon', 'steelblue', 'gray'],
       drawLines: [true, false],
@@ -97,7 +97,7 @@ storiesOf('components/Series', module)
 
       renderToggles = key => {
         const { [key]: values = {} } = this.state;
-        return IDS.map(id => (
+        return SERIES_IDS.map(id => (
           <div key={id} style={{ display: 'flex', flexDirection: 'column' }}>
             {OPTIONS[key].map(value => (
               <button
@@ -123,7 +123,7 @@ storiesOf('components/Series', module)
       renderPropertyTable = () => (
         <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 1fr' }}>
           <div>property</div>
-          {IDS.map(id => (
+          {SERIES_IDS.map(id => (
             <div key={id} style={{ textAlign: 'center' }}>
               {id}
             </div>
@@ -144,7 +144,7 @@ storiesOf('components/Series', module)
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
             >
-              {IDS.map(id => {
+              {SERIES_IDS.map(id => {
                 const options = Object.keys(OPTIONS).reduce((acc, option) => {
                   const { [option]: values = {} } = this.state;
                   return {
