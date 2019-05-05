@@ -98,15 +98,8 @@ const smallerDomain = (domain, subDomain) => {
   return [Math.max(domain[0], subDomain[0]), Math.min(domain[1], subDomain[1])];
 };
 
-const boundedDomain = (a, b) => {
-  if (a && b) {
-    return [Math.min(a[0], b[0]), Math.max(a[1], b[1])];
-  }
-  return a || b;
-};
-
-const MIN_MAX_DOMAIN = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
-MIN_MAX_DOMAIN.placeholder = true;
+const boundedDomain = (a, b) =>
+  a && b ? [Math.min(a[0], b[0]), Math.max(a[1], b[1])] : a || b;
 
 const DEFAULT_ACCESSORS = {
   time: d => d.timestamp,
