@@ -4,7 +4,6 @@ import Promise from 'bluebird';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
-import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import Scaler from '../Scaler';
 
 export const calculateDomainFromData = (
@@ -454,8 +453,8 @@ export default class DataProvider extends Component {
   };
 
   timeSubDomainChanged = timeSubDomain => {
-    const { limitTimeSubDomain, onTimeSubDomainChanged, series } = this.props;
-    const { timeDomain, timeSubDomain: current } = this.state;
+    const { limitTimeSubDomain, onTimeSubDomainChanged } = this.props;
+    const { timeDomain, timeSubDomain: current, seriesById } = this.state;
     const newTimeSubDomain = getTimeSubDomain(
       timeDomain,
       timeSubDomain,
@@ -467,7 +466,10 @@ export default class DataProvider extends Component {
 
     clearTimeout(this.timeSubDomainChangedTimeout);
     this.timeSubDomainChangedTimeout = setTimeout(
-      () => series.map(s => this.fetchData(s.id, 'UPDATE_SUBDOMAIN')),
+      () =>
+        Object.keys(seriesById).map(id =>
+          this.fetchData(id, 'UPDATE_SUBDOMAIN')
+        ),
       250
     );
     this.setState({ timeSubDomain: newTimeSubDomain }, () => {
@@ -767,8 +769,6 @@ DataProvider.propTypes = {
   pointsPerSeries: PropTypes.number,
   children: PropTypes.node.isRequired,
   defaultLoader: PropTypes.func,
-  series: seriesPropType,
-  collections: GriffPropTypes.collections,
   // xSubDomain => void
   onTimeSubDomainChanged: PropTypes.func,
   // newSubDomainsPerItem => void
@@ -796,7 +796,6 @@ DataProvider.propTypes = {
 };
 
 DataProvider.defaultProps = {
-  collections: [],
   defaultLoader: undefined,
   drawPoints: undefined,
   drawLines: undefined,
@@ -830,5 +829,4 @@ DataProvider.defaultProps = {
   onFetchDataError: e => {
     throw e;
   },
-  series: [],
 };
