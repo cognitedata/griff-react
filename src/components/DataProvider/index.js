@@ -815,6 +815,11 @@ DataProvider.propTypes = {
       id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     })
   ),
+  collections: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    })
+  ),
 };
 
 DataProvider.defaultProps = {
@@ -852,4 +857,5 @@ DataProvider.defaultProps = {
     throw e;
   },
   series: [],
+  collections: [],
 };
