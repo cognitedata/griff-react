@@ -378,6 +378,7 @@ export default class DataProvider extends Component {
 
     this.setState(
       ({
+        collectionsById,
         seriesById: { [id]: freshSeries },
         seriesById: freshSeriesById,
         timeSubDomains: freshTimeSubDomains,
@@ -397,6 +398,10 @@ export default class DataProvider extends Component {
           // ... or we didn't have data before, but do now!
           (freshSeries.data.length === 0 && loaderResult.data.length > 0)
         ) {
+          const collection = series.collectionId
+            ? collectionsById[series.collectionId] || {}
+            : {};
+
           stateUpdates.timeSubDomains = {
             ...freshTimeSubDomains,
             [id]: calculateDomainFromData(
@@ -408,18 +413,24 @@ export default class DataProvider extends Component {
             ...freshXSubDomains,
             [id]: calculateDomainFromData(
               series.data,
-              series.xAccessor || xAccessor || DEFAULT_ACCESSORS.x,
-              series.x0Accessor || x0Accessor,
-              series.x1Accessor || x1Accessor
+              series.xAccessor ||
+                collection.xAccessor ||
+                xAccessor ||
+                DEFAULT_ACCESSORS.x,
+              series.x0Accessor || collection.x0Accessor || x0Accessor,
+              series.x1Accessor || collection.x1Accessor || x1Accessor
             ),
           };
           stateUpdates.ySubDomains = {
             ...freshYSubDomains,
             [id]: calculateDomainFromData(
               series.data,
-              series.yAccessor || yAccessor || DEFAULT_ACCESSORS.y,
-              series.y0Accessor || y0Accessor,
-              series.y1Accessor || y1Accessor
+              series.yAccessor ||
+                collection.yAccessor ||
+                yAccessor ||
+                DEFAULT_ACCESSORS.y,
+              series.y0Accessor || collection.y0Accessor || y0Accessor,
+              series.y1Accessor || collection.y1Accessor || y1Accessor
             ),
           };
 
