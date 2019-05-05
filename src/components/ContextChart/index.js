@@ -70,7 +70,7 @@ const renderXAxis = (position, xAxis, { xAxisPlacement }) => {
     return xAxis;
   }
   if (xAxisPlacement === AxisPlacement.BOTH) {
-    return React.cloneElement(xAxis, { xAxisPlacement: position });
+    return React.cloneElement(xAxis, { placement: position });
   }
   return null;
 };

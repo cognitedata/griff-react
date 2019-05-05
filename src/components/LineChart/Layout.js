@@ -18,20 +18,23 @@ const defaultProps = {
   contextChart: null,
 };
 
-const xAxisContainer = area => (axis, placement) => (
-  <div
-    key={area}
-    className="x-axis-container"
-    style={{
-      gridArea: area,
-      display: 'flex',
-      flexDirection: 'row',
-      width: '100%',
-    }}
-  >
-    {React.cloneElement(axis, { xAxisPlacement: placement })}
-  </div>
-);
+const xAxisContainer = area => (axis, placement) => {
+  console.log('TCL: Layout -> xAxisContainer -> placement', placement);
+  return (
+    <div
+      key={area}
+      className="x-axis-container"
+      style={{
+        gridArea: area,
+        display: 'flex',
+        flexDirection: 'row',
+        width: '100%',
+      }}
+    >
+      {React.cloneElement(axis, { placement })}
+    </div>
+  );
+};
 
 const yAxisContainer = area => (axis, placement) => (
   <div
@@ -154,6 +157,7 @@ const Layout = ({
     case AxisPlacement.BOTTOM:
     case AxisPlacement.UNSPECIFIED:
     default:
+      console.log('TCL: xAxisPlacement', xAxisPlacement);
       xAxes.push(xAxisContainer('xaxis')(xAxis, xAxisPlacement));
       break;
   }
