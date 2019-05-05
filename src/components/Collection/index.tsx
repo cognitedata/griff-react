@@ -18,10 +18,10 @@ type UpdateCollectionFunction = (collectionProps: Props) => void;
 interface InternalProps {
   registerCollection: RegisterCollectionFunction;
   updateCollection: UpdateCollectionFunction;
-  children: React.ReactNode[];
+  children?: React.ReactNode[];
 }
 
-// @ts-ignore
+// @ts-ignore - I don't know how to make TypeScript happy about ...props
 const Collection: React.FunctionComponent<Props & InternalProps> = ({
   id,
 
@@ -43,7 +43,12 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
       id,
       ...props,
     });
+    // @ts-ignore
   }, WATCHED_PROP_NAMES.map(name => props[name]));
+
+  if (React.Children.count(children) === 0) {
+    return null;
+  }
 
   return React.Children.map(children, child => {
     if (!child) {

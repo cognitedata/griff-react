@@ -29,6 +29,14 @@ storiesOf('components/Collection', module)
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
+  .add('Flat structure', () => (
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Collection id="collection" />
+      <Series id="1" color="steelblue" collectionId="collection" />
+      <Series id="2" color="maroon" collectionId="collection" />
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>
+  ))
   .add('Change props', () => {
     const pointRenderer = (
       d,

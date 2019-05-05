@@ -82,7 +82,6 @@ interface InternalProps {
 
 const Series: React.FunctionComponent<Props & InternalProps> = ({
   id,
-  collectionId,
   registerSeries,
   updateSeries,
   children,
@@ -94,7 +93,6 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
   React.useEffect(() => {
     return registerSeries({
       id,
-      collectionId,
       ...props,
     });
   }, []);
@@ -106,7 +104,8 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
       id,
       ...props,
     });
-  }, WATCHED_PROP_NAMES.map(name => props[name]));
+    // @ts-ignore
+  }, WATCHED_PROP_NAMES.map(name => props[name]).concat(props.collectionId));
   return null;
 };
 

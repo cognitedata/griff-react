@@ -5,6 +5,8 @@ import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
 import Scaler from '../Scaler';
+import Series from '../Series';
+import Collection from '../Collection';
 
 export const calculateDomainFromData = (
   data,
@@ -549,6 +551,26 @@ export default class DataProvider extends Component {
     }));
   };
 
+  // Add a helper method to render the legacy props using the new tree structure
+  // format. This is only intended to ease the transition pain and is not
+  // intended to be an ongoing solution.
+  renderLegacyItems = () => {
+    const { series, collections } = this.props;
+    if (series || collections) {
+      return (
+        <React.Fragment>
+          {(series || []).map(s => (
+            <Series key={s.id} {...s} />
+          ))}
+          {(collections || []).map(c => (
+            <Collection key={c.id} {...c} />
+          ))}
+        </React.Fragment>
+      );
+    }
+    return null;
+  };
+
   render() {
     const { collectionsById, timeDomain, timeSubDomain } = this.state;
     const {
@@ -710,6 +732,7 @@ export default class DataProvider extends Component {
     };
     return (
       <DataContext.Provider value={context}>
+        {this.renderLegacyItems()}
         <Scaler>{children}</Scaler>
       </DataContext.Provider>
     );
@@ -786,6 +809,12 @@ DataProvider.propTypes = {
   // (error, params) => void
   // Callback when data loader throws an error
   onFetchDataError: PropTypes.func,
+
+  series: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    })
+  ),
 };
 
 DataProvider.defaultProps = {
@@ -822,4 +851,5 @@ DataProvider.defaultProps = {
   onFetchDataError: e => {
     throw e;
   },
+  series: [],
 };
