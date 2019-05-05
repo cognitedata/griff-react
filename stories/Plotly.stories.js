@@ -3,7 +3,12 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import moment from 'moment';
 import Plot from 'react-plotly.js';
-import { ContextChart, DataProvider, ScalerContext } from '../build/src';
+import {
+  ContextChart,
+  DataProvider,
+  ScalerContext,
+  Series,
+} from '../build/src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
@@ -33,11 +38,9 @@ storiesOf('Plotly', module)
   ))
   .add('Basic', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <ScalerContext.Consumer>
           {({ series }) => (
             <Plot
@@ -55,11 +58,9 @@ storiesOf('Plotly', module)
   ))
   .add('Controlled by ContextChart', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <ScalerContext.Consumer>
           {({ series, subDomainsByItemId }) => (
             <Plot
@@ -78,11 +79,9 @@ storiesOf('Plotly', module)
   ))
   .add('Interacting with ContextChart', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <ScalerContext.Consumer>
           {({ series, domainsByItemId, subDomainsByItemId, updateDomains }) => (
             <Plot
@@ -90,7 +89,7 @@ storiesOf('Plotly', module)
               layout={{
                 width: '100%',
                 height: 400,
-                title: 'A Fancy Plot controlled by a ContextChart',
+                title: 'A Fancy Plot interacting with a ContextChart',
               }}
               onSelected={action('onSelected')}
               onRelayout={input => {
@@ -100,7 +99,8 @@ storiesOf('Plotly', module)
                   'xaxis.autorange': autorange,
                 } = input;
                 updateDomains(
-                  series.reduce(
+                  // FIXME: Why on earth do I lose the series references here??
+                  [{ id: 1 }, { id: 2 }].reduce(
                     (update, { id }) => ({
                       ...update,
                       [id]: {
