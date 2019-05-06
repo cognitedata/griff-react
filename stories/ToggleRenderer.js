@@ -102,8 +102,8 @@ class ToggleRenderer extends React.Component {
           style={{
             display: 'flex',
             flexDirection: 'column',
-            marginTop: '0.5em',
-            paddingTop: '0.5em',
+            marginTop: 4,
+            paddingTop: 4,
             borderTop: '1px solid #aaa',
           }}
         >
@@ -161,8 +161,8 @@ class ToggleRenderer extends React.Component {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                marginTop: '0.5em',
-                paddingTop: '0.5em',
+                marginTop: 4,
+                paddingTop: 4,
                 borderTop: '1px solid #aaa',
                 fontFamily: 'monospace',
               }}
