@@ -2,6 +2,7 @@ import * as React from 'react';
 import Data from '../../context/Data';
 import { ItemProps, WATCHED_PROP_NAMES, Props as SeriesProps } from '../Series';
 import { ItemId } from '../../external';
+import { withDisplayName } from '../../utils/displayName';
 
 export interface Props extends ItemProps {
   id: ItemId;
@@ -61,16 +62,19 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
   });
 };
 
-export default (props: Props & { children: React.ReactNode[] }) => (
-  <Data.Consumer>
-    {({ registerCollection, updateCollection }: InternalProps) => (
-      <Collection
-        registerCollection={registerCollection}
-        updateCollection={updateCollection}
-        {...props}
-      >
-        {props.children}
-      </Collection>
-    )}
-  </Data.Consumer>
+export default withDisplayName(
+  'Collection',
+  (props: Props & { children: React.ReactNode[] }) => (
+    <Data.Consumer>
+      {({ registerCollection, updateCollection }: InternalProps) => (
+        <Collection
+          registerCollection={registerCollection}
+          updateCollection={updateCollection}
+          {...props}
+        >
+          {props.children}
+        </Collection>
+      )}
+    </Data.Consumer>
+  )
 );

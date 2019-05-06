@@ -4,6 +4,7 @@ import Data from '../../context/Data';
 import { Domain } from 'domain';
 import { AxisPlacement } from '../AxisPlacement';
 import { AxisDisplayMode } from '../../utils/AxisDisplayMode';
+import { withDisplayName } from '../../utils/displayName';
 
 // TODO: Move this to DataProvider (and define it properly over there)
 type LoaderFunction = (params: any) => any;
@@ -109,7 +110,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
   return null;
 };
 
-export default (props: Props) => (
+export default withDisplayName('Series', (props: Props) => (
   <Data.Consumer>
     {({ registerSeries, updateSeries }: InternalProps) => (
       <Series
@@ -119,4 +120,4 @@ export default (props: Props) => (
       />
     )}
   </Data.Consumer>
-);
+));

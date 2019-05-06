@@ -12,6 +12,7 @@ import Axes from '../../utils/Axes';
 import AxisCollection from '../AxisCollection';
 import LineCollection from '../LineCollection';
 import AxisDisplayMode from '../../utils/AxisDisplayMode';
+import { withDisplayName } from '../../utils/displayName';
 
 const propTypes = {
   size: PropTypes.shape({
@@ -207,7 +208,7 @@ const SizedScatterplotComponent = sizeMe({
   monitorHeight: true,
 })(ScatterplotComponent);
 
-const Scatterplot = props => (
+export default withDisplayName('Scatterplot', props => (
   <ScalerContext.Consumer>
     {({ collections, series }) => (
       <SizedScatterplotComponent
@@ -217,6 +218,4 @@ const Scatterplot = props => (
       />
     )}
   </ScalerContext.Consumer>
-);
-
-export default Scatterplot;
+));
