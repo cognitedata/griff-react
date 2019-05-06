@@ -9,6 +9,7 @@ import ZoomRect from '../ZoomRect';
 import { createXScale, ScalerFunctionFactory } from '../../utils/scale-helpers';
 import { Domain, Series } from '../../external';
 import { DomainsByItemId } from '../Scaler';
+import { withDisplayName } from '../../utils/displayName';
 
 export interface Props {
   axis: 'time' | 'x';
@@ -252,7 +253,7 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   );
 };
 
-export default (props: Props) => (
+export default withDisplayName('XAxis', (props: Props) => (
   <ScalerContext.Consumer>
     {({ domainsByItemId, subDomainsByItemId, series }: ScalerProps) => (
       <SizeMe monitorWidth>
@@ -268,4 +269,4 @@ export default (props: Props) => (
       </SizeMe>
     )}
   </ScalerContext.Consumer>
-);
+));

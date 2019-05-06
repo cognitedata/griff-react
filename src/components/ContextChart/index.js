@@ -13,6 +13,7 @@ import Axes from '../../utils/Axes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 import { stripPlaceholderDomain } from '../Scaler';
 import { calculateDomainFromData } from '../DataProvider';
+import { withDisplayName } from '../../utils/displayName';
 
 const propTypes = {
   height: PropTypes.number,
@@ -162,7 +163,7 @@ const ContextChart = ({
 ContextChart.propTypes = propTypes;
 ContextChart.defaultProps = defaultProps;
 
-export default props => (
+export default withDisplayName('ContextChart', props => (
   <ScalerContext.Consumer>
     {({ domainsByItemId, subDomainsByItemId, updateDomains, series }) => (
       <SizeMe monitorWidth>
@@ -179,4 +180,4 @@ export default props => (
       </SizeMe>
     )}
   </ScalerContext.Consumer>
-);
+));

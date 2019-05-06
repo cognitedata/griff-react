@@ -8,6 +8,7 @@ import { SizeProps } from '../../internal';
 import { Series, Datapoint } from '../../external';
 import { DomainsByItemId } from '../Scaler';
 import Points from '../Points';
+import { withDisplayName } from '../../utils/displayName';
 
 export interface Props {}
 
@@ -73,14 +74,17 @@ const PointCollection: React.FunctionComponent<
 PointCollection.propTypes = propTypes;
 PointCollection.defaultProps = defaultProps;
 
-export default (props: Props & SizeProps) => (
-  <ScalerContext.Consumer>
-    {({ subDomainsByItemId, series }: InternalProps) => (
-      <PointCollection
-        {...props}
-        series={series}
-        subDomainsByItemId={subDomainsByItemId}
-      />
-    )}
-  </ScalerContext.Consumer>
+export default withDisplayName(
+  'PointCollection',
+  (props: Props & SizeProps) => (
+    <ScalerContext.Consumer>
+      {({ subDomainsByItemId, series }: InternalProps) => (
+        <PointCollection
+          {...props}
+          series={series}
+          subDomainsByItemId={subDomainsByItemId}
+        />
+      )}
+    </ScalerContext.Consumer>
+  )
 );

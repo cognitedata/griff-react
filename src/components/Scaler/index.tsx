@@ -6,6 +6,7 @@ import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import Axes, { Domains, Dimension } from '../../utils/Axes';
 import { Domain, Series, Collection, ItemId } from '../../external';
 import { Item } from '../../internal';
+import { withDisplayName } from '../../utils/displayName';
 
 // TODO: Move this to DataProvider.
 type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;
@@ -399,10 +400,10 @@ class Scaler extends React.Component<Props, State> {
   }
 }
 
-export default (props: Props) => (
+export default withDisplayName('Scaler', (props: Props) => (
   <DataContext.Consumer>
     {(dataContext: DataContext) => (
       <Scaler {...props} dataContext={dataContext} />
     )}
   </DataContext.Consumer>
-);
+));
