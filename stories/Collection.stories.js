@@ -10,6 +10,7 @@ import {
 } from '../build/src';
 
 import { staticLoader } from './loaders';
+import { makePrintable } from './Series.stories';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
@@ -81,8 +82,8 @@ storiesOf('components/Collection', module)
       step: [true, false],
       zoomable: [true, false],
       name: ['readable-name'],
-      yDomain: [[-1, 2], [0, 10], [0.25, 0.75]],
-      ySubDomain: [[-1, 2], [0, 10], [0.25, 0.75]],
+      yDomain: [[-1, 2], [0, 10], [0.25, 0.75]].map(makePrintable),
+      ySubDomain: [[-1, 2], [0, 10], [0.25, 0.75]].map(makePrintable),
       yAxisPlacement: [
         AxisPlacement.LEFT,
         AxisPlacement.RIGHT,

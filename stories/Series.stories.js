@@ -13,6 +13,12 @@ import { staticLoader } from './loaders';
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
+export const makePrintable = arr => {
+  const copy = [...arr];
+  copy.toString = () => `[${arr.join(', ')}]`;
+  return copy;
+};
+
 /* eslint-disable react/no-multi-comp */
 storiesOf('components/Series', module)
   .addDecorator(story => (
@@ -68,8 +74,8 @@ storiesOf('components/Series', module)
       step: [true, false],
       zoomable: [true, false],
       name: ['readable-name'],
-      yDomain: [[-1, 2], [0, 10], [0.25, 0.75]],
-      ySubDomain: [[-1, 2], [0, 10], [0.25, 0.75]],
+      yDomain: [[-1, 2], [0, 10], [0.25, 0.75]].map(makePrintable),
+      ySubDomain: [[-1, 2], [0, 10], [0.25, 0.75]].map(makePrintable),
       yAxisPlacement: [
         AxisPlacement.LEFT,
         AxisPlacement.RIGHT,
