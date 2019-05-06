@@ -33,7 +33,7 @@ const mapping = {
 
 const NUM_POINTS = 50;
 
-const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
+export const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
   action('scatterplotloader')(reason);
   if (reason === 'MOUNTED') {
     const pair = mapping[id] || Math.round(Math.random() * 100);
