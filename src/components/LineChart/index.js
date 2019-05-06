@@ -272,8 +272,8 @@ const LineChart = props => {
     getYAxisCollectionWidth(AxisPlacement.RIGHT, props);
   const chartHeight = height - getXAxisHeight(xAxisHeight) - contextChartSpace;
   const chartSize = {
-    width: chartWidth > 0 ? chartWidth : 0,
-    height: chartHeight > 0 ? chartHeight : 0,
+    width: Math.max(0, chartWidth),
+    height: Math.max(0, chartHeight),
   };
 
   return (
