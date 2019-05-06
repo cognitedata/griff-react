@@ -266,12 +266,14 @@ const LineChart = props => {
   const width = propWidth || sizeWidth;
   const height = propHeight || sizeHeight;
   const contextChartSpace = getContextChartHeight(props);
+  const chartWidth =
+    width -
+    getYAxisCollectionWidth(AxisPlacement.LEFT, props) -
+    getYAxisCollectionWidth(AxisPlacement.RIGHT, props);
+  const chartHeight = height - getXAxisHeight(xAxisHeight) - contextChartSpace;
   const chartSize = {
-    width:
-      width -
-      getYAxisCollectionWidth(AxisPlacement.LEFT, props) -
-      getYAxisCollectionWidth(AxisPlacement.RIGHT, props),
-    height: height - getXAxisHeight(xAxisHeight) - contextChartSpace,
+    width: chartWidth > 0 ? chartWidth : 0,
+    height: chartHeight > 0 ? chartHeight : 0,
   };
 
   return (
