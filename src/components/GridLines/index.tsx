@@ -207,7 +207,13 @@ const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
 
 export default ({ width, height, ...props }: Props & SizeProps) => (
   <ScalerContext.Consumer>
-    {({ series, subDomainsByItemId }: any) => (
+    {({
+      series,
+      subDomainsByItemId,
+    }: {
+      series: Series[];
+      subDomainsByItemId: DomainsByItemId;
+    }) => (
       <GridLines
         {...props}
         width={width}
