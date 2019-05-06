@@ -182,8 +182,7 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   // regular 1280 display. So by dividing width by ~100
   // we can achieve appropriate amount of ticks for any width.
   const values = scale.ticks(ticks || Math.floor(width / 100) || 1);
-  // @ts-ignore - This is a domain
-  const range: Domain = scale.range().map(r => r + halfStrokeWidth);
+  const range: Domain = scale.range().map(r => r + halfStrokeWidth) as Domain;
   const pathString = getPathString({
     height,
     placement,
