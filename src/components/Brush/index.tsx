@@ -257,6 +257,7 @@ class Brush extends React.Component<Props, State> {
           height={height}
           fill="none"
           pointerEvents="all"
+          stroke="none"
           onMouseDown={this.onMouseDownHandleWest}
         />
         <path
@@ -274,6 +275,7 @@ class Brush extends React.Component<Props, State> {
           height={height}
           fill="none"
           pointerEvents="all"
+          stroke="none"
           onMouseDown={this.onMouseDownHandleEast}
         />
       </g>

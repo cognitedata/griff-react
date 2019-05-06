@@ -5,6 +5,7 @@ import Axes from '../../utils/Axes';
 import { ItemId, Series } from '../../external';
 import { DomainsByItemId } from '../Scaler/index';
 import { SizeProps, ItemIdMap } from '../../internal';
+import { withDisplayName } from '../../utils/displayName';
 
 export interface GridX {
   pixels?: number;
@@ -205,22 +206,25 @@ const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
   return <g>{lines}</g>;
 };
 
-export default ({ width, height, ...props }: Props & SizeProps) => (
-  <ScalerContext.Consumer>
-    {({
-      series,
-      subDomainsByItemId,
-    }: {
-      series: Series[];
-      subDomainsByItemId: DomainsByItemId;
-    }) => (
-      <GridLines
-        {...props}
-        width={width}
-        height={height}
-        series={series}
-        subDomainsByItemId={subDomainsByItemId}
-      />
-    )}
-  </ScalerContext.Consumer>
+export default withDisplayName(
+  'GridLines',
+  ({ width, height, ...props }: Props & SizeProps) => (
+    <ScalerContext.Consumer>
+      {({
+        series,
+        subDomainsByItemId,
+      }: {
+        series: Series[];
+        subDomainsByItemId: DomainsByItemId;
+      }) => (
+        <GridLines
+          {...props}
+          width={width}
+          height={height}
+          series={series}
+          subDomainsByItemId={subDomainsByItemId}
+        />
+      )}
+    </ScalerContext.Consumer>
+  )
 );

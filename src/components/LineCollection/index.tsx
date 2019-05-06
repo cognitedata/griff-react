@@ -10,6 +10,7 @@ import AxisDisplayMode from '../../utils/AxisDisplayMode';
 import Axes, { Dimension } from '../../utils/Axes';
 import { Series } from '../../external';
 import { DomainsByItemId } from '../Scaler';
+import { withDisplayName } from '../../utils/displayName';
 
 const { time, x } = Axes;
 
@@ -94,7 +95,7 @@ const LineCollection: React.FunctionComponent<
   );
 };
 
-export default (props: Props) => (
+export default withDisplayName('LineCollection', (props: Props) => (
   <ScalerContext.Consumer>
     {({ domainsByItemId, subDomainsByItemId, series }: InternalProps) => (
       <LineCollection
@@ -105,4 +106,4 @@ export default (props: Props) => (
       />
     )}
   </ScalerContext.Consumer>
-);
+));

@@ -18,6 +18,7 @@ import AxisPlacement from '../AxisPlacement';
 import Layout from './Layout';
 import { multiFormat } from '../../utils/multiFormat';
 import Axes from '../../utils/Axes';
+import { withDisplayName } from '../../utils/displayName';
 
 const propTypes = {
   // Disable the ESLinter for this because they'll show up from react-sizeme.
@@ -362,10 +363,10 @@ LineChart.defaultProps = defaultProps;
 
 const SizedLineChart = sizeMe({ monitorHeight: true })(LineChart);
 
-export default props => (
+export default withDisplayName('LineChart', props => (
   <ScalerContext.Consumer>
     {({ collections, series }) => (
       <SizedLineChart {...props} collections={collections} series={series} />
     )}
   </ScalerContext.Consumer>
-);
+));

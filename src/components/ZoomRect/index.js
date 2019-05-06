@@ -5,6 +5,7 @@ import isEqual from 'lodash.isequal';
 import ScalerContext from '../../context/Scaler';
 import GriffPropTypes from '../../utils/proptypes';
 import Axes from '../../utils/Axes';
+import { withDisplayName } from '../../utils/displayName';
 
 const propTypes = {
   width: PropTypes.number.isRequired,
@@ -386,7 +387,7 @@ class ZoomRect extends React.Component {
 ZoomRect.propTypes = propTypes;
 ZoomRect.defaultProps = defaultProps;
 
-export default props => (
+export default withDisplayName('ZoomRect', props => (
   <ScalerContext.Consumer>
     {({ domainsByItemId, subDomainsByItemId, updateDomains }) => (
       <ZoomRect
@@ -397,4 +398,4 @@ export default props => (
       />
     )}
   </ScalerContext.Consumer>
-);
+));
