@@ -85,13 +85,13 @@ storiesOf('Plotly', module)
         <ScalerContext.Consumer>
           {({ series, domainsByItemId, subDomainsByItemId, updateDomains }) => (
             <Plot
+              key={series.map(s => s.id).join('-')}
               data={series.map(s => seriesToPlotly(s, subDomainsByItemId))}
               layout={{
                 width: '100%',
                 height: 400,
                 title: 'A Fancy Plot interacting with a ContextChart',
               }}
-              onSelected={action('onSelected')}
               onRelayout={input => {
                 const {
                   'xaxis.range[0]': lowerTime,
@@ -99,8 +99,7 @@ storiesOf('Plotly', module)
                   'xaxis.autorange': autorange,
                 } = input;
                 updateDomains(
-                  // FIXME: Why on earth do I lose the series references here??
-                  [{ id: 1 }, { id: 2 }].reduce(
+                  series.reduce(
                     (update, { id }) => ({
                       ...update,
                       [id]: {
