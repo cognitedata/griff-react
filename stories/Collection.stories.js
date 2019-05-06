@@ -65,10 +65,11 @@ storiesOf('components/Collection', module)
     const opacityAccessor = d => ((d.value * 100) % 100) / 100;
     opacityAccessor.toString = () => 'custom opacity';
 
-    const COLLECTION_ID = 'collect';
+    const COLLECTION_IDS = ['collection', 'alternate'];
     const SERIES_IDS = ['first', 'second'];
     const OPTIONS = {
-      color: ['maroon', 'steelblue', 'gray'],
+      color: ['maroon', 'steelblue', 'darkgreen', 'lightsalmon'],
+      collectionId: ['collection', 'alternate', 'missing-collection'],
       drawLines: [true, false],
       drawPoints: [true, false, pointRenderer],
       pointWidth: [4, 6, 8, 10],
@@ -107,10 +108,28 @@ storiesOf('components/Collection', module)
         }));
       };
 
+      getItemOptions = itemId =>
+        Object.keys(OPTIONS).reduce((acc, option) => {
+          const { [option]: values = {} } = this.state;
+          return {
+            ...acc,
+            [option]: values[itemId],
+          };
+        }, {});
+
       renderToggles = key => {
         const { [key]: values = {} } = this.state;
-        return [COLLECTION_ID, ...SERIES_IDS].map(id => (
-          <div key={id} style={{ display: 'flex', flexDirection: 'column' }}>
+        return [...COLLECTION_IDS, ...SERIES_IDS].map(id => (
+          <div
+            key={id}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              marginTop: '0.5em',
+              paddingTop: '0.5em',
+              borderTop: '1px solid #aaa',
+            }}
+          >
             {OPTIONS[key].map(value => (
               <button
                 key={`${key}-${value}`}
@@ -134,17 +153,40 @@ storiesOf('components/Collection', module)
 
       renderPropertyTable = () => (
         <div
-          style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 1fr 1fr' }}
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'auto 1fr 1fr 1fr 1fr',
+          }}
         >
-          <div>property</div>
-          {[COLLECTION_ID, ...SERIES_IDS].map(id => (
-            <div key={id} style={{ textAlign: 'center' }}>
+          <div style={{ textAlign: 'center' }}>prop</div>
+          {[...COLLECTION_IDS, ...SERIES_IDS].map(id => (
+            <div
+              key={id}
+              style={{
+                textAlign: 'center',
+              }}
+            >
               {id}
             </div>
           ))}
           {Object.keys(OPTIONS).map(option => (
             <React.Fragment key={option}>
-              <div key={option}>{option}</div>
+              <div
+                key={option}
+                style={{
+                  textAlign: 'right',
+                  paddingRight: '0.5em',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  marginTop: '0.5em',
+                  paddingTop: '0.5em',
+                  borderTop: '1px solid #aaa',
+                  fontFamily: 'monospace',
+                }}
+              >
+                {option}
+              </div>
               {this.renderToggles(option)}
             </React.Fragment>
           ))}
@@ -152,31 +194,28 @@ storiesOf('components/Collection', module)
       );
 
       render() {
-        const collectionOptions = Object.keys(OPTIONS).reduce((acc, option) => {
-          const { [option]: values = {} } = this.state;
-          return {
-            ...acc,
-            [option]: values[COLLECTION_ID],
-          };
-        }, {});
         return (
           <div>
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
             >
-              <Collection id={COLLECTION_ID} {...collectionOptions}>
-                {SERIES_IDS.map(id => {
-                  const options = Object.keys(OPTIONS).reduce((acc, option) => {
-                    const { [option]: values = {} } = this.state;
-                    return {
-                      ...acc,
-                      [option]: values[id],
-                    };
-                  }, {});
-                  return <Series key={id} id={id} {...options} />;
-                })}
-              </Collection>
+              {COLLECTION_IDS.map(collectionId => (
+                <Collection
+                  key={collectionId}
+                  id={collectionId}
+                  {...this.getItemOptions(collectionId)}
+                >
+                  {SERIES_IDS.filter(s => s.collectionId === collectionId).map(
+                    id => (
+                      <Series key={id} id={id} {...this.getItemOptions(id)} />
+                    )
+                  )}
+                </Collection>
+              ))}
+              {SERIES_IDS.filter(s => s.collectionId === undefined).map(id => (
+                <Series key={id} id={id} {...this.getItemOptions(id)} />
+              ))}
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
             {this.renderPropertyTable()}

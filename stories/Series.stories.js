@@ -56,7 +56,7 @@ storiesOf('components/Series', module)
 
     const SERIES_IDS = ['first', 'second'];
     const OPTIONS = {
-      color: ['maroon', 'steelblue', 'gray'],
+      color: ['maroon', 'steelblue', 'darkgreen', 'lightsalmon'],
       drawLines: [true, false],
       drawPoints: [true, false, pointRenderer],
       pointWidth: [4, 6, 8, 10],
@@ -98,7 +98,16 @@ storiesOf('components/Series', module)
       renderToggles = key => {
         const { [key]: values = {} } = this.state;
         return SERIES_IDS.map(id => (
-          <div key={id} style={{ display: 'flex', flexDirection: 'column' }}>
+          <div
+            key={id}
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              marginTop: '0.5em',
+              paddingTop: '0.5em',
+              borderTop: '1px solid #aaa',
+            }}
+          >
             {OPTIONS[key].map(value => (
               <button
                 key={`${key}-${value}`}
@@ -122,15 +131,35 @@ storiesOf('components/Series', module)
 
       renderPropertyTable = () => (
         <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr 1fr' }}>
-          <div>property</div>
+          <div style={{ textAlign: 'center' }}>prop</div>
           {SERIES_IDS.map(id => (
-            <div key={id} style={{ textAlign: 'center' }}>
+            <div
+              key={id}
+              style={{
+                textAlign: 'center',
+              }}
+            >
               {id}
             </div>
           ))}
           {Object.keys(OPTIONS).map(option => (
             <React.Fragment key={option}>
-              <div key={option}>{option}</div>
+              <div
+                key={option}
+                style={{
+                  textAlign: 'right',
+                  paddingRight: '0.5em',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  marginTop: '0.5em',
+                  paddingTop: '0.5em',
+                  borderTop: '1px solid #aaa',
+                  fontFamily: 'monospace',
+                }}
+              >
+                {option}
+              </div>
               {this.renderToggles(option)}
             </React.Fragment>
           ))}
