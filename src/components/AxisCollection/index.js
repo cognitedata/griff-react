@@ -9,6 +9,7 @@ import GriffPropTypes, {
 } from '../../utils/proptypes';
 import AxisDisplayMode from '../../utils/AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
+import { withDisplayName } from '../../utils/displayName';
 
 const propTypes = {
   height: PropTypes.number.isRequired,
@@ -284,10 +285,10 @@ const AxisCollection = ({
 AxisCollection.propTypes = propTypes;
 AxisCollection.defaultProps = defaultProps;
 
-export default props => (
+export default withDisplayName('AxisCollection', props => (
   <ScalerContext.Consumer>
     {({ collections, series }) => (
       <AxisCollection {...props} collections={collections} series={series} />
     )}
   </ScalerContext.Consumer>
-);
+));
