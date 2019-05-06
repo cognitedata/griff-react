@@ -176,10 +176,12 @@ class Scaler extends React.Component<Props, State> {
           x:
             item.xDomain ||
             stripPlaceholderDomain(Axes.x(oldDomainsByItemId[item.id])) ||
+            // Set a large range because this is a domain.
             placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
           y:
             item.yDomain ||
             stripPlaceholderDomain(Axes.y(oldDomainsByItemId[item.id])) ||
+            // Set a large range because this is a domain.
             placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
         };
         subDomainsByItemId[item.id] = {
@@ -192,10 +194,12 @@ class Scaler extends React.Component<Props, State> {
           x:
             item.xSubDomain ||
             stripPlaceholderDomain(Axes.x(oldSubDomainsByItemId[item.id])) ||
+            // Set a small range because this is a subdomain.
             placeholder(0, 1),
           y:
             item.ySubDomain ||
             stripPlaceholderDomain(Axes.y(oldSubDomainsByItemId[item.id])) ||
+            // Set a small range because this is a subdomain.
             placeholder(0, 1),
         };
       });
@@ -268,10 +272,12 @@ class Scaler extends React.Component<Props, State> {
           time: [...dataContext.timeDomain],
           x: [
             ...(item.xDomain ||
+              // Set a large range because this is a domain.
               placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)),
           ],
           y: [
             ...(item.yDomain ||
+              // Set a large range because this is a domain.
               placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)),
           ],
         },
@@ -287,8 +293,16 @@ class Scaler extends React.Component<Props, State> {
         ...acc,
         [item.id]: {
           time: [...dataContext.timeSubDomain],
-          x: [...(item.xSubDomain || placeholder(0, 1))],
-          y: [...(item.ySubDomain || placeholder(0, 1))],
+          x: [
+            ...(item.xSubDomain ||
+              // Set a small range because this is a subdomain.
+              placeholder(0, 1)),
+          ],
+          y: [
+            ...(item.ySubDomain ||
+              // Set a small range because this is a subdomain.
+              placeholder(0, 1)),
+          ],
         },
       }),
       {}
@@ -349,7 +363,9 @@ class Scaler extends React.Component<Props, State> {
                 ? // FIXME: Phase out this single timeDomain thing.
                   dataContext.timeDomain
                 : undefined)
-          ) || placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
+          ) ||
+          // Set a large range because this is a limiting range.
+          placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
 
         if (newSpan === existingSpan) {
           // This is a translation; check the bounds.
