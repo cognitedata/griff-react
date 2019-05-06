@@ -9,6 +9,7 @@ import ZoomRect from '../ZoomRect';
 import { createXScale, ScalerFunctionFactory } from '../../utils/scale-helpers';
 import { Domain, Series } from '../../external';
 import { DomainsByItemId } from '../Scaler';
+import { withDisplayName } from '../../utils/displayName';
 
 export interface Props {
   axis: 'time' | 'x';
@@ -194,8 +195,7 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   // regular 1280 display. So by dividing width by ~100
   // we can achieve appropriate amount of ticks for any width.
   const values = scale.ticks(ticks || Math.floor(width / 100) || 1);
-  // @ts-ignore - This is a domain
-  const range: Domain = scale.range().map(r => r + halfStrokeWidth);
+  const range: Domain = scale.range().map(r => r + halfStrokeWidth) as Domain;
   const pathString = getPathString({
     height,
     placement,
@@ -264,7 +264,7 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   );
 };
 
-export default (props: Props) => (
+export default withDisplayName('XAxis', (props: Props) => (
   <ScalerContext.Consumer>
     {({ domainsByItemId, subDomainsByItemId, series }: ScalerProps) => (
       <SizeMe monitorWidth>
@@ -280,4 +280,4 @@ export default (props: Props) => (
       </SizeMe>
     )}
   </ScalerContext.Consumer>
-);
+));

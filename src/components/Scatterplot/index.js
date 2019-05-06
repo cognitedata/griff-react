@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
-import Scaler from '../Scaler';
 import ScalerContext from '../../context/Scaler';
 import PointCollection from '../PointCollection';
 import InteractionLayer, { ZoomMode } from '../InteractionLayer';
@@ -209,17 +208,15 @@ const SizedScatterplotComponent = sizeMe({
 })(ScatterplotComponent);
 
 const Scatterplot = props => (
-  <Scaler>
-    <ScalerContext.Consumer>
-      {({ collections, series }) => (
-        <SizedScatterplotComponent
-          {...props}
-          collections={collections}
-          series={series}
-        />
-      )}
-    </ScalerContext.Consumer>
-  </Scaler>
+  <ScalerContext.Consumer>
+    {({ collections, series }) => (
+      <SizedScatterplotComponent
+        {...props}
+        collections={collections}
+        series={series}
+      />
+    )}
+  </ScalerContext.Consumer>
 );
 
 export default Scatterplot;

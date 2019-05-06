@@ -15,6 +15,7 @@ import Ruler from '../Ruler';
 import Area from '../Area';
 import ZoomRect from '../ZoomRect';
 import Axes from '../../utils/Axes';
+import { withDisplayName } from '../../utils/displayName';
 
 export const ZoomMode = {
   X: 0,
@@ -612,7 +613,7 @@ class InteractionLayer extends React.Component {
   }
 }
 
-export default props => (
+export default withDisplayName('InteractionLayer', props => (
   <ScalerContext.Consumer>
     {({ collections, series, subDomainsByItemId }) => (
       <InteractionLayer
@@ -623,4 +624,4 @@ export default props => (
       />
     )}
   </ScalerContext.Consumer>
-);
+));

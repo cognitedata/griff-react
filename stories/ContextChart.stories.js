@@ -26,37 +26,31 @@ storiesOf('components/ContextChart', module)
     </div>
   ))
   .add('default', () => (
-    <React.Fragment>
-      <div style={{ width: '100%' }}>
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-          <Series id="1" color="steelblue" />
-          <Series id="2" color="maroon" />
-          <ContextChart />
-        </DataProvider>
-      </div>
-    </React.Fragment>
+    <div style={{ width: '100%' }}>
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <ContextChart />
+      </DataProvider>
+    </div>
   ))
   .add('height', () => (
-    <React.Fragment>
-      <div style={{ width: '100%' }}>
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-          <Series id="1" color="steelblue" />
-          <Series id="2" color="maroon" />
-          <ContextChart height={500} />
-        </DataProvider>
-      </div>
-    </React.Fragment>
+    <div style={{ width: '100%' }}>
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <ContextChart height={500} />
+      </DataProvider>
+    </div>
   ))
   .add('annotations', () => (
-    <React.Fragment>
-      <div style={{ width: '100%' }}>
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-          <Series id="1" color="steelblue" />
-          <Series id="2" color="maroon" />
-          <ContextChart annotations={exampleAnnotations} />
-        </DataProvider>
-      </div>
-    </React.Fragment>
+    <div style={{ width: '100%' }}>
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <ContextChart annotations={exampleAnnotations} />
+      </DataProvider>
+    </div>
   ))
   .add('zoomable', () => (
     <React.Fragment>
@@ -75,32 +69,28 @@ storiesOf('components/ContextChart', module)
     </React.Fragment>
   ))
   .add('xAxisFormatter', () => (
-    <React.Fragment>
-      <div style={{ width: '100%' }}>
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-          <Series id="1" color="steelblue" />
-          <Series id="2" color="maroon" />
-          <ContextChart
-            xAxisFormatter={date =>
-              `${(
-                100 *
-                ((date - staticXDomain[0]) /
-                  (staticXDomain[1] - staticXDomain[0]))
-              ).toFixed(0)}%`
-            }
-          />
-        </DataProvider>
-      </div>
-    </React.Fragment>
+    <div style={{ width: '100%' }}>
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <ContextChart
+          xAxisFormatter={date =>
+            `${(
+              100 *
+              ((date - staticXDomain[0]) /
+                (staticXDomain[1] - staticXDomain[0]))
+            ).toFixed(0)}%`
+          }
+        />
+      </DataProvider>
+    </div>
   ))
   .add('xAxisPlacement', () => (
-    <React.Fragment>
-      <div style={{ width: '100%' }}>
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-          <Series id="1" color="steelblue" />
-          <Series id="2" color="maroon" />
-          <ContextChart xAxisPlacement={AxisPlacement.TOP} />
-        </DataProvider>
-      </div>
-    </React.Fragment>
+    <div style={{ width: '100%' }}>
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <ContextChart xAxisPlacement={AxisPlacement.TOP} />
+      </DataProvider>
+    </div>
   ));

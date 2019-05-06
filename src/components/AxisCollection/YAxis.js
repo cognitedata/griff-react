@@ -7,6 +7,7 @@ import AxisPlacement from '../AxisPlacement';
 import ScalerContext from '../../context/Scaler';
 import ZoomRect from '../ZoomRect';
 import Axes from '../../utils/Axes';
+import { withDisplayName } from '../../utils/displayName';
 
 const propTypes = {
   zoomable: PropTypes.bool,
@@ -252,10 +253,10 @@ const YAxis = ({
 YAxis.propTypes = propTypes;
 YAxis.defaultProps = defaultProps;
 
-export default props => (
+export default withDisplayName('YAxis', props => (
   <ScalerContext.Consumer>
     {({ subDomainsByItemId }) => (
       <YAxis {...props} subDomainsByItemId={subDomainsByItemId} />
     )}
   </ScalerContext.Consumer>
-);
+));

@@ -158,8 +158,7 @@ class Brush extends React.Component<Props, State> {
       const { dragStartSelection } = this.state;
       const position = e.nativeEvent.offsetX;
       const dx = position - (dragStartSelection || 0);
-      // @ts-ignore - We know this is a Domain.
-      const newSelection: Domain = selection.map(d => d + dx);
+      const newSelection: Domain = selection.map(d => d + dx) as Domain;
       if (newSelection[0] >= 0 && newSelection[1] <= width) {
         this.setState({
           dragStartSelection: position,
@@ -168,11 +167,10 @@ class Brush extends React.Component<Props, State> {
       }
     } else if (isDraggingOverlay) {
       const { dragStartOverlay } = this.state;
-      // @ts-ignore - We know this is a Domain.
       const newSelection: Domain = [
         dragStartOverlay || 0,
         e.nativeEvent.offsetX,
-      ].sort((a, b) => a - b);
+      ].sort((a, b) => a - b) as Domain;
       onUpdateSelection(newSelection);
     }
   };
@@ -259,6 +257,7 @@ class Brush extends React.Component<Props, State> {
           height={height}
           fill="none"
           pointerEvents="all"
+          stroke="none"
           onMouseDown={this.onMouseDownHandleWest}
         />
         <path
@@ -276,6 +275,7 @@ class Brush extends React.Component<Props, State> {
           height={height}
           fill="none"
           pointerEvents="all"
+          stroke="none"
           onMouseDown={this.onMouseDownHandleEast}
         />
       </g>

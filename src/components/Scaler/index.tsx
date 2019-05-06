@@ -6,6 +6,7 @@ import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import Axes, { Domains } from '../../utils/Axes';
 import { Domain, Series, Collection } from '../../external';
 import { Item } from '../../internal';
+import { withDisplayName } from '../../utils/displayName';
 
 // TODO: Move this to DataProvider.
 type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;
@@ -43,6 +44,8 @@ interface State {
 }
 
 export interface OnDomainsUpdated extends Function {}
+
+type DomainAxis = 'time' | 'x' | 'y';
 
 // If the timeSubDomain is within this margin, consider it to be attached to
 // the leading edge of the timeDomain.
@@ -339,8 +342,8 @@ class Scaler extends React.Component<Props, State> {
     const newSubDomains = { ...subDomainsByItemId };
     Object.keys(changedDomainsById).forEach(itemId => {
       newSubDomains[itemId] = { ...(subDomainsByItemId[itemId] || {}) };
-      Object.keys(changedDomainsById[itemId]).forEach(axis => {
-        // @ts-ignore - We know that "axis" here is a Dimension string.
+      Object.keys(changedDomainsById[itemId]).forEach(uncastAxis => {
+        const axis: DomainAxis = uncastAxis as DomainAxis;
         let newSubDomain = changedDomainsById[itemId][axis];
         if (axis === String(Axes.time)) {
           if (dataContext.limitTimeSubDomain) {
@@ -351,13 +354,11 @@ class Scaler extends React.Component<Props, State> {
         const newSpan = newSubDomain[1] - newSubDomain[0];
 
         const existingSubDomain =
-          // @ts-ignore - We know that "axis" here is a Dimension string.
           subDomainsByItemId[itemId][axis] || newSubDomain;
         const existingSpan = existingSubDomain[1] - existingSubDomain[0];
 
         const limits =
           stripPlaceholderDomain(
-            // @ts-ignore - We know that "axis" here is a Dimension string.
             ((domainsByItemId || {})[itemId] || {})[axis] ||
               (axis === String(Axes.time)
                 ? // FIXME: Phase out this single timeDomain thing.
@@ -382,7 +383,6 @@ class Scaler extends React.Component<Props, State> {
           ];
         }
 
-        // @ts-ignore - We know that "axis" here is a Dimension string.
         newSubDomains[itemId][axis] = newSubDomain;
 
         if (axis === String(Axes.time)) {
@@ -426,10 +426,10 @@ class Scaler extends React.Component<Props, State> {
   }
 }
 
-export default (props: Props) => (
+export default withDisplayName('Scaler', (props: Props) => (
   <DataContext.Consumer>
     {(dataContext: DataContext) => (
       <Scaler {...props} dataContext={dataContext} />
     )}
   </DataContext.Consumer>
-);
+));
