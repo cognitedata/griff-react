@@ -210,7 +210,13 @@ export default withDisplayName(
   'GridLines',
   ({ width, height, ...props }: Props & SizeProps) => (
     <ScalerContext.Consumer>
-      {({ series, subDomainsByItemId }: any) => (
+      {({
+        series,
+        subDomainsByItemId,
+      }: {
+        series: Series[];
+        subDomainsByItemId: DomainsByItemId;
+      }) => (
         <GridLines
           {...props}
           width={width}

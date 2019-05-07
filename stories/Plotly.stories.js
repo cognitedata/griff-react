@@ -30,7 +30,7 @@ const seriesToPlotly = ({ color, data, id }, subDomainsByItemId) => {
   };
 };
 
-storiesOf('Plotly', module)
+storiesOf('integrations/Plotly', module)
   .addDecorator(story => (
     <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
       {story()}
