@@ -96,13 +96,6 @@ const findItemsWithChangedDomains = (
   }, []);
 };
 
-export const stripPlaceholderDomain = (domain: Domain): Domain | undefined => {
-  if (domain && domain.placeholder) {
-    return undefined;
-  }
-  return domain;
-};
-
 const isEqual = (a: Domain, b: Domain): boolean => {
   if (a === b) {
     return true;
@@ -111,6 +104,20 @@ const isEqual = (a: Domain, b: Domain): boolean => {
     return false;
   }
   return a[0] === b[0] && a[1] === b[1];
+};
+
+export const firstResolvedDomain = (
+  domain: Domain | undefined,
+  // tslint:disable-next-line
+  ...domains: (undefined | Domain)[]
+): Domain | undefined => {
+  if (domain && domain.placeholder !== true) {
+    return [...domain] as Domain;
+  }
+  if (domains.length === 0) {
+    return undefined;
+  }
+  return firstResolvedDomain(domains[0], ...(domains.splice(1) as Domain[]));
 };
 
 /**
@@ -162,18 +169,12 @@ class Scaler extends React.Component<Props, State> {
             ...updates.domainsByItemId,
             [item.id]: {
               time: [...timeDomain] as Domain,
-              x: item.xDomain
-                ? ([...item.xDomain] as Domain)
-                : (placeholder(
-                    Number.MIN_SAFE_INTEGER,
-                    Number.MAX_SAFE_INTEGER
-                  ) as Domain),
-              y: item.yDomain
-                ? ([...item.yDomain] as Domain)
-                : (placeholder(
-                    Number.MIN_SAFE_INTEGER,
-                    Number.MAX_SAFE_INTEGER
-                  ) as Domain),
+              x:
+                firstResolvedDomain(item.xDomain) ||
+                placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
+              y:
+                firstResolvedDomain(item.yDomain) ||
+                placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
             },
           };
         }
@@ -184,16 +185,8 @@ class Scaler extends React.Component<Props, State> {
             ...updates.subDomainsByItemId,
             [item.id]: {
               time: [...timeSubDomain] as Domain,
-              x: [
-                ...(item.xSubDomain ||
-                  // Set a small range because this is a subdomain.
-                  placeholder(0, 1)),
-              ] as Domain,
-              y: [
-                ...(item.ySubDomain ||
-                  // Set a small range because this is a subdomain.
-                  placeholder(0, 1)),
-              ] as Domain,
+              x: firstResolvedDomain(item.xSubDomain) || placeholder(0, 1),
+              y: firstResolvedDomain(item.ySubDomain) || placeholder(0, 1),
             },
           };
         }
@@ -232,35 +225,46 @@ class Scaler extends React.Component<Props, State> {
       [...changedSeries, ...changedCollections].forEach(item => {
         domainsByItemId[item.id] = {
           time:
-            dataContext.timeDomain ||
-            (item.timeDomain ||
-              stripPlaceholderDomain(Axes.time(oldDomainsByItemId[item.id]))),
+            firstResolvedDomain(
+              dataContext.timeDomain,
+              item.timeDomain,
+              Axes.time(oldDomainsByItemId[item.id])
+            ) || placeholder(0, Date.now()),
           x:
-            item.xDomain ||
-            stripPlaceholderDomain(Axes.x(oldDomainsByItemId[item.id])) ||
+            firstResolvedDomain(
+              item.xDomain,
+              Axes.x(oldDomainsByItemId[item.id])
+            ) ||
             // Set a large range because this is a domain.
             placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
           y:
-            item.yDomain ||
-            stripPlaceholderDomain(Axes.y(oldDomainsByItemId[item.id])) ||
+            firstResolvedDomain(
+              item.yDomain,
+              Axes.y(oldDomainsByItemId[item.id])
+            ) ||
             // Set a large range because this is a domain.
             placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
         };
         subDomainsByItemId[item.id] = {
           time:
-            dataContext.timeSubDomain ||
-            (item.timeSubDomain ||
-              stripPlaceholderDomain(
-                Axes.time(oldSubDomainsByItemId[item.id])
-              )),
+            firstResolvedDomain(
+              dataContext.timeSubDomain ||
+                (item.timeSubDomain ||
+                  Axes.time(oldSubDomainsByItemId[item.id]))
+            ) ||
+            // Set a large range because this is a subdomain.
+            placeholder(0, Date.now()),
           x:
-            item.xSubDomain ||
-            stripPlaceholderDomain(Axes.x(oldSubDomainsByItemId[item.id])) ||
+            firstResolvedDomain(
+              item.xSubDomain,
+              Axes.x(oldSubDomainsByItemId[item.id])
+            ) ||
             // Set a small range because this is a subdomain.
             placeholder(0, 1),
           y:
-            item.ySubDomain ||
-            stripPlaceholderDomain(Axes.y(oldSubDomainsByItemId[item.id])) ||
+            firstResolvedDomain(
+              item.ySubDomain || Axes.y(oldSubDomainsByItemId[item.id])
+            ) ||
             // Set a small range because this is a subdomain.
             placeholder(0, 1),
         };
@@ -371,12 +375,12 @@ class Scaler extends React.Component<Props, State> {
         const existingSpan = existingSubDomain[1] - existingSubDomain[0];
 
         const limits =
-          stripPlaceholderDomain(
-            ((domainsByItemId || {})[itemId] || {})[axis] ||
-              (axis === String(Axes.time)
-                ? // FIXME: Phase out this single timeDomain thing.
-                  dataContext.timeDomain
-                : undefined)
+          firstResolvedDomain(
+            ((domainsByItemId || {})[itemId] || {})[axis],
+            axis === String(Axes.time)
+              ? // FIXME: Phase out this single timeDomain thing.
+                dataContext.timeDomain
+              : undefined
           ) ||
           // Set a large range because this is a limiting range.
           placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
