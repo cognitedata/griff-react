@@ -47,6 +47,11 @@ export interface OnDomainsUpdated extends Function {}
 
 type DomainAxis = 'time' | 'x' | 'y';
 
+interface StateUpdates {
+  domainsByItemId: DomainsByItemId;
+  subDomainsByItemId: DomainsByItemId;
+}
+
 // If the timeSubDomain is within this margin, consider it to be attached to
 // the leading edge of the timeDomain.
 const FRONT_OF_WINDOW_THRESHOLD = 0.05;
@@ -140,17 +145,70 @@ class Scaler extends React.Component<Props, State> {
 
   static defaultProps = {};
 
-  constructor(props: Props) {
-    super(props);
+  static getDerivedStateFromProps(
+    { dataContext: { timeDomain, timeSubDomain, series, collections } }: Props,
+    state: State
+  ) {
+    // Make sure that all items in the props are present in the domainsByItemId
+    // and subDomainsByItemId state objects.
+    const { domainsByItemId, subDomainsByItemId } = state;
+    let updated = false;
+    const stateUpdates = series.concat(collections).reduce(
+      (acc: StateUpdates, item: Item): StateUpdates => {
+        const updates: StateUpdates = { ...acc };
+        if (!domainsByItemId[item.id]) {
+          updated = true;
+          updates.domainsByItemId = {
+            ...updates.domainsByItemId,
+            [item.id]: {
+              time: [...timeDomain] as Domain,
+              x: item.xDomain
+                ? ([...item.xDomain] as Domain)
+                : (placeholder(
+                    Number.MIN_SAFE_INTEGER,
+                    Number.MAX_SAFE_INTEGER
+                  ) as Domain),
+              y: item.yDomain
+                ? ([...item.yDomain] as Domain)
+                : (placeholder(
+                    Number.MIN_SAFE_INTEGER,
+                    Number.MAX_SAFE_INTEGER
+                  ) as Domain),
+            },
+          };
+        }
 
-    this.state = {
-      // Map from item (collection, series) to their respective domains.
-      domainsByItemId: this.getDomainsByItemId(),
+        if (!subDomainsByItemId[item.id]) {
+          updated = true;
+          updates.subDomainsByItemId = {
+            ...updates.subDomainsByItemId,
+            [item.id]: {
+              time: [...timeSubDomain] as Domain,
+              x: [
+                ...(item.xSubDomain ||
+                  // Set a small range because this is a subdomain.
+                  placeholder(0, 1)),
+              ] as Domain,
+              y: [
+                ...(item.ySubDomain ||
+                  // Set a small range because this is a subdomain.
+                  placeholder(0, 1)),
+              ] as Domain,
+            },
+          };
+        }
 
-      // Map from item (collection, series) to their respective subdomains.
-      subDomainsByItemId: this.getSubDomainsByItemId(),
-    };
+        return updates;
+      },
+      { domainsByItemId: {}, subDomainsByItemId: {} }
+    );
+    return updated ? stateUpdates : null;
   }
+
+  state: State = {
+    domainsByItemId: {},
+    subDomainsByItemId: {},
+  };
 
   componentDidUpdate(prevProps: Props) {
     const { dataContext } = this.props;
@@ -158,6 +216,7 @@ class Scaler extends React.Component<Props, State> {
       domainsByItemId: oldDomainsByItemId,
       subDomainsByItemId: oldSubDomainsByItemId,
     } = this.state;
+
     const changedSeries = findItemsWithChangedDomains(
       prevProps.dataContext.series,
       dataContext.series
@@ -266,52 +325,6 @@ class Scaler extends React.Component<Props, State> {
     }
   }
 
-  getDomainsByItemId = () => {
-    const { dataContext } = this.props;
-    return [...dataContext.series, ...dataContext.collections].reduce(
-      (acc, item) => ({
-        ...acc,
-        [item.id]: {
-          time: [...dataContext.timeDomain],
-          x: [
-            ...(item.xDomain ||
-              // Set a large range because this is a domain.
-              placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)),
-          ],
-          y: [
-            ...(item.yDomain ||
-              // Set a large range because this is a domain.
-              placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER)),
-          ],
-        },
-      }),
-      {}
-    );
-  };
-
-  getSubDomainsByItemId = () => {
-    const { dataContext } = this.props;
-    return [...dataContext.series, ...dataContext.collections].reduce(
-      (acc, item) => ({
-        ...acc,
-        [item.id]: {
-          time: [...dataContext.timeSubDomain],
-          x: [
-            ...(item.xSubDomain ||
-              // Set a small range because this is a subdomain.
-              placeholder(0, 1)),
-          ],
-          y: [
-            ...(item.ySubDomain ||
-              // Set a small range because this is a subdomain.
-              placeholder(0, 1)),
-          ],
-        },
-      }),
-      {}
-    );
-  };
-
   /**
    * Update the subdomains for the given items. This is a patch update and will
    * be merged with the current state of the subdomains. An example payload
@@ -405,13 +418,16 @@ class Scaler extends React.Component<Props, State> {
 
   render() {
     const { domainsByItemId, subDomainsByItemId } = this.state;
-    const { children, dataContext } = this.props;
+    const {
+      children,
+      dataContext: { collections, series },
+    } = this.props;
 
     const finalContext = {
       // Pick what we need out of the dataContext instead of spreading the
       // entire object into the context.
-      collections: dataContext.collections,
-      series: dataContext.series,
+      collections,
+      series,
 
       updateDomains: this.updateDomains,
       domainsByItemId,
