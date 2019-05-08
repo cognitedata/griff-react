@@ -19,6 +19,7 @@ export interface Props {
   drawPoints?: boolean;
   strokeWidth?: number;
   opacity?: number;
+  opacityAccessor?: AccessorFunction;
   pointWidth?: number;
   pointWidthAccessor?: AccessorFunction;
   clipPath: string;
@@ -36,8 +37,9 @@ const Line: React.FunctionComponent<Props> = ({
   step = false,
   hidden = false,
   drawPoints = false,
-  strokeWidth = 6,
+  strokeWidth = 1,
   opacity = 1,
+  opacityAccessor,
   pointWidth = 6,
   pointWidthAccessor,
   clipPath,
@@ -111,6 +113,8 @@ const Line: React.FunctionComponent<Props> = ({
           const x = xAxisAccessor(d);
           return x >= xSubDomain[0] && x <= xSubDomain[1];
         })}
+        opacity={opacity}
+        opacityAccessor={opacityAccessor}
         drawPoints={drawPoints}
         xAccessor={xAxisAccessor}
         yAccessor={yAccessor}

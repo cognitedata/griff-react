@@ -1,7 +1,13 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { DataProvider, LineChart, AxisDisplayMode } from '../build/src';
+import {
+  AxisDisplayMode,
+  Collection,
+  DataProvider,
+  LineChart,
+  Series,
+} from '../build/src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
@@ -14,24 +20,19 @@ storiesOf('Y-Axis Modes', module)
     };
     return (
       <React.Fragment>
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[
-            { id: 1, color: 'steelblue' },
-            { id: 2, color: 'maroon' },
-            {
-              id: 3,
-              color: 'orange',
-              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-            },
-            {
-              id: 4,
-              color: 'green',
-              yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-            },
-          ]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
+          <Series
+            id="3"
+            color="orange"
+            yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+          />
+          <Series
+            id="4"
+            color="green"
+            yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+          />
           <LineChart
             height={CHART_HEIGHT}
             yAxisDisplayMode={AxisDisplayMode.ALL}
@@ -43,11 +44,9 @@ storiesOf('Y-Axis Modes', module)
     );
   })
   .add('Without y axis', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart
         height={CHART_HEIGHT}
         yAxisDisplayMode={AxisDisplayMode.NONE}
@@ -55,11 +54,9 @@ storiesOf('Y-Axis Modes', module)
     </DataProvider>
   ))
   .add('Collapsed y axis', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart
         height={CHART_HEIGHT}
         yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
@@ -67,15 +64,11 @@ storiesOf('Y-Axis Modes', module)
     </DataProvider>
   ))
   .add('Collapsed collection', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      collections={[{ id: 'all', color: 'deepred' }]}
-      series={[
-        { id: 1, collectionId: 'all', color: 'steelblue' },
-        { id: 2, collectionId: 'all', color: 'maroon' },
-      ]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Collection id="all" color="deepred">
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+      </Collection>
       <LineChart
         height={CHART_HEIGHT}
         yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
@@ -83,20 +76,15 @@ storiesOf('Y-Axis Modes', module)
     </DataProvider>
   ))
   .add('Collapsed collected series', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      collections={[{ id: 'all', color: 'deepred' }]}
-      series={[
-        {
-          id: 1,
-          collectionId: 'all',
-          color: 'steelblue',
-          yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-        },
-        { id: 2, collectionId: 'all', color: 'maroon' },
-      ]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Collection id="all" color="deepred">
+        <Series
+          id="1"
+          color="steelblue"
+          yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+        />
+        <Series id="2" color="maroon" />
+      </Collection>
       <LineChart
         height={CHART_HEIGHT}
         yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
@@ -117,21 +105,19 @@ storiesOf('Y-Axis Modes', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                {
-                  id: 1,
-                  color: 'steelblue',
-                  yAxisDisplayMode: AxisDisplayMode.NONE,
-                },
-                { id: 2, color: 'maroon' },
-                {
-                  id: 3,
-                  color: 'orange',
-                  yAxisDisplayMode: AxisDisplayMode.NONE,
-                },
-                { id: 4, color: 'green' },
-              ]}
             >
+              <Series
+                id="1"
+                color="steelblue"
+                yAxisDisplayMode={AxisDisplayMode.NONE}
+              />
+              <Series id="2" color="maroon" />
+              <Series
+                id="3"
+                color="orange"
+                yAxisDisplayMode={AxisDisplayMode.NONE}
+              />
+              <Series id="4" color="green" />
               <LineChart
                 height={CHART_HEIGHT}
                 yAxisDisplayMode={yAxisDisplayMode}
@@ -173,46 +159,28 @@ storiesOf('Y-Axis Modes', module)
     }
     return <SomeCollapsed />;
   })
-  .add('Some collapsed', () => {
-    // eslint-disable-next-line
-    class SomeCollapsed extends React.Component {
-      state = {
-        yAxisDisplayMode: AxisDisplayMode.ALL,
-      };
-
-      render() {
-        const { yAxisDisplayMode } = this.state;
-        return (
-          <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-              series={[
-                {
-                  id: 1,
-                  color: 'steelblue',
-                  yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-                },
-                { id: 2, color: 'maroon' },
-                {
-                  id: 3,
-                  color: 'orange',
-                  yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-                },
-                { id: 4, color: 'green' },
-              ]}
-            >
-              <LineChart
-                height={CHART_HEIGHT}
-                yAxisDisplayMode={yAxisDisplayMode}
-              />
-            </DataProvider>
-          </React.Fragment>
-        );
-      }
-    }
-    return <SomeCollapsed />;
-  })
+  .add('Some collapsed', () => (
+    <React.Fragment>
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series
+          id="1"
+          color="steelblue"
+          yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+        />
+        <Series id="2" color="maroon" />
+        <Series
+          id="3"
+          color="orange"
+          yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+        />
+        <Series id="4" color="green" />
+        <LineChart
+          height={CHART_HEIGHT}
+          yAxisDisplayMode={AxisDisplayMode.ALL}
+        />
+      </DataProvider>
+    </React.Fragment>
+  ))
   .add('Some collapsed (until hover)', () => {
     // eslint-disable-next-line
     class SomeCollapsed extends React.Component {
@@ -273,8 +241,10 @@ storiesOf('Y-Axis Modes', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={series}
             >
+              {series.map(s => (
+                <Series key={s.id} {...s} />
+              ))}
               <LineChart
                 height={CHART_HEIGHT}
                 yAxisDisplayMode={yAxisDisplayMode}
@@ -292,53 +262,26 @@ storiesOf('Y-Axis Modes', module)
     // eslint-disable-next-line
     class SomeCollapsed extends React.Component {
       state = {
-        collections: [
-          { id: 'default-expanded', color: 'red' },
-          {
-            id: 'default-collapsed',
-            color: 'blue',
-            yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-          },
-        ],
-        series: [
-          {
-            id: 1,
-            color: 'steelblue',
-            yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-          },
-          {
-            id: 2,
-            color: 'maroon',
-            collectionId: 'default-expanded',
-          },
-          {
-            id: 3,
-            color: 'orange',
-            collectionId: 'default-expanded',
-            yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-          },
-          {
-            id: 4,
-            color: 'green',
-            collectionId: 'default-collapsed',
-          },
-          {
-            id: 5,
-            color: 'gray',
-            collectionId: 'default-collapsed',
-            yAxisDisplayMode: AxisDisplayMode.COLLAPSED,
-          },
-        ],
-        yAxisDisplayMode: AxisDisplayMode.ALL,
+        collections: {
+          'default-expanded': AxisDisplayMode.ALL,
+          'default-collapsed': AxisDisplayMode.COLLAPSED,
+        },
+        series: {
+          1: AxisDisplayMode.COLLAPSED,
+          2: AxisDisplayMode.ALL,
+          3: AxisDisplayMode.COLLAPSED,
+          4: AxisDisplayMode.ALL,
+          5: AxisDisplayMode.COLLAPSED,
+        },
       };
 
       expandAll = (e, seriesId) => {
-        const { collections, series: stateSeries } = this.state;
+        const { collections, series } = this.state;
         if (seriesId === 'collapsed') {
-          const expand = s => ({ ...s, yAxisDisplayMode: AxisDisplayMode.ALL });
+          const expand = (acc, id) => ({ ...acc, [id]: AxisDisplayMode.ALL });
           this.setState({
-            series: stateSeries.map(expand),
-            collections: collections.map(expand),
+            series: Object.keys(series).reduce(expand, {}),
+            collections: Object.keys(collections).reduce(expand, {}),
           });
         }
         if (this.collapseTimer) {
@@ -347,40 +290,60 @@ storiesOf('Y-Axis Modes', module)
       };
 
       collapseSome = () => {
-        const { collections, series: stateSeries } = this.state;
+        const { collections, series } = this.state;
         this.collapseTimer = setTimeout(() => {
           this.setState({
-            series: stateSeries.map(s => ({
-              ...s,
-              yAxisDisplayMode:
-                s.id === 1 || s.id === 3 || s.id === 5
-                  ? AxisDisplayMode.COLLAPSED
-                  : AxisDisplayMode.ALL,
-            })),
-            collections: collections.map(s => ({
-              ...s,
-              yAxisDisplayMode:
-                s.id === 'default-collapsed'
-                  ? AxisDisplayMode.COLLAPSED
-                  : AxisDisplayMode.ALL,
-            })),
+            series: Object.keys(series).reduce(
+              (acc, id) => ({
+                ...acc,
+                [id]:
+                  id === '1' || id === '3' || id === '5'
+                    ? AxisDisplayMode.COLLAPSED
+                    : AxisDisplayMode.ALL,
+              }),
+              {}
+            ),
+            collections: Object.keys(collections).reduce(
+              (acc, id) => ({
+                ...acc,
+                [id]:
+                  id === 'default-collapsed'
+                    ? AxisDisplayMode.COLLAPSED
+                    : AxisDisplayMode.ALL,
+              }),
+              {}
+            ),
           });
         }, 50);
       };
 
       render() {
-        const { collections, series, yAxisDisplayMode } = this.state;
+        const { collections, series } = this.state;
         return (
           <React.Fragment>
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              collections={collections}
-              series={series}
             >
+              <Series id="1" color="steelblue" yAxisDisplayMode={series[1]} />
+              <Collection
+                id="default-expanded"
+                color="red"
+                yAxisDisplayMode={collections['default-expanded']}
+              >
+                <Series id="2" color="maroon" yAxisDisplayMode={series[2]} />
+                <Series id="3" color="orange" yAxisDisplayMode={series[3]} />
+              </Collection>
+              <Collection
+                id="default-collapsed"
+                color="blue"
+                yAxisDisplayMode={collections['default-collapsed']}
+              >
+                <Series id="4" color="green" yAxisDisplayMode={series[4]} />
+                <Series id="5" color="gray" yAxisDisplayMode={series[5]} />
+              </Collection>
               <LineChart
                 height={CHART_HEIGHT}
-                yAxisDisplayMode={yAxisDisplayMode}
                 onAxisMouseEnter={this.expandAll}
                 onAxisMouseLeave={this.collapseSome}
               />
@@ -405,11 +368,9 @@ storiesOf('Y-Axis Modes', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart
                 height={CHART_HEIGHT}
                 yAxisDisplayMode={yAxisDisplayMode}
@@ -482,11 +443,9 @@ storiesOf('Y-Axis Modes', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart
                 height={CHART_HEIGHT}
                 yAxisDisplayMode={yAxisDisplayMode}

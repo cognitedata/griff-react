@@ -4,7 +4,13 @@ import Select from 'react-select';
 import isEqual from 'lodash.isequal';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { DataProvider, LineChart, Brush } from '../build/src';
+import {
+  DataProvider,
+  LineChart,
+  Brush,
+  Series,
+  Collection,
+} from '../build/src';
 import quandlLoader from './quandlLoader';
 
 import {
@@ -26,32 +32,23 @@ storiesOf('LineChart', module)
     </div>
   ))
   .add('Basic', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
   .add('Basic with yDomains', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      series={[
-        { id: 1, color: 'steelblue', ySubDomain: [0, 5] },
-        { id: 2, color: 'maroon', ySubDomain: [-1, 1] },
-      ]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" ySubDomain={[0, 5]} />
+      <Series id="2" color="maroon" ySubDomain={[-1, 1]} />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
   .add('Custom tick formatting', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart
         height={CHART_HEIGHT}
         xAxisFormatter={n => n / 1000}
@@ -60,57 +57,39 @@ storiesOf('LineChart', module)
     </DataProvider>
   ))
   .add('Custom # of y-axis ticks', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisTicks={15} />
     </DataProvider>
   ))
   .add('Multiple', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon' },
-          { id: 3, color: 'orange' },
-        ]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <Series id="3" color="orange" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon' },
-          { id: 3, color: 'orange', hidden: true },
-        ]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <Series id="3" color="orange" hidden />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     </React.Fragment>
   ))
   .add('Single-value in y axis', () => (
     <React.Fragment>
-      <DataProvider
-        timeDomain={staticXDomain}
-        series={[
-          { id: 1, color: 'steelblue', loader: monoLoader(0) },
-          { id: 2, color: 'maroon', loader: monoLoader(0.5) },
-          { id: 3, color: 'orange', loader: monoLoader(-0.5) },
-        ]}
-      >
+      <DataProvider timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" loader={monoLoader(0)} />
+        <Series id="2" color="maroon" loader={monoLoader(0.5)} />
+        <Series id="3" color="orange" loader={monoLoader(-0.5)} />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     </React.Fragment>
@@ -126,11 +105,9 @@ storiesOf('LineChart', module)
           margin: '1em',
         }}
       >
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <LineChart />
         </DataProvider>
       </div>
@@ -142,11 +119,9 @@ storiesOf('LineChart', module)
           margin: '1em',
         }}
       >
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[{ id: 2, color: 'steelblue' }, { id: 3, color: 'maroon' }]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <LineChart contextChart={{ visible: false }} />
         </DataProvider>
       </div>
@@ -158,11 +133,9 @@ storiesOf('LineChart', module)
           margin: '1em',
         }}
       >
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[{ id: 3, color: 'steelblue' }, { id: 4, color: 'maroon' }]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <LineChart
             contextChart={{
               visible: true,
@@ -179,11 +152,9 @@ storiesOf('LineChart', module)
           margin: '1em',
         }}
       >
-        <DataProvider
-          defaultLoader={staticLoader}
-          timeDomain={staticXDomain}
-          series={[{ id: 3, color: 'steelblue' }, { id: 4, color: 'maroon' }]}
-        >
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
           <LineChart xAxisHeight={25} />
         </DataProvider>
       </div>
@@ -191,11 +162,9 @@ storiesOf('LineChart', module)
   ))
   .add('Full-size', () => (
     <div style={{ height: '100vh' }}>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <LineChart />
       </DataProvider>
     </div>
@@ -247,11 +216,9 @@ storiesOf('LineChart', module)
               <DataProvider
                 defaultLoader={staticLoader}
                 timeDomain={staticXDomain}
-                series={[
-                  { id: 1, color: 'steelblue' },
-                  { id: 2, color: 'maroon' },
-                ]}
               >
+                <Series id="1" color="steelblue" />
+                <Series id="2" color="maroon" />
                 <LineChart />
               </DataProvider>
             </div>
@@ -267,61 +234,57 @@ storiesOf('LineChart', module)
       timeDomain={staticXDomain}
       timeAccessor={d => d[0]}
       yAccessor={d => d[1]}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
   .add('min/max', () => {
-    const y0Accessor = d => d[1] - 0.5;
-    const y1Accessor = d => d[1] + 0.5;
+    const y0Accessor = d => d.value - 0.5;
+    const y1Accessor = d => d.value + 0.5;
     return (
-      <DataProvider
-        defaultLoader={customAccessorLoader}
-        timeDomain={staticXDomain}
-        timeAccessor={d => d[0]}
-        yAccessor={d => d[1]}
-        series={[
-          { id: 10, color: 'steelblue', y0Accessor, y1Accessor },
-          { id: 2, color: 'maroon' },
-        ]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series
+          id="1"
+          color="steelblue"
+          y0Accessor={y0Accessor}
+          y1Accessor={y1Accessor}
+        />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     );
   })
   .add('min/max (step series)', () => {
-    const y0Accessor = d => d[1] - 0.5;
-    const y1Accessor = d => d[1] + 0.5;
+    const y0Accessor = d => d.value - 0.5;
+    const y1Accessor = d => d.value + 0.5;
     return (
-      <DataProvider
-        defaultLoader={customAccessorLoader}
-        timeDomain={staticXDomain}
-        timeAccessor={d => d[0]}
-        yAccessor={d => d[1]}
-        series={[
-          { id: 10, color: 'steelblue', y0Accessor, y1Accessor, step: true },
-          { id: 2, color: 'maroon', step: true },
-        ]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series
+          id="1"
+          color="steelblue"
+          y0Accessor={y0Accessor}
+          y1Accessor={y1Accessor}
+          step
+        />
+        <Series id="2" color="maroon" step />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     );
   })
   .add('min/max with raw points', () => {
-    const y0Accessor = d => d[1] - 0.5;
-    const y1Accessor = d => d[1] + 0.5;
+    const y0Accessor = d => d.value - 0.5;
+    const y1Accessor = d => d.value + 0.5;
     return (
-      <DataProvider
-        defaultLoader={customAccessorLoader}
-        timeDomain={staticXDomain}
-        timeAccessor={d => d[0]}
-        yAccessor={d => d[1]}
-        series={[
-          { id: 10, color: 'steelblue', y0Accessor, y1Accessor },
-          { id: 2, color: 'maroon', drawPoints: true },
-        ]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series
+          id="1"
+          color="steelblue"
+          y0Accessor={y0Accessor}
+          y1Accessor={y1Accessor}
+        />
+        <Series id="2" color="maroon" drawPoints />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     );
@@ -330,18 +293,10 @@ storiesOf('LineChart', module)
     <DataProvider
       defaultLoader={quandlLoader}
       timeDomain={[+moment().subtract(10, 'year'), +moment()]}
-      series={[
-        {
-          id: 'COM/COFFEE_BRZL',
-          color: 'steelblue',
-        },
-        {
-          id: 'COM/COFFEE_CLMB',
-          color: 'red',
-        },
-      ]}
       pointsPerSeries={100}
     >
+      <Series id="COM/COFFEE_BRZL" color="steelblue" />
+      <Series id="COM/COFFEE_CLMB" color="red" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
@@ -366,19 +321,9 @@ storiesOf('LineChart', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                {
-                  id: 1,
-                  color: 'steelblue',
-                  hidden: hiddenSeries[1],
-                },
-                {
-                  id: 2,
-                  color: 'maroon',
-                  hidden: hiddenSeries[2],
-                },
-              ]}
             >
+              <Series id="1" color="steelblue" hidden={hiddenSeries[1]} />
+              <Series id="2" color="maroon" hidden={hiddenSeries[2]} />
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
             <button type="button" onClick={() => this.toggleHide(1)}>
@@ -438,21 +383,19 @@ storiesOf('LineChart', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                {
-                  id: 1,
-                  color: 'steelblue',
-                  yDomain: yDomains[1],
-                  ySubDomain: ySubDomains[1],
-                },
-                {
-                  id: 2,
-                  color: 'maroon',
-                  yDomain: yDomains[2],
-                  ySubDomain: ySubDomains[2],
-                },
-              ]}
             >
+              <Series
+                id="1"
+                color="steelblue"
+                yDomain={yDomains[1]}
+                ySubDomain={ySubDomains[1]}
+              />
+              <Series
+                id="2"
+                color="maroon"
+                yDomain={yDomains[2]}
+                ySubDomain={ySubDomains[2]}
+              />
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
             <button type="button" onClick={() => this.setStaticDomain(1)}>
@@ -487,11 +430,9 @@ storiesOf('LineChart', module)
       },
     ];
     return (
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} annotations={exampleAnnotations} />
       </DataProvider>
     );
@@ -510,11 +451,9 @@ storiesOf('LineChart', module)
       },
     ];
     return (
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <LineChart
           height={CHART_HEIGHT}
           annotations={exampleAnnotations}
@@ -534,33 +473,27 @@ storiesOf('LineChart', module)
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
         pointsPerSeries={100}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon', drawPoints: true },
-        ]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" drawPoints />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
         pointsPerSeries={100}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon', drawPoints: true, pointWidth: 10 },
-        ]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" drawPoints pointWidth={10} />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
         pointsPerSeries={100}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon', drawPoints: true },
-        ]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" drawPoints />
         <LineChart height={CHART_HEIGHT} pointWidth={4} />
       </DataProvider>
       <DataProvider
@@ -573,21 +506,17 @@ storiesOf('LineChart', module)
             fill={color}
           />
         )}
-        series={[
-          { id: 1, color: 'steelblue' },
-          { id: 2, color: 'maroon', drawPoints: true },
-        ]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} pointWidth={4} />
       </DataProvider>
     </React.Fragment>
   ))
   .add('Without context chart', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} contextChart={{ visible: false }} />
     </DataProvider>
   ))
@@ -616,11 +545,9 @@ storiesOf('LineChart', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                { id: 1, color: 'steelblue', zoomable: yZoomable[1] },
-                { id: 2, color: 'maroon', zoomable: yZoomable[2] },
-              ]}
             >
+              <Series id="1" color="steelblue" zoomable={yZoomable[1]} />
+              <Series id="2" color="maroon" zoomable={yZoomable[2]} />
               <LineChart height={CHART_HEIGHT} zoomable={zoomable} />
             </DataProvider>
             <button
@@ -641,40 +568,35 @@ storiesOf('LineChart', module)
     }
     return <ZoomToggle />;
   })
-  .add('Dynamic x domain', () => {
+  .add('Dynamic time domain', () => {
     class DynamicXDomain extends React.Component {
       state = {
-        xDomain: staticXDomain,
+        timeDomain: staticXDomain,
       };
 
-      toggleXDomain = () => {
-        const { xDomain } = this.state;
-        const newDomain = isEqual(xDomain, staticXDomain)
+      toggleTimeDomain = () => {
+        const { timeDomain } = this.state;
+        const newDomain = isEqual(timeDomain, staticXDomain)
           ? [
               staticXDomain[0] - 100000000 * 50,
               staticXDomain[1] + 100000000 * 50,
             ]
           : staticXDomain;
-        this.setState({ xDomain: newDomain });
+        this.setState({ timeDomain: newDomain });
       };
 
       render() {
-        const { xDomain } = this.state;
+        const { timeDomain } = this.state;
         return (
           <div>
-            <button type="button" onClick={this.toggleXDomain}>
-              {isEqual(xDomain, staticXDomain)
-                ? 'Shrink xDomain'
+            <button type="button" onClick={this.toggleTimeDomain}>
+              {isEqual(timeDomain, staticXDomain)
+                ? 'Shrink timeDomain'
                 : 'Reset base domain'}
             </button>
-            <DataProvider
-              defaultLoader={staticLoader}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
-              timeDomain={xDomain}
-            >
+            <DataProvider defaultLoader={staticLoader} timeDomain={timeDomain}>
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
           </div>
@@ -694,8 +616,9 @@ storiesOf('LineChart', module)
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
         ySubDomain={[0.25, 0.5]}
-        series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
       >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <h1>Set on Series</h1>
@@ -703,14 +626,9 @@ storiesOf('LineChart', module)
         The ySubDomain for the chart should be [0.25, 0.5] for blue{' '}
         <em>only</em>. Maroon should be [0, 1]
       </p>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[
-          { id: 3, color: 'steelblue', ySubDomain: [0.25, 0.5] },
-          { id: 4, color: 'maroon' },
-        ]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" ySubDomain={[0.25, 0.5]} />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <h1>Set on Collection</h1>
@@ -721,17 +639,12 @@ storiesOf('LineChart', module)
       <DataProvider
         defaultLoader={staticLoader}
         timeDomain={staticXDomain}
-        collections={[{ id: 'all', color: 'green', ySubDomain: [0.0, 0.5] }]}
-        series={[
-          {
-            id: 3,
-            collectionId: 'all',
-            color: 'steelblue',
-            ySubDomain: [0.25, 0.5],
-          },
-          { id: 4, collectionId: 'all', color: 'maroon' },
-        ]}
+        collections={[]}
       >
+        <Collection id="all" ySubDomain={[0.0, 0.5]} color="green">
+          <Series id="1" color="steelblue" ySubDomain={[0.25, 0.5]} />
+          <Series id="2" color="maroon" />
+        </Collection>
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
       <h1>Set on Series with yDomain</h1>
@@ -740,35 +653,30 @@ storiesOf('LineChart', module)
         chart should be zoomed-out (for the blue line). The blue line should
         have a maximum zoom-out range of [-1, 2].
       </p>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        series={[
-          {
-            id: 3,
-            color: 'steelblue',
-            ySubDomain: [0.25, 0.75],
-            yDomain: [-1, 2],
-          },
-          { id: 4, color: 'maroon' },
-        ]}
-      >
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series
+          id="1"
+          color="steelblue"
+          ySubDomain={[0.25, 0.75]}
+          yDomain={[-1, 2]}
+        />
+        <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
       </DataProvider>
     </React.Fragment>
   ))
-  .add('Dynamic x sub domain', () => {
-    const xSubDomainFirst = [
+  .add('Dynamic time sub domain', () => {
+    const timeSubDomainFirst = [
       Date.now() - 1000 * 60 * 60 * 24 * 20,
       Date.now() - 1000 * 60 * 60 * 24 * 10,
     ];
 
-    const xSubDomainSecond = [
+    const timeSubDomainSecond = [
       Date.now() - 1000 * 60 * 60 * 24 * 10,
       Date.now(),
     ];
 
-    class CustomXSubDomain extends React.Component {
+    class CustomTimeSubDomain extends React.Component {
       state = {
         isFirst: true,
       };
@@ -781,32 +689,31 @@ storiesOf('LineChart', module)
               type="button"
               onClick={() => this.setState({ isFirst: !isFirst })}
             >
-              {isFirst ? `Switch xSubDomain` : `Switch back xSubDomain`}
+              {isFirst ? `Switch timeSubDomain` : `Switch back timeSubDomain`}
             </button>
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              timeSubDomain={isFirst ? xSubDomainFirst : xSubDomainSecond}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
+              timeSubDomain={isFirst ? timeSubDomainFirst : timeSubDomainSecond}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
           </React.Fragment>
         );
       }
     }
-    return <CustomXSubDomain />;
+    return <CustomTimeSubDomain />;
   })
   .add('Live loading', () => (
     <DataProvider
       defaultLoader={liveLoader}
       timeDomain={liveXDomain}
       updateInterval={33}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
@@ -816,11 +723,9 @@ storiesOf('LineChart', module)
         defaultLoader={liveLoader}
         timeDomain={liveXDomain}
         updateInterval={33}
-        series={[
-          { id: 1, color: 'steelblue', name: 'name1' },
-          { id: 2, color: 'maroon', name: 'name2' },
-        ]}
       >
+        <Series id="1" color="steelblue" name="name1" />
+        <Series id="2" color="maroon" name="name2" />
         <LineChart
           height={CHART_HEIGHT}
           crosshair={false}
@@ -838,11 +743,9 @@ storiesOf('LineChart', module)
         defaultLoader={liveLoader}
         timeDomain={liveXDomain}
         updateInterval={33}
-        series={[
-          { id: 1, color: 'steelblue', name: 'name1' },
-          { id: 2, color: 'maroon', name: 'name2' },
-        ]}
       >
+        <Series id="1" color="steelblue" name="name1" />
+        <Series id="2" color="maroon" name="name2" />
         <LineChart
           height={CHART_HEIGHT}
           crosshair={false}
@@ -861,11 +764,9 @@ storiesOf('LineChart', module)
         defaultLoader={liveLoader}
         timeDomain={liveXDomain}
         updateInterval={33}
-        series={[
-          { id: 1, color: 'steelblue', name: 'name1' },
-          { id: 2, color: 'maroon', name: 'name2' },
-        ]}
       >
+        <Series id="1" color="steelblue" name="name1" />
+        <Series id="2" color="maroon" name="name2" />
         <LineChart
           height={CHART_HEIGHT}
           crosshair={false}
@@ -918,11 +819,10 @@ storiesOf('LineChart', module)
               defaultLoader={quandlLoader}
               pointsPerSeries={100}
               timeDomain={xDomain}
-              series={series.map(s => ({
-                id: s.value,
-                color: colors[s.value],
-              }))}
             >
+              {series.map(s => (
+                <Series key={s.value} id={s.value} color={colors[s.value]} />
+              ))}
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
           </React.Fragment>
@@ -968,33 +868,29 @@ storiesOf('LineChart', module)
     }
     return <BrushComponent />;
   })
-  .add('Sticky x subdomain', () => (
+  .add('Sticky time subdomain', () => (
     <DataProvider
       defaultLoader={liveLoader}
       timeDomain={liveXDomain}
       timeSubDomain={[Date.now() - 1000 * 20, Date.now() - 1000 * 10]}
       updateInterval={33}
-      series={[
-        { id: 1, color: 'steelblue', name: 'name1' },
-        { id: 2, color: 'maroon', name: 'name2' },
-      ]}
       isTimeSubDomainSticky
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ))
-  .add('Sticky x subdomain and ruler', () => (
+  .add('Sticky time subdomain and ruler', () => (
     <DataProvider
       defaultLoader={liveLoader}
       timeDomain={liveXDomain}
       timeSubDomain={[Date.now() - 1000 * 20, Date.now() - 1000 * 10]}
       updateInterval={33}
-      series={[
-        { id: 1, color: 'steelblue', name: 'name1' },
-        { id: 2, color: 'maroon', name: 'name2' },
-      ]}
       isTimeSubDomainSticky
     >
+      <Series id="1" color="steelblue" name="name1" />
+      <Series id="2" color="maroon" name="name2" />
       <LineChart
         height={CHART_HEIGHT}
         ruler={{
@@ -1007,9 +903,9 @@ storiesOf('LineChart', module)
       />
     </DataProvider>
   ))
-  .add('Limit x subdomain', () => {
-    class LimitXSubDomain extends React.Component {
-      limitXSubDomain = subDomain => {
+  .add('Limit time subdomain', () => {
+    class LimitTimeSubDomain extends React.Component {
+      limitTimeSubDomain = subDomain => {
         const subDomainLength = subDomain[1] - subDomain[0];
         const subDomainEnd = Math.min(
           subDomain[1],
@@ -1024,35 +920,34 @@ storiesOf('LineChart', module)
           <div>
             <DataProvider
               defaultLoader={staticLoader}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
               timeDomain={staticXDomain}
               timeSubDomain={[
                 Date.now() - 1000 * 60 * 60 * 24 * 15,
                 Date.now() - 1000 * 60 * 60 * 24 * 10,
               ]}
-              limitTimeSubDomain={this.limitXSubDomain}
+              limitTimeSubDomain={this.limitTimeSubDomain}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} />
             </DataProvider>
           </div>
         );
       }
     }
-    return <LimitXSubDomain />;
+    return <LimitTimeSubDomain />;
   })
   .add('onMouseOut', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
       timeDomain={staticXDomain}
       xSubDomain={[
         Date.now() - 1000 * 60 * 60 * 24 * 30,
         Date.now() - 1000 * 60 * 60 * 24 * 10,
       ]}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart
         height={CHART_HEIGHT}
         onMouseOut={action('mouse out')}
@@ -1063,7 +958,6 @@ storiesOf('LineChart', module)
   .add('onUpdateDomains', () => (
     <DataProvider
       defaultLoader={staticLoader}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
       timeDomain={staticXDomain}
       xSubDomain={[
         Date.now() - 1000 * 60 * 60 * 24 * 30,
@@ -1071,6 +965,8 @@ storiesOf('LineChart', module)
       ]}
       onUpdateDomains={action('onUpdateDomains')}
     >
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
   ));

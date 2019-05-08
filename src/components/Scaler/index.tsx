@@ -3,8 +3,8 @@ import * as PropTypes from 'prop-types';
 import DataContext from '../../context/Data';
 import ScalerContext from '../../context/Scaler';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
-import Axes, { Domains, Dimension } from '../../utils/Axes';
-import { Domain, Series, Collection, ItemId } from '../../external';
+import Axes, { Domains } from '../../utils/Axes';
+import { Domain, Series, Collection } from '../../external';
 import { Item } from '../../internal';
 import { withDisplayName } from '../../utils/displayName';
 
@@ -47,6 +47,11 @@ export interface OnDomainsUpdated extends Function {}
 
 type DomainAxis = 'time' | 'x' | 'y';
 
+interface StateUpdates {
+  domainsByItemId: DomainsByItemId;
+  subDomainsByItemId: DomainsByItemId;
+}
+
 // If the timeSubDomain is within this margin, consider it to be attached to
 // the leading edge of the timeDomain.
 const FRONT_OF_WINDOW_THRESHOLD = 0.05;
@@ -55,7 +60,11 @@ const FRONT_OF_WINDOW_THRESHOLD = 0.05;
  * Provide a placeholder domain so that we can test for validity later, but
  * it can be safely operated on like a real domain.
  */
-export const PLACEHOLDER_DOMAIN: Domain = [0, 0];
+export const placeholder = (min: number, max: number): Domain => {
+  const domain: Domain = [min, max];
+  domain.placeholder = true;
+  return domain;
+};
 
 const haveDomainsChanged = (before: Item, after: Item) =>
   before.timeDomain !== after.timeDomain ||
@@ -87,13 +96,6 @@ const findItemsWithChangedDomains = (
   }, []);
 };
 
-export const stripPlaceholderDomain = (domain: Domain): Domain | undefined => {
-  if (isEqual(PLACEHOLDER_DOMAIN, domain)) {
-    return undefined;
-  }
-  return domain;
-};
-
 const isEqual = (a: Domain, b: Domain): boolean => {
   if (a === b) {
     return true;
@@ -102,6 +104,20 @@ const isEqual = (a: Domain, b: Domain): boolean => {
     return false;
   }
   return a[0] === b[0] && a[1] === b[1];
+};
+
+export const firstResolvedDomain = (
+  domain: Domain | undefined,
+  // tslint:disable-next-line
+  ...domains: (undefined | Domain)[]
+): Domain | undefined => {
+  if (domain && domain.placeholder !== true) {
+    return [...domain] as Domain;
+  }
+  if (domains.length === 0) {
+    return undefined;
+  }
+  return firstResolvedDomain(domains[0], ...(domains.splice(1) as Domain[]));
 };
 
 /**
@@ -136,17 +152,56 @@ class Scaler extends React.Component<Props, State> {
 
   static defaultProps = {};
 
-  constructor(props: Props) {
-    super(props);
+  static getDerivedStateFromProps(
+    { dataContext: { timeDomain, timeSubDomain, series, collections } }: Props,
+    state: State
+  ) {
+    // Make sure that all items in the props are present in the domainsByItemId
+    // and subDomainsByItemId state objects.
+    const { domainsByItemId, subDomainsByItemId } = state;
+    let updated = false;
+    const stateUpdates = series.concat(collections).reduce(
+      (acc: StateUpdates, item: Item): StateUpdates => {
+        const updates: StateUpdates = { ...acc };
+        if (!domainsByItemId[item.id]) {
+          updated = true;
+          updates.domainsByItemId = {
+            ...updates.domainsByItemId,
+            [item.id]: {
+              time: [...timeDomain] as Domain,
+              x:
+                firstResolvedDomain(item.xDomain) ||
+                placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
+              y:
+                firstResolvedDomain(item.yDomain) ||
+                placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
+            },
+          };
+        }
 
-    this.state = {
-      // Map from item (collection, series) to their respective domains.
-      domainsByItemId: this.getDomainsByItemId(),
+        if (!subDomainsByItemId[item.id]) {
+          updated = true;
+          updates.subDomainsByItemId = {
+            ...updates.subDomainsByItemId,
+            [item.id]: {
+              time: [...timeSubDomain] as Domain,
+              x: firstResolvedDomain(item.xSubDomain) || placeholder(0, 1),
+              y: firstResolvedDomain(item.ySubDomain) || placeholder(0, 1),
+            },
+          };
+        }
 
-      // Map from item (collection, series) to their respective subdomains.
-      subDomainsByItemId: this.getSubDomainsByItemId(),
-    };
+        return updates;
+      },
+      { domainsByItemId: {}, subDomainsByItemId: {} }
+    );
+    return updated ? stateUpdates : null;
   }
+
+  state: State = {
+    domainsByItemId: {},
+    subDomainsByItemId: {},
+  };
 
   componentDidUpdate(prevProps: Props) {
     const { dataContext } = this.props;
@@ -154,6 +209,7 @@ class Scaler extends React.Component<Props, State> {
       domainsByItemId: oldDomainsByItemId,
       subDomainsByItemId: oldSubDomainsByItemId,
     } = this.state;
+
     const changedSeries = findItemsWithChangedDomains(
       prevProps.dataContext.series,
       dataContext.series
@@ -169,33 +225,48 @@ class Scaler extends React.Component<Props, State> {
       [...changedSeries, ...changedCollections].forEach(item => {
         domainsByItemId[item.id] = {
           time:
-            dataContext.timeDomain ||
-            (item.timeDomain ||
-              stripPlaceholderDomain(Axes.time(oldDomainsByItemId[item.id]))),
+            firstResolvedDomain(
+              dataContext.timeDomain,
+              item.timeDomain,
+              Axes.time(oldDomainsByItemId[item.id])
+            ) || placeholder(0, Date.now()),
           x:
-            item.xDomain ||
-            stripPlaceholderDomain(Axes.x(oldDomainsByItemId[item.id])) ||
-            PLACEHOLDER_DOMAIN,
+            firstResolvedDomain(
+              item.xDomain,
+              Axes.x(oldDomainsByItemId[item.id])
+            ) ||
+            // Set a large range because this is a domain.
+            placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
           y:
-            item.yDomain ||
-            stripPlaceholderDomain(Axes.y(oldDomainsByItemId[item.id])) ||
-            PLACEHOLDER_DOMAIN,
+            firstResolvedDomain(
+              item.yDomain,
+              Axes.y(oldDomainsByItemId[item.id])
+            ) ||
+            // Set a large range because this is a domain.
+            placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
         };
         subDomainsByItemId[item.id] = {
           time:
-            dataContext.timeSubDomain ||
-            (item.timeSubDomain ||
-              stripPlaceholderDomain(
-                Axes.time(oldSubDomainsByItemId[item.id])
-              )),
+            firstResolvedDomain(
+              dataContext.timeSubDomain ||
+                (item.timeSubDomain ||
+                  Axes.time(oldSubDomainsByItemId[item.id]))
+            ) ||
+            // Set a large range because this is a subdomain.
+            placeholder(0, Date.now()),
           x:
-            item.xSubDomain ||
-            stripPlaceholderDomain(Axes.x(oldSubDomainsByItemId[item.id])) ||
-            PLACEHOLDER_DOMAIN,
+            firstResolvedDomain(
+              item.xSubDomain,
+              Axes.x(oldSubDomainsByItemId[item.id])
+            ) ||
+            // Set a small range because this is a subdomain.
+            placeholder(0, 1),
           y:
-            item.ySubDomain ||
-            stripPlaceholderDomain(Axes.y(oldSubDomainsByItemId[item.id])) ||
-            PLACEHOLDER_DOMAIN,
+            firstResolvedDomain(
+              item.ySubDomain || Axes.y(oldSubDomainsByItemId[item.id])
+            ) ||
+            // Set a small range because this is a subdomain.
+            placeholder(0, 1),
         };
       });
       // eslint-disable-next-line react/no-did-update-set-state
@@ -258,36 +329,6 @@ class Scaler extends React.Component<Props, State> {
     }
   }
 
-  getDomainsByItemId = () => {
-    const { dataContext } = this.props;
-    return [...dataContext.series, ...dataContext.collections].reduce(
-      (acc, item) => ({
-        ...acc,
-        [item.id]: {
-          time: [...dataContext.timeDomain],
-          x: [...(item.xDomain || PLACEHOLDER_DOMAIN)],
-          y: [...(item.yDomain || PLACEHOLDER_DOMAIN)],
-        },
-      }),
-      {}
-    );
-  };
-
-  getSubDomainsByItemId = () => {
-    const { dataContext } = this.props;
-    return [...dataContext.series, ...dataContext.collections].reduce(
-      (acc, item) => ({
-        ...acc,
-        [item.id]: {
-          time: [...dataContext.timeSubDomain],
-          x: [...(item.xSubDomain || PLACEHOLDER_DOMAIN)],
-          y: [...(item.ySubDomain || PLACEHOLDER_DOMAIN)],
-        },
-      }),
-      {}
-    );
-  };
-
   /**
    * Update the subdomains for the given items. This is a patch update and will
    * be merged with the current state of the subdomains. An example payload
@@ -333,13 +374,16 @@ class Scaler extends React.Component<Props, State> {
           subDomainsByItemId[itemId][axis] || newSubDomain;
         const existingSpan = existingSubDomain[1] - existingSubDomain[0];
 
-        const limits = stripPlaceholderDomain(
-          ((domainsByItemId || {})[itemId] || {})[axis] ||
-            (axis === String(Axes.time)
+        const limits =
+          firstResolvedDomain(
+            ((domainsByItemId || {})[itemId] || {})[axis],
+            axis === String(Axes.time)
               ? // FIXME: Phase out this single timeDomain thing.
                 dataContext.timeDomain
-              : undefined)
-        ) || [Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
+              : undefined
+          ) ||
+          // Set a large range because this is a limiting range.
+          placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
 
         if (newSpan === existingSpan) {
           // This is a translation; check the bounds.
@@ -378,13 +422,16 @@ class Scaler extends React.Component<Props, State> {
 
   render() {
     const { domainsByItemId, subDomainsByItemId } = this.state;
-    const { children, dataContext } = this.props;
+    const {
+      children,
+      dataContext: { collections, series },
+    } = this.props;
 
     const finalContext = {
       // Pick what we need out of the dataContext instead of spreading the
       // entire object into the context.
-      collections: dataContext.collections,
-      series: dataContext.series,
+      collections,
+      series,
 
       updateDomains: this.updateDomains,
       domainsByItemId,

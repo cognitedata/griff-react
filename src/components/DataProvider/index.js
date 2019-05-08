@@ -4,14 +4,15 @@ import Promise from 'bluebird';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
 import DataContext from '../../context/Data';
-import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
-import Scaler, { PLACEHOLDER_DOMAIN } from '../Scaler';
+import Scaler from '../Scaler';
+import Series from '../Series';
+import Collection from '../Collection';
 
 export const calculateDomainFromData = (
   data,
   accessor,
-  minAccessor = null,
-  maxAccessor = null
+  minAccessor = undefined,
+  maxAccessor = undefined
 ) => {
   // if there is no data, hard code the domain
   if (!data || !data.length) {
@@ -43,13 +44,12 @@ const deleteUndefinedFromObject = obj => {
   if (!obj) {
     return {};
   }
-  const newObject = {};
-  Object.keys(obj).forEach(k => {
+  return Object.keys(obj).reduce((acc, k) => {
     if (obj[k] !== undefined) {
-      newObject[k] = obj[k];
+      return { ...acc, [k]: obj[k] };
     }
-  });
-  return newObject;
+    return acc;
+  }, {});
 };
 
 /**
@@ -64,63 +64,94 @@ const firstDefined = (first, ...others) => {
   return firstDefined(others[0], ...others.splice(1));
 };
 
+const getTimeSubDomain = (
+  timeDomain,
+  timeSubDomain,
+  // eslint-disable-next-line no-shadow
+  limitTimeSubDomain = timeSubDomain => timeSubDomain
+) => {
+  if (!timeSubDomain) {
+    return timeDomain;
+  }
+  const newTimeSubDomain = limitTimeSubDomain(timeSubDomain);
+  const timeDomainLength = timeDomain[1] - timeDomain[0];
+  const timeSubDomainLength = newTimeSubDomain[1] - newTimeSubDomain[0];
+  if (timeDomainLength < timeSubDomainLength) {
+    return timeDomain;
+  }
+  if (newTimeSubDomain[0] < timeDomain[0]) {
+    return [timeDomain[0], timeDomain[0] + timeSubDomainLength];
+  }
+  if (newTimeSubDomain[1] > timeDomain[1]) {
+    return [timeDomain[1] - timeSubDomainLength, timeDomain[1]];
+  }
+  return newTimeSubDomain;
+};
+
+const smallerDomain = (domain, subDomain) => {
+  if (!domain && !subDomain) {
+    return undefined;
+  }
+
+  if (!domain || !subDomain) {
+    return domain || subDomain;
+  }
+
+  return [Math.max(domain[0], subDomain[0]), Math.min(domain[1], subDomain[1])];
+};
+
+const boundedDomain = (a, b) =>
+  a && b ? [Math.min(a[0], b[0]), Math.max(a[1], b[1])] : a || b;
+
+const DEFAULT_ACCESSORS = {
+  time: d => d.timestamp,
+  x: d => d.x,
+  y: d => d.value,
+};
+
+const DEFAULT_SERIES_CONFIG = {
+  color: 'black',
+  data: [],
+  hidden: false,
+  drawPoints: false,
+  timeAccessor: DEFAULT_ACCESSORS.time,
+  xAccessor: DEFAULT_ACCESSORS.x,
+  yAccessor: DEFAULT_ACCESSORS.y,
+  timeDomain: undefined,
+  timeSubDomain: undefined,
+  xDomain: undefined,
+  xSubDomain: undefined,
+  yDomain: undefined,
+  ySubDomain: undefined,
+  pointWidth: 6,
+  strokeWidth: 1,
+};
+
 export default class DataProvider extends Component {
   constructor(props) {
     super(props);
     const { limitTimeSubDomain, timeDomain, timeSubDomain } = props;
     this.state = {
-      timeSubDomain: DataProvider.getTimeSubDomain(
+      timeSubDomain: getTimeSubDomain(
         timeDomain,
         timeSubDomain,
         limitTimeSubDomain
       ),
       timeDomain,
-      loaderConfig: {},
-      timeDomains: {},
       timeSubDomains: {},
-      xDomains: {},
       xSubDomains: {},
-      yDomains: {},
       ySubDomains: {},
+      collectionsById: {},
+      seriesById: {},
     };
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    // Check if one of the series got removed from props
-    // If so, delete the respective keys in loaderconfig
-    // This is important so we don't cache the values if it gets readded later
-    const { loaderConfig, yDomains, ySubDomains } = prevState;
-    const { series } = nextProps;
-    const seriesKeys = {};
-    series.forEach(s => {
-      seriesKeys[s.id] = true;
-    });
-    const newLoaderConfig = { ...loaderConfig };
-    const newYDomains = { ...yDomains };
-    const newYSubDomains = { ...ySubDomains };
-    let shouldUpdate = false;
-    Object.keys(loaderConfig).forEach(key => {
-      if (!seriesKeys[key]) {
-        // Clean up
-        delete newLoaderConfig[key];
-        delete newYDomains[key];
-        shouldUpdate = true;
-      }
-    });
-    if (shouldUpdate) {
-      return {
-        loaderConfig: newLoaderConfig,
-        yDomains: newYDomains,
-        ySubDomains: newYSubDomains,
-      };
-    }
-    return null;
-  }
+  componentDidMount() {
+    const { updateInterval } = this.props;
 
-  async componentDidMount() {
-    const { series } = this.props;
-    this.startUpdateInterval();
-    await Promise.map(series, s => this.fetchData(s.id, 'MOUNTED'));
+    if (updateInterval) {
+      this.startUpdateInterval();
+    }
   }
 
   async componentDidUpdate(prevProps) {
@@ -137,12 +168,7 @@ export default class DataProvider extends Component {
     } = this.props;
     const { updateInterval: prevUpdateInterval } = prevProps;
     if (updateInterval !== prevUpdateInterval) {
-      if (prevUpdateInterval) {
-        clearInterval(this.fetchInterval);
-      }
-      if (updateInterval) {
-        this.startUpdateInterval();
-      }
+      this.startUpdateInterval();
     }
 
     // check if pointsPerSeries changed in props -- if so fetch new data
@@ -152,37 +178,15 @@ export default class DataProvider extends Component {
       );
     }
 
-    const { series: prevSeries } = prevProps;
-    if (!prevSeries) {
-      return;
-    }
-    const { timeSubDomain, timeDomain } = this.state;
-
     if (!isEqual(propsTimeSubDomain, prevProps.timeSubDomain)) {
       this.timeSubDomainChanged(propsTimeSubDomain);
     }
 
-    const currentSeriesKeys = {};
-    series.forEach(s => {
-      currentSeriesKeys[s.id] = true;
-    });
-    const prevSeriesKeys = {};
-    prevSeries.forEach(p => {
-      prevSeriesKeys[p.id] = true;
-    });
-    const newSeries = series.filter(s => prevSeriesKeys[s.id] !== true);
-    await Promise.map(newSeries, async ({ id }) => {
-      await this.fetchData(id, 'MOUNTED');
-      if (!isEqual(timeSubDomain, timeDomain)) {
-        // The series got added when zoomed in,
-        // Need to also fetch a higher-granularity version on mount
-        await this.fetchData(id, 'UPDATE_SUBDOMAIN');
-      }
-    });
-
     // Check if timeDomain changed in props -- if so reset state.
     if (!isEqual(propsTimeDomain, prevProps.timeDomain)) {
-      const newTimeSubDomain = DataProvider.getTimeSubDomain(
+      const { seriesById } = this.state;
+
+      const newTimeSubDomain = getTimeSubDomain(
         propsTimeDomain,
         propsTimeSubDomain,
         limitTimeSubDomain
@@ -192,12 +196,10 @@ export default class DataProvider extends Component {
         {
           timeDomain: propsTimeDomain,
           timeSubDomain: newTimeSubDomain,
-          loaderConfig: {},
-          yDomains: {},
           ySubDomains: {},
         },
         () => {
-          series.map(s => this.fetchData(s.id, 'MOUNTED'));
+          Object.keys(seriesById).map(id => this.fetchData(id, 'MOUNTED'));
           if (onTimeSubDomainChanged) {
             onTimeSubDomainChanged(newTimeSubDomain);
           }
@@ -208,241 +210,126 @@ export default class DataProvider extends Component {
   }
 
   componentWillUnmount() {
-    clearInterval(this.fetchInterval);
+    if (this.fetchInterval) {
+      clearInterval(this.fetchInterval);
+    }
   }
 
-  static getTimeSubDomain = (
-    timeDomain,
-    timeSubDomain,
-    // eslint-disable-next-line no-shadow
-    limitTimeSubDomain = timeSubDomain => timeSubDomain
-  ) => {
-    if (!timeSubDomain) {
-      return timeDomain;
-    }
-    const newTimeSubDomain = limitTimeSubDomain(timeSubDomain);
-    const timeDomainLength = timeDomain[1] - timeDomain[0];
-    const timeSubDomainLength = newTimeSubDomain[1] - newTimeSubDomain[0];
-    if (timeDomainLength < timeSubDomainLength) {
-      return timeDomain;
-    }
-    if (newTimeSubDomain[0] < timeDomain[0]) {
-      return [timeDomain[0], timeDomain[0] + timeSubDomainLength];
-    }
-    if (newTimeSubDomain[1] > timeDomain[1]) {
-      return [timeDomain[1] - timeSubDomainLength, timeDomain[1]];
-    }
-    return newTimeSubDomain;
-  };
-
   getSeriesObjects = () => {
-    const { collections, series } = this.props;
-    const collectionsById = {};
-    (collections || []).forEach(c => {
-      collectionsById[c.id] = c;
-    });
-    return series.map(s =>
-      this.enrichSeries(s, collectionsById[s.collectionId || ''] || {})
-    );
+    const {
+      drawLines,
+      drawPoints,
+      timeAccessor,
+      xAccessor,
+      x0Accessor,
+      x1Accessor,
+      yAccessor,
+      y0Accessor,
+      y1Accessor,
+      timeDomain,
+      timeSubDomain,
+      xDomain,
+      xSubDomain,
+      yDomain,
+      ySubDomain,
+      pointWidth,
+      strokeWidth,
+      opacity,
+      opacityAccessor,
+      pointWidthAccessor,
+    } = this.props;
+    const {
+      collectionsById,
+      seriesById,
+      timeSubDomains,
+      xSubDomains,
+      ySubDomains,
+    } = this.state;
+    return Object.keys(seriesById).reduce((acc, id) => {
+      const series = seriesById[id];
+      const dataProvider = {
+        drawLines,
+        drawPoints,
+        pointWidth,
+        strokeWidth,
+        opacity,
+        opacityAccessor,
+        pointWidthAccessor,
+        timeAccessor,
+        xAccessor,
+        x0Accessor,
+        x1Accessor,
+        yAccessor,
+        y0Accessor,
+        y1Accessor,
+      };
+      const collection =
+        series.collectionId !== undefined
+          ? collectionsById[series.collectionId] || {}
+          : {};
+      const completedSeries = {
+        // First copy in the base-level configuration.
+        ...DEFAULT_SERIES_CONFIG,
+
+        // Then the global props from DataProvider, if any are set.
+        ...dataProvider,
+
+        // Then the domains because these are in the DataProvider state, which
+        // supercedes the props.
+        timeSubDomain: smallerDomain(
+          timeDomain,
+          timeSubDomain || timeSubDomains[id]
+        ),
+        xSubDomain: smallerDomain(xDomain, xSubDomain || xSubDomains[id]),
+        ySubDomain: smallerDomain(yDomain, ySubDomain || ySubDomains[id]),
+        timeDomain,
+        xDomain,
+        yDomain,
+
+        // Next, copy over defaults from the parent collection, if there is one.
+        ...collection,
+
+        // Finally, the series configuration itself.
+        ...series,
+      };
+      return [...acc, completedSeries];
+    }, []);
   };
 
-  getSingleSeriesObject = id => {
-    const { collections, series: propsSeries } = this.props;
-    const series = propsSeries.find(s => id === s.id);
-    if (!series) {
-      throw new Error(
-        `Trying to get single series object for id ${id} which is not defined in props.`
-      );
-    }
-    return this.enrichSeries(
-      series,
-      series.collectionId
-        ? (collections || []).find(c => series.collectionId === c.id)
-        : {}
+  onUpdateInterval = () => {
+    const {
+      isTimeSubDomainSticky,
+      limitTimeSubDomain,
+      updateInterval,
+    } = this.props;
+    const { seriesById, timeDomain, timeSubDomain } = this.state;
+    const newTimeDomain = timeDomain.map(d => d + updateInterval);
+    const newTimeSubDomain = isTimeSubDomainSticky
+      ? getTimeSubDomain(
+          newTimeDomain,
+          timeSubDomain.map(d => d + updateInterval),
+          limitTimeSubDomain
+        )
+      : timeSubDomain;
+    this.setState(
+      {
+        timeDomain: newTimeDomain,
+        timeSubDomain: newTimeSubDomain,
+      },
+      () => {
+        Object.keys(seriesById).map(id => this.fetchData(id, 'INTERVAL'));
+      }
     );
   };
 
   startUpdateInterval = () => {
-    const {
-      isTimeSubDomainSticky,
-      limitTimeSubDomain,
-      series,
-      updateInterval,
-    } = this.props;
-    if (updateInterval) {
+    const { updateInterval } = this.props;
+    if (this.fetchInterval) {
       clearInterval(this.fetchInterval);
-      this.fetchInterval = setInterval(() => {
-        const { timeDomain, timeSubDomain } = this.state;
-        const newTimeDomain = timeDomain.map(d => d + updateInterval);
-        const newTimeSubDomain = isTimeSubDomainSticky
-          ? DataProvider.getTimeSubDomain(
-              newTimeDomain,
-              timeSubDomain.map(d => d + updateInterval),
-              limitTimeSubDomain
-            )
-          : timeSubDomain;
-        this.setState(
-          {
-            timeDomain: newTimeDomain,
-            timeSubDomain: newTimeSubDomain,
-          },
-          () => {
-            series.map(s => this.fetchData(s.id, 'INTERVAL'));
-          }
-        );
-      }, updateInterval);
     }
-  };
-
-  enrichSeries = (series, collection = {}) => {
-    const {
-      drawPoints,
-      drawLines,
-      opacity,
-      opacityAccessor,
-      pointWidth,
-      pointWidthAccessor,
-      strokeWidth,
-      timeAccessor,
-      timeDomain: propTimeDomain,
-      timeSubDomain,
-      xAccessor,
-      x0Accessor,
-      x1Accessor,
-      xDomain: propXDomain,
-      xSubDomain: propXSubDomain,
-      y0Accessor,
-      y1Accessor,
-      yAccessor,
-      yDomain: propYDomain,
-      ySubDomain: propYSubDomain,
-    } = this.props;
-    const {
-      loaderConfig,
-      timeDomains,
-      timeSubDomains,
-      xDomains,
-      xSubDomains,
-      yDomains,
-      ySubDomains,
-    } = this.state;
-    const yDomain =
-      collection.yDomain ||
-      series.yDomain ||
-      propYDomain ||
-      yDomains[series.id] ||
-      PLACEHOLDER_DOMAIN;
-    const xDomain =
-      collection.xDomain ||
-      series.xDomain ||
-      propXDomain ||
-      xDomains[series.id] ||
-      PLACEHOLDER_DOMAIN;
-    const timeDomain =
-      collection.timeDomain ||
-      series.timeDomain ||
-      timeDomains[series.id] ||
-      propTimeDomain ||
-      PLACEHOLDER_DOMAIN;
-    return {
-      hidden: collection.hidden,
-      data: [],
-      ...deleteUndefinedFromObject(loaderConfig[series.id]),
-      ...deleteUndefinedFromObject(series),
-      drawPoints: firstDefined(
-        (loaderConfig[series.id] || {}).drawPoints,
-        series.drawPoints,
-        collection.drawPoints,
-        drawPoints
-      ),
-      drawLines: firstDefined(
-        (loaderConfig[series.id] || {}).drawLines,
-        series.drawLines,
-        collection.drawLines,
-        drawLines
-      ),
-      timeAccessor: firstDefined(
-        series.timeAccessor,
-        collection.timeAccessor,
-        timeAccessor
-      ),
-      xAccessor: firstDefined(
-        series.xAccessor,
-        collection.xAccessor,
-        xAccessor
-      ),
-      x0Accessor: firstDefined(
-        series.x0Accessor,
-        collection.x0Accessor,
-        x0Accessor
-      ),
-      x1Accessor: firstDefined(
-        series.x1Accessor,
-        collection.x1Accessor,
-        x1Accessor
-      ),
-      yAccessor: firstDefined(
-        series.yAccessor,
-        collection.yAccessor,
-        yAccessor
-      ),
-      y0Accessor: firstDefined(
-        series.y0Accessor,
-        collection.y0Accessor,
-        y0Accessor
-      ),
-      y1Accessor: firstDefined(
-        series.y1Accessor,
-        collection.y1Accessor,
-        y1Accessor
-      ),
-      strokeWidth: firstDefined(
-        series.strokeWidth,
-        collection.strokeWidth,
-        strokeWidth
-      ),
-      pointWidth: firstDefined(
-        series.pointWidth,
-        collection.pointWidth,
-        pointWidth
-      ),
-      pointWidthAccessor: firstDefined(
-        series.pointWidthAccessor,
-        collection.pointWidthAccessor,
-        pointWidthAccessor
-      ),
-      opacity: firstDefined(series.opacity, collection.opacity, opacity),
-      opacityAccessor: firstDefined(
-        series.opacityAccessor,
-        collection.opacityAccessor,
-        opacityAccessor
-      ),
-      yAxisDisplayMode:
-        (series.collectionId
-          ? collection.yAxisDisplayMode
-          : series.yAxisDisplayMode) || collection.yAxisDisplayMode,
-      timeDomain,
-      timeSubDomain:
-        collection.timeSubDomain ||
-        series.timeSubDomain ||
-        timeSubDomains[series.id] ||
-        timeSubDomain ||
-        timeDomain,
-      xDomain,
-      xSubDomain:
-        collection.xSubDomain ||
-        series.xSubDomain ||
-        propXSubDomain ||
-        xSubDomains[series.id] ||
-        xDomain,
-      yDomain,
-      ySubDomain:
-        collection.ySubDomain ||
-        series.ySubDomain ||
-        propYSubDomain ||
-        ySubDomains[series.id] ||
-        yDomain,
-    };
+    if (updateInterval) {
+      this.fetchInterval = setInterval(this.onUpdateInterval, updateInterval);
+    }
   };
 
   fetchData = async (id, reason) => {
@@ -459,8 +346,11 @@ export default class DataProvider extends Component {
       yAccessor,
       onFetchDataError,
     } = this.props;
-    const { timeDomain, timeSubDomain } = this.state;
-    const seriesObject = this.getSingleSeriesObject(id);
+    const { timeDomain, timeSubDomain, seriesById } = this.state;
+    const seriesObject = seriesById[id];
+    if (!seriesObject) {
+      return;
+    }
     const loader = seriesObject.loader || defaultLoader;
     if (!loader) {
       throw new Error(`Series ${id} does not have a loader.`);
@@ -471,7 +361,7 @@ export default class DataProvider extends Component {
       timeDomain,
       timeSubDomain,
       pointsPerSeries,
-      oldSeries: seriesObject,
+      oldSeries: { data: [], ...seriesObject },
       reason,
     };
     try {
@@ -479,80 +369,88 @@ export default class DataProvider extends Component {
     } catch (e) {
       onFetchDataError(e, params);
     }
-    // This needs to happen after the loader comes back because the state can
-    // change while the load function is operating. If we make a copy of the
-    // state before the loader executes, then we'll trample any updates which
-    // may have happened while the loader was loading.
-    const { loaderConfig: originalLoaderConfig } = this.state;
-    const loaderConfig = {
-      data: [],
-      id,
-      ...loaderResult,
-      reason,
-      yAccessor: seriesObject.yAccessor,
-      y0Accessor: seriesObject.y0Accessor,
-      y1Accessor: seriesObject.y1Accessor,
-    };
-    const stateUpdates = {};
-    if (
-      reason === 'MOUNTED' ||
-      (seriesObject.data.length === 0 && loaderConfig.data.length > 0)
-    ) {
-      const {
-        timeDomains,
-        timeSubDomains,
-        xSubDomains,
-        ySubDomains,
-      } = this.state;
-      const calculatedTimeDomain = calculateDomainFromData(
-        loaderConfig.data,
-        loaderConfig.timeAccessor || timeAccessor
-      );
-      const calculatedTimeSubDomain = calculatedTimeDomain;
-      stateUpdates.timeDomains = {
-        ...timeDomains,
-        [id]: calculatedTimeDomain,
-      };
-      stateUpdates.timeSubDomains = {
-        ...timeSubDomains,
-        [id]: calculatedTimeSubDomain,
-      };
 
-      const xSubDomain = calculateDomainFromData(
-        loaderConfig.data,
-        loaderConfig.xAccessor || xAccessor,
-        loaderConfig.x0Accessor || x0Accessor,
-        loaderConfig.x1Accessor || x1Accessor
-      );
-      stateUpdates.xSubDomains = {
-        ...xSubDomains,
-        [id]: xSubDomain,
-      };
+    this.setState(
+      ({
+        collectionsById,
+        seriesById: { [id]: freshSeries },
+        seriesById: freshSeriesById,
+        timeSubDomains: freshTimeSubDomains,
+        xSubDomains: freshXSubDomains,
+        ySubDomains: freshYSubDomains,
+      }) => {
+        const stateUpdates = {};
 
-      const ySubDomain = calculateDomainFromData(
-        loaderConfig.data,
-        loaderConfig.yAccessor || yAccessor,
-        loaderConfig.y0Accessor || y0Accessor,
-        loaderConfig.y1Accessor || y1Accessor
-      );
-      stateUpdates.ySubDomains = {
-        ...ySubDomains,
-        [id]: ySubDomain,
-      };
-    }
-    stateUpdates.loaderConfig = {
-      ...originalLoaderConfig,
-      [id]: { ...loaderConfig },
-    };
-    this.setState(stateUpdates, () => {
-      onFetchData({ ...loaderConfig });
-    });
+        const series = {
+          ...freshSeries,
+          ...loaderResult,
+        };
+
+        if (
+          // We either couldn't have any data before ...
+          reason === 'MOUNTED' ||
+          // ... or we didn't have data before, but do now!
+          (freshSeries.data.length === 0 && loaderResult.data.length > 0)
+        ) {
+          const collection = series.collectionId
+            ? collectionsById[series.collectionId] || {}
+            : {};
+
+          stateUpdates.timeSubDomains = {
+            ...freshTimeSubDomains,
+            [id]: calculateDomainFromData(
+              series.data,
+              series.timeAccessor || timeAccessor || DEFAULT_ACCESSORS.time
+            ),
+          };
+          stateUpdates.xSubDomains = {
+            ...freshXSubDomains,
+            [id]: calculateDomainFromData(
+              series.data,
+              series.xAccessor ||
+                collection.xAccessor ||
+                xAccessor ||
+                DEFAULT_ACCESSORS.x,
+              series.x0Accessor || collection.x0Accessor || x0Accessor,
+              series.x1Accessor || collection.x1Accessor || x1Accessor
+            ),
+          };
+          stateUpdates.ySubDomains = {
+            ...freshYSubDomains,
+            [id]: calculateDomainFromData(
+              series.data,
+              series.yAccessor ||
+                collection.yAccessor ||
+                yAccessor ||
+                DEFAULT_ACCESSORS.y,
+              series.y0Accessor || collection.y0Accessor || y0Accessor,
+              series.y1Accessor || collection.y1Accessor || y1Accessor
+            ),
+          };
+
+          series.timeSubDomain = series.timeSubDomain || series.timeDomain;
+        }
+
+        stateUpdates.seriesById = {
+          ...freshSeriesById,
+          [id]: series,
+        };
+
+        return stateUpdates;
+      },
+      () => {
+        const {
+          seriesById: { [id]: series },
+        } = this.state;
+        onFetchData({ ...series });
+      }
+    );
   };
 
   timeSubDomainChanged = timeSubDomain => {
-    const { limitTimeSubDomain, onTimeSubDomainChanged, series } = this.props;
-    const { timeDomain, timeSubDomain: current } = this.state;
-    const newTimeSubDomain = DataProvider.getTimeSubDomain(
+    const { limitTimeSubDomain, onTimeSubDomainChanged } = this.props;
+    const { timeDomain, timeSubDomain: current, seriesById } = this.state;
+    const newTimeSubDomain = getTimeSubDomain(
       timeDomain,
       timeSubDomain,
       limitTimeSubDomain
@@ -563,7 +461,10 @@ export default class DataProvider extends Component {
 
     clearTimeout(this.timeSubDomainChangedTimeout);
     this.timeSubDomainChangedTimeout = setTimeout(
-      () => series.map(s => this.fetchData(s.id, 'UPDATE_SUBDOMAIN')),
+      () =>
+        Object.keys(seriesById).map(id =>
+          this.fetchData(id, 'UPDATE_SUBDOMAIN')
+        ),
       250
     );
     this.setState({ timeSubDomain: newTimeSubDomain }, () => {
@@ -573,11 +474,107 @@ export default class DataProvider extends Component {
     });
   };
 
+  registerCollection = ({ id, ...collection }) => {
+    this.setState(({ collectionsById }) => ({
+      collectionsById: {
+        ...collectionsById,
+        [id]: deleteUndefinedFromObject({
+          ...collection,
+          id,
+        }),
+      },
+    }));
+
+    // Return an unregistration so that we can do some cleanup.
+    return () => {
+      this.setState(({ collectionsById }) => {
+        const copy = { ...collectionsById };
+        delete copy[id];
+        return {
+          collectionsById: copy,
+        };
+      });
+    };
+  };
+
+  updateCollection = ({ id, ...collection }) => {
+    this.setState(({ collectionsById }) => ({
+      collectionsById: {
+        ...collectionsById,
+        [id]: deleteUndefinedFromObject({
+          ...collectionsById[id],
+          ...collection,
+          id,
+        }),
+      },
+    }));
+  };
+
+  registerSeries = ({ id, ...series }) => {
+    this.setState(
+      ({ seriesById }) => ({
+        seriesById: {
+          ...seriesById,
+          [id]: deleteUndefinedFromObject({
+            ...series,
+            id,
+          }),
+        },
+      }),
+      () => {
+        this.fetchData(id, 'MOUNTED');
+      }
+    );
+
+    // Return an unregistration so that we can do some cleanup.
+    return () => {
+      this.setState(({ seriesById }) => {
+        const copy = { ...seriesById };
+        delete copy[id];
+        return {
+          seriesById: copy,
+        };
+      });
+    };
+  };
+
+  updateSeries = ({ id, ...series }) => {
+    this.setState(({ seriesById }) => ({
+      seriesById: {
+        ...seriesById,
+        [id]: deleteUndefinedFromObject({
+          ...seriesById[id],
+          ...series,
+          id,
+        }),
+      },
+    }));
+  };
+
+  // Add a helper method to render the legacy props using the new tree structure
+  // format. This is only intended to ease the transition pain and is not
+  // intended to be an ongoing solution.
+  renderLegacyItems = () => {
+    const { series, collections } = this.props;
+    if (series || collections) {
+      return (
+        <React.Fragment>
+          {(series || []).map(s => (
+            <Series key={s.id} {...s} />
+          ))}
+          {(collections || []).map(c => (
+            <Collection key={c.id} {...c} />
+          ))}
+        </React.Fragment>
+      );
+    }
+    return null;
+  };
+
   render() {
-    const { loaderConfig, timeDomain, timeSubDomain } = this.state;
+    const { collectionsById, timeDomain, timeSubDomain } = this.state;
     const {
       children,
-      collections,
       limitTimeSubDomain,
       timeDomain: externalTimeDomain,
       timeSubDomain: externalTimeSubDomain,
@@ -585,78 +582,134 @@ export default class DataProvider extends Component {
       onUpdateDomains,
     } = this.props;
 
-    if (Object.keys(loaderConfig).length === 0) {
-      // Do not bother, loader hasn't given any data yet.
-      return null;
-    }
     const seriesObjects = this.getSeriesObjects();
 
-    // Compute the domains for all of the collections with one pass over all of
-    // the series objects.
-    const collectionDomains = seriesObjects.reduce(
-      (
-        acc,
-        { collectionId, yDomain: seriesDomain, ySubDomain: seriesXSubDomain }
-      ) => {
-        if (!collectionId) {
-          return acc;
-        }
-        const { yDomain: existingDomain, ySubDomain: existingYSubDomain } = acc[
-          collectionId
-        ] || {
-          yDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
-          ySubDomain: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER],
-        };
-        return {
-          ...acc,
-          [collectionId]: {
-            yDomain: [
-              Math.min(existingDomain[0], seriesDomain[0]),
-              Math.max(existingDomain[1], seriesDomain[1]),
-            ],
-            ySubDomain: [
-              Math.min(existingYSubDomain[0], seriesXSubDomain[0]),
-              Math.max(existingYSubDomain[1], seriesXSubDomain[1]),
-            ],
-          },
-        };
-      },
-      {}
-    );
+    // // Compute the domains for all of the collections with one pass over all of
+    // // the series objects.
+    const domainsByCollectionId = seriesObjects.reduce((acc, series) => {
+      const { collectionId } = series;
+      if (!collectionId) {
+        return acc;
+      }
+
+      const {
+        timeDomain: seriesTimeDomain,
+        timeSubDomain: seriesTimeSubDomain,
+        xDomain: seriesXDomain,
+        xSubDomain: seriesXSubDomain,
+        yDomain: seriesYDomain,
+        ySubDomain: seriesYSubDomain,
+      } = series;
+
+      const {
+        timeDomain: collectionTimeDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+        timeSubDomain: collectionTimeSubDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+        xDomain: collectionXDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+        xSubDomain: collectionXSubDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+        yDomain: collectionYDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+        ySubDomain: collectionYSubDomain = [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ],
+      } = acc[collectionId] || {};
+
+      return {
+        ...acc,
+        [collectionId]: {
+          timeDomain: seriesTimeDomain
+            ? boundedDomain(collectionTimeDomain, seriesTimeDomain)
+            : undefined,
+          timeSubDomain: boundedDomain(
+            collectionTimeSubDomain,
+            seriesTimeSubDomain
+          ),
+          xDomain: seriesXDomain
+            ? boundedDomain(collectionXDomain, seriesXDomain)
+            : undefined,
+          xSubDomain: boundedDomain(collectionXSubDomain, seriesXSubDomain),
+          yDomain: seriesYDomain
+            ? boundedDomain(collectionYDomain, seriesYDomain)
+            : undefined,
+          ySubDomain: boundedDomain(collectionYSubDomain, seriesYSubDomain),
+        },
+      };
+    }, {});
 
     // Then we want to enrich the collection objects with their above-computed
     // domains.
-    const collectionsById = {};
-    const collectionsWithDomains = [];
-    collections.forEach(c => {
-      if (collectionDomains[c.id]) {
-        const withDomain = {
-          ...c,
-          ...collectionDomains[c.id],
-        };
-        collectionsWithDomains.push(withDomain);
-        collectionsById[c.id] = withDomain;
-      }
-    });
+    const collectionsWithDomains = Object.keys(collectionsById).reduce(
+      (acc, id) => {
+        if (!domainsByCollectionId[id]) {
+          return acc;
+        }
+        return [
+          ...acc,
+          {
+            ...collectionsById[id],
+            ...domainsByCollectionId[id],
+          },
+        ];
+      },
+      []
+    );
 
     // Then take a final pass over all of the series and replace their
     // yDomain and ySubDomain arrays with the one from their collections (if
     // they're a member of a collection).
     const collectedSeries = seriesObjects.map(s => {
-      if (s.collectionId !== undefined) {
-        const copy = {
-          ...s,
-        };
-        if (!collectionsById[copy.collectionId]) {
-          // It's pointing to a collection that doesn't exist.
-          copy.collectionId = undefined;
-          return copy;
-        }
-        copy.yDomain = [...collectionsById[copy.collectionId].yDomain];
-        copy.ySubDomain = [...collectionsById[copy.collectionId].ySubDomain];
-        return copy;
+      const { collectionId } = s;
+      if (collectionId === undefined) {
+        return s;
       }
-      return s;
+      const copy = { ...s };
+      if (!collectionsById[collectionId]) {
+        // It's pointing to a collection that doesn't exist.
+        delete copy.collectionId;
+      } else {
+        const {
+          timeDomain: collectionTimeDomain,
+          timeSubDomain: collectionTimeSubDomain,
+          xDomain: collectionXDomain,
+          xSubDomain: collectionXSubDomain,
+          yDomain: collectionYDomain,
+          ySubDomain: collectionYSubDomain,
+        } = domainsByCollectionId[collectionId] || {};
+
+        if (collectionTimeDomain) {
+          copy.timeDomain = collectionTimeDomain;
+        }
+        if (collectionTimeSubDomain) {
+          copy.timeSubDomain = collectionTimeSubDomain;
+        }
+        if (collectionXDomain) {
+          copy.xDomain = collectionXDomain;
+        }
+        if (collectionXSubDomain) {
+          copy.xSubDomain = collectionXSubDomain;
+        }
+        if (collectionYDomain) {
+          copy.yDomain = collectionYDomain;
+        }
+        if (collectionYSubDomain) {
+          copy.ySubDomain = collectionYSubDomain;
+        }
+      }
+      return copy;
     });
 
     const context = {
@@ -672,9 +725,14 @@ export default class DataProvider extends Component {
       timeSubDomainChanged: this.timeSubDomainChanged,
       limitTimeSubDomain,
       onUpdateDomains,
+      registerCollection: this.registerCollection,
+      updateCollection: this.updateCollection,
+      registerSeries: this.registerSeries,
+      updateSeries: this.updateSeries,
     };
     return (
       <DataContext.Provider value={context}>
+        {this.renderLegacyItems()}
         <Scaler>{children}</Scaler>
       </DataContext.Provider>
     );
@@ -727,8 +785,6 @@ DataProvider.propTypes = {
   pointsPerSeries: PropTypes.number,
   children: PropTypes.node.isRequired,
   defaultLoader: PropTypes.func,
-  series: seriesPropType.isRequired,
-  collections: GriffPropTypes.collections,
   // xSubDomain => void
   onTimeSubDomainChanged: PropTypes.func,
   // newSubDomainsPerItem => void
@@ -753,36 +809,46 @@ DataProvider.propTypes = {
   // (error, params) => void
   // Callback when data loader throws an error
   onFetchDataError: PropTypes.func,
+
+  series: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    })
+  ),
+  collections: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    })
+  ),
 };
 
 DataProvider.defaultProps = {
-  collections: [],
-  defaultLoader: null,
-  drawPoints: null,
+  defaultLoader: undefined,
+  drawPoints: undefined,
   drawLines: undefined,
-  onTimeSubDomainChanged: null,
-  onUpdateDomains: null,
+  onTimeSubDomainChanged: undefined,
+  onUpdateDomains: undefined,
   opacity: 1.0,
-  opacityAccessor: null,
+  opacityAccessor: undefined,
   pointsPerSeries: 250,
-  pointWidth: null,
-  pointWidthAccessor: null,
-  strokeWidth: null,
-  timeDomain: null,
-  timeSubDomain: null,
-  xDomain: null,
-  xSubDomain: null,
+  pointWidth: undefined,
+  pointWidthAccessor: undefined,
+  strokeWidth: undefined,
+  timeDomain: undefined,
+  timeSubDomain: undefined,
+  xDomain: undefined,
+  xSubDomain: undefined,
   updateInterval: 0,
   timeAccessor: d => d.timestamp,
-  x0Accessor: null,
-  x1Accessor: null,
+  x0Accessor: undefined,
+  x1Accessor: undefined,
   xAccessor: d => d.timestamp,
-  y0Accessor: null,
-  y1Accessor: null,
+  y0Accessor: undefined,
+  y1Accessor: undefined,
   yAccessor: d => d.value,
   yAxisWidth: 50,
-  yDomain: null,
-  ySubDomain: null,
+  yDomain: undefined,
+  ySubDomain: undefined,
   isTimeSubDomainSticky: false,
   limitTimeSubDomain: xSubDomain => xSubDomain,
   onFetchData: () => {},
@@ -790,4 +856,6 @@ DataProvider.defaultProps = {
   onFetchDataError: e => {
     throw e;
   },
+  series: [],
+  collections: [],
 };

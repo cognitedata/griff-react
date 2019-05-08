@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import moment from 'moment';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { DataProvider, LineChart } from '../build/src';
+import { DataProvider, LineChart, Series } from '../build/src';
 import { functionLoader, staticLoader } from './loaders';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
@@ -18,11 +18,9 @@ storiesOf('components/InteractionLayer', module)
           defaultLoader={staticLoader}
           xAccessor={d => d.timestamp}
           yAccessor={d => d.value}
-          series={[
-            { id: 1, color: 'steelblue', name: 'name1' },
-            { id: 2, color: 'maroon', name: 'name2' },
-          ]}
         >
+          <Series id="1" color="steelblue" name="name1" />
+          <Series id="2" color="maroon" name="name2" />
           <LineChart
             height={CHART_HEIGHT}
             crosshair={false}
@@ -44,11 +42,9 @@ storiesOf('components/InteractionLayer', module)
           )}
           xAccessor={d => d.timestamp}
           yAccessor={d => d.value}
-          series={[
-            { id: 1, color: 'steelblue', name: 'name1' },
-            { id: 2, color: 'maroon', name: 'name2' },
-          ]}
         >
+          <Series id="1" color="steelblue" name="name1" />
+          <Series id="2" color="maroon" name="name2" />
           <LineChart
             height={CHART_HEIGHT}
             crosshair={false}
@@ -65,11 +61,9 @@ storiesOf('components/InteractionLayer', module)
     </React.Fragment>
   ))
   .add('Area (no zoom)', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart
         height={CHART_HEIGHT}
         onAreaDefined={area => {
@@ -78,7 +72,7 @@ storiesOf('components/InteractionLayer', module)
       />
     </DataProvider>
   ))
-  .add('Area (zoom)', () => {
+  .add('Area (x-zoom)', () => {
     class ZoomByArea extends React.Component {
       state = { xSubDomain: null };
 
@@ -98,8 +92,9 @@ storiesOf('components/InteractionLayer', module)
             defaultLoader={staticLoader}
             timeDomain={staticXDomain}
             timeSubDomain={xSubDomain}
-            series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
           >
+            <Series id="1" color="steelblue" />
+            <Series id="2" color="maroon" />
             <LineChart
               height={CHART_HEIGHT}
               onAreaDefined={this.onAreaDefined}
@@ -147,11 +142,9 @@ storiesOf('components/InteractionLayer', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart
                 height={CHART_HEIGHT}
                 onAreaDefined={enableArea ? this.onAreaDefined : null}
@@ -203,11 +196,9 @@ storiesOf('components/InteractionLayer', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart
                 height={CHART_HEIGHT}
                 areas={area ? [area] : []}
@@ -249,11 +240,9 @@ storiesOf('components/InteractionLayer', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart
                 height={CHART_HEIGHT}
                 areas={areas}
@@ -297,11 +286,9 @@ storiesOf('components/InteractionLayer', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart
                 height={CHART_HEIGHT}
                 areas={areas}
@@ -375,11 +362,9 @@ storiesOf('components/InteractionLayer', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart
                 height={CHART_HEIGHT}
                 areas={areas}
@@ -394,11 +379,9 @@ storiesOf('components/InteractionLayer', module)
     return <OnDemandArea />;
   })
   .add('Double-click events', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-      series={[{ id: 1, color: 'steelblue' }, { id: 2, color: 'maroon' }]}
-    >
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
       <LineChart
         height={CHART_HEIGHT}
         onDoubleClick={action('onDoubleClick')}
@@ -433,11 +416,9 @@ storiesOf('components/InteractionLayer', module)
             <DataProvider
               defaultLoader={staticLoader}
               timeDomain={staticXDomain}
-              series={[
-                { id: 1, color: 'steelblue' },
-                { id: 2, color: 'maroon' },
-              ]}
             >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} onAreaDefined={onAreaDefined} />
             </DataProvider>
             onAreaDefined:

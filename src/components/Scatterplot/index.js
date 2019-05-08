@@ -12,6 +12,7 @@ import Axes from '../../utils/Axes';
 import AxisCollection from '../AxisCollection';
 import LineCollection from '../LineCollection';
 import AxisDisplayMode from '../../utils/AxisDisplayMode';
+import { withDisplayName } from '../../utils/displayName';
 
 const propTypes = {
   size: PropTypes.shape({
@@ -52,8 +53,8 @@ const Y_AXIS_WIDTH = 50;
 const X_AXIS_HEIGHT = 50;
 
 const getYAxisPlacement = ({ collections, series, yAxisPlacement }) => {
-  const yAxisPlacements = []
-    .concat(series.filter(s => s.collectionId === undefined))
+  const yAxisPlacements = series
+    .filter(s => s.collectionId === undefined)
     .concat(collections)
     .reduce((acc, item) => {
       const placement = item.yAxisPlacement || yAxisPlacement;
@@ -131,7 +132,7 @@ const ScatterplotComponent = ({
   const yAxisPlacement = getYAxisPlacement({
     collections,
     series,
-    propsYAxisPlacement,
+    yAxisPlacement: propsYAxisPlacement,
   });
 
   chartSize.width -= visibleAxes * Y_AXIS_WIDTH;
@@ -207,7 +208,7 @@ const SizedScatterplotComponent = sizeMe({
   monitorHeight: true,
 })(ScatterplotComponent);
 
-const Scatterplot = props => (
+export default withDisplayName('Scatterplot', props => (
   <ScalerContext.Consumer>
     {({ collections, series }) => (
       <SizedScatterplotComponent
@@ -217,6 +218,4 @@ const Scatterplot = props => (
       />
     )}
   </ScalerContext.Consumer>
-);
-
-export default Scatterplot;
+));

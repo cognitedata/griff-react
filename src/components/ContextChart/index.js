@@ -11,7 +11,7 @@ import AxisPlacement from '../AxisPlacement';
 import { multiFormat } from '../../utils/multiFormat';
 import Axes from '../../utils/Axes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
-import { stripPlaceholderDomain } from '../Scaler';
+import { firstResolvedDomain } from '../Scaler';
 import { calculateDomainFromData } from '../DataProvider';
 import { withDisplayName } from '../../utils/displayName';
 
@@ -71,7 +71,7 @@ const renderXAxis = (position, xAxis, { xAxisPlacement }) => {
     return xAxis;
   }
   if (xAxisPlacement === AxisPlacement.BOTH) {
-    return React.cloneElement(xAxis, { xAxisPlacement: position });
+    return React.cloneElement(xAxis, { placement: position });
   }
   return null;
 };
@@ -91,8 +91,10 @@ const ContextChart = ({
 }) => {
   const getYScale = (s, height) => {
     const domain =
-      stripPlaceholderDomain(s.yDomain) ||
-      stripPlaceholderDomain(Axes.y(domainsByItemId[s.collectionId || s.id])) ||
+      firstResolvedDomain(
+        s.yDomain,
+        Axes.y(domainsByItemId[s.collectionId || s.id])
+      ) ||
       calculateDomainFromData(s.data, s.yAccessor, s.y0Accessor, s.y1Accessor);
     return createYScale(domain, height);
   };
