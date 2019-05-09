@@ -499,6 +499,11 @@ class InteractionLayer extends React.Component {
       width,
       zoomAxes,
     } = this.props;
+
+    if (series.length === 0) {
+      return null;
+    }
+
     const {
       crosshair: { x, y },
       points,

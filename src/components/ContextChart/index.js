@@ -89,6 +89,10 @@ const ContextChart = ({
   xAxisPlacement,
   zoomable,
 }) => {
+  if (series.length === 0) {
+    return null;
+  }
+
   const getYScale = (s, height) => {
     const domain =
       firstResolvedDomain(
