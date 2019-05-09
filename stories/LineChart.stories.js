@@ -31,6 +31,54 @@ storiesOf('LineChart', module)
       {story()}
     </div>
   ))
+  .add('Empty', () => (
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <LineChart height={CHART_HEIGHT} />
+    </DataProvider>
+  ))
+  .add('Dynamic series', () => {
+    const randomColor = () =>
+      `rgb(${Math.round(Math.random() * 255)},${Math.round(
+        Math.random() * 255
+      )},${Math.round(Math.random() * 255)},1)`;
+
+    class DynamicSeries extends React.Component {
+      state = {
+        series: [],
+      };
+
+      addSeries = () =>
+        this.setState(({ series }) => ({
+          series: [...series, { id: series.length + 1, color: randomColor() }],
+        }));
+
+      clearSeries = () => this.setState({ series: [] });
+
+      render() {
+        const { series } = this.state;
+        return (
+          <div>
+            <button type="button" onClick={this.addSeries}>
+              Add series
+            </button>
+            <button type="button" onClick={this.clearSeries}>
+              Remove all series
+            </button>
+            <DataProvider
+              defaultLoader={staticLoader}
+              timeDomain={staticXDomain}
+            >
+              {series.map(s => (
+                <Series key={`series-${s.id}`} {...s} />
+              ))}
+              <LineChart height={CHART_HEIGHT} />
+            </DataProvider>
+          </div>
+        );
+      }
+    }
+    return <DynamicSeries />;
+  })
   .add('Basic', () => (
     <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />

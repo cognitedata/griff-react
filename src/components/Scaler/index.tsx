@@ -193,7 +193,7 @@ class Scaler extends React.Component<Props, State> {
 
         return updates;
       },
-      { domainsByItemId: {}, subDomainsByItemId: {} }
+      { domainsByItemId, subDomainsByItemId }
     );
     return updated ? stateUpdates : null;
   }
