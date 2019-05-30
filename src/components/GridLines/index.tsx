@@ -39,7 +39,6 @@ export interface Props {
 
 interface InternalProps {
   series: Series[];
-  subDomainsByItemId: DomainsByItemId;
 }
 
 const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
@@ -49,7 +48,6 @@ const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
   opacity = 0.6,
   series,
   strokeWidth = 1,
-  subDomainsByItemId,
   width,
   x,
   y,
@@ -70,7 +68,7 @@ const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
         .filter(s => seriesIdMap[s.id])
         .forEach(s => {
           // This is heavily inspired by YAxis -- maybe we could consolidate?
-          const scale = createYScale(Axes.y(subDomainsByItemId[s.id]), height);
+          const scale = createYScale(s.ySubDomain, height);
           const nTicks = y.count || Math.floor(height / 50) || 1;
           const values = scale.ticks(nTicks);
 
@@ -160,7 +158,7 @@ const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
       // This heavily inspired by XAxis -- maybe we can consolidate them?
       // FIXME: Remove this when we support multiple X axes
       const timeSubDomain =
-        subDomainsByItemId[Object.keys(subDomainsByItemId)[0]][axes.x];
+        axes.x === 'x' ? series[0].xSubDomain : series[0].timeSubDomain;
       const scale = createXScale(timeSubDomain, width);
       const values = scale.ticks(x.ticks || Math.floor(width / 100) || 1);
       values.forEach(v => {
@@ -210,20 +208,8 @@ export default withDisplayName(
   'GridLines',
   ({ width, height, ...props }: Props & SizeProps) => (
     <ScalerContext.Consumer>
-      {({
-        series,
-        subDomainsByItemId,
-      }: {
-        series: Series[];
-        subDomainsByItemId: DomainsByItemId;
-      }) => (
-        <GridLines
-          {...props}
-          width={width}
-          height={height}
-          series={series}
-          subDomainsByItemId={subDomainsByItemId}
-        />
+      {({ series }: { series: Series[] }) => (
+        <GridLines {...props} width={width} height={height} series={series} />
       )}
     </ScalerContext.Consumer>
   )

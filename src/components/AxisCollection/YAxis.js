@@ -4,10 +4,7 @@ import PropTypes from 'prop-types';
 import { createYScale } from '../../utils/scale-helpers';
 import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
 import AxisPlacement from '../AxisPlacement';
-import ScalerContext from '../../context/Scaler';
 import ZoomRect from '../ZoomRect';
-import Axes from '../../utils/Axes';
-import { withDisplayName } from '../../utils/displayName';
 
 const propTypes = {
   zoomable: PropTypes.bool,
@@ -23,9 +20,6 @@ const propTypes = {
   tickFormatter: PropTypes.func.isRequired,
   defaultColor: PropTypes.string,
   ticks: PropTypes.number,
-
-  // These are populated by Griff.
-  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
 
 const defaultProps = {
@@ -38,8 +32,6 @@ const defaultProps = {
   defaultColor: '#000',
   ticks: 0,
 };
-
-const getItem = (series, collection) => series || collection;
 
 const getLineProps = ({
   strokeWidth,
@@ -156,16 +148,15 @@ const YAxis = ({
   onMouseEnter,
   onMouseLeave,
   series,
-  subDomainsByItemId,
   tickFormatter,
   ticks,
   width,
   yAxisPlacement,
   zoomable,
 }) => {
-  const item = getItem(series, collection);
+  const item = series || collection;
   const color = item.color || defaultColor;
-  const scale = createYScale(Axes.y(subDomainsByItemId[item.id]), height);
+  const scale = createYScale(item.ySubDomain, height);
   const axis = d3.axisRight(scale);
   const tickFontSize = 14;
   const strokeWidth = 2;
@@ -243,7 +234,7 @@ const YAxis = ({
           width={width}
           height={height}
           zoomAxes={{ y: true }}
-          itemIds={[getItem(series, collection).id]}
+          itemIds={[(series || collection).id]}
         />
       )}
     </g>
@@ -253,10 +244,4 @@ const YAxis = ({
 YAxis.propTypes = propTypes;
 YAxis.defaultProps = defaultProps;
 
-export default withDisplayName('YAxis', props => (
-  <ScalerContext.Consumer>
-    {({ subDomainsByItemId }) => (
-      <YAxis {...props} subDomainsByItemId={subDomainsByItemId} />
-    )}
-  </ScalerContext.Consumer>
-));
+export default YAxis;

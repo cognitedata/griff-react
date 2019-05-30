@@ -9,7 +9,6 @@ import Line from '../Line';
 import AxisDisplayMode from '../../utils/AxisDisplayMode';
 import Axes, { Dimension } from '../../utils/Axes';
 import { Series } from '../../external';
-import { DomainsByItemId } from '../Scaler';
 import { withDisplayName } from '../../utils/displayName';
 
 const { time, x } = Axes;
@@ -21,21 +20,22 @@ export interface Props {
   series?: Series[];
   pointWidth?: number;
   scaleX?: boolean;
-  yScalerFactory?: (series: Series, height: number) => ScalerFunction;
+  yScalerFactory?: (seriesIndex: number, h: number) => ScalerFunction;
 }
 
 interface InternalProps {
   series: Series[];
-  domainsByItemId: DomainsByItemId;
-  subDomainsByItemId: DomainsByItemId;
 }
+
+const defaultYScaler = (series: Series[]) => (
+  seriesIndex: number,
+  height: number
+) => createYScale(series[seriesIndex].ySubDomain, height);
 
 const LineCollection: React.FunctionComponent<
   Props & InternalProps
 > = props => {
   const {
-    domainsByItemId,
-    subDomainsByItemId,
     series = new Array<Series>(),
     width,
     height,
@@ -44,9 +44,6 @@ const LineCollection: React.FunctionComponent<
     pointWidth = 6,
     scaleX = true,
   } = props;
-  if (!subDomainsByItemId) {
-    return null;
-  }
   const clipPath = `clip-path-${width}-${height}-${series
     .filter(s => !s.hidden)
     .map(
@@ -57,21 +54,24 @@ const LineCollection: React.FunctionComponent<
     )
     .join('/')}`;
 
-  const yScaler =
-    yScalerFactory ||
-    ((s, h) =>
-      createYScale(Axes.y(subDomainsByItemId[s.collectionId || s.id]), h));
-
-  const lines = series.reduce((l, s) => {
+  const lines = series.reduce((l, s, i) => {
     if (s.hidden) {
       return l;
     }
-    const { id } = s;
-    const xScale = createXScale(
-      scaleX ? xAxis(subDomainsByItemId[id]) : xAxis(domainsByItemId[id]),
-      width
-    );
-    const yScale = yScaler(s, height);
+    let domain = s.timeSubDomain;
+    if (scaleX && String(xAxis) === 'time') {
+      domain = s.timeSubDomain;
+    } else if (scaleX && String(xAxis) === 'x') {
+      domain = s.xSubDomain;
+    } else if (!scaleX && String(xAxis) === 'time') {
+      domain = s.timeDomain;
+    } else if (!scaleX && String(xAxis) === 'x') {
+      domain = s.xDomain;
+    } else {
+      // No idea what we're doing up here.
+    }
+    const xScale = createXScale(domain, width);
+    const yScale = (yScalerFactory || defaultYScaler(series))(i, height);
     return [
       ...l,
       <Line
@@ -97,13 +97,8 @@ const LineCollection: React.FunctionComponent<
 
 export default withDisplayName('LineCollection', (props: Props) => (
   <ScalerContext.Consumer>
-    {({ domainsByItemId, subDomainsByItemId, series }: InternalProps) => (
-      <LineCollection
-        series={series}
-        {...props}
-        domainsByItemId={domainsByItemId}
-        subDomainsByItemId={subDomainsByItemId}
-      />
+    {({ series }: InternalProps) => (
+      <LineCollection series={series} {...props} />
     )}
   </ScalerContext.Consumer>
 ));

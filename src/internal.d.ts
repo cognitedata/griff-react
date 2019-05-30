@@ -14,12 +14,12 @@ export interface Item {
   yAccessor: AccessorFunction;
   y0Accessor: AccessorFunction;
   y1Accessor: AccessorFunction;
-  timeDomain?: Domain;
-  timeSubDomain?: Domain;
-  xDomain?: Domain;
-  xSubDomain?: Domain;
-  yDomain?: Domain;
-  ySubDomain?: Domain;
+  timeDomain: Domain;
+  timeSubDomain: Domain;
+  xDomain: Domain;
+  xSubDomain: Domain;
+  yDomain: Domain;
+  ySubDomain: Domain;
   yAxisDisplayMode?: AxisDisplayMode;
   pointWidth?: number;
 }

@@ -88,21 +88,6 @@ const getTimeSubDomain = (
   return newTimeSubDomain;
 };
 
-const smallerDomain = (domain, subDomain) => {
-  if (!domain && !subDomain) {
-    return undefined;
-  }
-
-  if (!domain || !subDomain) {
-    return domain || subDomain;
-  }
-
-  return [Math.max(domain[0], subDomain[0]), Math.min(domain[1], subDomain[1])];
-};
-
-const boundedDomain = (a, b) =>
-  a && b ? [Math.min(a[0], b[0]), Math.max(a[1], b[1])] : a || b;
-
 const DEFAULT_ACCESSORS = {
   time: d => d.timestamp,
   x: d => d.x,
@@ -138,9 +123,6 @@ export default class DataProvider extends Component {
         limitTimeSubDomain
       ),
       timeDomain,
-      timeSubDomains: {},
-      xSubDomains: {},
-      ySubDomains: {},
       collectionsById: {},
       seriesById: {},
     };
@@ -196,7 +178,6 @@ export default class DataProvider extends Component {
         {
           timeDomain: propsTimeDomain,
           timeSubDomain: newTimeSubDomain,
-          ySubDomains: {},
         },
         () => {
           Object.keys(seriesById).map(id => this.fetchData(id, 'MOUNTED'));
@@ -215,7 +196,7 @@ export default class DataProvider extends Component {
     }
   }
 
-  getSeriesObjects = () => {
+  getCollectionObjects = () => {
     const {
       drawLines,
       drawPoints,
@@ -238,12 +219,71 @@ export default class DataProvider extends Component {
       opacityAccessor,
       pointWidthAccessor,
     } = this.props;
+    const { collectionsById } = this.state;
+    return Object.keys(collectionsById).reduce((acc, id) => {
+      const collection = collectionsById[id];
+      const dataProvider = {
+        drawLines,
+        drawPoints,
+        pointWidth,
+        strokeWidth,
+        opacity,
+        opacityAccessor,
+        pointWidthAccessor,
+        timeAccessor,
+        xAccessor,
+        x0Accessor,
+        x1Accessor,
+        yAccessor,
+        y0Accessor,
+        y1Accessor,
+        timeDomain,
+        timeSubDomain,
+        xDomain,
+        xSubDomain,
+        yDomain,
+        ySubDomain,
+      };
+      const completedSeries = {
+        // First copy in the base-level configuration.
+        ...DEFAULT_SERIES_CONFIG,
+
+        // Then the global props from DataProvider, if any are set.
+        ...dataProvider,
+
+        // Finally, the collection configuration itself.
+        ...collection,
+      };
+      return [...acc, completedSeries];
+    }, []);
+  };
+
+  getSeriesObjects = () => {
+    const {
+      drawLines,
+      drawPoints,
+      timeAccessor,
+      xAccessor,
+      x0Accessor,
+      x1Accessor,
+      yAccessor,
+      y0Accessor,
+      y1Accessor,
+      xDomain,
+      xSubDomain,
+      yDomain,
+      ySubDomain,
+      pointWidth,
+      strokeWidth,
+      opacity,
+      opacityAccessor,
+      pointWidthAccessor,
+    } = this.props;
     const {
       collectionsById,
       seriesById,
-      timeSubDomains,
-      xSubDomains,
-      ySubDomains,
+      timeDomain,
+      timeSubDomain,
     } = this.state;
     return Object.keys(seriesById).reduce((acc, id) => {
       const series = seriesById[id];
@@ -262,6 +302,12 @@ export default class DataProvider extends Component {
         yAccessor,
         y0Accessor,
         y1Accessor,
+        timeDomain,
+        timeSubDomain,
+        xDomain,
+        xSubDomain,
+        yDomain,
+        ySubDomain,
       };
       const collection =
         series.collectionId !== undefined
@@ -273,18 +319,6 @@ export default class DataProvider extends Component {
 
         // Then the global props from DataProvider, if any are set.
         ...dataProvider,
-
-        // Then the domains because these are in the DataProvider state, which
-        // supercedes the props.
-        timeSubDomain: smallerDomain(
-          timeDomain,
-          timeSubDomain || timeSubDomains[id]
-        ),
-        xSubDomain: smallerDomain(xDomain, xSubDomain || xSubDomains[id]),
-        ySubDomain: smallerDomain(yDomain, ySubDomain || ySubDomains[id]),
-        timeDomain,
-        xDomain,
-        yDomain,
 
         // Next, copy over defaults from the parent collection, if there is one.
         ...collection,
@@ -337,13 +371,6 @@ export default class DataProvider extends Component {
       defaultLoader,
       onFetchData,
       pointsPerSeries,
-      timeAccessor,
-      x0Accessor,
-      x1Accessor,
-      xAccessor,
-      y0Accessor,
-      y1Accessor,
-      yAccessor,
       onFetchDataError,
     } = this.props;
     const { timeDomain, timeSubDomain, seriesById } = this.state;
@@ -371,65 +398,13 @@ export default class DataProvider extends Component {
     }
 
     this.setState(
-      ({
-        collectionsById,
-        seriesById: { [id]: freshSeries },
-        seriesById: freshSeriesById,
-        timeSubDomains: freshTimeSubDomains,
-        xSubDomains: freshXSubDomains,
-        ySubDomains: freshYSubDomains,
-      }) => {
+      ({ seriesById: { [id]: freshSeries }, seriesById: freshSeriesById }) => {
         const stateUpdates = {};
 
         const series = {
           ...freshSeries,
           ...loaderResult,
         };
-
-        if (
-          // We either couldn't have any data before ...
-          reason === 'MOUNTED' ||
-          // ... or we didn't have data before, but do now!
-          (freshSeries.data.length === 0 && loaderResult.data.length > 0)
-        ) {
-          const collection = series.collectionId
-            ? collectionsById[series.collectionId] || {}
-            : {};
-
-          stateUpdates.timeSubDomains = {
-            ...freshTimeSubDomains,
-            [id]: calculateDomainFromData(
-              series.data,
-              series.timeAccessor || timeAccessor || DEFAULT_ACCESSORS.time
-            ),
-          };
-          stateUpdates.xSubDomains = {
-            ...freshXSubDomains,
-            [id]: calculateDomainFromData(
-              series.data,
-              series.xAccessor ||
-                collection.xAccessor ||
-                xAccessor ||
-                DEFAULT_ACCESSORS.x,
-              series.x0Accessor || collection.x0Accessor || x0Accessor,
-              series.x1Accessor || collection.x1Accessor || x1Accessor
-            ),
-          };
-          stateUpdates.ySubDomains = {
-            ...freshYSubDomains,
-            [id]: calculateDomainFromData(
-              series.data,
-              series.yAccessor ||
-                collection.yAccessor ||
-                yAccessor ||
-                DEFAULT_ACCESSORS.y,
-              series.y0Accessor || collection.y0Accessor || y0Accessor,
-              series.y1Accessor || collection.y1Accessor || y1Accessor
-            ),
-          };
-
-          series.timeSubDomain = series.timeSubDomain || series.timeDomain;
-        }
 
         stateUpdates.seriesById = {
           ...freshSeriesById,
@@ -572,7 +547,7 @@ export default class DataProvider extends Component {
   };
 
   render() {
-    const { collectionsById, timeDomain, timeSubDomain } = this.state;
+    const { timeDomain, timeSubDomain } = this.state;
     const {
       children,
       limitTimeSubDomain,
@@ -582,139 +557,9 @@ export default class DataProvider extends Component {
       onUpdateDomains,
     } = this.props;
 
-    const seriesObjects = this.getSeriesObjects();
-
-    // // Compute the domains for all of the collections with one pass over all of
-    // // the series objects.
-    const domainsByCollectionId = seriesObjects.reduce((acc, series) => {
-      const { collectionId } = series;
-      if (!collectionId) {
-        return acc;
-      }
-
-      const {
-        timeDomain: seriesTimeDomain,
-        timeSubDomain: seriesTimeSubDomain,
-        xDomain: seriesXDomain,
-        xSubDomain: seriesXSubDomain,
-        yDomain: seriesYDomain,
-        ySubDomain: seriesYSubDomain,
-      } = series;
-
-      const {
-        timeDomain: collectionTimeDomain = [
-          Number.MAX_SAFE_INTEGER,
-          Number.MIN_SAFE_INTEGER,
-        ],
-        timeSubDomain: collectionTimeSubDomain = [
-          Number.MAX_SAFE_INTEGER,
-          Number.MIN_SAFE_INTEGER,
-        ],
-        xDomain: collectionXDomain = [
-          Number.MAX_SAFE_INTEGER,
-          Number.MIN_SAFE_INTEGER,
-        ],
-        xSubDomain: collectionXSubDomain = [
-          Number.MAX_SAFE_INTEGER,
-          Number.MIN_SAFE_INTEGER,
-        ],
-        yDomain: collectionYDomain = [
-          Number.MAX_SAFE_INTEGER,
-          Number.MIN_SAFE_INTEGER,
-        ],
-        ySubDomain: collectionYSubDomain = [
-          Number.MAX_SAFE_INTEGER,
-          Number.MIN_SAFE_INTEGER,
-        ],
-      } = acc[collectionId] || {};
-
-      return {
-        ...acc,
-        [collectionId]: {
-          timeDomain: seriesTimeDomain
-            ? boundedDomain(collectionTimeDomain, seriesTimeDomain)
-            : undefined,
-          timeSubDomain: boundedDomain(
-            collectionTimeSubDomain,
-            seriesTimeSubDomain
-          ),
-          xDomain: seriesXDomain
-            ? boundedDomain(collectionXDomain, seriesXDomain)
-            : undefined,
-          xSubDomain: boundedDomain(collectionXSubDomain, seriesXSubDomain),
-          yDomain: seriesYDomain
-            ? boundedDomain(collectionYDomain, seriesYDomain)
-            : undefined,
-          ySubDomain: boundedDomain(collectionYSubDomain, seriesYSubDomain),
-        },
-      };
-    }, {});
-
-    // Then we want to enrich the collection objects with their above-computed
-    // domains.
-    const collectionsWithDomains = Object.keys(collectionsById).reduce(
-      (acc, id) => {
-        if (!domainsByCollectionId[id]) {
-          return acc;
-        }
-        return [
-          ...acc,
-          {
-            ...collectionsById[id],
-            ...domainsByCollectionId[id],
-          },
-        ];
-      },
-      []
-    );
-
-    // Then take a final pass over all of the series and replace their
-    // yDomain and ySubDomain arrays with the one from their collections (if
-    // they're a member of a collection).
-    const collectedSeries = seriesObjects.map(s => {
-      const { collectionId } = s;
-      if (collectionId === undefined) {
-        return s;
-      }
-      const copy = { ...s };
-      if (!collectionsById[collectionId]) {
-        // It's pointing to a collection that doesn't exist.
-        delete copy.collectionId;
-      } else {
-        const {
-          timeDomain: collectionTimeDomain,
-          timeSubDomain: collectionTimeSubDomain,
-          xDomain: collectionXDomain,
-          xSubDomain: collectionXSubDomain,
-          yDomain: collectionYDomain,
-          ySubDomain: collectionYSubDomain,
-        } = domainsByCollectionId[collectionId] || {};
-
-        if (collectionTimeDomain) {
-          copy.timeDomain = collectionTimeDomain;
-        }
-        if (collectionTimeSubDomain) {
-          copy.timeSubDomain = collectionTimeSubDomain;
-        }
-        if (collectionXDomain) {
-          copy.xDomain = collectionXDomain;
-        }
-        if (collectionXSubDomain) {
-          copy.xSubDomain = collectionXSubDomain;
-        }
-        if (collectionYDomain) {
-          copy.yDomain = collectionYDomain;
-        }
-        if (collectionYSubDomain) {
-          copy.ySubDomain = collectionYSubDomain;
-        }
-      }
-      return copy;
-    });
-
     const context = {
-      series: collectedSeries,
-      collections: collectionsWithDomains,
+      series: this.getSeriesObjects(),
+      collections: this.getCollectionObjects(),
       timeDomain,
       // This is used to signal external changes vs internal changes
       externalTimeDomain,

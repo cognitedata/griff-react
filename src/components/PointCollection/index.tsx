@@ -14,20 +14,18 @@ export interface Props {}
 
 interface InternalProps {
   series: Series[];
-  subDomainsByItemId: DomainsByItemId;
 }
 
 const propTypes = {
   width: PropTypes.number.isRequired,
   height: PropTypes.number.isRequired,
   series: seriesPropType.isRequired,
-  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
 };
 const defaultProps = {};
 
 const PointCollection: React.FunctionComponent<
   Props & SizeProps & InternalProps
-> = ({ width, height, series, subDomainsByItemId }) => {
+> = ({ width, height, series }) => {
   const points = series
     .filter(s => !s.hidden && s.drawPoints !== false)
     .map(s => {
@@ -35,11 +33,9 @@ const PointCollection: React.FunctionComponent<
       // entirely sure why; I think it's because the collection's x domain is not
       // correctly calculated to the data's extent. I have not looked into it
       // because it doesn't really matter yet, but it will at some point.
-      const xScale = createXScale(Axes.x(subDomainsByItemId[s.id]), width);
-      const yScale = createYScale(
-        Axes.y(subDomainsByItemId[s.collectionId || s.id]),
-        height
-      );
+      const xScale = createXScale(s.xSubDomain, width);
+      // TODO: How will this handle collections?
+      const yScale = createYScale(s.ySubDomain, height);
       // Only show points which are relevant for the current time subdomain.
       // We don't need to do this for lines because we want lines to be drawn to
       // infinity so that they go to the ends of the graph, but points are special
@@ -47,8 +43,8 @@ const PointCollection: React.FunctionComponent<
       // subdomain.
       const pointFilter = (d: Datapoint, i: number, arr: Datapoint[]) => {
         const timestamp = s.timeAccessor(d, i, arr);
-        const subDomain = Axes.time(subDomainsByItemId[s.id]);
-        return subDomain[0] <= timestamp && timestamp <= subDomain[1];
+        const { timeSubDomain } = s;
+        return timeSubDomain[0] <= timestamp && timestamp <= timeSubDomain[1];
       };
       return (
         <Points
@@ -78,12 +74,8 @@ export default withDisplayName(
   'PointCollection',
   (props: Props & SizeProps) => (
     <ScalerContext.Consumer>
-      {({ subDomainsByItemId, series }: InternalProps) => (
-        <PointCollection
-          {...props}
-          series={series}
-          subDomainsByItemId={subDomainsByItemId}
-        />
+      {({ series }: InternalProps) => (
+        <PointCollection {...props} series={series} />
       )}
     </ScalerContext.Consumer>
   )

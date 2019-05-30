@@ -13,14 +13,13 @@ import { staticLoader } from './loaders';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
 
-const seriesToPlotly = ({ color, data, id }, subDomainsByItemId) => {
-  const filteredData =
-    subDomainsByItemId && subDomainsByItemId[id] && subDomainsByItemId[id].time
-      ? data.filter(({ timestamp }) => {
-          const timeSubDomain = subDomainsByItemId[id].time;
-          return timestamp >= timeSubDomain[0] && timestamp <= timeSubDomain[1];
-        })
-      : data;
+const seriesToPlotly = ({ color, data, timeSubDomain }) => {
+  const filteredData = timeSubDomain
+    ? data.filter(
+        ({ timestamp }) =>
+          timestamp >= timeSubDomain[0] && timestamp <= timeSubDomain[1]
+      )
+    : data;
   return {
     x: filteredData.map(({ timestamp }) => new Date(timestamp)),
     y: filteredData.map(({ value }) => value),
@@ -62,9 +61,9 @@ storiesOf('integrations/Plotly', module)
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <ScalerContext.Consumer>
-          {({ series, subDomainsByItemId }) => (
+          {({ series }) => (
             <Plot
-              data={series.map(s => seriesToPlotly(s, subDomainsByItemId))}
+              data={series.map(s => seriesToPlotly(s))}
               layout={{
                 width: '100%',
                 height: 400,
@@ -83,10 +82,10 @@ storiesOf('integrations/Plotly', module)
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <ScalerContext.Consumer>
-          {({ series, domainsByItemId, subDomainsByItemId, updateDomains }) => (
+          {({ series, updateDomains }) => (
             <Plot
               key={series.map(s => s.id).join('-')}
-              data={series.map(s => seriesToPlotly(s, subDomainsByItemId))}
+              data={series.map(s => seriesToPlotly(s))}
               layout={{
                 width: '100%',
                 height: 400,
@@ -100,11 +99,11 @@ storiesOf('integrations/Plotly', module)
                 } = input;
                 updateDomains(
                   series.reduce(
-                    (update, { id }) => ({
+                    (update, { id, timeDomain }) => ({
                       ...update,
                       [id]: {
                         time: autorange
-                          ? domainsByItemId[id].time
+                          ? timeDomain
                           : [lowerTime, upperTime].map(d =>
                               new Date(d).getTime()
                             ),

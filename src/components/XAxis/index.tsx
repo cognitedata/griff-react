@@ -8,7 +8,6 @@ import ScalerContext from '../../context/Scaler';
 import ZoomRect from '../ZoomRect';
 import { createXScale, ScalerFunctionFactory } from '../../utils/scale-helpers';
 import { Domain, Series } from '../../external';
-import { DomainsByItemId } from '../Scaler';
 import { withDisplayName } from '../../utils/displayName';
 
 export interface Props {
@@ -22,8 +21,6 @@ export interface Props {
 }
 
 interface ScalerProps {
-  domainsByItemId: DomainsByItemId;
-  subDomainsByItemId: DomainsByItemId;
   series: Series[];
 }
 
@@ -151,13 +148,11 @@ const getTextProps = ({
 
 const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   axis: a = 'time',
-  domainsByItemId,
   height = 50,
   placement = AxisPlacement.BOTTOM,
   scaled = true,
   series,
   stroke = 'black',
-  subDomainsByItemId,
   tickFormatter = Number,
   ticks = 0,
   width = 1,
@@ -166,9 +161,19 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
     return null;
   }
 
+  const { timeDomain, timeSubDomain, xDomain, xSubDomain } = series[0];
+  const domains = {
+    time: timeDomain,
+    x: xDomain,
+  };
+  const subDomains = {
+    time: timeSubDomain,
+    x: xSubDomain,
+  };
+
   // TODO: Update this to be multi-series aware. Right now this assumes one
   // single x axis, which isn't scalable.
-  const domain = (scaled ? subDomainsByItemId : domainsByItemId)[series[0].id];
+  const domain = scaled ? subDomains[a] : domains[a];
 
   // The system hasn't fully booted-up yet (domains / subdomains are still being
   // calculated and populated), so we need to wait a heartbeat.
@@ -179,7 +184,7 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   // @ts-ignore - I think that TypeScript is wrong here because nothing here
   // will be void .. ?
   const scale: d3.ScaleLinear<number, number> = X_SCALER_FACTORY[a](
-    domain[a],
+    domain,
     width
   );
   const axis = d3.axisBottom(scale);
@@ -266,16 +271,10 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
 
 export default withDisplayName('XAxis', (props: Props) => (
   <ScalerContext.Consumer>
-    {({ domainsByItemId, subDomainsByItemId, series }: ScalerProps) => (
+    {({ series }: ScalerProps) => (
       <SizeMe monitorWidth>
         {({ size }: { size: SizeProps }) => (
-          <XAxis
-            series={series}
-            {...props}
-            width={size.width}
-            domainsByItemId={domainsByItemId}
-            subDomainsByItemId={subDomainsByItemId}
-          />
+          <XAxis series={series} {...props} width={size.width} />
         )}
       </SizeMe>
     )}

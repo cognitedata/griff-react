@@ -38,7 +38,12 @@ const propTypes = {
 
   // These are provided by Griff.
   updateDomains: GriffPropTypes.updateDomains.isRequired,
-  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
+  seriesById: PropTypes.shape({
+    [PropTypes.string.isRequired]: GriffPropTypes.singleSeries,
+  }),
+  collectionsById: PropTypes.shape({
+    [PropTypes.string.isRequired]: GriffPropTypes.collection,
+  }),
 };
 
 const defaultProps = {
@@ -50,6 +55,21 @@ const defaultProps = {
   onDoubleClick: null,
   onTouchMove: null,
   onTouchMoveEnd: null,
+  seriesById: {},
+  collectionsById: {},
+};
+
+const getSubDomain = (item, axis) => {
+  switch (String(axis)) {
+    case 'time':
+      return item.timeSubDomain;
+    case 'x':
+      return item.xSubDomain;
+    case 'y':
+      return item.ySubDomain;
+    default:
+      throw new Error(`Unknown axis: ${axis}`);
+  }
 };
 
 class ZoomRect extends React.Component {
@@ -167,7 +187,7 @@ class ZoomRect extends React.Component {
   };
 
   performTouchDrag = (touches, totalDistances) => {
-    const { itemIds, subDomainsByItemId, zoomAxes } = this.props;
+    const { collectionsById, itemIds, seriesById, zoomAxes } = this.props;
     const [touch] = touches;
     const newTouchPosition = {
       [Axes.time]: touch.pageX,
@@ -178,7 +198,10 @@ class ZoomRect extends React.Component {
     itemIds.forEach(itemId => {
       updates[itemId] = {};
       Axes.ALL.filter(axis => zoomAxes[axis]).forEach(axis => {
-        const subDomain = (subDomainsByItemId[itemId] || {})[axis];
+        const subDomain = getSubDomain(
+          seriesById[itemId] || collectionsById[itemId],
+          axis
+        );
         const subDomainRange = subDomain[1] - subDomain[0];
         let newSubDomain = null;
         const percentMovement =
@@ -196,7 +219,14 @@ class ZoomRect extends React.Component {
   };
 
   performTouchZoom = (touches, totalDistances) => {
-    const { itemIds, subDomainsByItemId, zoomAxes, width, height } = this.props;
+    const {
+      collectionsById,
+      itemIds,
+      seriesById,
+      zoomAxes,
+      width,
+      height,
+    } = this.props;
     const [touchOne, touchTwo] = touches;
     const { x: touchOneX, y: touchOneY } = this.getOffset(touchOne);
     const { x: touchTwoX, y: touchTwoY } = this.getOffset(touchTwo);
@@ -237,7 +267,10 @@ class ZoomRect extends React.Component {
       updates[itemId] = {};
       Axes.ALL.filter(axis => zoomAxes[axis] && this.lastDeltas[axis]).forEach(
         axis => {
-          const subDomain = (subDomainsByItemId[itemId] || {})[axis];
+          const subDomain = getSubDomain(
+            seriesById[itemId] || collectionsById[itemId],
+            axis
+          );
           const subDomainRange = subDomain[1] - subDomain[0];
           const percentFromEnd = centers[axis] / measurements[axis];
 
@@ -310,11 +343,14 @@ class ZoomRect extends React.Component {
     };
 
     const updates = {};
-    const { subDomainsByItemId, updateDomains } = this.props;
+    const { collectionsById, seriesById, updateDomains } = this.props;
     itemIds.forEach(itemId => {
       updates[itemId] = {};
       Axes.ALL.filter(axis => zoomAxes[axis]).forEach(axis => {
-        const subDomain = (subDomainsByItemId[itemId] || {})[axis];
+        const subDomain = getSubDomain(
+          seriesById[itemId] || collectionsById[itemId] || {},
+          axis
+        );
         const subDomainRange = subDomain[1] - subDomain[0];
         let newSubDomain = null;
         if (sourceEvent.deltaY) {
@@ -389,11 +425,11 @@ ZoomRect.defaultProps = defaultProps;
 
 export default withDisplayName('ZoomRect', props => (
   <ScalerContext.Consumer>
-    {({ domainsByItemId, subDomainsByItemId, updateDomains }) => (
+    {({ collectionsById, seriesById, updateDomains }) => (
       <ZoomRect
         {...props}
-        domainsByItemId={domainsByItemId}
-        subDomainsByItemId={subDomainsByItemId}
+        collectionsById={collectionsById}
+        seriesById={seriesById}
         updateDomains={updateDomains}
       />
     )}

@@ -39,6 +39,8 @@ const opacityAccessor = d => ((d.value * 100) % 100) / 100;
 opacityAccessor.toString = () => 'custom opacity';
 
 const OPTIONS = {
+  yDomain: [[-1, 2], [0, 10], [0.25, 0.75]].map(makePrintable),
+  ySubDomain: [[-1, 2], [0, 10], [0.25, 0.75]].map(makePrintable),
   color: ['maroon', 'steelblue', 'darkgreen', 'lightsalmon'],
   collectionId: ['missing-collection'],
   drawLines: [true, false],
@@ -52,8 +54,6 @@ const OPTIONS = {
   step: [true, false],
   zoomable: [true, false],
   name: ['readable-name'],
-  yDomain: [[-1, 2], [0, 10], [0.25, 0.75]].map(makePrintable),
-  ySubDomain: [[-1, 2], [0, 10], [0.25, 0.75]].map(makePrintable),
   yAxisPlacement: [
     AxisPlacement.LEFT,
     AxisPlacement.RIGHT,

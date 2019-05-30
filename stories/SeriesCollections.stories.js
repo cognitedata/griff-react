@@ -25,17 +25,17 @@ storiesOf('Series Collections', module)
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>,
-    <DataProvider
-      key="scaled"
-      timeDomain={staticXDomain}
-      defaultLoader={staticLoader}
-    >
-      <Collection id="all" color="red">
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" yAccessor={d => d.value + 2} />
-      </Collection>
-      <LineChart height={CHART_HEIGHT} />
-    </DataProvider>,
+    // <DataProvider
+    //   key="scaled"
+    //   timeDomain={staticXDomain}
+    //   defaultLoader={staticLoader}
+    // >
+    //   <Collection id="all" color="red">
+    //     <Series id="1" color="steelblue" />
+    //     <Series id="2" color="maroon" yAccessor={d => d.value + 2} />
+    //   </Collection>
+    //   <LineChart height={CHART_HEIGHT} />
+    // </DataProvider>,
   ])
   .add('Multiple collections', () => (
     <DataProvider timeDomain={staticXDomain} defaultLoader={staticLoader}>

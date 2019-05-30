@@ -14,7 +14,6 @@ import Annotation from '../Annotation';
 import Ruler from '../Ruler';
 import Area from '../Area';
 import ZoomRect from '../ZoomRect';
-import Axes from '../../utils/Axes';
 import { withDisplayName } from '../../utils/displayName';
 
 export const ZoomMode = {
@@ -53,7 +52,6 @@ class InteractionLayer extends React.Component {
     // These are all populated by Griff.
     series: seriesPropType,
     collections: GriffPropTypes.collections,
-    subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
   };
 
   static defaultProps = {
@@ -97,24 +95,13 @@ class InteractionLayer extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    const {
-      subDomainsByItemId: prevSubDomainsByItemId,
-      ruler,
-      width: prevWidth,
-    } = this.props;
-    // FIXME: Don't assume a single time domain
-    const {
-      width: nextWidth,
-      subDomainsByItemId: nextSubDomainsByItemId,
-    } = nextProps;
+    const { ruler, width: prevWidth, series: prevSeries } = this.props;
+    const { width: nextWidth, series: nextSeries } = nextProps;
     const { touchX, touchY } = this.state;
 
-    const prevTimeSubDomain = Axes.time(
-      prevSubDomainsByItemId[Object.keys(prevSubDomainsByItemId)[0]]
-    );
-    const nextTimeSubDomain = Axes.time(
-      nextSubDomainsByItemId[Object.keys(nextSubDomainsByItemId)[0]]
-    );
+    // FIXME: Don't assume a single time domain
+    const prevTimeSubDomain = prevSeries.length > 0 ? prevSeries[0] : undefined;
+    const nextTimeSubDomain = nextSeries.length > 0 ? nextSeries[0] : undefined;
 
     if (
       ruler &&
@@ -258,17 +245,15 @@ class InteractionLayer extends React.Component {
       width,
       annotations,
       areas,
-      subDomainsByItemId,
+      series,
     } = this.props;
-    if (this.dragging) {
+    if (this.dragging || series.length === 0) {
       return;
     }
     if (onClickAnnotation || onAreaClicked) {
       let notified = false;
       // FIXME: Don't assume a single time domain
-      const timeSubDomain = Axes.time(
-        subDomainsByItemId[Object.keys(subDomainsByItemId)[0]]
-      );
+      const { timeSubDomain } = series[0];
       const xScale = createXScale(timeSubDomain, width);
       const xpos = e.nativeEvent.offsetX;
       const ypos = e.nativeEvent.offsetY;
@@ -334,14 +319,11 @@ class InteractionLayer extends React.Component {
 
   // TODO: This extrapolate thing is super gross and so hacky.
   getDataForCoordinate = (xpos, ypos, extrapolate = false) => {
-    const { subDomainsByItemId, width, series, height } = this.props;
+    const { width, series, height } = this.props;
 
     const output = { xpos, ypos, points: [] };
     series.forEach(s => {
-      const {
-        [Axes.time]: timeSubDomain,
-        [Axes.y]: ySubDomain,
-      } = subDomainsByItemId[s.id];
+      const { timeSubDomain, ySubDomain } = s;
       const xScale = createXScale(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos);
       const { data, xAccessor, yAccessor } = s;
@@ -386,16 +368,10 @@ class InteractionLayer extends React.Component {
   };
 
   getRulerPoints = xpos => {
-    const { series, height, width, subDomainsByItemId } = this.props;
+    const { series, height, width } = this.props;
     const newPoints = [];
     series.forEach(s => {
-      if (!subDomainsByItemId[s.id]) {
-        return;
-      }
-      const {
-        [Axes.time]: timeSubDomain,
-        [Axes.y]: ySubDomain,
-      } = subDomainsByItemId[s.id];
+      const { timeSubDomain, ySubDomain } = s;
       const xScale = createXScale(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos);
       const { data, xAccessor, yAccessor } = s;
@@ -443,10 +419,15 @@ class InteractionLayer extends React.Component {
       });
       return;
     }
-    const { width, subDomainsByItemId } = this.props;
-    const timeSubDomain = Axes.time(
-      subDomainsByItemId[Object.keys(subDomainsByItemId)[0]]
-    );
+
+    const { series, width } = this.props;
+
+    if (series.length === 0) {
+      return;
+    }
+
+    // FIXME: Don't rely on a single time subdomain
+    const { timeSubDomain } = series[0];
     const xScale = createXScale(timeSubDomain, width);
     const xpos = xScale(timestamp);
     this.setRulerPoints(xpos);
@@ -495,7 +476,6 @@ class InteractionLayer extends React.Component {
       onAreaDefined,
       ruler,
       series,
-      subDomainsByItemId,
       width,
       zoomAxes,
     } = this.props;
@@ -535,7 +515,7 @@ class InteractionLayer extends React.Component {
       );
     }
     // FIXME: Don't rely on a single time domain
-    const timeSubDomain = Axes.time(subDomainsByItemId[series[0].id]);
+    const { timeSubDomain } = series[0];
     const xScale = createXScale(timeSubDomain, width);
     const annotations = propsAnnotations.map(a => (
       <Annotation key={a.id} {...a} height={height} xScale={xScale} />
@@ -557,7 +537,7 @@ class InteractionLayer extends React.Component {
       if (a.seriesId) {
         s = series.find(s1 => s1.id === a.seriesId);
         if (s) {
-          const { [Axes.y]: ySubDomain } = subDomainsByItemId[s.id];
+          const { ySubDomain } = s;
           const yScale = createYScale(ySubDomain, height);
           if (a.start.yval) {
             scaledArea.start.ypos = yScale(a.start.yval);
@@ -620,13 +600,8 @@ class InteractionLayer extends React.Component {
 
 export default withDisplayName('InteractionLayer', props => (
   <ScalerContext.Consumer>
-    {({ collections, series, subDomainsByItemId }) => (
-      <InteractionLayer
-        {...props}
-        collections={collections}
-        series={series}
-        subDomainsByItemId={subDomainsByItemId}
-      />
+    {({ collections, series }) => (
+      <InteractionLayer {...props} collections={collections} series={series} />
     )}
   </ScalerContext.Consumer>
 ));

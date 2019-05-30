@@ -10,6 +10,7 @@ import {
 
 import { staticLoader } from './loaders';
 import ToggleRenderer from './ToggleRenderer';
+import ScalerDebugger from './ScalerDebugger';
 import { scatterplotloader } from './Scatterplot.stories';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
@@ -28,6 +29,17 @@ storiesOf('components/Collection', module)
         <Series id="1" />
       </Collection>
       <LineChart height={CHART_HEIGHT} />
+      <ScalerDebugger />
+    </DataProvider>
+  ))
+  .add('LineChart with two items', () => (
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Collection id="collection">
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" yAccessor={d => +(d.value + 2)} />
+      </Collection>
+      <LineChart height={CHART_HEIGHT} />
+      <ScalerDebugger />
     </DataProvider>
   ))
   .add('Basic Scatterplot', () => (

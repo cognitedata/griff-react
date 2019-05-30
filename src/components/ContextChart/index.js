@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { SizeMe } from 'react-sizeme';
+import DataContext from '../../context/Data';
 import ScalerContext from '../../context/Scaler';
 import LineCollection from '../LineCollection';
 import XAxis from '../XAxis';
@@ -11,9 +12,8 @@ import AxisPlacement from '../AxisPlacement';
 import { multiFormat } from '../../utils/multiFormat';
 import Axes from '../../utils/Axes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
-import { firstResolvedDomain } from '../Scaler';
-import { calculateDomainFromData } from '../DataProvider';
 import { withDisplayName } from '../../utils/displayName';
+import { calculateDomains } from '../Scaler';
 
 const propTypes = {
   height: PropTypes.number,
@@ -25,9 +25,9 @@ const propTypes = {
   xAxisPlacement: GriffPropTypes.axisPlacement,
 
   // These are all provided by Griff.
-  domainsByItemId: GriffPropTypes.domainsByItemId.isRequired,
+  collections: GriffPropTypes.collections.isRequired,
+  unscaledSeries: GriffPropTypes.multipleSeries.isRequired,
   series: GriffPropTypes.multipleSeries.isRequired,
-  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
   updateDomains: GriffPropTypes.updateDomains.isRequired,
   width: PropTypes.number,
 };
@@ -76,12 +76,55 @@ const renderXAxis = (position, xAxis, { xAxisPlacement }) => {
   return null;
 };
 
+const domainToString = domain => {
+  if (!domain) {
+    return 'undefined';
+  }
+  if (!Array.isArray(domain)) {
+    return 'not-an-array';
+  }
+  return `[${domain[0]},${domain[1]}]`;
+};
+
+const dataRange = item => {
+  const { data, timeAccessor } = item;
+  if (!data) {
+    return 'undefined';
+  }
+  if (!Array.isArray(data)) {
+    return 'not-an-array';
+  }
+  if (!timeAccessor) {
+    return 'inaccessible';
+  }
+  if (data.length === 0) {
+    return 'no-data';
+  }
+  return `[${timeAccessor(data[0])},${timeAccessor(data[data.length - 1])}]`;
+};
+
+// A helper function to provide checksum-ish hashes to React.useMemo so that we
+// can only recompute the domains when relevant information changes.
+const getDomainHashes = (...items) =>
+  items.map(itemGroup =>
+    itemGroup
+      .map(
+        item =>
+          `${item.id}: { data: { ${(item.data || []).length} [${dataRange(
+            item
+          )}] }, collectionId: ${item.collectionId}, yDomain: ${domainToString(
+            item.yDomain
+          )}, ySubDomain: ${domainToString(item.ySubDomain)} }`
+      )
+      .join(', ')
+  );
+
 const ContextChart = ({
   annotations: propsAnnotations,
-  domainsByItemId,
   height: propsHeight,
+  unscaledSeries,
+  collections,
   series,
-  subDomainsByItemId,
   updateDomains,
   width,
   xAxisFormatter,
@@ -93,19 +136,48 @@ const ContextChart = ({
     return null;
   }
 
-  const getYScale = (s, height) => {
-    const domain =
-      firstResolvedDomain(
-        s.yDomain,
-        Axes.y(domainsByItemId[s.collectionId || s.id])
-      ) ||
-      calculateDomainFromData(s.data, s.yAccessor, s.y0Accessor, s.y1Accessor);
+  const reconciledDomains = useMemo(() => {
+    // First things first: figure out what domain each series wants to have.
+    const domainsByItemId = {};
+    unscaledSeries.forEach(s => {
+      const { collectionId, id } = s;
+
+      const domain = s.yDomain || calculateDomains(s).y;
+
+      domainsByItemId[id] = domain;
+
+      if (collectionId) {
+        const collectedDomain = domainsByItemId[collectionId] || [
+          Number.MAX_SAFE_INTEGER,
+          Number.MIN_SAFE_INTEGER,
+        ];
+        domainsByItemId[collectionId] = [
+          Math.min(domain[0], collectedDomain[0]),
+          Math.max(domain[1], collectedDomain[1]),
+        ];
+      }
+    });
+
+    // Do another pass over it to update the collected items' domains.
+    unscaledSeries.forEach(s => {
+      const { id, collectionId } = s;
+      if (!collectionId) {
+        return;
+      }
+
+      domainsByItemId[id] = domainsByItemId[collectionId];
+    });
+
+    return domainsByItemId;
+  }, getDomainHashes(unscaledSeries, collections));
+
+  const getYScale = (seriesIndex, height) => {
+    const scaled = series[seriesIndex];
+    const domain = reconciledDomains[scaled.id];
     return createYScale(domain, height);
   };
 
-  const firstItemId = series[0].id;
-  const timeDomain = Axes.time(domainsByItemId[firstItemId]);
-  const timeSubDomain = Axes.time(subDomainsByItemId[firstItemId]);
+  const { timeDomain, timeSubDomain } = series[0];
   const height = getChartHeight({
     height: propsHeight,
     xAxisHeight,
@@ -144,7 +216,6 @@ const ContextChart = ({
           yScalerFactory={getYScale}
           scaleY={false}
           scaleX={false}
-          subDomainsByItemId={subDomainsByItemId}
         />
         <Brush
           width={width}
@@ -170,20 +241,24 @@ ContextChart.propTypes = propTypes;
 ContextChart.defaultProps = defaultProps;
 
 export default withDisplayName('ContextChart', props => (
-  <ScalerContext.Consumer>
-    {({ domainsByItemId, subDomainsByItemId, updateDomains, series }) => (
-      <SizeMe monitorWidth>
-        {({ size }) => (
-          <ContextChart
-            width={size.width}
-            series={series}
-            {...props}
-            subDomainsByItemId={subDomainsByItemId}
-            domainsByItemId={domainsByItemId}
-            updateDomains={updateDomains}
-          />
+  <DataContext.Consumer>
+    {({ series: unscaledSeries }) => (
+      <ScalerContext.Consumer>
+        {({ updateDomains, series, collections }) => (
+          <SizeMe monitorWidth>
+            {({ size }) => (
+              <ContextChart
+                width={size.width}
+                unscaledSeries={unscaledSeries}
+                collections={collections}
+                series={series}
+                {...props}
+                updateDomains={updateDomains}
+              />
+            )}
+          </SizeMe>
         )}
-      </SizeMe>
+      </ScalerContext.Consumer>
     )}
-  </ScalerContext.Consumer>
+  </DataContext.Consumer>
 ));

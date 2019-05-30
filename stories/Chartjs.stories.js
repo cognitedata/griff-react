@@ -23,7 +23,7 @@ storiesOf('integrations/ChartJS', module)
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <ScalerContext.Consumer>
-        {({ series, subDomainsByItemId }) => (
+        {({ series }) => (
           <Bar
             data={{
               labels: [
@@ -39,7 +39,7 @@ storiesOf('integrations/ChartJS', module)
                 '0.9',
               ],
               datasets: series.map(s => {
-                const timeSubDomain = subDomainsByItemId[s.id].time;
+                const { timeSubDomain } = s;
                 const groupedData = s.data
                   .filter(
                     ({ timestamp }) =>
@@ -72,7 +72,7 @@ storiesOf('integrations/ChartJS', module)
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <ScalerContext.Consumer>
-        {({ series, subDomainsByItemId }) => (
+        {({ series }) => (
           <Doughnut
             data={{
               labels: [
@@ -88,7 +88,7 @@ storiesOf('integrations/ChartJS', module)
                 '0.9',
               ],
               datasets: series.map(s => {
-                const timeSubDomain = subDomainsByItemId[s.id].time;
+                const { timeSubDomain } = s;
                 const groupedData = s.data
                   .filter(
                     ({ timestamp }) =>

@@ -2,8 +2,7 @@ import React from 'react';
 
 export default React.createContext({
   series: [],
+  seriesById: {},
   collections: [],
-  domainsByItemId: {},
-  subDomainsByItemId: {},
   updateDomains: () => null,
 });
