@@ -352,9 +352,10 @@ class Scaler extends React.Component<Props, State> {
             const changedSubDomains = changedSubDomainsById[id];
 
             if (changedSubDomains.time) {
+              // See if the data provider time domain changed. If it did, we
+              // need to see if we need to adjust the subdomain in order to
+              // track the front (or back) of the window (due to live-loading).
               if (dataProviderTimeDomainChanged) {
-                // The data provider time domain changed; see if we need to
-                // track the front of the window (due to live-loading).
                 const itemTimeSubDomain =
                   subDomains.time ||
                   (this.seriesById[id] || this.collectionsById[id])
