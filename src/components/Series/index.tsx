@@ -1,15 +1,22 @@
 import * as React from 'react';
-import { ItemId, AccessorFunction, PointRenderer } from '../../external';
-import { Context as Griff } from '../Griff';
-import { Domain } from 'domain';
+import {
+  ItemId,
+  AccessorFunction,
+  PointRenderer,
+  Domain,
+  LoaderFunction,
+} from '../../external';
+import {
+  Context as Griff,
+  RegisterSeriesFunction,
+  UpdateSeriesFunction,
+} from '../Griff';
 import { AxisPlacement } from '../AxisPlacement';
 import { AxisDisplayMode } from '../../utils/AxisDisplayMode';
 import { withDisplayName } from '../../utils/displayName';
 
-// TODO: Move this to DataProvider (and define it properly over there)
-type LoaderFunction = (params: any) => any;
-
 export interface ItemProps {
+  id: ItemId;
   color?: string;
   drawLines?: boolean;
   drawPoints?: boolean | PointRenderer;
@@ -24,6 +31,8 @@ export interface ItemProps {
   xAccessor?: AccessorFunction;
   x0Accessor?: AccessorFunction;
   x1Accessor?: AccessorFunction;
+  xDomain?: Domain;
+  xSubDomain?: Domain;
   yAccessor?: AccessorFunction;
   y0Accessor?: AccessorFunction;
   y1Accessor?: AccessorFunction;
@@ -64,17 +73,8 @@ export const WATCHED_PROP_NAMES = [
 ];
 
 export interface Props extends ItemProps {
-  id: ItemId;
   collectionId?: ItemId;
 }
-
-export type UnregisterSeriesFunction = () => void;
-
-export type RegisterSeriesFunction = (
-  seriesProps: Props
-) => UnregisterSeriesFunction;
-
-export type UpdateSeriesFunction = (seriesProps: Props) => void;
 
 interface InternalProps {
   registerSeries: RegisterSeriesFunction;

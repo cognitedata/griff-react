@@ -1,4 +1,5 @@
 import { Item } from './internal';
+import { LoaderReason } from './components/DataProvider';
 
 export * from './components/AxisPlacement';
 export type Domain = [number, number] & {
@@ -52,5 +53,12 @@ export type PointRenderer = (
 export type LoaderResult = Partial<Series> & { id: ItemId } & {
   data: Datapoint[];
 };
+
+export type LoaderReason = 'MOUNTED' | 'SUBDOMAIN_CHANGED';
+
+export interface LoaderParams {
+  oldSeries: LoaderResult;
+  reason: LoaderReason;
+}
 
 export type LoaderFunction = (args: any) => Promise<LoaderResult>;

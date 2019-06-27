@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { DataProvider, LineChart, Series, Scatterplot } from '../build/src';
+import { LineChart, Series, Scatterplot, Griff } from '../build/src';
 
 import { staticLoader } from './loaders';
 import ToggleRenderer from './ToggleRenderer';
@@ -23,14 +23,14 @@ storiesOf('components/Series', module)
     </div>
   ))
   .add('Basic LineChart', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ))
   .add('Basic Scatterplot', () => (
-    <DataProvider
-      defaultLoader={scatterplotloader}
+    <Griff
+      loader={scatterplotloader}
       timeDomain={[0, 1]}
       xAccessor={d => +d.x}
       yAccessor={d => +d.y}
@@ -39,7 +39,7 @@ storiesOf('components/Series', module)
       <div style={{ height: '500px', width: '100%' }}>
         <Scatterplot zoomable />
       </div>
-    </DataProvider>
+    </Griff>
   ))
   .add('Change props', () => (
     <ToggleRenderer seriesIds={['first', 'second']} />

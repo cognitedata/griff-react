@@ -1,19 +1,36 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import Scaler from '../Scaler';
-import Series from '../Series';
-import Collection from '../Collection';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
+import Scaler, { DomainsByItemId } from '../Scaler';
+import {
+  Domain,
+  LoaderFunction,
+  Datapoint,
+  Series,
+  ItemId,
+  Collection,
+} from '../../external';
+import {
+  IncomingCollection,
+  IncomingSeries,
+  IncomingItem,
+  DataSeries,
+  ScaledCollection,
+} from '../../internal';
+import CollectionJSX from '../Collection';
+import SeriesJSX, { ItemProps } from '../Series';
 
-const deleteUndefinedFromObject = obj => {
-  if (!obj) {
-    return {};
-  }
-  return Object.keys(obj).reduce((acc, k) => {
-    if (obj[k] !== undefined) {
-      return { ...acc, [k]: obj[k] };
-    }
-    return acc;
-  }, {});
+const deleteUndefinedFromItem = (obj: IncomingItem): IncomingItem => {
+  return Object.keys(obj).reduce(
+    (acc, k) => {
+      // @ts-ignore - This is fine to index by key
+      const value = obj[k];
+      if (value !== undefined) {
+        return { ...acc, [k]: value };
+      }
+      return acc;
+    },
+    { id: obj.id }
+  );
 };
 
 /**
@@ -21,7 +38,8 @@ const deleteUndefinedFromObject = obj => {
  * @param {*} first
  * @param  {...any} others
  */
-const firstDefined = (first, ...others) => {
+// @ts-ignore
+const firstDefined = (first: any, ...others: Array<any | undefined>) => {
   if (first !== undefined || others.length === 0) {
     return first;
   }
@@ -29,10 +47,10 @@ const firstDefined = (first, ...others) => {
 };
 
 const getTimeSubDomain = (
-  timeDomain,
-  timeSubDomain,
+  timeDomain: Domain,
+  timeSubDomain: Domain | undefined,
   // eslint-disable-next-line no-shadow
-  limitTimeSubDomain = timeSubDomain => timeSubDomain
+  limitTimeSubDomain = (timeSubDomain: Domain) => timeSubDomain
 ) => {
   if (!timeSubDomain) {
     return timeDomain;
@@ -53,12 +71,12 @@ const getTimeSubDomain = (
 };
 
 const DEFAULT_ACCESSORS = {
-  time: d => d.timestamp,
-  x: d => d.x,
-  y: d => d.value,
+  time: (d: Datapoint) => d.timestamp,
+  x: (d: Datapoint) => d.x,
+  y: (d: Datapoint) => d.y,
 };
 
-const DEFAULT_LOADER_FUNCTION = ({ reason, oldSeries }) => {
+const DEFAULT_LOADER_FUNCTION: LoaderFunction = ({ reason, oldSeries }) => {
   console.warn(`Missing loader!`, reason, oldSeries);
   return Promise.resolve(oldSeries);
 };
@@ -82,23 +100,71 @@ const DEFAULT_SERIES_CONFIG = {
   strokeWidth: 1,
 };
 
-export const Context = React.createContext({});
+export type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;
 
-export default class Griff extends Component {
-  constructor(props) {
-    super(props);
-    const { limitTimeSubDomain, timeDomain, timeSubDomain } = props;
-    this.state = {
-      timeSubDomain: getTimeSubDomain(
-        timeDomain,
-        timeSubDomain,
-        limitTimeSubDomain
-      ),
-      timeDomain,
-      collectionsById: {},
-      seriesById: {},
-    };
-  }
+export type LimitTimeSubDomain = (timeSubDomain: Domain) => Domain;
+
+export type OnUpdateDomains = (subDomains: DomainsByItemId) => void;
+
+export type TimeSubDomainLimiter = (subDomain: Domain) => Domain;
+
+export interface Props extends ItemProps {
+  timeDomain: Domain;
+  timeSubDomain?: Domain;
+  limitTimeSubDomain?: TimeSubDomainLimiter;
+
+  series: IncomingSeries[];
+  collections: IncomingCollection[];
+
+  children: JSX.Element | JSX.Element[];
+}
+
+interface State {
+  seriesById: { [seriesId: string]: IncomingSeries };
+  collectionsById: { [collectionId: string]: IncomingCollection };
+}
+
+export type UnregisterSeriesFunction = () => void;
+
+export type RegisterSeriesFunction = (
+  series: IncomingSeries
+) => UnregisterSeriesFunction;
+
+export type UpdateSeriesFunction = (series: IncomingSeries) => void;
+
+export type UnregisterCollectionFunction = () => void;
+
+export type RegisterCollectionFunction = (
+  collection: IncomingCollection
+) => UnregisterCollectionFunction;
+
+export type UpdateCollectionFunction = (collection: IncomingCollection) => void;
+
+export interface ContextType {
+  series: DataSeries[];
+  collections: ScaledCollection[];
+
+  registerSeries: RegisterSeriesFunction;
+  updateSeries: UpdateSeriesFunction;
+  registerCollection: RegisterCollectionFunction;
+  updateCollection: UpdateCollectionFunction;
+}
+
+export const Context = React.createContext<ContextType>({
+  series: [],
+  collections: [],
+
+  registerSeries: () => () => {},
+  updateSeries: () => {},
+  registerCollection: () => () => {},
+  updateCollection: () => {},
+});
+
+export default class Griff extends React.Component<Props, State> {
+  state: State = {
+    collectionsById: {},
+    seriesById: {},
+  };
 
   // async componentDidUpdate_old(prevProps) {
   //   // If new series are present in prop,
@@ -171,7 +237,7 @@ export default class Griff extends Component {
       pointWidthAccessor,
     } = this.props;
     const { collectionsById } = this.state;
-    return Object.keys(collectionsById).reduce((acc, id) => {
+    return Object.keys(collectionsById).reduce((acc: Collection[], id) => {
       const collection = collectionsById[id];
       const dataProvider = {
         drawLines,
@@ -195,7 +261,8 @@ export default class Griff extends Component {
         yDomain,
         ySubDomain,
       };
-      const completedSeries = {
+      // @ts-ignore - FIXME: timeDomain stuff?
+      const completedCollection: Collection = {
         // First copy in the base-level configuration.
         ...DEFAULT_SERIES_CONFIG,
 
@@ -205,7 +272,7 @@ export default class Griff extends Component {
         // Finally, the collection configuration itself.
         ...collection,
       };
-      return [...acc, completedSeries];
+      return [...acc, completedCollection];
     }, []);
   };
 
@@ -230,14 +297,11 @@ export default class Griff extends Component {
       opacity,
       opacityAccessor,
       pointWidthAccessor,
-    } = this.props;
-    const {
-      collectionsById,
-      seriesById,
       timeDomain,
       timeSubDomain,
-    } = this.state;
-    return Object.keys(seriesById).reduce((acc, id) => {
+    } = this.props;
+    const { collectionsById, seriesById } = this.state;
+    return Object.keys(seriesById).reduce((acc: Series[], id) => {
       const series = seriesById[id];
       const dataProvider = {
         drawLines,
@@ -266,7 +330,8 @@ export default class Griff extends Component {
         series.collectionId !== undefined
           ? collectionsById[series.collectionId] || {}
           : {};
-      const completedSeries = {
+      // @ts-ignore - FIXME: timeDomain stuff?
+      const completedSeries: Series = {
         // First copy in the base-level configuration.
         ...DEFAULT_SERIES_CONFIG,
 
@@ -283,11 +348,11 @@ export default class Griff extends Component {
     }, []);
   };
 
-  registerCollection = ({ id, ...collection }) => {
+  registerCollection = ({ id, ...collection }: IncomingCollection) => {
     this.setState(({ collectionsById }) => ({
       collectionsById: {
         ...collectionsById,
-        [id]: deleteUndefinedFromObject({
+        [id]: deleteUndefinedFromItem({
           ...collection,
           id,
         }),
@@ -306,11 +371,11 @@ export default class Griff extends Component {
     };
   };
 
-  updateCollection = ({ id, ...collection }) => {
+  updateCollection = ({ id, ...collection }: IncomingCollection) => {
     this.setState(({ collectionsById }) => ({
       collectionsById: {
         ...collectionsById,
-        [id]: deleteUndefinedFromObject({
+        [id]: deleteUndefinedFromItem({
           ...collectionsById[id],
           ...collection,
           id,
@@ -319,11 +384,11 @@ export default class Griff extends Component {
     }));
   };
 
-  registerSeries = ({ id, ...series }) => {
+  registerSeries = ({ id, ...series }: IncomingSeries) => {
     this.setState(({ seriesById }) => ({
       seriesById: {
         ...seriesById,
-        [id]: deleteUndefinedFromObject({
+        [id]: deleteUndefinedFromItem({
           ...series,
           id,
         }),
@@ -342,11 +407,11 @@ export default class Griff extends Component {
     };
   };
 
-  updateSeries = ({ id, ...series }) => {
+  updateSeries = ({ id, ...series }: IncomingSeries) => {
     this.setState(({ seriesById }) => ({
       seriesById: {
         ...seriesById,
-        [id]: deleteUndefinedFromObject({
+        [id]: deleteUndefinedFromItem({
           ...seriesById[id],
           ...series,
           id,
@@ -364,10 +429,10 @@ export default class Griff extends Component {
       return (
         <React.Fragment>
           {(series || []).map(s => (
-            <Series key={s.id} {...s} />
+            <SeriesJSX key={s.id} {...s} />
           ))}
           {(collections || []).map(c => (
-            <Collection key={c.id} {...c} />
+            <CollectionJSX key={c.id} {...c} />
           ))}
         </React.Fragment>
       );
@@ -403,6 +468,7 @@ export default class Griff extends Component {
   }
 }
 
+// @ts-ignore
 Griff.propTypes = {
   /**
    * A custom renderer for data points.
@@ -447,7 +513,6 @@ Griff.propTypes = {
   yDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   ySubDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
   pointsPerSeries: PropTypes.number,
-  children: PropTypes.node.isRequired,
   loader: PropTypes.func,
   // xSubDomain => void
   onTimeSubDomainChanged: PropTypes.func,
@@ -486,6 +551,7 @@ Griff.propTypes = {
   ),
 };
 
+// @ts-ignore
 Griff.defaultProps = {
   loader: undefined,
   drawPoints: undefined,
@@ -503,23 +569,16 @@ Griff.defaultProps = {
   xDomain: undefined,
   xSubDomain: undefined,
   updateInterval: 0,
-  timeAccessor: d => d.timestamp,
   x0Accessor: undefined,
   x1Accessor: undefined,
-  xAccessor: d => d.timestamp,
   y0Accessor: undefined,
   y1Accessor: undefined,
-  yAccessor: d => d.value,
   yAxisWidth: 50,
   yDomain: undefined,
   ySubDomain: undefined,
   isTimeSubDomainSticky: false,
-  limitTimeSubDomain: xSubDomain => xSubDomain,
   onFetchData: () => {},
   // Just rethrow the error if there is no custom error handler
-  onFetchDataError: e => {
-    throw e;
-  },
   series: [],
   collections: [],
 };

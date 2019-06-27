@@ -1,34 +1,20 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import { Context as GriffContext } from '../Griff';
+import {
+  Context as GriffContext,
+  ContextType,
+  OnTimeSubDomainChanged,
+  LimitTimeSubDomain,
+  OnUpdateDomains,
+} from '../Griff';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import Axes from '../../utils/Axes';
 import { Domain, Series, Collection, ItemId } from '../../external';
 import { withDisplayName } from '../../utils/displayName';
-import { Item } from '../../internal';
+import { Item, DataDomains, DataSeries } from '../../internal';
 import { DataProvider } from '../..';
 import { placeholder } from '../../utils/placeholder';
 import { isEqual } from '../../utils/domains';
-
-// TODO: Move this to DataProvider.
-type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;
-
-// TODO: Move this to DataProvider.
-type LimitTimeSubDomain = (timeSubDomain: Domain) => Domain;
-
-// TODO: Move this to DataProvider.
-type OnUpdateDomains = (subDomains: DomainsByItemId) => void;
-
-// TODO: Move this to DataProvider.
-interface DataContext {
-  timeDomain: Domain;
-  timeSubDomain: Domain;
-  timeSubDomainChanged: OnTimeSubDomainChanged;
-  limitTimeSubDomain: LimitTimeSubDomain | undefined;
-  series: Series[];
-  collections: Collection[];
-  onUpdateDomains: OnUpdateDomains;
-}
 
 interface SeriesWithDomains extends Series {
   timeDomain: Domain;
@@ -49,16 +35,17 @@ interface CollectionWithDomains extends Collection {
 }
 
 export interface Props {
-  griffContextValue: any;
-  children: React.ReactChild | React.ReactChild[];
-  timeDomain: Domain;
-  timeSubDomain: Domain;
   timeSubDomainChanged: OnTimeSubDomainChanged;
   limitTimeSubDomain: LimitTimeSubDomain | undefined;
   series: Series[];
   collections: Collection[];
-  onUpdateDomains: OnUpdateDomains;
+  onUpdateDomains?: OnUpdateDomains;
   updateInterval?: number;
+  children: JSX.Element | JSX.Element[];
+}
+
+interface InternalProps {
+  griffContextValue: ContextType;
 }
 
 export interface DomainsByItemId {
@@ -231,12 +218,9 @@ export const calculateDomains = (
  * These are manipulated with the {@link #updateDomains} function, which is
  * made available through the {@link ScalerContext}.
  */
-class OldScaler extends React.Component<Props, State> {
+class OldScaler extends React.Component<Props & InternalProps, State> {
   static propTypes = {
     children: PropTypes.node.isRequired,
-    timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-    timeSubDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-    timeSubDomainChanged: PropTypes.func.isRequired,
     limitTimeSubDomain: PropTypes.func,
     series: seriesPropType.isRequired,
     collections: GriffPropTypes.collections.isRequired,
@@ -263,11 +247,7 @@ class OldScaler extends React.Component<Props, State> {
     // We need to find when a Series' defined subDomains change because
     // then the state needs to be updated.
 
-    const {
-      series: prevSeries,
-      collections: prevCollections,
-      timeDomain: prevDataProviderTimeDomain,
-    } = prevProps;
+    const { series: prevSeries, collections: prevCollections } = prevProps;
 
     const prevSeriesById: { [id: string]: Series } = prevSeries
       .concat(prevCollections)
@@ -282,20 +262,11 @@ class OldScaler extends React.Component<Props, State> {
     const changedSubDomainsById: {
       [itemId: string]: SubDomainChanges;
     } = {};
-    const {
-      series,
-      collections,
-      timeDomain: dataProviderTimeDomain,
-    } = this.props;
+    const { series, collections } = this.props;
 
     let updateRequired = false;
 
     const { subDomainsByItemId } = this.state;
-
-    const dataProviderTimeDomainChanged = !isEqual(
-      dataProviderTimeDomain,
-      prevDataProviderTimeDomain
-    );
 
     const findChangedSubDomains = (item: Item) => {
       const p = prevSeriesById[item.id];
@@ -305,15 +276,6 @@ class OldScaler extends React.Component<Props, State> {
       if (p) {
         const subDomains = subDomainsByItemId[item.id] || {};
 
-        if (
-          dataProviderTimeDomainChanged ||
-          (item.timeSubDomain &&
-            subDomains.time &&
-            !isEqual(item.timeSubDomain, p.timeSubDomain))
-        ) {
-          changes.time = true;
-          changed = true;
-        }
         if (
           item.xSubDomain &&
           subDomains.x &&
@@ -345,42 +307,6 @@ class OldScaler extends React.Component<Props, State> {
           (acc, id) => {
             const subDomains = { ...subDomainsByItemId[id] };
             const changedSubDomains = changedSubDomainsById[id];
-
-            if (changedSubDomains.time) {
-              // See if the data provider time domain changed. If it did, we
-              // need to see if we need to adjust the subdomain in order to
-              // track the front (or back) of the window (due to live-loading).
-              if (dataProviderTimeDomainChanged) {
-                const itemTimeSubDomain =
-                  subDomains.time ||
-                  (this.seriesById[id] || this.collectionsById[id])
-                    .timeSubDomain;
-                if (itemTimeSubDomain) {
-                  const dt = itemTimeSubDomain[1] - itemTimeSubDomain[0];
-                  if (
-                    Math.abs(
-                      (itemTimeSubDomain[1] - prevDataProviderTimeDomain[1]) /
-                        dt
-                    ) <= FRONT_OF_WINDOW_THRESHOLD
-                  ) {
-                    // Looking at the front of the window -- continue to track that.
-                    itemTimeSubDomain[0] = dataProviderTimeDomain[1] - dt;
-                    itemTimeSubDomain[1] = dataProviderTimeDomain[1];
-                  } else if (
-                    itemTimeSubDomain[0] <= prevDataProviderTimeDomain[0]
-                  ) {
-                    // Looking at the back of the window -- continue to track that.
-                    itemTimeSubDomain[0] = prevDataProviderTimeDomain[0];
-                    itemTimeSubDomain[1] = prevDataProviderTimeDomain[0] + dt;
-                  }
-                  subDomains.time = itemTimeSubDomain;
-                } else {
-                  delete subDomains.time;
-                }
-              } else {
-                delete subDomains.time;
-              }
-            }
 
             if (changedSubDomains.x) {
               delete subDomains.x;
@@ -439,9 +365,7 @@ class OldScaler extends React.Component<Props, State> {
    */
   getSeriesWithDomains = (): SeriesWithDomains[] => {
     const {
-      series,
-      timeSubDomain: dataProviderTimeSubDomain,
-      timeDomain: dataProviderTimeDomain,
+      griffContextValue: { series },
     } = this.props;
 
     const { subDomainsByItemId } = this.state;
@@ -461,11 +385,7 @@ class OldScaler extends React.Component<Props, State> {
 
       const { time, x, y } = calculateDomains(s);
 
-      const newTimeDomain =
-        timeDomain ||
-        dataProviderTimeDomain ||
-        time ||
-        placeholder(0, Date.now());
+      const newTimeDomain = timeDomain || time || placeholder(0, Date.now());
       const newXDomain =
         xDomain ||
         placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
@@ -474,15 +394,10 @@ class OldScaler extends React.Component<Props, State> {
         placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
 
       const newTimeSubDomain =
-        subDomains.time ||
-        timeSubDomain ||
-        dataProviderTimeSubDomain ||
-        time ||
-        placeholder(0, Date.now());
+        subDomains.time || timeSubDomain || time || placeholder(0, Date.now());
 
       return {
         ...s,
-        timeDomain: newTimeDomain,
         timeSubDomain: getLimitedSubDomain(newTimeSubDomain, newTimeDomain),
         xDomain: newXDomain,
         xSubDomain: getLimitedSubDomain(
@@ -501,7 +416,9 @@ class OldScaler extends React.Component<Props, State> {
   getCollectionsWithDomains = (
     series: SeriesWithDomains[]
   ): CollectionWithDomains[] => {
-    const { collections } = this.props;
+    const {
+      griffContextValue: { collections },
+    } = this.props;
     if (collections.length === 0) {
       return [];
     }
@@ -752,7 +669,7 @@ class OldScaler extends React.Component<Props, State> {
   };
 
   render() {
-    const { children } = this.props;
+    const { children, griffContextValue } = this.props;
 
     // Do a first pass over all of the series to make copies of the Series so
     // that they're all guaranteed to have domains populated.
@@ -786,7 +703,8 @@ class OldScaler extends React.Component<Props, State> {
       }
     });
 
-    const newContext = {
+    const newContext: ContextType = {
+      ...griffContextValue,
       collections: collectionsWithDomains,
       collectionsById: this.collectionsById,
       series: seriesWithCollectedDomains,
@@ -794,155 +712,20 @@ class OldScaler extends React.Component<Props, State> {
 
       updateDomains: this.updateDomains,
     };
+    console.log('TCL: render -> newContext', newContext);
 
-    return null;
+    return (
+      <GriffContext.Provider value={newContext}>
+        <DataProvider>{children}</DataProvider>
+      </GriffContext.Provider>
+    );
   }
 }
 
-// @ts-ignore
-const Scaler: React.FunctionComponent<Props> = ({
-  griffContextValue,
-  griffContextValue: { collections = [], series = [] },
-  children,
-  limitTimeSubDomain = (timeSubDomain: Domain): Domain => timeSubDomain,
-}) => {
-  const seriesByCollectionId: SeriesIdsByCollectionId = React.useMemo(() => {
-    return series.reduce((acc: SeriesIdsByCollectionId, s: Series) => {
-      if (!s.collectionId) {
-        return acc;
-      }
-      return { ...acc, [s.collectionId]: [...acc[s.collectionId], s.id] };
-    }, {});
-  }, [series]);
-
-  const seriesById: SeriesById = React.useMemo(() => {
-    return series.reduce(
-      (acc: SeriesById, s: Series) => ({ ...acc, [s.id]: s }),
-      {}
-    );
-  }, [series]);
-
-  const [subDomainsByItemId, setSubDomainsByItemId] = React.useState<
-    DomainsByItemId
-  >({});
-
-  /**
-   * Update the subdomains for the given items. This is a patch update and will
-   * be merged with the current state of the subdomains. An example payload
-   * will resemble:
-   * <code>
-   *   {
-   *     "series-1": {
-   *       "y": [0.5, 0.75],
-   *     },
-   *     "series-2": {
-   *       "y": [1.0, 2.0],
-   *     }
-   *   }
-   * </code>
-   *
-   * After this is complete, {@code callback} will be called with this patch
-   * object.
-   */
-  const updateDomains = (mixedChangedDomainsById: DomainsByItemId) => {
-    const newSubDomains: DomainsByItemId = { ...subDomainsByItemId };
-
-    // Convert collections into their component series IDs.
-    const changedDomainsById: DomainsByItemId = Object.keys(
-      mixedChangedDomainsById
-    ).reduce((acc, itemId) => {
-      if (seriesByCollectionId[itemId]) {
-        // This is a collection; we need to add in all of its component series.
-        return seriesByCollectionId[itemId].reduce(
-          (domains, seriesId: ItemId) => ({
-            ...domains,
-            [seriesId]: mixedChangedDomainsById[itemId],
-          }),
-          acc
-        );
-      } else if (seriesById[itemId]) {
-        // Great, this is a series; copy it and move on.
-        return { ...acc, [itemId]: mixedChangedDomainsById[itemId] };
-      } else {
-        // Wat.
-        return acc;
-      }
-    }, {});
-
-    Object.keys(changedDomainsById).forEach(itemId => {
-      newSubDomains[itemId] = { ...(subDomainsByItemId[itemId] || {}) };
-
-      // At this point, changeDomainsById only contains IDs which are series
-      // objects.
-      const s = seriesById[itemId] || {};
-
-      Object.keys(changedDomainsById[itemId]).forEach(uncastAxis => {
-        const axis: DomainAxis = uncastAxis as DomainAxis;
-        let newSubDomain =
-          changedDomainsById[itemId][axis] ||
-          subDomainsByItemId[itemId][axis] ||
-          placeholder(0, 0);
-        if (axis === String(Axes.time)) {
-          if (limitTimeSubDomain) {
-            newSubDomain = limitTimeSubDomain(newSubDomain);
-          }
-        }
-        const newSpan = newSubDomain[1] - newSubDomain[0];
-        const existingSubDomain = getSubDomain(s, axis) || newSubDomain;
-        const existingSpan = existingSubDomain[1] - existingSubDomain[0];
-
-        const limits =
-          getDomain(s, axis) ||
-          // Set a large range because this is a limiting range.
-          placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
-
-        if (newSpan === existingSpan) {
-          // This is a translation; check the bounds.
-          if (newSubDomain[0] <= limits[0]) {
-            newSubDomain = [limits[0], limits[0] + newSpan];
-          }
-          if (newSubDomain[1] >= limits[1]) {
-            newSubDomain = [limits[1] - newSpan, limits[1]];
-          }
-        } else {
-          newSubDomain = [
-            Math.max(limits[0], newSubDomain[0]),
-            Math.min(limits[1], newSubDomain[1]),
-          ];
-        }
-        newSubDomains[itemId][axis] = newSubDomain;
-      });
-    });
-    setSubDomainsByItemId(newSubDomains);
-  };
-
-  const newContext = {
-    ...griffContextValue,
-    series: series.map((s: Series) => {
-      const subDomains = subDomainsByItemId[s.id] || {};
-      return {
-        xDomain: placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
-        yDomain: placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
-        ...s,
-        timeSubDomain: subDomains.time || s.timeSubDomain,
-        xSubDomain: subDomains.x || s.xSubDomain || placeholder(0, 0),
-        ySubDomain: subDomains.y || s.ySubDomain || placeholder(0, 0),
-      };
-    }),
-
-    updateDomains,
-  };
-  return (
-    <GriffContext.Provider value={newContext}>
-      <DataProvider>{children}</DataProvider>
-    </GriffContext.Provider>
-  );
-};
-
 export default withDisplayName('Scaler', (props: Props) => (
   <GriffContext.Consumer>
-    {(griffContextValue: DataContext) => (
-      <Scaler {...props} griffContextValue={griffContextValue} />
+    {(griffContextValue: ContextType) => (
+      <OldScaler {...props} griffContextValue={griffContextValue} />
     )}
   </GriffContext.Consumer>
 ));

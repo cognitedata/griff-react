@@ -1,5 +1,6 @@
 import { placeholder } from './placeholder';
-import { Domain, Series } from '../external';
+import { Domain, Series, Datapoint } from '../external';
+import { DataSeries, ScaledSeries } from '../internal';
 
 export const isEqual = (a: Domain, b: Domain): boolean => {
   if (a === b) {
@@ -34,7 +35,7 @@ const calculated = (domain: Domain): Domain => {
 };
 
 export const calculateDomains = (
-  s: Series
+  s: ScaledSeries & { data: Datapoint[] }
 ): { time: Domain; x: Domain; y: Domain } => {
   const {
     data,

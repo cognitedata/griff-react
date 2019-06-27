@@ -7,14 +7,12 @@ import { placeholder, withoutPlaceholder } from '../../utils/placeholder';
 import {
   Series,
   Collection,
-  ItemId,
   LoaderResult,
   Domain,
+  LoaderReason,
 } from '../../external';
 import { MinimalSeries } from '../../internal';
 import { debounce } from 'lodash';
-
-export type LoaderReason = 'MOUNTED' | 'SUBDOMAIN_CHANGED';
 
 export interface Props {}
 

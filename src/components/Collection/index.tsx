@@ -3,23 +3,15 @@ import Data from '../../context/Data';
 import { ItemProps, WATCHED_PROP_NAMES, Props as SeriesProps } from '../Series';
 import { ItemId } from '../../external';
 import { withDisplayName } from '../../utils/displayName';
+import { RegisterCollectionFunction, UpdateCollectionFunction } from '../Griff';
 
 export interface Props extends ItemProps {
-  id: ItemId;
+  children?: JSX.Element | JSX.Element[];
 }
-
-type UnregisterCollectionFunction = () => void;
-
-type RegisterCollectionFunction = (
-  collectionProps: Props
-) => UnregisterCollectionFunction;
-
-type UpdateCollectionFunction = (collectionProps: Props) => void;
 
 interface InternalProps {
   registerCollection: RegisterCollectionFunction;
   updateCollection: UpdateCollectionFunction;
-  children?: React.ReactNode[];
 }
 
 // @ts-ignore - I don't know how to make TypeScript happy about ...props
@@ -62,19 +54,16 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
   });
 };
 
-export default withDisplayName(
-  'Collection',
-  (props: Props & { children: React.ReactNode[] }) => (
-    <Data.Consumer>
-      {({ registerCollection, updateCollection }: InternalProps) => (
-        <Collection
-          registerCollection={registerCollection}
-          updateCollection={updateCollection}
-          {...props}
-        >
-          {props.children}
-        </Collection>
-      )}
-    </Data.Consumer>
-  )
-);
+export default withDisplayName('Collection', (props: Props) => (
+  <Data.Consumer>
+    {({ registerCollection, updateCollection }: InternalProps) => (
+      <Collection
+        registerCollection={registerCollection}
+        updateCollection={updateCollection}
+        {...props}
+      >
+        {props.children}
+      </Collection>
+    )}
+  </Data.Consumer>
+));
