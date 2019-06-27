@@ -5,11 +5,12 @@ import isEqual from 'lodash.isequal';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import {
-  DataProvider,
-  LineChart,
   Brush,
-  Series,
   Collection,
+  DataProvider,
+  Griff,
+  LineChart,
+  Series,
 } from '../build/src';
 import quandlLoader from './quandlLoader';
 
@@ -32,9 +33,9 @@ storiesOf('LineChart', module)
     </div>
   ))
   .add('Empty', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ))
   .add('Dynamic series', () => {
     const randomColor = () =>
@@ -64,15 +65,12 @@ storiesOf('LineChart', module)
             <button type="button" onClick={this.clearSeries}>
               Remove all series
             </button>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               {series.map(s => (
                 <Series key={`series-${s.id}`} {...s} />
               ))}
               <LineChart height={CHART_HEIGHT} />
-            </DataProvider>
+            </Griff>
           </div>
         );
       }

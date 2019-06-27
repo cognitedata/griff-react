@@ -50,7 +50,7 @@ export const staticLoader = ({
     };
   }
   // Otherwise, return the existing dataset.
-  return {};
+  return { ...oldSeries };
 };
 
 export const liveLoader = ({ oldSeries, timeDomain, reason }) => {
