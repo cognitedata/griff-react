@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
-import ScalerContext from '../../context/Scaler';
 import PointCollection from '../PointCollection';
 import InteractionLayer, { ZoomMode } from '../InteractionLayer';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
@@ -13,6 +12,7 @@ import AxisCollection from '../AxisCollection';
 import LineCollection from '../LineCollection';
 import AxisDisplayMode from '../../utils/AxisDisplayMode';
 import { withDisplayName } from '../../utils/displayName';
+import { Context as GriffContext } from '../Griff';
 
 const propTypes = {
   size: PropTypes.shape({
@@ -209,7 +209,7 @@ const SizedScatterplotComponent = sizeMe({
 })(ScatterplotComponent);
 
 export default withDisplayName('Scatterplot', props => (
-  <ScalerContext.Consumer>
+  <GriffContext.Consumer>
     {({ collections, series }) => (
       <SizedScatterplotComponent
         {...props}
@@ -217,5 +217,5 @@ export default withDisplayName('Scatterplot', props => (
         series={series}
       />
     )}
-  </ScalerContext.Consumer>
+  </GriffContext.Consumer>
 ));

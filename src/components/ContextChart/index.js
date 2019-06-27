@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { SizeMe } from 'react-sizeme';
-import DataContext from '../../context/Data';
-import ScalerContext from '../../context/Scaler';
 import LineCollection from '../LineCollection';
 import XAxis from '../XAxis';
 import Annotation from '../Annotation';

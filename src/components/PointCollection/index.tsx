@@ -1,14 +1,12 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import ScalerContext from '../../context/Scaler';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
-import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
-import Axes from '../../utils/Axes';
+import { seriesPropType } from '../../utils/proptypes';
 import { SizeProps } from '../../internal';
 import { Series, Datapoint } from '../../external';
-import { DomainsByItemId } from '../Scaler';
 import Points from '../Points';
 import { withDisplayName } from '../../utils/displayName';
+import { Context as GriffContext } from '../Griff';
 
 export interface Props {}
 
@@ -73,10 +71,10 @@ PointCollection.defaultProps = defaultProps;
 export default withDisplayName(
   'PointCollection',
   (props: Props & SizeProps) => (
-    <ScalerContext.Consumer>
+    <GriffContext.Consumer>
       {({ series }: InternalProps) => (
         <PointCollection {...props} series={series} />
       )}
-    </ScalerContext.Consumer>
+    </GriffContext.Consumer>
   )
 );

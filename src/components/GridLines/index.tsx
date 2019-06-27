@@ -1,11 +1,9 @@
 import * as React from 'react';
-import ScalerContext from '../../context/Scaler';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
-import Axes from '../../utils/Axes';
 import { ItemId, Series } from '../../external';
-import { DomainsByItemId } from '../Scaler/index';
 import { SizeProps, ItemIdMap } from '../../internal';
 import { withDisplayName } from '../../utils/displayName';
+import { Context as GriffContext } from '../Griff';
 
 export interface GridX {
   pixels?: number;
@@ -207,10 +205,10 @@ const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
 export default withDisplayName(
   'GridLines',
   ({ width, height, ...props }: Props & SizeProps) => (
-    <ScalerContext.Consumer>
+    <GriffContext.Consumer>
       {({ series }: { series: Series[] }) => (
         <GridLines {...props} width={width} height={height} series={series} />
       )}
-    </ScalerContext.Consumer>
+    </GriffContext.Consumer>
   )
 );

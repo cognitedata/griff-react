@@ -6,6 +6,7 @@ import ScalerContext from '../../context/Scaler';
 import GriffPropTypes from '../../utils/proptypes';
 import Axes from '../../utils/Axes';
 import { withDisplayName } from '../../utils/displayName';
+import { Context as GriffContext } from '../Griff';
 
 const propTypes = {
   width: PropTypes.number.isRequired,
@@ -424,7 +425,7 @@ ZoomRect.propTypes = propTypes;
 ZoomRect.defaultProps = defaultProps;
 
 export default withDisplayName('ZoomRect', props => (
-  <ScalerContext.Consumer>
+  <GriffContext.Consumer>
     {({ collectionsById, seriesById, updateDomains }) => (
       <ZoomRect
         {...props}
@@ -433,5 +434,5 @@ export default withDisplayName('ZoomRect', props => (
         updateDomains={updateDomains}
       />
     )}
-  </ScalerContext.Consumer>
+  </GriffContext.Consumer>
 ));
