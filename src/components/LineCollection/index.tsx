@@ -32,10 +32,6 @@ const defaultYScaler = (series: Series[]) => (
   seriesIndex: number,
   height: number
 ) => {
-  console.log(
-    'TCL: series[seriesIndex].ySubDomain',
-    series[seriesIndex].ySubDomain
-  );
   return createYScale(series[seriesIndex].ySubDomain, height);
 };
 

@@ -18,6 +18,11 @@ const withPadding = (extent: Domain): Domain => {
   return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
 };
 
+const calculated = (domain: Domain): Domain => {
+  domain.calculated = true;
+  return domain;
+};
+
 export const calculateDomains = (
   s: Series
 ): { time: Domain; x: Domain; y: Domain } => {
@@ -41,18 +46,9 @@ export const calculateDomains = (
     };
   }
 
-  const timeExtent: [number, number] = [
-    Number.MAX_SAFE_INTEGER,
-    Number.MIN_SAFE_INTEGER,
-  ];
-  const xExtent: [number, number] = [
-    Number.MAX_SAFE_INTEGER,
-    Number.MIN_SAFE_INTEGER,
-  ];
-  const yExtent: [number, number] = [
-    Number.MAX_SAFE_INTEGER,
-    Number.MIN_SAFE_INTEGER,
-  ];
+  const timeExtent: Domain = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
+  const xExtent: Domain = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
+  const yExtent: Domain = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
   for (let i = 0; i < data.length; i += 1) {
     const point = data[i];
     const time = timeAccessor(point);
@@ -73,8 +69,8 @@ export const calculateDomains = (
   }
 
   return {
-    time: withPadding(timeExtent),
-    x: withPadding(xExtent),
-    y: withPadding(yExtent),
+    time: calculated(withPadding(timeExtent)),
+    x: calculated(withPadding(xExtent)),
+    y: calculated(withPadding(yExtent)),
   };
 };
