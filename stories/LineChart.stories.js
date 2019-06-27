@@ -4,14 +4,7 @@ import Select from 'react-select';
 import isEqual from 'lodash.isequal';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import {
-  Brush,
-  Collection,
-  DataProvider,
-  Griff,
-  LineChart,
-  Series,
-} from '../build/src';
+import { Brush, Collection, Griff, LineChart, Series } from '../build/src';
 import quandlLoader from './quandlLoader';
 
 import {
@@ -78,21 +71,21 @@ storiesOf('LineChart', module)
     return <DynamicSeries />;
   })
   .add('Basic', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ))
   .add('Basic with yDomains', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" ySubDomain={[0, 5]} />
       <Series id="2" color="maroon" ySubDomain={[-1, 1]} />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ))
   .add('Custom tick formatting', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart
@@ -100,44 +93,44 @@ storiesOf('LineChart', module)
         xAxisFormatter={n => n / 1000}
         yAxisFormatter={n => n * 1000}
       />
-    </DataProvider>
+    </Griff>
   ))
   .add('Custom # of y-axis ticks', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisTicks={15} />
-    </DataProvider>
+    </Griff>
   ))
   .add('Multiple', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <Series id="3" color="orange" />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      </Griff>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <Series id="3" color="orange" hidden />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      </Griff>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('Single-value in y axis', () => (
     <React.Fragment>
-      <DataProvider timeDomain={staticXDomain}>
+      <Griff timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" loader={monoLoader(0)} />
         <Series id="2" color="maroon" loader={monoLoader(0.5)} />
         <Series id="3" color="orange" loader={monoLoader(-0.5)} />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('Sized', () => (
@@ -151,11 +144,11 @@ storiesOf('LineChart', module)
           margin: '1em',
         }}
       >
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Griff loader={staticLoader} timeDomain={staticXDomain}>
           <Series id="1" color="steelblue" />
           <Series id="2" color="maroon" />
           <LineChart />
-        </DataProvider>
+        </Griff>
       </div>
       <div
         style={{
@@ -165,11 +158,11 @@ storiesOf('LineChart', module)
           margin: '1em',
         }}
       >
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Griff loader={staticLoader} timeDomain={staticXDomain}>
           <Series id="1" color="steelblue" />
           <Series id="2" color="maroon" />
           <LineChart contextChart={{ visible: false }} />
-        </DataProvider>
+        </Griff>
       </div>
       <div
         style={{
@@ -179,7 +172,7 @@ storiesOf('LineChart', module)
           margin: '1em',
         }}
       >
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Griff loader={staticLoader} timeDomain={staticXDomain}>
           <Series id="1" color="steelblue" />
           <Series id="2" color="maroon" />
           <LineChart
@@ -188,7 +181,7 @@ storiesOf('LineChart', module)
               height: 250,
             }}
           />
-        </DataProvider>
+        </Griff>
       </div>
       <div
         style={{
@@ -198,21 +191,21 @@ storiesOf('LineChart', module)
           margin: '1em',
         }}
       >
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Griff loader={staticLoader} timeDomain={staticXDomain}>
           <Series id="1" color="steelblue" />
           <Series id="2" color="maroon" />
           <LineChart xAxisHeight={25} />
-        </DataProvider>
+        </Griff>
       </div>
     </div>
   ))
   .add('Full-size', () => (
     <div style={{ height: '100vh' }}>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <LineChart />
-      </DataProvider>
+      </Griff>
     </div>
   ))
   .add('Resizing', () => {
@@ -259,14 +252,11 @@ storiesOf('LineChart', module)
                 border: '2px solid red',
               }}
             >
-              <DataProvider
-                defaultLoader={staticLoader}
-                timeDomain={staticXDomain}
-              >
+              <Griff loader={staticLoader} timeDomain={staticXDomain}>
                 <Series id="1" color="steelblue" />
                 <Series id="2" color="maroon" />
                 <LineChart />
-              </DataProvider>
+              </Griff>
             </div>
           </React.Fragment>
         );
@@ -275,8 +265,8 @@ storiesOf('LineChart', module)
     return <ResizingChart />;
   })
   .add('Custom default accessors', () => (
-    <DataProvider
-      defaultLoader={customAccessorLoader}
+    <Griff
+      loader={customAccessorLoader}
       timeDomain={staticXDomain}
       timeAccessor={d => d[0]}
       yAccessor={d => d[1]}
@@ -284,13 +274,13 @@ storiesOf('LineChart', module)
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ))
   .add('min/max', () => {
     const y0Accessor = d => d.value - 0.5;
     const y1Accessor = d => d.value + 0.5;
     return (
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series
           id="1"
           color="steelblue"
@@ -299,14 +289,14 @@ storiesOf('LineChart', module)
         />
         <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
+      </Griff>
     );
   })
   .add('min/max (step series)', () => {
     const y0Accessor = d => d.value - 0.5;
     const y1Accessor = d => d.value + 0.5;
     return (
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series
           id="1"
           color="steelblue"
@@ -316,14 +306,14 @@ storiesOf('LineChart', module)
         />
         <Series id="2" color="maroon" step />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
+      </Griff>
     );
   })
   .add('min/max with raw points', () => {
     const y0Accessor = d => d.value - 0.5;
     const y1Accessor = d => d.value + 0.5;
     return (
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series
           id="1"
           color="steelblue"
@@ -332,19 +322,19 @@ storiesOf('LineChart', module)
         />
         <Series id="2" color="maroon" drawPoints />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
+      </Griff>
     );
   })
   .add('Loading data from api', () => (
-    <DataProvider
-      defaultLoader={quandlLoader}
+    <Griff
+      loader={quandlLoader}
       timeDomain={[+moment().subtract(10, 'year'), +moment()]}
       pointsPerSeries={100}
     >
       <Series id="COM/COFFEE_BRZL" color="steelblue" />
       <Series id="COM/COFFEE_CLMB" color="red" />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ))
   .add('Hide series', () => {
     class HiddenSeries extends React.Component {
@@ -364,14 +354,11 @@ storiesOf('LineChart', module)
         const { hiddenSeries } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series id="1" color="steelblue" hidden={hiddenSeries[1]} />
               <Series id="2" color="maroon" hidden={hiddenSeries[2]} />
               <LineChart height={CHART_HEIGHT} />
-            </DataProvider>
+            </Griff>
             <button type="button" onClick={() => this.toggleHide(1)}>
               Hide series 1
             </button>
@@ -400,7 +387,7 @@ storiesOf('LineChart', module)
           action(`Removing static domain`)(key);
           return;
         }
-        action(`Setting domain to DataProvider`)(key);
+        action(`Setting domain to Griff`)(key);
         this.setState({ yDomains: { ...yDomains, [key]: staticDomain } });
       };
 
@@ -413,7 +400,7 @@ storiesOf('LineChart', module)
           action(`Removing static domain`)(key);
           return;
         }
-        action(`Setting subdomain to DataProvider`)(key);
+        action(`Setting subdomain to Griff`)(key);
         this.setState({
           ySubDomains: { ...ySubDomains, [key]: staticSubDomain },
         });
@@ -426,10 +413,7 @@ storiesOf('LineChart', module)
 
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series
                 id="1"
                 color="steelblue"
@@ -443,7 +427,7 @@ storiesOf('LineChart', module)
                 ySubDomain={ySubDomains[2]}
               />
               <LineChart height={CHART_HEIGHT} />
-            </DataProvider>
+            </Griff>
             <button type="button" onClick={() => this.setStaticDomain(1)}>
               Set blue domain {isEnabled(yDomains[1])}
             </button>
@@ -476,11 +460,11 @@ storiesOf('LineChart', module)
       },
     ];
     return (
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} annotations={exampleAnnotations} />
-      </DataProvider>
+      </Griff>
     );
   })
   .add('Click events', () => {
@@ -497,7 +481,7 @@ storiesOf('LineChart', module)
       },
     ];
     return (
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <LineChart
@@ -510,40 +494,40 @@ storiesOf('LineChart', module)
             action('chart click')(e);
           }}
         />
-      </DataProvider>
+      </Griff>
     );
   })
   .add('Draw points', () => (
     <React.Fragment>
-      <DataProvider
-        defaultLoader={staticLoader}
+      <Griff
+        loader={staticLoader}
         timeDomain={staticXDomain}
         pointsPerSeries={100}
       >
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" drawPoints />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
-      <DataProvider
-        defaultLoader={staticLoader}
+      </Griff>
+      <Griff
+        loader={staticLoader}
         timeDomain={staticXDomain}
         pointsPerSeries={100}
       >
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" drawPoints pointWidth={10} />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
-      <DataProvider
-        defaultLoader={staticLoader}
+      </Griff>
+      <Griff
+        loader={staticLoader}
         timeDomain={staticXDomain}
         pointsPerSeries={100}
       >
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" drawPoints />
         <LineChart height={CHART_HEIGHT} pointWidth={4} />
-      </DataProvider>
-      <DataProvider
-        defaultLoader={staticLoader}
+      </Griff>
+      <Griff
+        loader={staticLoader}
         timeDomain={staticXDomain}
         pointsPerSeries={100}
         drawPoints={(d, _, __, { x, y, color }) => (
@@ -556,15 +540,15 @@ storiesOf('LineChart', module)
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} pointWidth={4} />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('Without context chart', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} contextChart={{ visible: false }} />
-    </DataProvider>
+    </Griff>
   ))
   .add('Non-Zoomable', () => {
     class ZoomToggle extends React.Component {
@@ -588,14 +572,11 @@ storiesOf('LineChart', module)
         const { zoomable, yZoomable } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series id="1" color="steelblue" zoomable={yZoomable[1]} />
               <Series id="2" color="maroon" zoomable={yZoomable[2]} />
               <LineChart height={CHART_HEIGHT} zoomable={zoomable} />
-            </DataProvider>
+            </Griff>
             <button
               type="button"
               onClick={() => this.setState({ zoomable: !zoomable })}
@@ -640,11 +621,11 @@ storiesOf('LineChart', module)
                 ? 'Shrink timeDomain'
                 : 'Reset base domain'}
             </button>
-            <DataProvider defaultLoader={staticLoader} timeDomain={timeDomain}>
+            <Griff loader={staticLoader} timeDomain={timeDomain}>
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} />
-            </DataProvider>
+            </Griff>
           </div>
         );
       }
@@ -653,53 +634,49 @@ storiesOf('LineChart', module)
   })
   .add('ySubDomain', () => (
     <React.Fragment>
-      <h1>Set on DataProvider ([0.25, 0.5])</h1>
+      <h1>Set on Griff ([0.25, 0.5])</h1>
       <p>
         The ySubDomain for the chart should be [0.25, 0.5]. The context chart
         should be [0,1].
       </p>
-      <DataProvider
-        defaultLoader={staticLoader}
+      <Griff
+        loader={staticLoader}
         timeDomain={staticXDomain}
         ySubDomain={[0.25, 0.5]}
       >
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
+      </Griff>
       <h1>Set on Series</h1>
       <p>
         The ySubDomain for the chart should be [0.25, 0.5] for blue{' '}
         <em>only</em>. Maroon should be [0, 1]
       </p>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" ySubDomain={[0.25, 0.5]} />
         <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
+      </Griff>
       <h1>Set on Collection</h1>
       <p>
         The ySubDomain for the chart should be [0.0, 0.5] for the green
         collection (includes all lines).
       </p>
-      <DataProvider
-        defaultLoader={staticLoader}
-        timeDomain={staticXDomain}
-        collections={[]}
-      >
+      <Griff loader={staticLoader} timeDomain={staticXDomain} collections={[]}>
         <Collection id="all" ySubDomain={[0.0, 0.5]} color="green">
           <Series id="1" color="steelblue" ySubDomain={[0.25, 0.5]} />
           <Series id="2" color="maroon" />
         </Collection>
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
+      </Griff>
       <h1>Set on Series with yDomain</h1>
       <p>
         The LineChart should be zoomed-in for the blue line, but the context
         chart should be zoomed-out (for the blue line). The blue line should
         have a maximum zoom-out range of [-1, 2].
       </p>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series
           id="1"
           color="steelblue"
@@ -708,7 +685,7 @@ storiesOf('LineChart', module)
         />
         <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('Dynamic time sub domain', () => {
@@ -737,15 +714,15 @@ storiesOf('LineChart', module)
             >
               {isFirst ? `Switch timeSubDomain` : `Switch back timeSubDomain`}
             </button>
-            <DataProvider
-              defaultLoader={staticLoader}
+            <Griff
+              loader={staticLoader}
               timeDomain={staticXDomain}
               timeSubDomain={isFirst ? timeSubDomainFirst : timeSubDomainSecond}
             >
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} />
-            </DataProvider>
+            </Griff>
           </React.Fragment>
         );
       }
@@ -753,23 +730,15 @@ storiesOf('LineChart', module)
     return <CustomTimeSubDomain />;
   })
   .add('Live loading', () => (
-    <DataProvider
-      defaultLoader={liveLoader}
-      timeDomain={liveXDomain}
-      updateInterval={33}
-    >
+    <Griff loader={liveLoader} timeDomain={liveXDomain} updateInterval={33}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ))
   .add('Live loading and ruler', () => (
     <div>
-      <DataProvider
-        defaultLoader={liveLoader}
-        timeDomain={liveXDomain}
-        updateInterval={33}
-      >
+      <Griff loader={liveLoader} timeDomain={liveXDomain} updateInterval={33}>
         <Series id="1" color="steelblue" name="name1" />
         <Series id="2" color="maroon" name="name2" />
         <LineChart
@@ -783,13 +752,9 @@ storiesOf('LineChart', module)
               moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
           }}
         />
-      </DataProvider>
+      </Griff>
       <h3>With ruler timestamp</h3>
-      <DataProvider
-        defaultLoader={liveLoader}
-        timeDomain={liveXDomain}
-        updateInterval={33}
-      >
+      <Griff loader={liveLoader} timeDomain={liveXDomain} updateInterval={33}>
         <Series id="1" color="steelblue" name="name1" />
         <Series id="2" color="maroon" name="name2" />
         <LineChart
@@ -804,13 +769,9 @@ storiesOf('LineChart', module)
             timestamp: Date.now() - 1000 * 10,
           }}
         />
-      </DataProvider>
+      </Griff>
       <h3>With custom ruler timestamp position</h3>
-      <DataProvider
-        defaultLoader={liveLoader}
-        timeDomain={liveXDomain}
-        updateInterval={33}
-      >
+      <Griff loader={liveLoader} timeDomain={liveXDomain} updateInterval={33}>
         <Series id="1" color="steelblue" name="name1" />
         <Series id="2" color="maroon" name="name2" />
         <LineChart
@@ -826,7 +787,7 @@ storiesOf('LineChart', module)
             getTimeLabelPosition: defaultPosition => defaultPosition - 100,
           }}
         />
-      </DataProvider>
+      </Griff>
     </div>
   ))
 
@@ -861,8 +822,8 @@ storiesOf('LineChart', module)
               onChange={this.onChangeSeries}
               style={{ marginBottom: '15px' }}
             />
-            <DataProvider
-              defaultLoader={quandlLoader}
+            <Griff
+              loader={quandlLoader}
               pointsPerSeries={100}
               timeDomain={xDomain}
             >
@@ -870,7 +831,7 @@ storiesOf('LineChart', module)
                 <Series key={s.value} id={s.value} color={colors[s.value]} />
               ))}
               <LineChart height={CHART_HEIGHT} />
-            </DataProvider>
+            </Griff>
           </React.Fragment>
         );
       }
@@ -915,8 +876,8 @@ storiesOf('LineChart', module)
     return <BrushComponent />;
   })
   .add('Sticky time subdomain', () => (
-    <DataProvider
-      defaultLoader={liveLoader}
+    <Griff
+      loader={liveLoader}
       timeDomain={liveXDomain}
       timeSubDomain={[Date.now() - 1000 * 20, Date.now() - 1000 * 10]}
       updateInterval={33}
@@ -925,11 +886,11 @@ storiesOf('LineChart', module)
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ))
   .add('Sticky time subdomain and ruler', () => (
-    <DataProvider
-      defaultLoader={liveLoader}
+    <Griff
+      loader={liveLoader}
       timeDomain={liveXDomain}
       timeSubDomain={[Date.now() - 1000 * 20, Date.now() - 1000 * 10]}
       updateInterval={33}
@@ -947,7 +908,7 @@ storiesOf('LineChart', module)
             moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
         }}
       />
-    </DataProvider>
+    </Griff>
   ))
   .add('Limit time subdomain', () => {
     class LimitTimeSubDomain extends React.Component {
@@ -964,8 +925,8 @@ storiesOf('LineChart', module)
       render() {
         return (
           <div>
-            <DataProvider
-              defaultLoader={staticLoader}
+            <Griff
+              loader={staticLoader}
               timeDomain={staticXDomain}
               timeSubDomain={[
                 Date.now() - 1000 * 60 * 60 * 24 * 15,
@@ -976,7 +937,7 @@ storiesOf('LineChart', module)
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} />
-            </DataProvider>
+            </Griff>
           </div>
         );
       }
@@ -984,8 +945,8 @@ storiesOf('LineChart', module)
     return <LimitTimeSubDomain />;
   })
   .add('onMouseOut', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
+    <Griff
+      loader={staticLoader}
       timeDomain={staticXDomain}
       xSubDomain={[
         Date.now() - 1000 * 60 * 60 * 24 * 30,
@@ -999,11 +960,11 @@ storiesOf('LineChart', module)
         onMouseOut={action('mouse out')}
         onBlur={() => {}}
       />
-    </DataProvider>
+    </Griff>
   ))
   .add('onUpdateDomains', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
+    <Griff
+      loader={staticLoader}
       timeDomain={staticXDomain}
       xSubDomain={[
         Date.now() - 1000 * 60 * 60 * 24 * 30,
@@ -1014,5 +975,5 @@ storiesOf('LineChart', module)
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ));

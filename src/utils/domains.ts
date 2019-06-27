@@ -1,6 +1,16 @@
 import { placeholder } from './placeholder';
 import { Domain, Series } from '../external';
 
+export const isEqual = (a: Domain, b: Domain): boolean => {
+  if (a === b) {
+    return true;
+  }
+  if (!!a !== !!b) {
+    return false;
+  }
+  return a[0] === b[0] && a[1] === b[1];
+};
+
 const withPadding = (extent: Domain): Domain => {
   const diff = extent[1] - extent[0];
   if (Math.abs(diff) < 1e-3) {

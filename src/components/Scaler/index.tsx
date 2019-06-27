@@ -8,6 +8,7 @@ import { withDisplayName } from '../../utils/displayName';
 import { Item } from '../../internal';
 import { DataProvider } from '../..';
 import { placeholder } from '../../utils/placeholder';
+import { isEqual } from '../../utils/domains';
 
 // TODO: Move this to DataProvider.
 type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;
@@ -105,16 +106,6 @@ export const firstResolvedDomain = (
     return undefined;
   }
   return firstResolvedDomain(domains[0], ...(domains.splice(1) as Domain[]));
-};
-
-const isEqual = (a: Domain, b: Domain): boolean => {
-  if (a === b) {
-    return true;
-  }
-  if (!!a !== !!b) {
-    return false;
-  }
-  return a[0] === b[0] && a[1] === b[1];
 };
 
 const withPadding = (extent: Domain): Domain => {
@@ -804,11 +795,7 @@ class OldScaler extends React.Component<Props, State> {
       updateDomains: this.updateDomains,
     };
 
-    return (
-      <GriffContext.Provider value={newContext}>
-        <DataProvider>{children}</DataProvider>;
-      </GriffContext.Provider>
-    );
+    return null;
   }
 }
 

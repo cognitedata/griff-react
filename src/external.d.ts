@@ -48,3 +48,9 @@ export type PointRenderer = (
   metadata: PointRendererMetadata,
   uiElements: React.ReactElement[]
 ) => React.ReactElement[] | null;
+
+export type LoaderResult = Partial<Series> & { id: ItemId } & {
+  data: Datapoint[];
+};
+
+export type LoaderFunction = (args: any) => Promise<LoaderResult>;

@@ -11,11 +11,12 @@ export const placeholder = (min: number, max: number): Domain => {
 };
 
 export const withoutPlaceholder = (
-  ...domains: Domain[]
+  ...domains: Array<Domain | undefined>
 ): Domain | undefined => {
   for (let i = 0; i < domains.length; i += 1) {
-    if (domains[i] && !domains[i].placeholder) {
-      return domains[i];
+    const domain = domains[i];
+    if (domain && !domain.placeholder) {
+      return domain;
     }
   }
   return undefined;

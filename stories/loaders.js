@@ -42,15 +42,15 @@ export const staticLoader = ({
   reason,
 }) => {
   action('LOADER_REQUEST_DATA')(id, reason);
+  let out = { ...oldSeries };
   if (reason === 'MOUNTED') {
     // Create dataset on mount
     const func = typeof id === 'function' ? id : Math.random;
-    return {
-      data: randomData({ func, timeDomain, n, multiplier }),
-    };
+    const data = randomData({ func, timeDomain, n, multiplier });
+    out = { data };
   }
   // Otherwise, return the existing dataset.
-  return { ...oldSeries };
+  return out;
 };
 
 export const liveLoader = ({ oldSeries, timeDomain, reason }) => {

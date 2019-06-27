@@ -389,7 +389,6 @@ export default class Griff extends Component {
       updateCollection: this.updateCollection,
       updateSeries: this.updateSeries,
     };
-    console.log('TCL: render -> series', griffContext.series);
 
     return (
       <Context.Provider value={griffContext}>

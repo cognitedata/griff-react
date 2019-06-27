@@ -1,4 +1,4 @@
-import { ItemId, Domain, AccessorFunction } from './external';
+import { ItemId, Domain, AccessorFunction, LoaderFunction } from './external';
 import { AxisDisplayMode } from './utils/AxisDisplayMode';
 
 export interface Item {
@@ -22,6 +22,8 @@ export interface Item {
   ySubDomain: Domain;
   yAxisDisplayMode?: AxisDisplayMode;
   pointWidth?: number;
+  pointsPerSeries?: number;
+  loader?: LoaderFunction;
 }
 
 export interface SizeProps {
@@ -31,4 +33,28 @@ export interface SizeProps {
 
 export interface ItemIdMap<T> {
   [itemId: string]: T;
+}
+
+export interface MinimalSeries {
+  id: ItemId;
+  color: string;
+  hidden: boolean;
+  drawPoints: boolean;
+  timeAccessor: AccessorFunction;
+  xAccessor: AccessorFunction;
+  x0Accessor: AccessorFunction;
+  x1Accessor: AccessorFunction;
+  yAccessor: AccessorFunction;
+  y0Accessor: AccessorFunction;
+  y1Accessor: AccessorFunction;
+  timeDomain: Domain;
+  timeSubDomain: Domain;
+  xDomain: Domain;
+  xSubDomain: Domain;
+  yDomain: Domain;
+  ySubDomain: Domain;
+  yAxisDisplayMode: AxisDisplayMode;
+  pointWidth: number;
+  pointsPerSeries: number;
+  loader: LoaderFunction;
 }
