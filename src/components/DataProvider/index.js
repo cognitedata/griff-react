@@ -49,7 +49,10 @@ class DataProvider extends React.Component {
     series.forEach(s => {
       const reason = getLoaderReason(seriesById[s.id], s);
       if (reason) {
-        this.fetchData(s, reason);
+        const currentSeries = seriesById[s.id] || s;
+        I'm running into an issue where the loader should get the old series
+        object but not the generated one. Or maybe the generated one? IDK.
+        this.fetchData(currentSeries, reason);
       }
     });
   }
