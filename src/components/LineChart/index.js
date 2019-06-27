@@ -19,6 +19,7 @@ import Layout from './Layout';
 import { multiFormat } from '../../utils/multiFormat';
 import Axes from '../../utils/Axes';
 import { withDisplayName } from '../../utils/displayName';
+import { Context as GriffContext } from '../Griff';
 
 const propTypes = {
   // Disable the ESLinter for this because they'll show up from react-sizeme.
@@ -366,9 +367,9 @@ LineChart.defaultProps = defaultProps;
 const SizedLineChart = sizeMe({ monitorHeight: true })(LineChart);
 
 export default withDisplayName('LineChart', props => (
-  <ScalerContext.Consumer>
+  <GriffContext.Consumer>
     {({ collections, series }) => (
       <SizedLineChart {...props} collections={collections} series={series} />
     )}
-  </ScalerContext.Consumer>
+  </GriffContext.Consumer>
 ));

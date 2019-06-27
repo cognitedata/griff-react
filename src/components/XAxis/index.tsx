@@ -4,11 +4,11 @@ import { SizeMe } from 'react-sizeme';
 import AxisPlacement, {
   AxisPlacement as AxisPlacementType,
 } from '../AxisPlacement';
-import ScalerContext from '../../context/Scaler';
 import ZoomRect from '../ZoomRect';
 import { createXScale, ScalerFunctionFactory } from '../../utils/scale-helpers';
 import { Domain, Series } from '../../external';
 import { withDisplayName } from '../../utils/displayName';
+import { Context as GriffContext } from '../Griff';
 
 export interface Props {
   axis: 'time' | 'x';
@@ -270,7 +270,7 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
 };
 
 export default withDisplayName('XAxis', (props: Props) => (
-  <ScalerContext.Consumer>
+  <GriffContext.Consumer>
     {({ series }: ScalerProps) => (
       <SizeMe monitorWidth>
         {({ size }: { size: SizeProps }) => (
@@ -278,5 +278,5 @@ export default withDisplayName('XAxis', (props: Props) => (
         )}
       </SizeMe>
     )}
-  </ScalerContext.Consumer>
+  </GriffContext.Consumer>
 ));

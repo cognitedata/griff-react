@@ -1,12 +1,13 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import DataContext from '../../context/Data';
-import ScalerContext from '../../context/Scaler';
+import { Context as GriffContext } from '../Griff';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import Axes from '../../utils/Axes';
 import { Domain, Series, Collection, ItemId } from '../../external';
 import { withDisplayName } from '../../utils/displayName';
 import { Item } from '../../internal';
+import { DataProvider } from '../..';
+import { placeholder } from '../../utils/placeholder';
 
 // TODO: Move this to DataProvider.
 type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;
@@ -47,6 +48,7 @@ interface CollectionWithDomains extends Collection {
 }
 
 export interface Props {
+  griffContextValue: any;
   children: React.ReactChild | React.ReactChild[];
   timeDomain: Domain;
   timeSubDomain: Domain;
@@ -55,6 +57,7 @@ export interface Props {
   series: Series[];
   collections: Collection[];
   onUpdateDomains: OnUpdateDomains;
+  updateInterval?: number;
 }
 
 export interface DomainsByItemId {
@@ -80,21 +83,15 @@ interface State {
 
 export interface OnDomainsUpdated extends Function {}
 
+type SeriesById = { [seriesId: string]: Series };
+
+type SeriesIdsByCollectionId = { [collectionId: string]: ItemId[] };
+
 type DomainAxis = 'time' | 'x' | 'y';
 
 // If the timeSubDomain is within this margin (as a percent over the time
 // subdomain), consider it to be attached to the leading edge of the timeDomain.
 const FRONT_OF_WINDOW_THRESHOLD = 0.02;
-
-/**
- * Provide a placeholder domain so that we can test for validity later, but
- * it can be safely operated on like a real domain.
- */
-export const placeholder = (min: number, max: number): Domain => {
-  const domain: Domain = [min, max];
-  domain.placeholder = true;
-  return domain;
-};
 
 export const firstResolvedDomain = (
   domain: Domain | undefined,
@@ -243,7 +240,7 @@ export const calculateDomains = (
  * These are manipulated with the {@link #updateDomains} function, which is
  * made available through the {@link ScalerContext}.
  */
-class Scaler extends React.Component<Props, State> {
+class OldScaler extends React.Component<Props, State> {
   static propTypes = {
     children: PropTypes.node.isRequired,
     timeDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
@@ -252,6 +249,7 @@ class Scaler extends React.Component<Props, State> {
     limitTimeSubDomain: PropTypes.func,
     series: seriesPropType.isRequired,
     collections: GriffPropTypes.collections.isRequired,
+    updateInterval: PropTypes.number,
   };
 
   static defaultProps = {};
@@ -263,6 +261,12 @@ class Scaler extends React.Component<Props, State> {
   seriesById: { [seriesId: string]: SeriesWithDomains } = {};
   collectionsById: { [collectionsId: string]: Collection } = {};
   seriesByCollectionId: { [collectionId: string]: ItemId[] } = {};
+
+  fetchInterval?: NodeJS.Timeout;
+
+  componentDidMount() {
+    this.startUpdateInterval();
+  }
 
   componentDidUpdate(prevProps: Props) {
     // We need to find when a Series' defined subDomains change because
@@ -403,6 +407,40 @@ class Scaler extends React.Component<Props, State> {
       });
     }
   }
+
+  // onUpdateInterval = () => {
+  //   const { limitTimeSubDomain, updateInterval } = this.props;
+
+  //   const { seriesById, timeDomain, timeSubDomain } = this.state;
+
+  //   const newTimeDomain = timeDomain.map(d => d + updateInterval);
+  //   const newTimeSubDomain = isTimeSubDomainSticky
+  //     ? getTimeSubDomain(
+  //         newTimeDomain,
+  //         timeSubDomain.map(d => d + updateInterval),
+  //         limitTimeSubDomain
+  //       )
+  //     : timeSubDomain;
+  //   this.setState(
+  //     {
+  //       timeDomain: newTimeDomain,
+  //       timeSubDomain: newTimeSubDomain,
+  //     },
+  //     () => {
+  //       Object.keys(seriesById).map(id => this.fetchData(id, 'INTERVAL'));
+  //     }
+  //   );
+  // };
+
+  startUpdateInterval = () => {
+    // const { updateInterval } = this.props;
+    // if (this.fetchInterval) {
+    //   clearInterval(this.fetchInterval);
+    // }
+    // if (updateInterval) {
+    //   this.fetchInterval = setInterval(this.onUpdateInterval, updateInterval);
+    // }
+  };
 
   /**
    * Return an all of the series, with domains/subdomains guaranteed to be
@@ -757,7 +795,7 @@ class Scaler extends React.Component<Props, State> {
       }
     });
 
-    const finalContext = {
+    const newContext = {
       collections: collectionsWithDomains,
       collectionsById: this.collectionsById,
       series: seriesWithCollectedDomains,
@@ -767,32 +805,157 @@ class Scaler extends React.Component<Props, State> {
     };
 
     return (
-      <ScalerContext.Provider value={finalContext}>
-        {children}
-      </ScalerContext.Provider>
+      <GriffContext.Provider value={newContext}>
+        <DataProvider>{children}</DataProvider>;
+      </GriffContext.Provider>
     );
   }
 }
 
+// @ts-ignore
+const Scaler: React.FunctionComponent<Props> = ({
+  griffContextValue,
+  griffContextValue: { collections = [], series = [] },
+  children,
+  limitTimeSubDomain = (timeSubDomain: Domain): Domain => timeSubDomain,
+}) => {
+  const seriesByCollectionId: SeriesIdsByCollectionId = React.useMemo(() => {
+    return series.reduce((acc: SeriesIdsByCollectionId, s: Series) => {
+      if (!s.collectionId) {
+        return acc;
+      }
+      return { ...acc, [s.collectionId]: [...acc[s.collectionId], s.id] };
+    }, {});
+  }, [series]);
+
+  const seriesById: SeriesById = React.useMemo(() => {
+    return series.reduce(
+      (acc: SeriesById, s: Series) => ({ ...acc, [s.id]: s }),
+      {}
+    );
+  }, [series]);
+
+  const [subDomainsByItemId, setSubDomainsByItemId] = React.useState<
+    DomainsByItemId
+  >({});
+
+  /**
+   * Update the subdomains for the given items. This is a patch update and will
+   * be merged with the current state of the subdomains. An example payload
+   * will resemble:
+   * <code>
+   *   {
+   *     "series-1": {
+   *       "y": [0.5, 0.75],
+   *     },
+   *     "series-2": {
+   *       "y": [1.0, 2.0],
+   *     }
+   *   }
+   * </code>
+   *
+   * After this is complete, {@code callback} will be called with this patch
+   * object.
+   */
+  const updateDomains = (mixedChangedDomainsById: DomainsByItemId) => {
+    const newSubDomains: DomainsByItemId = { ...subDomainsByItemId };
+
+    // Convert collections into their component series IDs.
+    const changedDomainsById: DomainsByItemId = Object.keys(
+      mixedChangedDomainsById
+    ).reduce((acc, itemId) => {
+      if (seriesByCollectionId[itemId]) {
+        // This is a collection; we need to add in all of its component series.
+        return seriesByCollectionId[itemId].reduce(
+          (domains, seriesId: ItemId) => ({
+            ...domains,
+            [seriesId]: mixedChangedDomainsById[itemId],
+          }),
+          acc
+        );
+      } else if (seriesById[itemId]) {
+        // Great, this is a series; copy it and move on.
+        return { ...acc, [itemId]: mixedChangedDomainsById[itemId] };
+      } else {
+        // Wat.
+        return acc;
+      }
+    }, {});
+
+    Object.keys(changedDomainsById).forEach(itemId => {
+      newSubDomains[itemId] = { ...(subDomainsByItemId[itemId] || {}) };
+
+      // At this point, changeDomainsById only contains IDs which are series
+      // objects.
+      const s = seriesById[itemId] || {};
+
+      Object.keys(changedDomainsById[itemId]).forEach(uncastAxis => {
+        const axis: DomainAxis = uncastAxis as DomainAxis;
+        let newSubDomain =
+          changedDomainsById[itemId][axis] ||
+          subDomainsByItemId[itemId][axis] ||
+          placeholder(0, 0);
+        if (axis === String(Axes.time)) {
+          if (limitTimeSubDomain) {
+            newSubDomain = limitTimeSubDomain(newSubDomain);
+          }
+        }
+        const newSpan = newSubDomain[1] - newSubDomain[0];
+        const existingSubDomain = getSubDomain(s, axis) || newSubDomain;
+        const existingSpan = existingSubDomain[1] - existingSubDomain[0];
+
+        const limits =
+          getDomain(s, axis) ||
+          // Set a large range because this is a limiting range.
+          placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
+
+        if (newSpan === existingSpan) {
+          // This is a translation; check the bounds.
+          if (newSubDomain[0] <= limits[0]) {
+            newSubDomain = [limits[0], limits[0] + newSpan];
+          }
+          if (newSubDomain[1] >= limits[1]) {
+            newSubDomain = [limits[1] - newSpan, limits[1]];
+          }
+        } else {
+          newSubDomain = [
+            Math.max(limits[0], newSubDomain[0]),
+            Math.min(limits[1], newSubDomain[1]),
+          ];
+        }
+        newSubDomains[itemId][axis] = newSubDomain;
+      });
+    });
+    setSubDomainsByItemId(newSubDomains);
+  };
+
+  const newContext = {
+    ...griffContextValue,
+    series: series.map((s: Series) => {
+      const subDomains = subDomainsByItemId[s.id] || {};
+      return {
+        xDomain: placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
+        yDomain: placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
+        ...s,
+        timeSubDomain: subDomains.time || s.timeSubDomain,
+        xSubDomain: subDomains.x || s.xSubDomain || placeholder(0, 0),
+        ySubDomain: subDomains.y || s.ySubDomain || placeholder(0, 0),
+      };
+    }),
+
+    updateDomains,
+  };
+  return (
+    <GriffContext.Provider value={newContext}>
+      <DataProvider>{children}</DataProvider>
+    </GriffContext.Provider>
+  );
+};
+
 export default withDisplayName('Scaler', (props: Props) => (
-  <DataContext.Consumer>
-    {({
-      timeDomain,
-      timeSubDomain,
-      timeSubDomainChanged,
-      limitTimeSubDomain,
-      series,
-      collections,
-    }: DataContext) => (
-      <Scaler
-        {...props}
-        timeDomain={timeDomain}
-        timeSubDomain={timeSubDomain}
-        timeSubDomainChanged={timeSubDomainChanged}
-        limitTimeSubDomain={limitTimeSubDomain}
-        series={series}
-        collections={collections}
-      />
+  <GriffContext.Consumer>
+    {(griffContextValue: DataContext) => (
+      <Scaler {...props} griffContextValue={griffContextValue} />
     )}
-  </DataContext.Consumer>
+  </GriffContext.Consumer>
 ));

@@ -10,6 +10,7 @@ import AxisDisplayMode from '../../utils/AxisDisplayMode';
 import Axes, { Dimension } from '../../utils/Axes';
 import { Series } from '../../external';
 import { withDisplayName } from '../../utils/displayName';
+import { Context as GriffContext } from '../Griff';
 
 const { time, x } = Axes;
 
@@ -30,7 +31,13 @@ interface InternalProps {
 const defaultYScaler = (series: Series[]) => (
   seriesIndex: number,
   height: number
-) => createYScale(series[seriesIndex].ySubDomain, height);
+) => {
+  console.log(
+    'TCL: series[seriesIndex].ySubDomain',
+    series[seriesIndex].ySubDomain
+  );
+  return createYScale(series[seriesIndex].ySubDomain, height);
+};
 
 const LineCollection: React.FunctionComponent<
   Props & InternalProps
@@ -96,9 +103,9 @@ const LineCollection: React.FunctionComponent<
 };
 
 export default withDisplayName('LineCollection', (props: Props) => (
-  <ScalerContext.Consumer>
+  <GriffContext.Consumer>
     {({ series }: InternalProps) => (
       <LineCollection series={series} {...props} />
     )}
-  </ScalerContext.Consumer>
+  </GriffContext.Consumer>
 ));

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ItemId, AccessorFunction, PointRenderer } from '../../external';
-import Data from '../../context/Data';
+import { Context as Griff } from '../Griff';
 import { Domain } from 'domain';
 import { AxisPlacement } from '../AxisPlacement';
 import { AxisDisplayMode } from '../../utils/AxisDisplayMode';
@@ -109,9 +109,10 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
   }, WATCHED_PROP_NAMES.map(name => props[name]).concat(props.collectionId));
   return null;
 };
+(Series as any).griffDataItem = true;
 
 export default withDisplayName('Series', (props: Props) => (
-  <Data.Consumer>
+  <Griff.Consumer>
     {({ registerSeries, updateSeries }: InternalProps) => (
       <Series
         {...props}
@@ -119,5 +120,5 @@ export default withDisplayName('Series', (props: Props) => (
         updateSeries={updateSeries}
       />
     )}
-  </Data.Consumer>
+  </Griff.Consumer>
 ));

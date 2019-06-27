@@ -12,3 +12,4 @@ export { default as ScalerContext } from './context/Scaler';
 export { default as Scatterplot } from './components/Scatterplot';
 export { default as XAxis } from './components/XAxis';
 export { default as Series } from './components/Series';
+export { default as Griff } from './components/Griff';

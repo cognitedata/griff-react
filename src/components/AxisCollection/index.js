@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CollapsedAxis from './CollapsedAxis';
 import YAxis from './YAxis';
-import ScalerContext from '../../context/Scaler';
 import GriffPropTypes, {
   seriesPropType,
   axisDisplayModeType,
@@ -10,6 +9,7 @@ import GriffPropTypes, {
 import AxisDisplayMode from '../../utils/AxisDisplayMode';
 import AxisPlacement from '../AxisPlacement';
 import { withDisplayName } from '../../utils/displayName';
+import { Context as GriffContext } from '../Griff';
 
 const propTypes = {
   height: PropTypes.number.isRequired,
@@ -286,9 +286,9 @@ AxisCollection.propTypes = propTypes;
 AxisCollection.defaultProps = defaultProps;
 
 export default withDisplayName('AxisCollection', props => (
-  <ScalerContext.Consumer>
+  <GriffContext.Consumer>
     {({ collections, series }) => (
       <AxisCollection {...props} collections={collections} series={series} />
     )}
-  </ScalerContext.Consumer>
+  </GriffContext.Consumer>
 ));

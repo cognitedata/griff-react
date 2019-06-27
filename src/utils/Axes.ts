@@ -1,5 +1,5 @@
 import { Domain } from '../external';
-import { placeholder } from '../components/Scaler';
+import { placeholder } from '../utils/placeholder';
 
 /**
  * We only currently recognize three dimensions: time, x, and y.

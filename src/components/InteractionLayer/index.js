@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
-import ScalerContext from '../../context/Scaler';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 import GriffPropTypes, {
   areaPropType,
@@ -15,6 +14,7 @@ import Ruler from '../Ruler';
 import Area from '../Area';
 import ZoomRect from '../ZoomRect';
 import { withDisplayName } from '../../utils/displayName';
+import { Context as GriffContext } from '../Griff';
 
 export const ZoomMode = {
   X: 0,
@@ -599,9 +599,9 @@ class InteractionLayer extends React.Component {
 }
 
 export default withDisplayName('InteractionLayer', props => (
-  <ScalerContext.Consumer>
+  <GriffContext.Consumer>
     {({ collections, series }) => (
       <InteractionLayer {...props} collections={collections} series={series} />
     )}
-  </ScalerContext.Consumer>
+  </GriffContext.Consumer>
 ));

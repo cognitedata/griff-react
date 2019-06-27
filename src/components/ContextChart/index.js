@@ -14,6 +14,7 @@ import Axes from '../../utils/Axes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 import { withDisplayName } from '../../utils/displayName';
 import { calculateDomains } from '../Scaler';
+import { Context as GriffContext } from '../Griff';
 
 const propTypes = {
   height: PropTypes.number,
@@ -241,24 +242,20 @@ ContextChart.propTypes = propTypes;
 ContextChart.defaultProps = defaultProps;
 
 export default withDisplayName('ContextChart', props => (
-  <DataContext.Consumer>
-    {({ series: unscaledSeries }) => (
-      <ScalerContext.Consumer>
-        {({ updateDomains, series, collections }) => (
-          <SizeMe monitorWidth>
-            {({ size }) => (
-              <ContextChart
-                width={size.width}
-                unscaledSeries={unscaledSeries}
-                collections={collections}
-                series={series}
-                {...props}
-                updateDomains={updateDomains}
-              />
-            )}
-          </SizeMe>
+  <GriffContext.Consumer>
+    {({ updateDomains, series, collections }) => (
+      <SizeMe monitorWidth>
+        {({ size }) => (
+          <ContextChart
+            width={size.width}
+            unscaledSeries={series}
+            collections={collections}
+            series={series}
+            {...props}
+            updateDomains={updateDomains}
+          />
         )}
-      </ScalerContext.Consumer>
+      </SizeMe>
     )}
-  </DataContext.Consumer>
+  </GriffContext.Consumer>
 ));
