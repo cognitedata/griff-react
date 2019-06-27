@@ -25,7 +25,6 @@ const propTypes = {
 
   // These are all provided by Griff.
   collections: GriffPropTypes.collections.isRequired,
-  unscaledSeries: GriffPropTypes.multipleSeries.isRequired,
   series: GriffPropTypes.multipleSeries.isRequired,
   updateDomains: GriffPropTypes.updateDomains.isRequired,
   width: PropTypes.number,
@@ -118,10 +117,21 @@ const getDomainHashes = (...items) =>
       .join(', ')
   );
 
+const getYDomain = s => {
+  if (!s.yDomain.placeholder) {
+    return s.yDomain;
+  }
+
+  if (s.dataDomains && s.dataDomains.y) {
+    return s.dataDomains.y;
+  }
+
+  return s.yDomain;
+};
+
 const ContextChart = ({
   annotations: propsAnnotations,
   height: propsHeight,
-  unscaledSeries,
   collections,
   series,
   updateDomains,
@@ -138,7 +148,7 @@ const ContextChart = ({
   const reconciledDomains = useMemo(() => {
     // First things first: figure out what domain each series wants to have.
     const domainsByItemId = {};
-    unscaledSeries.forEach(s => {
+    series.forEach(s => {
       const { collectionId, id } = s;
 
       const domain = s.yDomain || calculateDomains(s).y;
@@ -158,7 +168,7 @@ const ContextChart = ({
     });
 
     // Do another pass over it to update the collected items' domains.
-    unscaledSeries.forEach(s => {
+    series.forEach(s => {
       const { id, collectionId } = s;
       if (!collectionId) {
         return;
@@ -168,11 +178,18 @@ const ContextChart = ({
     });
 
     return domainsByItemId;
-  }, getDomainHashes(unscaledSeries, collections));
+  }, getDomainHashes(series, collections));
 
   const getYScale = (seriesIndex, height) => {
-    const scaled = series[seriesIndex];
-    const domain = reconciledDomains[scaled.id];
+    // const scaled = series[seriesIndex];
+    // const domain = reconciledDomains[scaled.id];
+    const s = series[seriesIndex];
+    let domain = s.yDomain;
+    if (s.dataDomains && s.dataDomains.y) {
+      domain = s.dataDomains.y;
+    } else {
+      domain = s.yDomain;
+    }
     return createYScale(domain, height);
   };
 

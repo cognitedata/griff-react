@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash.isequal';
+import throttle from 'lodash.throttle';
 import { Context as GriffContext } from '../Griff';
 import { withDisplayName } from '../../utils/displayName';
 import { calculateDomains } from '../../utils/domains';
@@ -39,6 +40,11 @@ class DataProvider extends React.Component {
 
   lastUpdate = 0;
 
+  constructor() {
+    super();
+    this.fetchData = throttle(this.fetchData, 250);
+  }
+
   componentDidUpdate() {
     const {
       griffContextValue: { series },
@@ -50,8 +56,6 @@ class DataProvider extends React.Component {
       const reason = getLoaderReason(seriesById[s.id], s);
       if (reason) {
         const currentSeries = seriesById[s.id] || s;
-        I'm running into an issue where the loader should get the old series
-        object but not the generated one. Or maybe the generated one? IDK.
         this.fetchData(currentSeries, reason);
       }
     });
