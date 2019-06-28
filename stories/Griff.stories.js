@@ -1,7 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import { storiesOf } from '@storybook/react';
-import { Griff, LineChart, Series } from '../build/src';
+import { Griff, LineChart, Series, Collection } from '../build/src';
 
 import { staticLoader } from './loaders';
 import GriffDebugger from './GriffDebugger';
@@ -19,10 +19,34 @@ storiesOf('Griff', module)
     <Griff loader={staticLoader} timeDomain={timeDomain}>
       <LineChart height={CHART_HEIGHT} />
     </Griff>
-  ))
+  ));
+
+storiesOf('Griff/series', module).add('Basic', () => (
+  <Griff loader={staticLoader} timeDomain={timeDomain}>
+    <Series id="1" color="steelblue" />
+    <Series id="2" color="maroon" />
+    <LineChart height={CHART_HEIGHT} />
+    <GriffDebugger />
+  </Griff>
+));
+
+storiesOf('Griff/collections', module)
   .add('Basic', () => (
     <Griff loader={staticLoader} timeDomain={timeDomain}>
-      <Series id="1" color="steelblue" />
+      <Collection id="all" color="red">
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+      </Collection>
+      <LineChart height={CHART_HEIGHT} />
+      <GriffDebugger />
+    </Griff>
+  ))
+  .add('Domains', () => (
+    <Griff loader={staticLoader} timeDomain={timeDomain}>
+      <Collection id="all" color="red">
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" yAccessor={d => +d.y + 2} />
+      </Collection>
       <LineChart height={CHART_HEIGHT} />
       <GriffDebugger />
     </Griff>

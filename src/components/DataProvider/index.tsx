@@ -1,28 +1,19 @@
 import * as React from 'react';
-import {
-  Context as GriffContext,
-  RegisterSeriesFunction,
-  UpdateSeriesFunction,
-  RegisterCollectionFunction,
-  UpdateCollectionFunction,
-  UpdateDomains,
-} from '../Griff';
+import { UpdateDomains } from '../Griff';
 import { calculateDomains, isEqual } from '../../utils/domains';
 import { deleteUndefinedFromObject } from '../../utils/cleaner';
 import { placeholder, withoutPlaceholder } from '../../utils/placeholder';
 import { LoaderResult, Domain, LoaderReason } from '../../external';
 import { MinimalSeries, ScaledSeries, ScaledCollection } from '../../internal';
 import { debounce } from 'lodash';
+import { Props as ScalerProps } from '../Scaler';
+import Joiner from '../Joiner';
 
-export interface Props {
+export interface Props extends ScalerProps {
   series: ScaledSeries[];
   collections: ScaledCollection[];
 
   updateDomains: UpdateDomains;
-  registerSeries: RegisterSeriesFunction;
-  updateSeries: UpdateSeriesFunction;
-  registerCollection: RegisterCollectionFunction;
-  updateCollection: UpdateCollectionFunction;
 }
 
 interface State {
@@ -47,12 +38,13 @@ type FetchFunction = (
   reason: LoaderReason
 ) => Promise<void>;
 
-const PLACEHOLDER_DOMAIN = placeholder(
-  Number.MIN_SAFE_INTEGER,
-  Number.MAX_SAFE_INTEGER
-);
-
 const PLACEHOLDER_SUBDOMAIN = placeholder(0, 0);
+
+const DEFAULT_DATA_DOMAINS = {
+  time: PLACEHOLDER_SUBDOMAIN,
+  x: PLACEHOLDER_SUBDOMAIN,
+  y: PLACEHOLDER_SUBDOMAIN,
+};
 
 class DataProvider extends React.Component<Props, State> {
   inFlightRequestsById: { [seriesId: string]: RequestRecord } = {};
@@ -128,13 +120,15 @@ class DataProvider extends React.Component<Props, State> {
     };
 
     const loaderResult = await series.loader(params);
-    const domains = calculateDomains({ ...series, ...loaderResult });
-    this.setState((state: State) => ({
-      loaderResultsById: {
-        ...state.loaderResultsById,
-        [series.id]: { ...loaderResult, dataDomains: domains },
-      },
-    }));
+    this.setState((state: State, props: Props) => {
+      const domains = calculateDomains({ ...series, ...loaderResult });
+      return {
+        loaderResultsById: {
+          ...state.loaderResultsById,
+          [series.id]: { ...loaderResult, dataDomains: domains },
+        },
+      };
+    });
   };
 
   getCollectionsObjects = () => {
@@ -147,38 +141,13 @@ class DataProvider extends React.Component<Props, State> {
     const { loaderResultsById } = this.state;
     return series.map((s: ScaledSeries) => {
       const loaderResult = loaderResultsById[s.id] || {};
-      return {
-        data: [],
-        ...deleteUndefinedFromObject(s),
+      const output = {
+        dataDomains: DEFAULT_DATA_DOMAINS,
         ...deleteUndefinedFromObject(loaderResult),
-        timeDomain:
-          withoutPlaceholder(loaderResult.timeDomain, s.timeDomain) ||
-          PLACEHOLDER_DOMAIN,
-        xDomain:
-          withoutPlaceholder(loaderResult.xDomain, s.xDomain) ||
-          PLACEHOLDER_DOMAIN,
-        yDomain:
-          withoutPlaceholder(loaderResult.yDomain, s.yDomain) ||
-          PLACEHOLDER_DOMAIN,
-        timeSubDomain:
-          withoutPlaceholder(
-            loaderResult.timeSubDomain,
-            s.timeSubDomain,
-            (loaderResult.dataDomains || {}).time
-          ) || PLACEHOLDER_SUBDOMAIN,
-        xSubDomain:
-          withoutPlaceholder(
-            loaderResult.xSubDomain,
-            s.xSubDomain,
-            (loaderResult.dataDomains || {}).x
-          ) || PLACEHOLDER_SUBDOMAIN,
-        ySubDomain:
-          withoutPlaceholder(
-            loaderResult.ySubDomain,
-            s.ySubDomain,
-            (loaderResult.dataDomains || {}).y
-          ) || PLACEHOLDER_SUBDOMAIN,
+        ...s,
+        data: loaderResult.data || s.data || [],
       };
+      return output;
     });
   };
 
@@ -205,11 +174,7 @@ class DataProvider extends React.Component<Props, State> {
       ),
     };
 
-    return (
-      <GriffContext.Provider value={newContext}>
-        {children}
-      </GriffContext.Provider>
-    );
+    return <Joiner {...newContext}>{children}</Joiner>;
   }
 }
 

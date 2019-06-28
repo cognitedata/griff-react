@@ -145,41 +145,6 @@ const ContextChart = ({
     return null;
   }
 
-  const reconciledDomains = useMemo(() => {
-    // First things first: figure out what domain each series wants to have.
-    const domainsByItemId = {};
-    series.forEach(s => {
-      const { collectionId, id } = s;
-
-      const domain = s.yDomain || calculateDomains(s).y;
-
-      domainsByItemId[id] = domain;
-
-      if (collectionId) {
-        const collectedDomain = domainsByItemId[collectionId] || [
-          Number.MAX_SAFE_INTEGER,
-          Number.MIN_SAFE_INTEGER,
-        ];
-        domainsByItemId[collectionId] = [
-          Math.min(domain[0], collectedDomain[0]),
-          Math.max(domain[1], collectedDomain[1]),
-        ];
-      }
-    });
-
-    // Do another pass over it to update the collected items' domains.
-    series.forEach(s => {
-      const { id, collectionId } = s;
-      if (!collectionId) {
-        return;
-      }
-
-      domainsByItemId[id] = domainsByItemId[collectionId];
-    });
-
-    return domainsByItemId;
-  }, getDomainHashes(series, collections));
-
   const getYScale = (seriesIndex, height) => {
     // const scaled = series[seriesIndex];
     // const domain = reconciledDomains[scaled.id];

@@ -26,12 +26,12 @@ import { isEqual } from '../../utils/domains';
 export interface Props {
   timeSubDomainChanged: OnTimeSubDomainChanged;
   limitTimeSubDomain?: LimitTimeSubDomain;
-  series: BaseSeries[];
-  collections: BaseCollection[];
   onUpdateDomains?: OnUpdateDomains;
   updateInterval?: number;
   children: JSX.Element | JSX.Element[];
 
+  series: BaseSeries[];
+  collections: BaseCollection[];
   registerSeries: RegisterSeriesFunction;
   updateSeries: UpdateSeriesFunction;
   registerCollection: RegisterCollectionFunction;
@@ -60,10 +60,6 @@ interface State {
 }
 
 export interface OnDomainsUpdated extends Function {}
-
-type SeriesById = { [seriesId: string]: BaseSeries };
-
-type SeriesIdsByCollectionId = { [collectionId: string]: ItemId[] };
 
 type DomainAxis = 'time' | 'x' | 'y';
 
@@ -245,7 +241,7 @@ class Scaler extends React.Component<Props, State> {
 
   /**
    * Return an all of the series, with domains/subdomains guaranteed to be
-   * populated.
+   * populated, even if they're populated with placeholders.
    */
   getSeriesWithDomains = (): ScaledSeries[] => {
     const { series } = this.props;
@@ -265,7 +261,8 @@ class Scaler extends React.Component<Props, State> {
 
       const subDomains = subDomainsByItemId[id] || {};
 
-      const newTimeDomain = timeDomain || placeholder(0, Date.now());
+      const newTimeDomain =
+        timeDomain || placeholder(0, Number.MAX_SAFE_INTEGER);
       const newXDomain =
         xDomain ||
         placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
@@ -274,7 +271,9 @@ class Scaler extends React.Component<Props, State> {
         placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
 
       const newTimeSubDomain =
-        subDomains.time || timeSubDomain || placeholder(0, Date.now());
+        subDomains.time ||
+        timeSubDomain ||
+        placeholder(0, Number.MAX_SAFE_INTEGER);
 
       return {
         ...s,
@@ -392,8 +391,6 @@ class Scaler extends React.Component<Props, State> {
         xSubDomain: subDomains.x,
         ySubDomain: subDomains.y,
       };
-      console.log('TCL: scaledCollection', scaledCollection);
-
       return [...acc, scaledCollection];
     }, new Array<ScaledCollection>());
   };
@@ -549,10 +546,6 @@ class Scaler extends React.Component<Props, State> {
     const collectionsWithDomains = this.getCollectionsWithDomains(
       seriesWithDomains
     );
-    console.log(
-      'TCL: render -> collectionsWithDomains',
-      collectionsWithDomains
-    );
 
     // Stash these on the object so that they can be quickly fetched elsewhere.
     this.collectionsById = collectionsWithDomains.reduce(
@@ -586,7 +579,6 @@ class Scaler extends React.Component<Props, State> {
 
       updateDomains: this.updateDomains,
     };
-    console.log('TCL: render -> newContext', newContext);
 
     return <DataProvider {...newContext}>{children}</DataProvider>;
   }

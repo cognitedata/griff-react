@@ -334,10 +334,6 @@ export default class Griff extends React.Component<Props, State> {
         collection,
         series
       );
-      console.log(
-        'TCL: Griff -> getSeriesObjects -> completedSeries',
-        completedSeries
-      );
       return [...acc, completedSeries];
     }, []);
   };
@@ -449,8 +445,8 @@ export default class Griff extends React.Component<Props, State> {
 
     return (
       <Scaler
-        timeSubDomainChanged={(...args) => console.error(...args)}
-        onUpdateDomains={(...args) => console.error(...args)}
+        timeSubDomainChanged={() => null}
+        onUpdateDomains={() => null}
         {...context}
       >
         {children}

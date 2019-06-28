@@ -12,6 +12,13 @@ export const isEqual = (a: Domain, b: Domain): boolean => {
   return a[0] === b[0] && a[1] === b[1];
 };
 
+export const copyDomain = (domain: Domain): Domain => {
+  const copied: Domain = [domain[0], domain[1]];
+  copied.placeholder = domain.placeholder;
+  copied.calculated = domain.calculated;
+  return copied;
+};
+
 const withPadding = (extent: Domain): Domain => {
   const diff = extent[1] - extent[0];
   if (Math.abs(diff) < 1e-3) {
