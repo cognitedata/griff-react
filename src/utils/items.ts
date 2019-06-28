@@ -1,5 +1,5 @@
 import { BaseSeries } from '../internal';
-import { firstDefined } from './cleaner';
+import { firstDefined, mostSpecific } from './cleaner';
 
 export const combineItems = (
   base: BaseSeries,
@@ -8,10 +8,9 @@ export const combineItems = (
   const keys = Object.keys(base);
   return keys.reduce((acc, key) => {
     const candidates = others.map(({ [key]: value }) => value);
-    const value = firstDefined(undefined, ...candidates);
-    if (value === undefined) {
-      return acc;
-    }
+    // @ts-ignore - This won't be undefined.
+    const baseValue = base[key];
+    const value = mostSpecific(baseValue, ...candidates);
     return {
       ...acc,
       [key]: value,

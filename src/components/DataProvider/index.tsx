@@ -147,15 +147,6 @@ class DataProvider extends React.Component<Props, State> {
     const { loaderResultsById } = this.state;
     return series.map((s: ScaledSeries) => {
       const loaderResult = loaderResultsById[s.id] || {};
-      console.log(
-        'TCL: DataProvider -> getSeriesObjects -> loaderResultsById',
-        loaderResultsById
-      );
-      console.log(
-        'TCL: DataProvider -> getSeriesObjects -> loaderResult',
-        loaderResult
-      );
-      console.log(s.xSubDomain);
       return {
         data: [],
         ...deleteUndefinedFromObject(s),

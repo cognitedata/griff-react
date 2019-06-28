@@ -1,9 +1,8 @@
 import * as React from 'react';
-import Data from '../../context/Data';
 import { ItemProps, WATCHED_PROP_NAMES, Props as SeriesProps } from '../Series';
-import { ItemId } from '../../external';
 import { withDisplayName } from '../../utils/displayName';
 import { RegisterCollectionFunction, UpdateCollectionFunction } from '../Griff';
+import { Context as GriffContext } from '../Griff';
 
 export interface Props extends ItemProps {
   children?: JSX.Element | JSX.Element[];
@@ -55,7 +54,7 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
 };
 
 export default withDisplayName('Collection', (props: Props) => (
-  <Data.Consumer>
+  <GriffContext.Consumer>
     {({ registerCollection, updateCollection }: InternalProps) => (
       <Collection
         registerCollection={registerCollection}
@@ -65,5 +64,5 @@ export default withDisplayName('Collection', (props: Props) => (
         {props.children}
       </Collection>
     )}
-  </Data.Consumer>
+  </GriffContext.Consumer>
 ));

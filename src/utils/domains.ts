@@ -29,7 +29,7 @@ const withPadding = (extent: Domain): Domain => {
   return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
 };
 
-const calculated = (domain: Domain): Domain => {
+export const calculated = (domain: Domain): Domain => {
   domain.calculated = true;
   return domain;
 };

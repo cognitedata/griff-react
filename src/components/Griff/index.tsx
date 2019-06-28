@@ -67,6 +67,7 @@ const DEFAULT_LOADER_FUNCTION: LoaderFunction = ({ reason, oldSeries }) => {
 
 const DEFAULT_SERIES_CONFIG: BaseSeries = {
   id: '',
+  collectionId: undefined,
   color: 'black',
   data: [],
   hidden: false,
@@ -263,17 +264,11 @@ export default class Griff extends React.Component<Props, State> {
         yDomain,
         ySubDomain,
       };
-      // @ts-ignore - FIXME: timeDomain stuff?
-      const completedCollection: Collection = {
-        // First copy in the base-level configuration.
-        ...DEFAULT_SERIES_CONFIG,
-
-        // Then the global props from DataProvider, if any are set.
-        ...dataProvider,
-
-        // Finally, the collection configuration itself.
-        ...collection,
-      };
+      const completedCollection: BaseCollection = combineItems(
+        DEFAULT_SERIES_CONFIG,
+        dataProvider,
+        collection
+      );
       return [...acc, completedCollection];
     }, []);
   };
@@ -442,9 +437,10 @@ export default class Griff extends React.Component<Props, State> {
   render() {
     const { children } = this.props;
 
-    const griffContext = {
+    const context = {
       series: this.getSeriesObjects(),
       collections: this.getCollectionObjects(),
+
       registerCollection: this.registerCollection,
       registerSeries: this.registerSeries,
       updateCollection: this.updateCollection,
@@ -455,7 +451,7 @@ export default class Griff extends React.Component<Props, State> {
       <Scaler
         timeSubDomainChanged={(...args) => console.error(...args)}
         onUpdateDomains={(...args) => console.error(...args)}
-        {...griffContext}
+        {...context}
       >
         {children}
       </Scaler>

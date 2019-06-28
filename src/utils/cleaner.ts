@@ -22,3 +22,12 @@ export const firstDefined = (first: any, ...others: Array<any | undefined>) => {
   }
   return firstDefined(others[0], ...others.splice(1));
 };
+
+export function mostSpecific<T>(...items: Array<T | undefined>): T | undefined {
+  for (let i = items.length - 1; i >= 0; i -= 1) {
+    if (items[i] !== undefined) {
+      return items[i];
+    }
+  }
+  return undefined;
+}

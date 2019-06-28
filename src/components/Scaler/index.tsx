@@ -85,22 +85,6 @@ export const firstResolvedDomain = (
   return firstResolvedDomain(domains[0], ...(domains.splice(1) as Domain[]));
 };
 
-const withPadding = (extent: Domain): Domain => {
-  const diff = extent[1] - extent[0];
-  if (Math.abs(diff) < 1e-3) {
-    if (extent[0] === 0) {
-      // If 0 is the only value present in the series, hard code domain.
-      return [-0.25, 0.25];
-    }
-    const domain = [(1 / 2) * extent[0], (3 / 2) * extent[0]];
-    if (domain[1] < domain[0]) {
-      return [domain[1], domain[0]];
-    }
-    return domain as Domain;
-  }
-  return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
-};
-
 const getDomain = (series: ScaledSeries, axis: 'time' | 'x' | 'y') => {
   switch (String(axis)) {
     case 'time':
@@ -367,35 +351,27 @@ class Scaler extends React.Component<Props, State> {
         return;
       }
 
-      collectionDomainsById[s.collectionId] = {
-        time: [
-          Math.min(domains.time[0], s.timeDomain[0]),
-          Math.max(domains.time[1], s.timeDomain[1]),
-        ],
-        x: [
-          Math.min(domains.x[0], s.xDomain[0]),
-          Math.max(domains.x[1], s.xDomain[1]),
-        ],
-        y: [
-          Math.min(domains.y[0], s.yDomain[0]),
-          Math.max(domains.y[1], s.yDomain[1]),
-        ],
-      };
+      const collectionDomains = collectionDomainsById[s.collectionId];
+      collectionDomains.time[0] = Math.min(domains.time[0], s.timeDomain[0]);
+      collectionDomains.time[1] = Math.max(domains.time[1], s.timeDomain[1]);
+      collectionDomains.x[0] = Math.min(domains.x[0], s.xDomain[0]);
+      collectionDomains.x[1] = Math.max(domains.x[1], s.xDomain[1]);
+      collectionDomains.y[0] = Math.min(domains.y[0], s.yDomain[0]);
+      collectionDomains.y[1] = Math.max(domains.y[1], s.yDomain[1]);
 
-      collectionSubDomainsById[s.collectionId] = {
-        time: [
-          Math.min(subDomains.time[0], s.timeSubDomain[0]),
-          Math.max(subDomains.time[1], s.timeSubDomain[1]),
-        ],
-        x: [
-          Math.min(subDomains.x[0], s.xSubDomain[0]),
-          Math.max(subDomains.x[1], s.xSubDomain[1]),
-        ],
-        y: [
-          Math.min(subDomains.y[0], s.ySubDomain[0]),
-          Math.max(subDomains.y[1], s.ySubDomain[1]),
-        ],
-      };
+      const collectionSubDomains = collectionSubDomainsById[s.collectionId];
+      collectionSubDomains.time[0] = Math.min(
+        subDomains.time[0],
+        s.timeSubDomain[0]
+      );
+      collectionSubDomains.time[1] = Math.max(
+        subDomains.time[1],
+        s.timeSubDomain[1]
+      );
+      collectionSubDomains.x[0] = Math.min(subDomains.x[0], s.xSubDomain[0]);
+      collectionSubDomains.x[1] = Math.max(subDomains.x[1], s.xSubDomain[1]);
+      collectionSubDomains.y[0] = Math.min(subDomains.y[0], s.ySubDomain[0]);
+      collectionSubDomains.y[1] = Math.max(subDomains.y[1], s.ySubDomain[1]);
     });
 
     // Now we need to assemble the information we just computed!
@@ -407,18 +383,18 @@ class Scaler extends React.Component<Props, State> {
         return acc;
       }
 
-      return [
-        ...acc,
-        {
-          ...c,
-          timeDomain: domains.time,
-          xDomain: domains.x,
-          yDomain: domains.y,
-          timeSubDomain: subDomains.time,
-          xSubDomain: subDomains.x,
-          ySubDomain: subDomains.y,
-        },
-      ];
+      const scaledCollection: ScaledCollection = {
+        ...c,
+        timeDomain: domains.time,
+        xDomain: domains.x,
+        yDomain: domains.y,
+        timeSubDomain: subDomains.time,
+        xSubDomain: subDomains.x,
+        ySubDomain: subDomains.y,
+      };
+      console.log('TCL: scaledCollection', scaledCollection);
+
+      return [...acc, scaledCollection];
     }, new Array<ScaledCollection>());
   };
 
@@ -572,6 +548,10 @@ class Scaler extends React.Component<Props, State> {
     // collections which may be present.
     const collectionsWithDomains = this.getCollectionsWithDomains(
       seriesWithDomains
+    );
+    console.log(
+      'TCL: render -> collectionsWithDomains',
+      collectionsWithDomains
     );
 
     // Stash these on the object so that they can be quickly fetched elsewhere.
