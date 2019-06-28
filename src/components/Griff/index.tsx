@@ -1,7 +1,12 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Scaler, { DomainsByItemId, OnDomainsUpdated } from '../Scaler';
-import { Domain, LoaderFunction, Datapoint } from '../../external';
+import {
+  Domain,
+  LoaderFunction,
+  Datapoint,
+  AccessorFunction,
+} from '../../external';
 import {
   IncomingCollection,
   IncomingSeries,
@@ -13,6 +18,9 @@ import {
 } from '../../internal';
 import CollectionJSX from '../Collection';
 import SeriesJSX, { ItemProps } from '../Series';
+import { combineItems } from '../../utils/items';
+import { placeholder } from '../../utils/placeholder';
+import { AxisDisplayMode } from '../..';
 
 const deleteUndefinedFromItem = (obj: IncomingItem): IncomingItem => {
   return Object.keys(obj).reduce(
@@ -26,19 +34,6 @@ const deleteUndefinedFromItem = (obj: IncomingItem): IncomingItem => {
     },
     { id: obj.id }
   );
-};
-
-/**
- * Return the first thing which is not `undefined`.
- * @param {*} first
- * @param  {...any} others
- */
-// @ts-ignore
-const firstDefined = (first: any, ...others: Array<any | undefined>) => {
-  if (first !== undefined || others.length === 0) {
-    return first;
-  }
-  return firstDefined(others[0], ...others.splice(1));
 };
 
 const getTimeSubDomain = (
@@ -65,27 +60,28 @@ const getTimeSubDomain = (
   return newTimeSubDomain;
 };
 
-const DEFAULT_ACCESSORS = {
-  time: (d: Datapoint) => d.timestamp,
-  x: (d: Datapoint) => d.x,
-  y: (d: Datapoint) => d.y,
-};
-
 const DEFAULT_LOADER_FUNCTION: LoaderFunction = ({ reason, oldSeries }) => {
   console.warn(`Missing loader!`, reason, oldSeries);
   return Promise.resolve(oldSeries);
 };
 
-const DEFAULT_SERIES_CONFIG = {
+const DEFAULT_SERIES_CONFIG: BaseSeries = {
+  id: '',
   color: 'black',
   data: [],
   hidden: false,
+  drawLines: true,
   drawPoints: false,
   loader: DEFAULT_LOADER_FUNCTION,
-  timeAccessor: DEFAULT_ACCESSORS.time,
-  xAccessor: DEFAULT_ACCESSORS.x,
-  yAccessor: DEFAULT_ACCESSORS.y,
-  timeDomain: undefined,
+  // FIXME: I don't like this 0 thing.
+  timeAccessor: (d: Datapoint) => d.timestamp || 0,
+  xAccessor: (d: Datapoint) => d.x || 0,
+  x0Accessor: (d: Datapoint) => d.x || 0,
+  x1Accessor: (d: Datapoint) => d.x || 0,
+  yAccessor: (d: Datapoint) => d.y || 0,
+  y0Accessor: (d: Datapoint) => d.y || 0,
+  y1Accessor: (d: Datapoint) => d.y || 0,
+  timeDomain: placeholder(0, 0),
   timeSubDomain: undefined,
   xDomain: undefined,
   xSubDomain: undefined,
@@ -93,6 +89,8 @@ const DEFAULT_SERIES_CONFIG = {
   ySubDomain: undefined,
   pointWidth: 6,
   strokeWidth: 1,
+  yAxisDisplayMode: AxisDisplayMode.ALL,
+  pointsPerSeries: 500,
 };
 
 export type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;
@@ -307,7 +305,8 @@ export default class Griff extends React.Component<Props, State> {
     const { collectionsById, seriesById } = this.state;
     return Object.keys(seriesById).reduce((acc: BaseSeries[], id) => {
       const series = seriesById[id];
-      const dataProvider = {
+      const dataProvider: IncomingItem = {
+        id,
         drawLines,
         drawPoints,
         loader,
@@ -330,24 +329,20 @@ export default class Griff extends React.Component<Props, State> {
         yDomain,
         ySubDomain,
       };
-      const collection =
+      const collection: IncomingCollection =
         series.collectionId !== undefined
-          ? collectionsById[series.collectionId] || {}
-          : {};
-      // @ts-ignore - FIXME: timeDomain stuff?
-      const completedSeries: Series = {
-        // First copy in the base-level configuration.
-        ...DEFAULT_SERIES_CONFIG,
-
-        // Then the global props from DataProvider, if any are set.
-        ...dataProvider,
-
-        // Next, copy over defaults from the parent collection, if there is one.
-        ...collection,
-
-        // Finally, the series configuration itself.
-        ...series,
-      };
+          ? collectionsById[series.collectionId] || { id: '' }
+          : { id: '' };
+      const completedSeries: BaseSeries = combineItems(
+        DEFAULT_SERIES_CONFIG,
+        dataProvider,
+        collection,
+        series
+      );
+      console.log(
+        'TCL: Griff -> getSeriesObjects -> completedSeries',
+        completedSeries
+      );
       return [...acc, completedSeries];
     }, []);
   };

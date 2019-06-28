@@ -11,8 +11,8 @@ import { multiFormat } from '../../utils/multiFormat';
 import Axes from '../../utils/Axes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 import { withDisplayName } from '../../utils/displayName';
-import { calculateDomains } from '../Scaler';
 import { Context as GriffContext } from '../Griff';
+import { calculateDomains } from '../../utils/domains';
 
 const propTypes = {
   height: PropTypes.number,

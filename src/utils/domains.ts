@@ -1,6 +1,6 @@
 import { placeholder } from './placeholder';
-import { Domain, Series, Datapoint } from '../external';
-import { DataSeries, ScaledSeries } from '../internal';
+import { Domain, Datapoint } from '../external';
+import { ScaledSeries } from '../internal';
 
 export const isEqual = (a: Domain, b: Domain): boolean => {
   if (a === b) {

@@ -47,6 +47,13 @@ type FetchFunction = (
   reason: LoaderReason
 ) => Promise<void>;
 
+const PLACEHOLDER_DOMAIN = placeholder(
+  Number.MIN_SAFE_INTEGER,
+  Number.MAX_SAFE_INTEGER
+);
+
+const PLACEHOLDER_SUBDOMAIN = placeholder(0, 0);
+
 class DataProvider extends React.Component<Props, State> {
   inFlightRequestsById: { [seriesId: string]: RequestRecord } = {};
 
@@ -64,7 +71,7 @@ class DataProvider extends React.Component<Props, State> {
       if (reason) {
         let fetchFunction = this.fetchFunctionsById[s.id];
         if (!fetchFunction) {
-          fetchFunction = debounce(this.fetchData(), 250);
+          fetchFunction = debounce(this.fetchData(), 250, { leading: true });
           this.fetchFunctionsById[s.id] = fetchFunction;
         }
         fetchFunction(s, reason);
@@ -140,37 +147,46 @@ class DataProvider extends React.Component<Props, State> {
     const { loaderResultsById } = this.state;
     return series.map((s: ScaledSeries) => {
       const loaderResult = loaderResultsById[s.id] || {};
+      console.log(
+        'TCL: DataProvider -> getSeriesObjects -> loaderResultsById',
+        loaderResultsById
+      );
+      console.log(
+        'TCL: DataProvider -> getSeriesObjects -> loaderResult',
+        loaderResult
+      );
+      console.log(s.xSubDomain);
       return {
         data: [],
         ...deleteUndefinedFromObject(s),
         ...deleteUndefinedFromObject(loaderResult),
         timeDomain:
           withoutPlaceholder(loaderResult.timeDomain, s.timeDomain) ||
-          placeholder(0, 0),
+          PLACEHOLDER_DOMAIN,
         xDomain:
           withoutPlaceholder(loaderResult.xDomain, s.xDomain) ||
-          placeholder(0, 0),
+          PLACEHOLDER_DOMAIN,
         yDomain:
           withoutPlaceholder(loaderResult.yDomain, s.yDomain) ||
-          placeholder(0, 0),
+          PLACEHOLDER_DOMAIN,
         timeSubDomain:
           withoutPlaceholder(
             loaderResult.timeSubDomain,
             s.timeSubDomain,
             (loaderResult.dataDomains || {}).time
-          ) || placeholder(0, 0),
+          ) || PLACEHOLDER_SUBDOMAIN,
         xSubDomain:
           withoutPlaceholder(
             loaderResult.xSubDomain,
             s.xSubDomain,
             (loaderResult.dataDomains || {}).x
-          ) || placeholder(0, 0),
+          ) || PLACEHOLDER_SUBDOMAIN,
         ySubDomain:
           withoutPlaceholder(
             loaderResult.ySubDomain,
             s.ySubDomain,
             (loaderResult.dataDomains || {}).y
-          ) || placeholder(0, 0),
+          ) || PLACEHOLDER_SUBDOMAIN,
       };
     });
   };

@@ -36,7 +36,12 @@ export interface IncomingItem {
   id: ItemId;
   color?: string;
   hidden?: boolean;
+  drawLines?: boolean;
   drawPoints?: boolean | PointRenderer;
+  strokeWidth?: number;
+  opacity?: number;
+  opacityAccessor?: AccessorFunction;
+  pointWidthAccessor?: AccessorFunction;
   timeAccessor?: AccessorFunction;
   xAccessor?: AccessorFunction;
   x0Accessor?: AccessorFunction;
@@ -81,6 +86,7 @@ export interface DataDomains {
 export interface BaseItem extends IncomingItem {
   color: string;
   hidden: boolean;
+  drawLines: boolean;
   drawPoints: boolean | PointRenderer;
   timeAccessor: AccessorFunction;
   xAccessor: AccessorFunction;
@@ -99,6 +105,7 @@ export interface BaseItem extends IncomingItem {
 export interface BaseCollection extends IncomingCollection {
   color: string;
   hidden: boolean;
+  drawLines: boolean;
   drawPoints: boolean;
   timeAccessor: AccessorFunction;
   xAccessor: AccessorFunction;
@@ -127,6 +134,7 @@ export interface BaseSeries extends IncomingSeries {
   // context provider pipeline.
   color: string;
   hidden: boolean;
+  drawLines: boolean;
   drawPoints: boolean;
   timeAccessor: AccessorFunction;
   xAccessor: AccessorFunction;
@@ -164,6 +172,7 @@ export interface MinimalSeries {
   id: ItemId;
   color: string;
   hidden: boolean;
+  drawLines: boolean;
   drawPoints: boolean;
   timeAccessor: AccessorFunction;
   xAccessor: AccessorFunction;

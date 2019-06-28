@@ -128,7 +128,14 @@ const getSubDomain = (series: ScaledSeries, axis: 'time' | 'x' | 'y') => {
 };
 
 const getLimitedSubDomain = (subDomain: Domain, domain: Domain): Domain => {
-  return [Math.max(subDomain[0], domain[0]), Math.min(subDomain[1], domain[1])];
+  const sub: Domain = [
+    Math.max(subDomain[0], domain[0]),
+    Math.min(subDomain[1], domain[1]),
+  ];
+  if (subDomain.placeholder) {
+    sub.placeholder = true;
+  }
+  return sub;
 };
 
 /**

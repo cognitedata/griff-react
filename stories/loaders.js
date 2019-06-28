@@ -12,7 +12,7 @@ const randomData = ({
     const value = singleValue === undefined ? func(i) : singleValue;
     data.push({
       timestamp: i,
-      value,
+      y: value,
     });
   }
   return data;
