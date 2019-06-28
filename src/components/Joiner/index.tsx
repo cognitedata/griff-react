@@ -1,10 +1,15 @@
 import * as React from 'react';
-import { DataSeries, ScaledCollection } from '../../internal';
+import {
+  DataSeries,
+  ScaledCollection,
+  ItemIdMap,
+  DataDomains,
+} from '../../internal';
 import { Props as DataProviderProps } from '../DataProvider';
 import { GriffContext } from '../..';
 import { withoutPlaceholder, placeholder } from '../../utils/placeholder';
 import { Domain } from '../../external';
-import { copyDomain } from '../../utils/domains';
+import { copyDomain, copyDataDomains } from '../../utils/domains';
 
 export interface Props extends DataProviderProps {
   series: DataSeries[];
@@ -24,10 +29,15 @@ const Joiner: React.FunctionComponent<Props> = (props: Props) => {
   const seriesById: { [seriesId: string]: DataSeries } = {};
 
   const subDomainsByCollectionId: {
-    [collectionId: string]: { time: Domain; x: Domain; y: Domain };
+    [collectionId: string]: {
+      time: Domain;
+      x: Domain;
+      y: Domain;
+      data: DataDomains;
+    };
   } = {};
 
-  const joinedSeries = series.map(s => {
+  let joinedSeries = series.map(s => {
     const { dataDomains, timeSubDomain, xSubDomain, ySubDomain } = s;
     const joined: DataSeries = {
       ...s,
@@ -46,6 +56,7 @@ const Joiner: React.FunctionComponent<Props> = (props: Props) => {
           time: copyDomain(joined.timeSubDomain),
           x: copyDomain(joined.xSubDomain),
           y: copyDomain(joined.ySubDomain),
+          data: copyDataDomains(joined.dataDomains),
         };
       } else {
         const subDomains = subDomainsByCollectionId[s.collectionId];
@@ -61,26 +72,69 @@ const Joiner: React.FunctionComponent<Props> = (props: Props) => {
         subDomains.x[1] = Math.max(joined.xSubDomain[1], subDomains.x[1]);
         subDomains.y[0] = Math.min(joined.ySubDomain[0], subDomains.y[0]);
         subDomains.y[1] = Math.max(joined.ySubDomain[1], subDomains.y[1]);
+
+        subDomains.data.time[0] = Math.min(
+          joined.dataDomains.time[0],
+          subDomains.data.time[0]
+        );
+        subDomains.data.time[1] = Math.max(
+          joined.dataDomains.time[1],
+          subDomains.data.time[1]
+        );
+        subDomains.data.x[0] = Math.min(
+          joined.dataDomains.x[0],
+          subDomains.data.x[0]
+        );
+        subDomains.data.x[1] = Math.max(
+          joined.dataDomains.x[1],
+          subDomains.data.x[1]
+        );
+        subDomains.data.y[0] = Math.min(
+          joined.dataDomains.y[0],
+          subDomains.data.y[0]
+        );
+        subDomains.data.y[1] = Math.max(
+          joined.dataDomains.y[1],
+          subDomains.data.y[1]
+        );
+
         subDomainsByCollectionId[s.collectionId] = subDomains;
       }
     }
     return joined;
   });
 
+  const collectionsById: ItemIdMap<ScaledCollection> = {};
+
   const joinedCollections = collections.map(c => {
     const { [c.id]: subDomains } = subDomainsByCollectionId;
-    return {
+    const joinedCollection = {
       ...c,
       timeSubDomain: subDomains.time,
       xSubDomain: subDomains.x,
       ySubDomain: subDomains.y,
     };
+    collectionsById[c.id] = joinedCollection;
+    return joinedCollection;
   });
 
-  const collectionsById = joinedCollections.reduce(
-    (acc, c) => ({ ...acc, [c.id]: c }),
-    {}
-  );
+  // We need to do one final pass over the series to make sure that all of the
+  // collected series share their domains with the collection.
+  if (joinedCollections.length > 0) {
+    joinedSeries = joinedSeries.map(s => {
+      if (!s.collectionId) {
+        return s;
+      }
+      const domains = subDomainsByCollectionId[s.collectionId];
+      return {
+        ...s,
+        timeSubDomain: domains.time,
+        xSubDomain: domains.x,
+        ySubDomain: domains.y,
+        dataDomains: domains.data,
+      };
+    });
+  }
 
   const newContext = {
     ...rest,

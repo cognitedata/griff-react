@@ -1,6 +1,6 @@
 import { placeholder } from './placeholder';
 import { Domain, Datapoint } from '../external';
-import { ScaledSeries } from '../internal';
+import { ScaledSeries, DataDomains } from '../internal';
 
 export const isEqual = (a: Domain, b: Domain): boolean => {
   if (a === b) {
@@ -18,6 +18,12 @@ export const copyDomain = (domain: Domain): Domain => {
   copied.calculated = domain.calculated;
   return copied;
 };
+
+export const copyDataDomains = ({ time, x, y }: DataDomains): DataDomains => ({
+  time: copyDomain(time),
+  x: copyDomain(x),
+  y: copyDomain(y),
+});
 
 const withPadding = (extent: Domain): Domain => {
   const diff = extent[1] - extent[0];
