@@ -1,23 +1,28 @@
 import * as React from 'react';
-import { Context as GriffContext } from '../Griff';
-import { withDisplayName } from '../../utils/displayName';
+import {
+  Context as GriffContext,
+  RegisterSeriesFunction,
+  UpdateSeriesFunction,
+  RegisterCollectionFunction,
+  UpdateCollectionFunction,
+  UpdateDomains,
+} from '../Griff';
 import { calculateDomains, isEqual } from '../../utils/domains';
 import { deleteUndefinedFromObject } from '../../utils/cleaner';
 import { placeholder, withoutPlaceholder } from '../../utils/placeholder';
-import {
-  Series,
-  Collection,
-  LoaderResult,
-  Domain,
-  LoaderReason,
-} from '../../external';
-import { MinimalSeries } from '../../internal';
+import { LoaderResult, Domain, LoaderReason } from '../../external';
+import { MinimalSeries, ScaledSeries, ScaledCollection } from '../../internal';
 import { debounce } from 'lodash';
 
-export interface Props {}
+export interface Props {
+  series: ScaledSeries[];
+  collections: ScaledCollection[];
 
-interface InternalProps extends Props {
-  griffContextValue: { series: [] };
+  updateDomains: UpdateDomains;
+  registerSeries: RegisterSeriesFunction;
+  updateSeries: UpdateSeriesFunction;
+  registerCollection: RegisterCollectionFunction;
+  updateCollection: UpdateCollectionFunction;
 }
 
 interface State {
@@ -28,9 +33,9 @@ interface State {
   };
 }
 
-type SeriesById = { [seriesId: string]: Series };
+type SeriesById = { [seriesId: string]: ScaledSeries };
 
-type SeriesByCollectionId = { [seriesId: string]: Series };
+type SeriesByCollectionId = { [seriesId: string]: ScaledSeries };
 
 interface RequestRecord {
   timestamp: number;
@@ -42,7 +47,7 @@ type FetchFunction = (
   reason: LoaderReason
 ) => Promise<void>;
 
-class DataProvider extends React.Component<InternalProps, State> {
+class DataProvider extends React.Component<Props, State> {
   inFlightRequestsById: { [seriesId: string]: RequestRecord } = {};
 
   fetchFunctionsById: { [seriesId: string]: FetchFunction } = {};
@@ -52,10 +57,7 @@ class DataProvider extends React.Component<InternalProps, State> {
   };
 
   componentDidUpdate() {
-    const {
-      // @ts-ignore - FIXME: Split out internal vs external Series
-      griffContextValue: { series },
-    } = this.props;
+    const { series } = this.props;
 
     series.forEach((s: MinimalSeries) => {
       const reason = this.getLoaderReason(s);
@@ -129,20 +131,14 @@ class DataProvider extends React.Component<InternalProps, State> {
   };
 
   getCollectionsObjects = () => {
-    const {
-      // @ts-ignore - FIXME: Split out internal vs external Series
-      griffContextValue: { collections },
-    } = this.props;
+    const { collections } = this.props;
     return collections;
   };
 
   getSeriesObjects = () => {
-    const {
-      // @ts-ignore - FIXME: Split out internal vs external Series
-      griffContextValue: { series },
-    } = this.props;
+    const { series } = this.props;
     const { loaderResultsById } = this.state;
-    return series.map((s: Series) => {
+    return series.map((s: ScaledSeries) => {
       const loaderResult = loaderResultsById[s.id] || {};
       return {
         data: [],
@@ -180,22 +176,24 @@ class DataProvider extends React.Component<InternalProps, State> {
   };
 
   render() {
-    // @ts-ignore - FIXME: Split out internal vs external Series
-    const { griffContextValue, children } = this.props;
+    const { children, ...rest } = this.props;
 
     const series = this.getSeriesObjects();
     const collections = this.getCollectionsObjects();
 
     const newContext = {
-      ...griffContextValue,
+      ...rest,
       series,
       seriesById: series.reduce(
-        (acc: SeriesById, s: Series) => ({ ...acc, [s.id]: s }),
+        (acc: SeriesById, s: ScaledSeries) => ({ ...acc, [s.id]: s }),
         {}
       ),
       collections,
       collectionsById: collections.reduce(
-        (acc: SeriesByCollectionId, c: Collection) => ({ ...acc, [c.id]: c }),
+        (acc: SeriesByCollectionId, c: ScaledCollection) => ({
+          ...acc,
+          [c.id]: c,
+        }),
         {}
       ),
     };
@@ -208,11 +206,4 @@ class DataProvider extends React.Component<InternalProps, State> {
   }
 }
 
-export default withDisplayName('DataProvider', (props: Props) => (
-  <GriffContext.Consumer>
-    {(griffContextValue: any) => (
-      // @ts-ignore - FIXME: Split out internal vs external Series
-      <DataProvider {...props} griffContextValue={griffContextValue} />
-    )}
-  </GriffContext.Consumer>
-));
+export default DataProvider;

@@ -1,51 +1,41 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import {
-  Context as GriffContext,
-  ContextType,
   OnTimeSubDomainChanged,
   LimitTimeSubDomain,
   OnUpdateDomains,
+  RegisterSeriesFunction,
+  UpdateSeriesFunction,
+  RegisterCollectionFunction,
+  UpdateCollectionFunction,
 } from '../Griff';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import Axes from '../../utils/Axes';
-import { Domain, Series, Collection, ItemId } from '../../external';
-import { withDisplayName } from '../../utils/displayName';
-import { Item, DataDomains, DataSeries } from '../../internal';
+import { Domain, ItemId } from '../../external';
+import {
+  BaseSeries,
+  BaseCollection,
+  BaseItem,
+  ScaledSeries,
+  ScaledCollection,
+} from '../../internal';
 import { DataProvider } from '../..';
 import { placeholder } from '../../utils/placeholder';
 import { isEqual } from '../../utils/domains';
 
-interface SeriesWithDomains extends Series {
-  timeDomain: Domain;
-  timeSubDomain: Domain;
-  xDomain: Domain;
-  xSubDomain: Domain;
-  yDomain: Domain;
-  ySubDomain: Domain;
-}
-
-interface CollectionWithDomains extends Collection {
-  timeDomain: Domain;
-  timeSubDomain: Domain;
-  xDomain: Domain;
-  xSubDomain: Domain;
-  yDomain: Domain;
-  ySubDomain: Domain;
-}
-
 export interface Props {
   timeSubDomainChanged: OnTimeSubDomainChanged;
-  limitTimeSubDomain: LimitTimeSubDomain | undefined;
-  series: Series[];
-  collections: Collection[];
+  limitTimeSubDomain?: LimitTimeSubDomain;
+  series: BaseSeries[];
+  collections: BaseCollection[];
   onUpdateDomains?: OnUpdateDomains;
   updateInterval?: number;
   children: JSX.Element | JSX.Element[];
-}
 
-interface InternalProps {
-  griffContextValue: ContextType;
+  registerSeries: RegisterSeriesFunction;
+  updateSeries: UpdateSeriesFunction;
+  registerCollection: RegisterCollectionFunction;
+  updateCollection: UpdateCollectionFunction;
 }
 
 export interface DomainsByItemId {
@@ -71,7 +61,7 @@ interface State {
 
 export interface OnDomainsUpdated extends Function {}
 
-type SeriesById = { [seriesId: string]: Series };
+type SeriesById = { [seriesId: string]: BaseSeries };
 
 type SeriesIdsByCollectionId = { [collectionId: string]: ItemId[] };
 
@@ -111,7 +101,7 @@ const withPadding = (extent: Domain): Domain => {
   return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
 };
 
-const getDomain = (series: Series, axis: 'time' | 'x' | 'y') => {
+const getDomain = (series: ScaledSeries, axis: 'time' | 'x' | 'y') => {
   switch (String(axis)) {
     case 'time':
       return series.timeDomain;
@@ -124,7 +114,7 @@ const getDomain = (series: Series, axis: 'time' | 'x' | 'y') => {
   }
 };
 
-const getSubDomain = (series: Series, axis: 'time' | 'x' | 'y') => {
+const getSubDomain = (series: ScaledSeries, axis: 'time' | 'x' | 'y') => {
   switch (String(axis)) {
     case 'time':
       return series.timeSubDomain;
@@ -139,67 +129,6 @@ const getSubDomain = (series: Series, axis: 'time' | 'x' | 'y') => {
 
 const getLimitedSubDomain = (subDomain: Domain, domain: Domain): Domain => {
   return [Math.max(subDomain[0], domain[0]), Math.min(subDomain[1], domain[1])];
-};
-
-export const calculateDomains = (
-  s: Series
-): { time: Domain; x: Domain; y: Domain } => {
-  const {
-    data,
-    timeAccessor,
-    xAccessor,
-    x0Accessor,
-    x1Accessor,
-    yAccessor,
-    y0Accessor,
-    y1Accessor,
-  } = s;
-
-  if (!data || data.length === 0) {
-    // There isn't any data -- return some default domains.
-    return {
-      time: placeholder(0, Date.now()),
-      x: placeholder(-0.25, 0.25),
-      y: placeholder(-0.25, 0.25),
-    };
-  }
-
-  const timeExtent: [number, number] = [
-    Number.MAX_SAFE_INTEGER,
-    Number.MIN_SAFE_INTEGER,
-  ];
-  const xExtent: [number, number] = [
-    Number.MAX_SAFE_INTEGER,
-    Number.MIN_SAFE_INTEGER,
-  ];
-  const yExtent: [number, number] = [
-    Number.MAX_SAFE_INTEGER,
-    Number.MIN_SAFE_INTEGER,
-  ];
-  for (let i = 0; i < data.length; i += 1) {
-    const point = data[i];
-    const time = timeAccessor(point);
-    timeExtent[0] = Math.min(timeExtent[0], time);
-    timeExtent[1] = Math.max(timeExtent[1], time);
-
-    const x = xAccessor(point);
-    const x0 = x0Accessor ? x0Accessor(point) : x;
-    const x1 = x1Accessor ? x1Accessor(point) : x;
-    xExtent[0] = Math.min(xExtent[0], x, x0);
-    xExtent[1] = Math.max(xExtent[1], x, x1);
-
-    const y = yAccessor(point);
-    const y0 = y0Accessor ? y0Accessor(point) : y;
-    const y1 = y1Accessor ? y1Accessor(point) : y;
-    yExtent[0] = Math.min(yExtent[0], y, y0);
-    yExtent[1] = Math.max(yExtent[1], y, y1);
-  }
-
-  return {
-    time: withPadding(timeExtent),
-    x: withPadding(xExtent),
-    y: withPadding(yExtent),
-  };
 };
 
 /**
@@ -218,7 +147,7 @@ export const calculateDomains = (
  * These are manipulated with the {@link #updateDomains} function, which is
  * made available through the {@link ScalerContext}.
  */
-class OldScaler extends React.Component<Props & InternalProps, State> {
+class Scaler extends React.Component<Props, State> {
   static propTypes = {
     children: PropTypes.node.isRequired,
     limitTimeSubDomain: PropTypes.func,
@@ -233,15 +162,11 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
     subDomainsByItemId: {},
   };
 
-  seriesById: { [seriesId: string]: SeriesWithDomains } = {};
-  collectionsById: { [collectionsId: string]: Collection } = {};
+  seriesById: { [seriesId: string]: ScaledSeries } = {};
+  collectionsById: { [collectionsId: string]: ScaledCollection } = {};
   seriesByCollectionId: { [collectionId: string]: ItemId[] } = {};
 
   fetchInterval?: NodeJS.Timeout;
-
-  componentDidMount() {
-    this.startUpdateInterval();
-  }
 
   componentDidUpdate(prevProps: Props) {
     // We need to find when a Series' defined subDomains change because
@@ -249,8 +174,8 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
 
     const { series: prevSeries, collections: prevCollections } = prevProps;
 
-    const prevSeriesById: { [id: string]: Series } = prevSeries
-      .concat(prevCollections)
+    const prevSeriesById: { [id: string]: BaseItem } = (prevCollections || [])
+      .concat(prevSeries)
       .reduce((acc, s) => ({ ...acc, [s.id]: s }), {});
 
     interface SubDomainChanges {
@@ -268,7 +193,7 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
 
     const { subDomainsByItemId } = this.state;
 
-    const findChangedSubDomains = (item: Item) => {
+    const findChangedSubDomains = (item: BaseItem) => {
       const p = prevSeriesById[item.id];
 
       const changes: SubDomainChanges = {};
@@ -278,6 +203,7 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
 
         if (
           item.xSubDomain &&
+          p.xSubDomain &&
           subDomains.x &&
           !isEqual(item.xSubDomain, p.xSubDomain)
         ) {
@@ -286,6 +212,7 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
         }
         if (
           item.ySubDomain &&
+          p.ySubDomain &&
           subDomains.y &&
           !isEqual(item.ySubDomain, p.ySubDomain)
         ) {
@@ -325,52 +252,16 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
     }
   }
 
-  // onUpdateInterval = () => {
-  //   const { limitTimeSubDomain, updateInterval } = this.props;
-
-  //   const { seriesById, timeDomain, timeSubDomain } = this.state;
-
-  //   const newTimeDomain = timeDomain.map(d => d + updateInterval);
-  //   const newTimeSubDomain = isTimeSubDomainSticky
-  //     ? getTimeSubDomain(
-  //         newTimeDomain,
-  //         timeSubDomain.map(d => d + updateInterval),
-  //         limitTimeSubDomain
-  //       )
-  //     : timeSubDomain;
-  //   this.setState(
-  //     {
-  //       timeDomain: newTimeDomain,
-  //       timeSubDomain: newTimeSubDomain,
-  //     },
-  //     () => {
-  //       Object.keys(seriesById).map(id => this.fetchData(id, 'INTERVAL'));
-  //     }
-  //   );
-  // };
-
-  startUpdateInterval = () => {
-    // const { updateInterval } = this.props;
-    // if (this.fetchInterval) {
-    //   clearInterval(this.fetchInterval);
-    // }
-    // if (updateInterval) {
-    //   this.fetchInterval = setInterval(this.onUpdateInterval, updateInterval);
-    // }
-  };
-
   /**
    * Return an all of the series, with domains/subdomains guaranteed to be
    * populated.
    */
-  getSeriesWithDomains = (): SeriesWithDomains[] => {
-    const {
-      griffContextValue: { series },
-    } = this.props;
+  getSeriesWithDomains = (): ScaledSeries[] => {
+    const { series } = this.props;
 
     const { subDomainsByItemId } = this.state;
 
-    return series.map((s: Series) => {
+    return series.map((s: BaseSeries) => {
       const {
         id,
         timeDomain,
@@ -383,9 +274,7 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
 
       const subDomains = subDomainsByItemId[id] || {};
 
-      const { time, x, y } = calculateDomains(s);
-
-      const newTimeDomain = timeDomain || time || placeholder(0, Date.now());
+      const newTimeDomain = timeDomain || placeholder(0, Date.now());
       const newXDomain =
         xDomain ||
         placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
@@ -394,31 +283,31 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
         placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
 
       const newTimeSubDomain =
-        subDomains.time || timeSubDomain || time || placeholder(0, Date.now());
+        subDomains.time || timeSubDomain || placeholder(0, Date.now());
 
       return {
         ...s,
         timeSubDomain: getLimitedSubDomain(newTimeSubDomain, newTimeDomain),
         xDomain: newXDomain,
         xSubDomain: getLimitedSubDomain(
-          subDomains.x || xSubDomain || x,
+          subDomains.x ||
+            xSubDomain ||
+            placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
           newXDomain
         ),
         yDomain: newYDomain,
         ySubDomain: getLimitedSubDomain(
-          subDomains.y || ySubDomain || y,
+          subDomains.y ||
+            ySubDomain ||
+            placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
           newYDomain
         ),
       };
     });
   };
 
-  getCollectionsWithDomains = (
-    series: SeriesWithDomains[]
-  ): CollectionWithDomains[] => {
-    const {
-      griffContextValue: { collections },
-    } = this.props;
+  getCollectionsWithDomains = (series: ScaledSeries[]): ScaledCollection[] => {
+    const { collections } = this.props;
     if (collections.length === 0) {
       return [];
     }
@@ -426,10 +315,9 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
     // We can't store these in this.collectionsById because the collections
     // have not been fully-resolved at this point in time and might have missing
     // domains.
-    const collectionsById: { [id: string]: Collection } = collections.reduce(
-      (acc, c) => ({ ...acc, [c.id]: c }),
-      {}
-    );
+    const collectionsById: {
+      [id: string]: ScaledCollection;
+    } = collections.reduce((acc, c) => ({ ...acc, [c.id]: c }), {});
 
     const collectionDomainsById: PopulatedDomainsByItemId = {};
     const collectionSubDomainsById: PopulatedDomainsByItemId = {};
@@ -524,12 +412,10 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
           ySubDomain: subDomains.y,
         },
       ];
-    }, new Array<Collection>());
+    }, new Array<ScaledCollection>());
   };
 
-  getSeriesWithCollectedDomains = (
-    series: SeriesWithDomains[]
-  ): SeriesWithDomains[] => {
+  getSeriesWithCollectedDomains = (series: ScaledSeries[]): ScaledSeries[] => {
     return series.map(s => {
       if (!s.collectionId) {
         return s;
@@ -669,7 +555,7 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
   };
 
   render() {
-    const { children, griffContextValue } = this.props;
+    const { children } = this.props;
 
     // Do a first pass over all of the series to make copies of the Series so
     // that they're all guaranteed to have domains populated.
@@ -703,8 +589,9 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
       }
     });
 
-    const newContext: ContextType = {
-      ...griffContextValue,
+    const newContext = {
+      ...this.props,
+
       collections: collectionsWithDomains,
       collectionsById: this.collectionsById,
       series: seriesWithCollectedDomains,
@@ -714,18 +601,8 @@ class OldScaler extends React.Component<Props & InternalProps, State> {
     };
     console.log('TCL: render -> newContext', newContext);
 
-    return (
-      <GriffContext.Provider value={newContext}>
-        <DataProvider>{children}</DataProvider>
-      </GriffContext.Provider>
-    );
+    return <DataProvider {...newContext}>{children}</DataProvider>;
   }
 }
 
-export default withDisplayName('Scaler', (props: Props) => (
-  <GriffContext.Consumer>
-    {(griffContextValue: ContextType) => (
-      <OldScaler {...props} griffContextValue={griffContextValue} />
-    )}
-  </GriffContext.Consumer>
-));
+export default Scaler;

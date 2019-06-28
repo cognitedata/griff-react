@@ -1,4 +1,4 @@
-import { Item } from './internal';
+import { Item, DataSeries, ScaledCollection } from './internal';
 import { LoaderReason } from './components/DataProvider';
 
 export * from './components/AxisPlacement';
@@ -9,11 +9,9 @@ export type Domain = [number, number] & {
 
 export type ItemId = string | number;
 
-export interface Series extends Item {
-  collectionId?: ItemId;
-}
+export type Series = DataSeries;
 
-export interface Collection extends Item {}
+export type Collection = ScaledCollection;
 
 export interface Datapoint {
   timestamp?: number;

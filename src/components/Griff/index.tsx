@@ -1,20 +1,15 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import Scaler, { DomainsByItemId } from '../Scaler';
-import {
-  Domain,
-  LoaderFunction,
-  Datapoint,
-  Series,
-  ItemId,
-  Collection,
-} from '../../external';
+import Scaler, { DomainsByItemId, OnDomainsUpdated } from '../Scaler';
+import { Domain, LoaderFunction, Datapoint } from '../../external';
 import {
   IncomingCollection,
   IncomingSeries,
   IncomingItem,
   DataSeries,
   ScaledCollection,
+  BaseSeries,
+  BaseCollection,
 } from '../../internal';
 import CollectionJSX from '../Collection';
 import SeriesJSX, { ItemProps } from '../Series';
@@ -140,9 +135,16 @@ export type RegisterCollectionFunction = (
 
 export type UpdateCollectionFunction = (collection: IncomingCollection) => void;
 
+export type UpdateDomains = (
+  mixedChangedDomainsById: DomainsByItemId,
+  callback: OnDomainsUpdated
+) => void;
+
 export interface ContextType {
   series: DataSeries[];
   collections: ScaledCollection[];
+
+  updateDomains: UpdateDomains;
 
   registerSeries: RegisterSeriesFunction;
   updateSeries: UpdateSeriesFunction;
@@ -153,6 +155,8 @@ export interface ContextType {
 export const Context = React.createContext<ContextType>({
   series: [],
   collections: [],
+
+  updateDomains: () => null,
 
   registerSeries: () => () => {},
   updateSeries: () => {},
@@ -237,7 +241,7 @@ export default class Griff extends React.Component<Props, State> {
       pointWidthAccessor,
     } = this.props;
     const { collectionsById } = this.state;
-    return Object.keys(collectionsById).reduce((acc: Collection[], id) => {
+    return Object.keys(collectionsById).reduce((acc: BaseCollection[], id) => {
       const collection = collectionsById[id];
       const dataProvider = {
         drawLines,
@@ -301,7 +305,7 @@ export default class Griff extends React.Component<Props, State> {
       timeSubDomain,
     } = this.props;
     const { collectionsById, seriesById } = this.state;
-    return Object.keys(seriesById).reduce((acc: Series[], id) => {
+    return Object.keys(seriesById).reduce((acc: BaseSeries[], id) => {
       const series = seriesById[id];
       const dataProvider = {
         drawLines,
@@ -441,10 +445,7 @@ export default class Griff extends React.Component<Props, State> {
   };
 
   render() {
-    const { children, ...otherProps } = this.props;
-    const scalerProps = {
-      ...otherProps,
-    };
+    const { children } = this.props;
 
     const griffContext = {
       series: this.getSeriesObjects(),
@@ -456,14 +457,13 @@ export default class Griff extends React.Component<Props, State> {
     };
 
     return (
-      <Context.Provider value={griffContext}>
-        <Scaler
-          timeSubDomainChanged={(...args) => console.error(...args)}
-          {...scalerProps}
-        >
-          {children}
-        </Scaler>
-      </Context.Provider>
+      <Scaler
+        timeSubDomainChanged={(...args) => console.error(...args)}
+        onUpdateDomains={(...args) => console.error(...args)}
+        {...griffContext}
+      >
+        {children}
+      </Scaler>
     );
   }
 }

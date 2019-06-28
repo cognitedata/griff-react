@@ -4,6 +4,7 @@ import {
   AccessorFunction,
   LoaderFunction,
   Datapoint,
+  PointRenderer,
 } from './external';
 import { AxisDisplayMode } from './utils/AxisDisplayMode';
 
@@ -11,7 +12,7 @@ export interface Item {
   id: ItemId;
   color?: string;
   hidden?: boolean;
-  drawPoints?: boolean;
+  drawPoints?: boolean | PointRenderer;
   timeAccessor: AccessorFunction;
   xAccessor: AccessorFunction;
   x0Accessor: AccessorFunction;
@@ -35,7 +36,7 @@ export interface IncomingItem {
   id: ItemId;
   color?: string;
   hidden?: boolean;
-  drawPoints?: boolean;
+  drawPoints?: boolean | PointRenderer;
   timeAccessor?: AccessorFunction;
   xAccessor?: AccessorFunction;
   x0Accessor?: AccessorFunction;
@@ -77,6 +78,24 @@ export interface DataDomains {
   y: Domain;
 }
 
+export interface BaseItem extends IncomingItem {
+  color: string;
+  hidden: boolean;
+  drawPoints: boolean | PointRenderer;
+  timeAccessor: AccessorFunction;
+  xAccessor: AccessorFunction;
+  x0Accessor: AccessorFunction;
+  x1Accessor: AccessorFunction;
+  yAccessor: AccessorFunction;
+  y0Accessor: AccessorFunction;
+  y1Accessor: AccessorFunction;
+  yAxisDisplayMode: AxisDisplayMode;
+  pointWidth: number;
+  pointsPerSeries: number;
+
+  timeDomain: Domain;
+}
+
 export interface BaseCollection extends IncomingCollection {
   color: string;
   hidden: boolean;
@@ -95,7 +114,7 @@ export interface BaseCollection extends IncomingCollection {
   timeDomain: Domain;
 }
 
-export interface ScaledCollection extends IncomingCollection {
+export interface ScaledCollection extends BaseCollection {
   timeSubDomain: Domain;
   xDomain: Domain;
   xSubDomain: Domain;
