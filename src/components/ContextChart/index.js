@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { SizeMe } from 'react-sizeme';
 import LineCollection from '../LineCollection';
@@ -12,7 +12,6 @@ import Axes from '../../utils/Axes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 import { withDisplayName } from '../../utils/displayName';
 import { Context as GriffContext } from '../Griff';
-import { calculateDomains } from '../../utils/domains';
 
 const propTypes = {
   height: PropTypes.number,
@@ -24,7 +23,6 @@ const propTypes = {
   xAxisPlacement: GriffPropTypes.axisPlacement,
 
   // These are all provided by Griff.
-  collections: GriffPropTypes.collections.isRequired,
   series: GriffPropTypes.multipleSeries.isRequired,
   updateDomains: GriffPropTypes.updateDomains.isRequired,
   width: PropTypes.number,
@@ -74,49 +72,6 @@ const renderXAxis = (position, xAxis, { xAxisPlacement }) => {
   return null;
 };
 
-const domainToString = domain => {
-  if (!domain) {
-    return 'undefined';
-  }
-  if (!Array.isArray(domain)) {
-    return 'not-an-array';
-  }
-  return `[${domain[0]},${domain[1]}]`;
-};
-
-const dataRange = item => {
-  const { data, timeAccessor } = item;
-  if (!data) {
-    return 'undefined';
-  }
-  if (!Array.isArray(data)) {
-    return 'not-an-array';
-  }
-  if (!timeAccessor) {
-    return 'inaccessible';
-  }
-  if (data.length === 0) {
-    return 'no-data';
-  }
-  return `[${timeAccessor(data[0])},${timeAccessor(data[data.length - 1])}]`;
-};
-
-// A helper function to provide checksum-ish hashes to React.useMemo so that we
-// can only recompute the domains when relevant information changes.
-const getDomainHashes = (...items) =>
-  items.map(itemGroup =>
-    itemGroup
-      .map(
-        item =>
-          `${item.id}: { data: { ${(item.data || []).length} [${dataRange(
-            item
-          )}] }, collectionId: ${item.collectionId}, yDomain: ${domainToString(
-            item.yDomain
-          )}, ySubDomain: ${domainToString(item.ySubDomain)} }`
-      )
-      .join(', ')
-  );
-
 const getYDomain = s => {
   if (!s.yDomain.placeholder) {
     return s.yDomain;
@@ -132,7 +87,6 @@ const getYDomain = s => {
 const ContextChart = ({
   annotations: propsAnnotations,
   height: propsHeight,
-  collections,
   series,
   updateDomains,
   width,
@@ -149,12 +103,7 @@ const ContextChart = ({
     // const scaled = series[seriesIndex];
     // const domain = reconciledDomains[scaled.id];
     const s = series[seriesIndex];
-    let domain = s.yDomain;
-    if (s.dataDomains && s.dataDomains.y) {
-      domain = s.dataDomains.y;
-    } else {
-      domain = s.yDomain;
-    }
+    const domain = getYDomain(s);
     return createYScale(domain, height);
   };
 

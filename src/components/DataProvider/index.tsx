@@ -4,7 +4,7 @@ import { calculateDomains, isEqual } from '../../utils/domains';
 import { deleteUndefinedFromObject } from '../../utils/cleaner';
 import { placeholder, withoutPlaceholder } from '../../utils/placeholder';
 import { LoaderResult, Domain, LoaderReason } from '../../external';
-import { MinimalSeries, ScaledSeries, ScaledCollection } from '../../internal';
+import { ScaledSeries, ScaledCollection } from '../../internal';
 import { debounce } from 'lodash';
 import { Props as ScalerProps } from '../Scaler';
 import Joiner from '../Joiner';
@@ -34,7 +34,7 @@ interface RequestRecord {
 }
 
 type FetchFunction = (
-  series: MinimalSeries,
+  series: ScaledSeries,
   reason: LoaderReason
 ) => Promise<void>;
 
@@ -58,7 +58,7 @@ class DataProvider extends React.Component<Props, State> {
   componentDidUpdate() {
     const { series } = this.props;
 
-    series.forEach((s: MinimalSeries) => {
+    series.forEach((s: ScaledSeries) => {
       const reason = this.getLoaderReason(s);
       if (reason) {
         let fetchFunction = this.fetchFunctionsById[s.id];
@@ -71,7 +71,7 @@ class DataProvider extends React.Component<Props, State> {
     });
   }
 
-  getLoaderReason = (series: MinimalSeries) => {
+  getLoaderReason = (series: ScaledSeries) => {
     if (!series.timeSubDomain) {
       // We don't have a timeSubDomain so there's nothing we can do.
       return null;
@@ -94,7 +94,7 @@ class DataProvider extends React.Component<Props, State> {
     return null;
   };
 
-  fetchData = () => async (series: MinimalSeries, reason: LoaderReason) => {
+  fetchData = () => async (series: ScaledSeries, reason: LoaderReason) => {
     const requestRecord: RequestRecord = this.inFlightRequestsById[series.id];
     if (requestRecord && Date.now() - requestRecord.timestamp < 250) {
       // Throttling!

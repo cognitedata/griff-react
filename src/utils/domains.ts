@@ -14,8 +14,12 @@ export const isEqual = (a: Domain, b: Domain): boolean => {
 
 export const copyDomain = (domain: Domain): Domain => {
   const copied: Domain = [domain[0], domain[1]];
-  copied.placeholder = domain.placeholder;
-  copied.calculated = domain.calculated;
+  if (domain.placeholder) {
+    copied.placeholder = true;
+  }
+  if (copied.calculated) {
+    copied.calculated = true;
+  }
   return copied;
 };
 
@@ -91,7 +95,6 @@ export const calculateDomains = (
     yExtent[0] = Math.min(yExtent[0], y, y0);
     yExtent[1] = Math.max(yExtent[1], y, y1);
   }
-
   return {
     time: calculated(withPadding(timeExtent)),
     x: calculated(withPadding(xExtent)),

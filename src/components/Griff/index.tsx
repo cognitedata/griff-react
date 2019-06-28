@@ -1,12 +1,7 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Scaler, { DomainsByItemId, OnDomainsUpdated } from '../Scaler';
-import {
-  Domain,
-  LoaderFunction,
-  Datapoint,
-  AccessorFunction,
-} from '../../external';
+import { Domain, LoaderFunction, Datapoint } from '../../external';
 import {
   IncomingCollection,
   IncomingSeries,
@@ -21,6 +16,7 @@ import SeriesJSX, { ItemProps } from '../Series';
 import { combineItems } from '../../utils/items';
 import { placeholder } from '../../utils/placeholder';
 import { AxisDisplayMode } from '../..';
+import { copyDomain } from '../../utils/domains';
 
 const deleteUndefinedFromItem = (obj: IncomingItem): IncomingItem => {
   return Object.keys(obj).reduce(
@@ -36,33 +32,24 @@ const deleteUndefinedFromItem = (obj: IncomingItem): IncomingItem => {
   );
 };
 
-const getTimeSubDomain = (
-  timeDomain: Domain,
-  timeSubDomain: Domain | undefined,
-  // eslint-disable-next-line no-shadow
-  limitTimeSubDomain = (timeSubDomain: Domain) => timeSubDomain
-) => {
-  if (!timeSubDomain) {
-    return timeDomain;
-  }
-  const newTimeSubDomain = limitTimeSubDomain(timeSubDomain);
-  const timeDomainLength = timeDomain[1] - timeDomain[0];
-  const timeSubDomainLength = newTimeSubDomain[1] - newTimeSubDomain[0];
-  if (timeDomainLength < timeSubDomainLength) {
-    return timeDomain;
-  }
-  if (newTimeSubDomain[0] < timeDomain[0]) {
-    return [timeDomain[0], timeDomain[0] + timeSubDomainLength];
-  }
-  if (newTimeSubDomain[1] > timeDomain[1]) {
-    return [timeDomain[1] - timeSubDomainLength, timeDomain[1]];
-  }
-  return newTimeSubDomain;
-};
-
 const DEFAULT_LOADER_FUNCTION: LoaderFunction = ({ reason, oldSeries }) => {
   console.warn(`Missing loader!`, reason, oldSeries);
   return Promise.resolve(oldSeries);
+};
+
+const MINIMUM_SPAN_MILLIS = 100;
+const DEFAULT_TIME_SUBDOMAIN_LIMITER: LimitTimeSubDomain = (
+  subDomain: Domain
+): Domain => {
+  const difference = subDomain[1] - subDomain[0];
+  if (difference < MINIMUM_SPAN_MILLIS) {
+    const padding = (MINIMUM_SPAN_MILLIS - difference) / 2;
+    const copy = copyDomain(subDomain);
+    copy[0] -= padding;
+    copy[1] += padding;
+    return copy;
+  }
+  return subDomain;
 };
 
 const DEFAULT_SERIES_CONFIG: BaseSeries = {
@@ -77,11 +64,11 @@ const DEFAULT_SERIES_CONFIG: BaseSeries = {
   // FIXME: I don't like this 0 thing.
   timeAccessor: (d: Datapoint) => d.timestamp || 0,
   xAccessor: (d: Datapoint) => d.x || 0,
-  x0Accessor: (d: Datapoint) => d.x || 0,
-  x1Accessor: (d: Datapoint) => d.x || 0,
+  x0Accessor: undefined,
+  x1Accessor: undefined,
   yAccessor: (d: Datapoint) => d.y || 0,
-  y0Accessor: (d: Datapoint) => d.y || 0,
-  y1Accessor: (d: Datapoint) => d.y || 0,
+  y0Accessor: undefined,
+  y1Accessor: undefined,
   timeDomain: placeholder(0, 0),
   timeSubDomain: undefined,
   xDomain: undefined,
@@ -91,7 +78,7 @@ const DEFAULT_SERIES_CONFIG: BaseSeries = {
   pointWidth: 6,
   strokeWidth: 1,
   yAxisDisplayMode: AxisDisplayMode.ALL,
-  pointsPerSeries: 500,
+  pointsPerSeries: 50,
 };
 
 export type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;
@@ -434,6 +421,7 @@ export default class Griff extends React.Component<Props, State> {
     const { children } = this.props;
 
     const context = {
+      limitTimeSubDomain: DEFAULT_TIME_SUBDOMAIN_LIMITER,
       series: this.getSeriesObjects(),
       collections: this.getCollectionObjects(),
 

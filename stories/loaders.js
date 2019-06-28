@@ -2,7 +2,7 @@ import { action } from '@storybook/addon-actions';
 
 const randomData = ({
   timeDomain,
-  n = 250,
+  n,
   singleValue = undefined,
   func = Math.random,
 }) => {
@@ -36,7 +36,7 @@ export const monoLoader = singleValue => ({
 export const staticLoader = ({
   id,
   timeDomain,
-  n = 250,
+  pointsPerSeries: n = 250,
   multiplier = 1,
   oldSeries,
   reason,

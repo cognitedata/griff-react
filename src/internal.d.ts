@@ -8,30 +8,6 @@ import {
 } from './external';
 import { AxisDisplayMode } from './utils/AxisDisplayMode';
 
-export interface Item {
-  id: ItemId;
-  color?: string;
-  hidden?: boolean;
-  drawPoints?: boolean | PointRenderer;
-  timeAccessor: AccessorFunction;
-  xAccessor: AccessorFunction;
-  x0Accessor: AccessorFunction;
-  x1Accessor: AccessorFunction;
-  yAccessor: AccessorFunction;
-  y0Accessor: AccessorFunction;
-  y1Accessor: AccessorFunction;
-  timeDomain: Domain;
-  timeSubDomain: Domain;
-  xDomain: Domain;
-  xSubDomain: Domain;
-  yDomain: Domain;
-  ySubDomain: Domain;
-  yAxisDisplayMode?: AxisDisplayMode;
-  pointWidth?: number;
-  pointsPerSeries?: number;
-  loader?: LoaderFunction;
-}
-
 export interface IncomingItem {
   id: ItemId;
   color?: string;
@@ -90,11 +66,7 @@ export interface BaseItem extends IncomingItem {
   drawPoints: boolean | PointRenderer;
   timeAccessor: AccessorFunction;
   xAccessor: AccessorFunction;
-  x0Accessor: AccessorFunction;
-  x1Accessor: AccessorFunction;
   yAccessor: AccessorFunction;
-  y0Accessor: AccessorFunction;
-  y1Accessor: AccessorFunction;
   yAxisDisplayMode: AxisDisplayMode;
   pointWidth: number;
   pointsPerSeries: number;
@@ -109,11 +81,7 @@ export interface BaseCollection extends IncomingCollection {
   drawPoints: boolean;
   timeAccessor: AccessorFunction;
   xAccessor: AccessorFunction;
-  x0Accessor: AccessorFunction;
-  x1Accessor: AccessorFunction;
   yAccessor: AccessorFunction;
-  y0Accessor: AccessorFunction;
-  y1Accessor: AccessorFunction;
   yAxisDisplayMode: AxisDisplayMode;
   pointWidth: number;
   pointsPerSeries: number;
@@ -138,11 +106,7 @@ export interface BaseSeries extends IncomingSeries {
   drawPoints: boolean;
   timeAccessor: AccessorFunction;
   xAccessor: AccessorFunction;
-  x0Accessor: AccessorFunction;
-  x1Accessor: AccessorFunction;
   yAccessor: AccessorFunction;
-  y0Accessor: AccessorFunction;
-  y1Accessor: AccessorFunction;
   yAxisDisplayMode: AxisDisplayMode;
   pointWidth: number;
   pointsPerSeries: number;
@@ -166,29 +130,4 @@ export interface DataSeries extends ScaledSeries {
   // These are guaranteed to be populated when it leaves the DataProvider.
   data: Datapoint[];
   dataDomains: DataDomains;
-}
-
-export interface MinimalSeries {
-  id: ItemId;
-  color: string;
-  hidden: boolean;
-  drawLines: boolean;
-  drawPoints: boolean;
-  timeAccessor: AccessorFunction;
-  xAccessor: AccessorFunction;
-  x0Accessor: AccessorFunction;
-  x1Accessor: AccessorFunction;
-  yAccessor: AccessorFunction;
-  y0Accessor: AccessorFunction;
-  y1Accessor: AccessorFunction;
-  timeDomain: Domain;
-  timeSubDomain: Domain;
-  xDomain: Domain;
-  xSubDomain: Domain;
-  yDomain: Domain;
-  ySubDomain: Domain;
-  yAxisDisplayMode: AxisDisplayMode;
-  pointWidth: number;
-  pointsPerSeries: number;
-  loader: LoaderFunction;
 }
