@@ -14,6 +14,7 @@ export interface IncomingItem {
   hidden?: boolean;
   drawLines?: boolean;
   drawPoints?: boolean | PointRenderer;
+  step?: boolean;
   strokeWidth?: number;
   opacity?: number;
   opacityAccessor?: AccessorFunction;
@@ -111,6 +112,7 @@ export interface BaseSeries extends IncomingSeries {
   pointWidth: number;
   pointsPerSeries: number;
   loader: LoaderFunction;
+  step: boolean;
 
   // Only timeDomain is guaranteed to exist when it enters the pipeline.
   timeDomain: Domain;

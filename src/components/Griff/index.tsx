@@ -60,6 +60,7 @@ const DEFAULT_SERIES_CONFIG: BaseSeries = {
   hidden: false,
   drawLines: true,
   drawPoints: false,
+  step: false,
   loader: DEFAULT_LOADER_FUNCTION,
   // FIXME: I don't like this 0 thing.
   timeAccessor: (d: Datapoint) => d.timestamp || 0,
