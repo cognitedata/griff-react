@@ -2,7 +2,7 @@ import { action } from '@storybook/addon-actions';
 
 const randomData = ({
   timeDomain,
-  n,
+  n = 1,
   singleValue = undefined,
   func = Math.random,
 }) => {
