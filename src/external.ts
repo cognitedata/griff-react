@@ -1,11 +1,21 @@
-import { Item, DataSeries, ScaledCollection } from './internal';
-import { LoaderReason } from './components/DataProvider';
+import { DataSeries, ScaledCollection } from './internal';
 
 export * from './components/AxisPlacement';
+
+export enum DomainPriority {
+  PLACEHOLDER,
+  CALCULATED,
+  GRIFF,
+  COLLECTION,
+  SERIES,
+  USER_GENERATED,
+}
+
 export type Domain = [number, number] & {
-  placeholder?: boolean;
-  calculated?: boolean;
+  priority: DomainPriority;
 };
+
+export type BuildingDomain = [number, number] & { priority?: DomainPriority };
 
 export type ItemId = string | number;
 

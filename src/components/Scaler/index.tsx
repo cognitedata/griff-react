@@ -26,6 +26,8 @@ import {
   copyDomain,
   PLACEHOLDER_SUBDOMAIN,
   PLACEHOLDER_DOMAIN,
+  newDomain,
+  highestPriorityDomain,
 } from '../../utils/domains';
 
 export interface Props {
@@ -72,20 +74,6 @@ type DomainAxis = 'time' | 'x' | 'y';
 // subdomain), consider it to be attached to the leading edge of the timeDomain.
 const FRONT_OF_WINDOW_THRESHOLD = 0.02;
 
-export const firstResolvedDomain = (
-  domain: Domain | undefined,
-  // tslint:disable-next-line
-  ...domains: (undefined | Domain)[]
-): Domain | undefined => {
-  if (domain && domain.placeholder !== true) {
-    return [...domain] as Domain;
-  }
-  if (domains.length === 0) {
-    return undefined;
-  }
-  return firstResolvedDomain(domains[0], ...(domains.splice(1) as Domain[]));
-};
-
 const getDomain = (series: ScaledSeries, axis: 'time' | 'x' | 'y') => {
   switch (String(axis)) {
     case 'time':
@@ -113,14 +101,11 @@ const getSubDomain = (series: ScaledSeries, axis: 'time' | 'x' | 'y') => {
 };
 
 const getLimitedSubDomain = (subDomain: Domain, domain: Domain): Domain => {
-  const sub: Domain = [
+  return newDomain(
     Math.max(subDomain[0], domain[0]),
     Math.min(subDomain[1], domain[1]),
-  ];
-  if (subDomain.placeholder) {
-    sub.placeholder = true;
-  }
-  return sub;
+    subDomain.priority
+  );
 };
 
 /**
@@ -160,7 +145,7 @@ class Scaler extends React.Component<Props, State> {
 
   fetchInterval?: NodeJS.Timeout;
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdateNope(prevProps: Props) {
     // We need to find when a Series' defined subDomains change because
     // then the state needs to be updated.
 
@@ -280,7 +265,7 @@ class Scaler extends React.Component<Props, State> {
         timeSubDomain ||
         placeholder(0, Number.MAX_SAFE_INTEGER);
 
-      return {
+      const withDomains = {
         ...s,
         timeSubDomain: getLimitedSubDomain(newTimeSubDomain, newTimeDomain),
         xDomain: newXDomain,
@@ -298,6 +283,8 @@ class Scaler extends React.Component<Props, State> {
           newYDomain
         ),
       };
+      this.seriesById[id] = withDomains;
+      return withDomains;
     });
   };
 
@@ -462,14 +449,7 @@ class Scaler extends React.Component<Props, State> {
     mixedChangedDomainsById: DomainsByItemId,
     callback: OnDomainsUpdated
   ) => {
-    // FIXME: This is not multi-series aware.
-    let newTimeSubDomain = null;
-
-    const {
-      limitTimeSubDomain,
-      onUpdateDomains,
-      timeSubDomainChanged,
-    } = this.props;
+    const { limitTimeSubDomain, onUpdateDomains } = this.props;
     const { subDomainsByItemId } = this.state;
     const newSubDomains = { ...subDomainsByItemId };
 
@@ -504,9 +484,11 @@ class Scaler extends React.Component<Props, State> {
 
       Object.keys(changedDomainsById[itemId]).forEach(uncastAxis => {
         const axis: DomainAxis = uncastAxis as DomainAxis;
+        const changedDomains = changedDomainsById[itemId];
+        // There's no guarantee that this exists
+        const subDomains = subDomainsByItemId[itemId] || {};
         let newSubDomain =
-          changedDomainsById[itemId][axis] ||
-          subDomainsByItemId[itemId][axis] ||
+          highestPriorityDomain(changedDomains[axis], subDomains[axis]) ||
           placeholder(0, 0);
         if (axis === String(Axes.time)) {
           if (limitTimeSubDomain) {
@@ -525,21 +507,27 @@ class Scaler extends React.Component<Props, State> {
         if (newSpan === existingSpan) {
           // This is a translation; check the bounds.
           if (newSubDomain[0] <= limits[0]) {
-            newSubDomain = [limits[0], limits[0] + newSpan];
+            newSubDomain = newDomain(
+              limits[0],
+              limits[0] + newSpan,
+              newSubDomain.priority
+            );
           }
           if (newSubDomain[1] >= limits[1]) {
-            newSubDomain = [limits[1] - newSpan, limits[1]];
+            newSubDomain = newDomain(
+              limits[1] - newSpan,
+              limits[1],
+              newSubDomain.priority
+            );
           }
         } else {
-          newSubDomain = [
+          newSubDomain = newDomain(
             Math.max(limits[0], newSubDomain[0]),
             Math.min(limits[1], newSubDomain[1]),
-          ];
+            newSubDomain.priority
+          );
         }
         newSubDomains[itemId][axis] = newSubDomain;
-        if (axis === String(Axes.time)) {
-          newTimeSubDomain = newSubDomain;
-        }
       });
     });
     // expose newSubDomains to DataProvider
@@ -550,9 +538,6 @@ class Scaler extends React.Component<Props, State> {
       { subDomainsByItemId: newSubDomains },
       callback ? () => callback(changedDomainsById) : undefined
     );
-    if (newTimeSubDomain) {
-      timeSubDomainChanged(newTimeSubDomain);
-    }
   };
 
   render() {

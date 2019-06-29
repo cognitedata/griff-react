@@ -1,13 +1,6 @@
 import { placeholder } from './placeholder';
-import { Domain, Datapoint } from '../external';
+import { Domain, Datapoint, DomainPriority } from '../external';
 import { ScaledSeries, DataDomains } from '../internal';
-
-export const PLACEHOLDER_DOMAIN = placeholder(
-  Number.MIN_SAFE_INTEGER,
-  Number.MAX_SAFE_INTEGER
-);
-
-export const PLACEHOLDER_SUBDOMAIN = placeholder(0, 0);
 
 export const isEqual = (a: Domain, b: Domain): boolean => {
   if (a === b) {
@@ -19,15 +12,19 @@ export const isEqual = (a: Domain, b: Domain): boolean => {
   return a[0] === b[0] && a[1] === b[1];
 };
 
+export const newDomain = (
+  start: number,
+  end: number,
+  priority: DomainPriority
+): Domain => {
+  const domain: [number, number] & { priority?: DomainPriority } = [start, end];
+  domain.priority = priority;
+  domain.toString = () => `[${start}, ${end}] (priority: ${priority})`;
+  return domain as Domain;
+};
+
 export const copyDomain = (domain: Domain): Domain => {
-  const copied: Domain = [domain[0], domain[1]];
-  if (domain.placeholder) {
-    copied.placeholder = true;
-  }
-  if (copied.calculated) {
-    copied.calculated = true;
-  }
-  return copied;
+  return newDomain(domain[0], domain[1], domain.priority);
 };
 
 export const copyDataDomains = ({ time, x, y }: DataDomains): DataDomains => ({
@@ -36,25 +33,46 @@ export const copyDataDomains = ({ time, x, y }: DataDomains): DataDomains => ({
   y: copyDomain(y),
 });
 
-const withPadding = (extent: Domain): Domain => {
+export const highestPriorityDomain = (
+  ...domains: Array<Domain | undefined>
+): Domain | undefined => {
+  // @ts-ignore - This is okay, TypeScript.
+  const filtered: Domain[] = domains.filter(domain => domain !== undefined);
+  if (filtered.length === 0) {
+    return undefined;
+  }
+
+  // Note that sort() updates the array (but also returns it) so filtered is
+  // also sorted by this. However, the returned variable is renamed in the
+  // interest of readability.
+  return filtered.sort((a: Domain, b: Domain) => {
+    return b.priority - a.priority;
+  })[0];
+};
+
+const withPadding = (extent: [number, number]): Domain => {
   const diff = extent[1] - extent[0];
   if (Math.abs(diff) < 1e-3) {
     if (extent[0] === 0) {
       // If 0 is the only value present in the series, hard code domain.
-      return [-0.25, 0.25];
+      return newDomain(-0.25, 0.25, DomainPriority.CALCULATED);
     }
     const domain = [(1 / 2) * extent[0], (3 / 2) * extent[0]];
     if (domain[1] < domain[0]) {
-      return [domain[1], domain[0]];
+      return newDomain(domain[1], domain[0], DomainPriority.CALCULATED);
     }
     // @ts-ignore - this is valid -- why are you complaining?
     return domain;
   }
-  return [extent[0] - diff * 0.025, extent[1] + diff * 0.025];
+  return newDomain(
+    extent[0] - diff * 0.025,
+    extent[1] + diff * 0.025,
+    DomainPriority.CALCULATED
+  );
 };
 
 export const calculated = (domain: Domain): Domain => {
-  domain.calculated = true;
+  domain.priority = DomainPriority.CALCULATED;
   return domain;
 };
 
@@ -81,9 +99,18 @@ export const calculateDomains = (
     };
   }
 
-  const timeExtent: Domain = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
-  const xExtent: Domain = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
-  const yExtent: Domain = [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER];
+  const timeExtent: [number, number] = [
+    Number.MAX_SAFE_INTEGER,
+    Number.MIN_SAFE_INTEGER,
+  ];
+  const xExtent: [number, number] = [
+    Number.MAX_SAFE_INTEGER,
+    Number.MIN_SAFE_INTEGER,
+  ];
+  const yExtent: [number, number] = [
+    Number.MAX_SAFE_INTEGER,
+    Number.MIN_SAFE_INTEGER,
+  ];
   for (let i = 0; i < data.length; i += 1) {
     const point = data[i];
     const time = timeAccessor(point);
@@ -108,3 +135,15 @@ export const calculateDomains = (
     y: calculated(withPadding(yExtent)),
   };
 };
+
+export const PLACEHOLDER_DOMAIN = newDomain(
+  Number.MIN_SAFE_INTEGER,
+  Number.MAX_SAFE_INTEGER,
+  DomainPriority.PLACEHOLDER
+);
+
+export const PLACEHOLDER_SUBDOMAIN = newDomain(
+  0,
+  0,
+  DomainPriority.PLACEHOLDER
+);

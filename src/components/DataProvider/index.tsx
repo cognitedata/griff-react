@@ -120,7 +120,7 @@ class DataProvider extends React.Component<Props, State> {
     };
 
     const loaderResult = await series.loader(params);
-    this.setState((state: State, props: Props) => {
+    this.setState((state: State) => {
       const domains = calculateDomains({ ...series, ...loaderResult });
       return {
         loaderResultsById: {
@@ -143,8 +143,8 @@ class DataProvider extends React.Component<Props, State> {
       const loaderResult = loaderResultsById[s.id] || {};
       const output = {
         dataDomains: DEFAULT_DATA_DOMAINS,
-        ...deleteUndefinedFromObject(loaderResult),
         ...s,
+        ...deleteUndefinedFromObject(loaderResult),
         data: loaderResult.data || s.data || [],
       };
       return output;

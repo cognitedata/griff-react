@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Domain } from '../../external';
+import { Domain, DomainPriority } from '../../external';
+import { newDomain } from '../../utils/domains';
 
 export type OnUpdateSelection = (domain: Domain) => void;
 
@@ -139,8 +140,9 @@ class Brush extends React.Component<Props, State> {
         });
         return;
       }
-      const newSelection: Domain = [selection[0], position];
-      onUpdateSelection(newSelection);
+      onUpdateSelection(
+        newDomain(selection[0], position, DomainPriority.USER_GENERATED)
+      );
     } else if (isDraggingHandleWest) {
       const position = e.nativeEvent.offsetX;
       const { selection } = this.props;
@@ -151,14 +153,19 @@ class Brush extends React.Component<Props, State> {
         });
         return;
       }
-      const newSelection: Domain = [position, selection[1]];
-      this.onUpdateSelection(newSelection);
+      this.onUpdateSelection(
+        newDomain(position, selection[1], DomainPriority.USER_GENERATED)
+      );
     } else if (isDraggingSelection) {
       const { selection, width } = this.props;
       const { dragStartSelection } = this.state;
       const position = e.nativeEvent.offsetX;
       const dx = position - (dragStartSelection || 0);
-      const newSelection: Domain = selection.map(d => d + dx) as Domain;
+      const newSelection: Domain = newDomain(
+        selection[0] + dx,
+        selection[1] + dx,
+        DomainPriority.USER_GENERATED
+      );
       if (newSelection[0] >= 0 && newSelection[1] <= width) {
         this.setState({
           dragStartSelection: position,

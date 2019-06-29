@@ -1,23 +1,28 @@
-import { Domain } from '../external';
+import { Domain, DomainPriority } from '../external';
+import { newDomain } from './domains';
 
 /**
  * Provide a placeholder domain so that we can test for validity later, but
  * it can be safely operated on like a real domain.
  */
-export const placeholder = (min: number, max: number): Domain => {
-  const domain: Domain = [min, max];
-  domain.placeholder = true;
-  return domain;
-};
+export const placeholder = (min: number, max: number): Domain =>
+  newDomain(min, max, DomainPriority.PLACEHOLDER);
 
 export const withoutPlaceholder = (
   ...domains: Array<Domain | undefined>
 ): Domain | undefined => {
-  for (let i = 0; i < domains.length; i += 1) {
-    const domain = domains[i];
-    if (domain && !domain.placeholder) {
-      return domain;
-    }
-  }
-  return undefined;
+  return domains
+    .sort((a: Domain | undefined, b: Domain | undefined) => {
+      if (a && b) {
+        return a.priority - b.priority;
+      }
+
+      if (a && !b) {
+        return 1;
+      } else if (!a && b) {
+        return -1;
+      }
+      return 0;
+    })
+    .find(domain => !!(domain && domain.priority > DomainPriority.PLACEHOLDER));
 };

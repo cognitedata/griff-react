@@ -12,6 +12,7 @@ import Axes from '../../utils/Axes';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 import { withDisplayName } from '../../utils/displayName';
 import { Context as GriffContext } from '../Griff';
+import { highestPriorityDomain } from '../../utils/domains';
 
 const propTypes = {
   height: PropTypes.number,
@@ -72,17 +73,7 @@ const renderXAxis = (position, xAxis, { xAxisPlacement }) => {
   return null;
 };
 
-const getYDomain = s => {
-  if (!s.yDomain.placeholder) {
-    return s.yDomain;
-  }
-
-  if (s.dataDomains && s.dataDomains.y) {
-    return s.dataDomains.y;
-  }
-
-  return s.yDomain;
-};
+const getYDomain = s => highestPriorityDomain(s.yDomain, s.dataDomains.y);
 
 const ContextChart = ({
   annotations: propsAnnotations,

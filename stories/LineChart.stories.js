@@ -603,13 +603,13 @@ storiesOf('LineChart', module)
 
       toggleTimeDomain = () => {
         const { timeDomain } = this.state;
-        const newDomain = isEqual(timeDomain, staticXDomain)
+        const d = isEqual(timeDomain, staticXDomain)
           ? [
               staticXDomain[0] - 100000000 * 50,
               staticXDomain[1] + 100000000 * 50,
             ]
           : staticXDomain;
-        this.setState({ timeDomain: newDomain });
+        this.setState({ timeDomain: d });
       };
 
       render() {
