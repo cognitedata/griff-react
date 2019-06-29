@@ -2,6 +2,13 @@ import { placeholder } from './placeholder';
 import { Domain, Datapoint } from '../external';
 import { ScaledSeries, DataDomains } from '../internal';
 
+export const PLACEHOLDER_DOMAIN = placeholder(
+  Number.MIN_SAFE_INTEGER,
+  Number.MAX_SAFE_INTEGER
+);
+
+export const PLACEHOLDER_SUBDOMAIN = placeholder(0, 0);
+
 export const isEqual = (a: Domain, b: Domain): boolean => {
   if (a === b) {
     return true;

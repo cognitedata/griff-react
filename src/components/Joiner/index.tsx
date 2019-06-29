@@ -7,20 +7,17 @@ import {
 } from '../../internal';
 import { Props as DataProviderProps } from '../DataProvider';
 import { GriffContext } from '../..';
-import { withoutPlaceholder, placeholder } from '../../utils/placeholder';
-import { copyDomain, copyDataDomains } from '../../utils/domains';
+import { withoutPlaceholder } from '../../utils/placeholder';
+import {
+  copyDomain,
+  copyDataDomains,
+  PLACEHOLDER_SUBDOMAIN,
+} from '../../utils/domains';
 
 export interface Props extends DataProviderProps {
   series: DataSeries[];
   collections: ScaledCollection[];
 }
-
-const PLACEHOLDER_DOMAIN = placeholder(
-  Number.MIN_SAFE_INTEGER,
-  Number.MAX_SAFE_INTEGER
-);
-
-const PLACEHOLDER_SUBDOMAIN = placeholder(0, 0);
 
 const Joiner: React.FunctionComponent<Props> = (props: Props) => {
   const { children, series, collections, ...rest } = props;
@@ -49,6 +46,48 @@ const Joiner: React.FunctionComponent<Props> = (props: Props) => {
     seriesById[s.id] = joined;
     if (s.collectionId) {
       const collection = collectionsById[s.collectionId];
+
+      if (collection.timeDomain.placeholder) {
+        // We replace the placeholder one with the one from the first series.
+        collection.timeDomain = copyDomain(joined.timeDomain);
+      } else {
+        collection.timeDomain[0] = Math.min(
+          collection.timeDomain[0],
+          joined.timeDomain[0]
+        );
+        collection.timeDomain[1] = Math.max(
+          collection.timeDomain[1],
+          joined.timeDomain[1]
+        );
+      }
+
+      if (collection.xDomain.placeholder) {
+        // We replace the placeholder one with the one from the first series.
+        collection.xDomain = copyDomain(joined.xDomain);
+      } else {
+        collection.xDomain[0] = Math.min(
+          collection.xDomain[0],
+          joined.xDomain[0]
+        );
+        collection.xDomain[1] = Math.max(
+          collection.xDomain[1],
+          joined.xDomain[1]
+        );
+      }
+
+      if (collection.yDomain.placeholder) {
+        // We replace the placeholder one with the one from the first series.
+        collection.yDomain = copyDomain(joined.yDomain);
+      } else {
+        collection.yDomain[0] = Math.min(
+          collection.yDomain[0],
+          joined.yDomain[0]
+        );
+        collection.yDomain[1] = Math.max(
+          collection.yDomain[1],
+          joined.yDomain[1]
+        );
+      }
 
       if (collection.timeSubDomain.placeholder) {
         // We replace the placeholder one with the one from the first series.
@@ -84,7 +123,13 @@ const Joiner: React.FunctionComponent<Props> = (props: Props) => {
       } else {
         collection.ySubDomain[0] = Math.min(
           collection.ySubDomain[0],
-          joined.ySubDomain[0]
+          joined.ySubDomain[0],
+          !collection.yDomain.placeholder
+            ? collection.yDomain[0]
+            : Number.MAX_SAFE_INTEGER,
+          !joined.yDomain.placeholder
+            ? joined.yDomain[0]
+            : Number.MAX_SAFE_INTEGER
         );
         collection.ySubDomain[1] = Math.max(
           collection.ySubDomain[1],

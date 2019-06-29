@@ -20,8 +20,13 @@ import {
   ScaledCollection,
 } from '../../internal';
 import { DataProvider } from '../..';
-import { placeholder } from '../../utils/placeholder';
-import { isEqual } from '../../utils/domains';
+import { placeholder, withoutPlaceholder } from '../../utils/placeholder';
+import {
+  isEqual,
+  copyDomain,
+  PLACEHOLDER_SUBDOMAIN,
+  PLACEHOLDER_DOMAIN,
+} from '../../utils/domains';
 
 export interface Props {
   timeSubDomainChanged: OnTimeSubDomainChanged;
@@ -296,7 +301,23 @@ class Scaler extends React.Component<Props, State> {
     });
   };
 
-  getCollectionsWithDomains = (series: ScaledSeries[]): ScaledCollection[] => {
+  getCollectionsWithDomains = (): ScaledCollection[] => {
+    const { collections } = this.props;
+    return collections.map(c => ({
+      ...c,
+      timeSubDomain:
+        withoutPlaceholder(c.timeSubDomain, c.timeDomain) ||
+        PLACEHOLDER_SUBDOMAIN,
+      xDomain: withoutPlaceholder(c.xDomain) || PLACEHOLDER_DOMAIN,
+      xSubDomain: withoutPlaceholder(c.xSubDomain) || PLACEHOLDER_SUBDOMAIN,
+      yDomain: withoutPlaceholder(c.yDomain) || PLACEHOLDER_DOMAIN,
+      ySubDomain: withoutPlaceholder(c.ySubDomain) || PLACEHOLDER_SUBDOMAIN,
+    }));
+  };
+
+  getCollectionsWithDomainsOld = (
+    series: ScaledSeries[]
+  ): ScaledCollection[] => {
     const { collections } = this.props;
     if (collections.length === 0) {
       return [];
@@ -329,18 +350,18 @@ class Scaler extends React.Component<Props, State> {
       let skip = false;
       if (!domains) {
         collectionDomainsById[s.collectionId] = {
-          time: s.timeDomain,
-          x: s.xDomain,
-          y: s.yDomain,
+          time: copyDomain(s.timeDomain),
+          x: copyDomain(s.xDomain),
+          y: copyDomain(s.yDomain),
         };
         skip = true;
       }
 
       if (!subDomains) {
         collectionSubDomainsById[s.collectionId] = {
-          time: s.timeSubDomain,
-          x: s.xSubDomain,
-          y: s.ySubDomain,
+          time: copyDomain(s.timeSubDomain),
+          x: copyDomain(s.xSubDomain),
+          y: copyDomain(s.ySubDomain),
         };
         skip = true;
       }
@@ -543,44 +564,20 @@ class Scaler extends React.Component<Props, State> {
 
     // Next, we need to do another pass in order to find the domains for any
     // collections which may be present.
-    const collectionsWithDomains = this.getCollectionsWithDomains(
-      seriesWithDomains
-    );
+    const collectionsWithDomains = this.getCollectionsWithDomains();
 
-    // Stash these on the object so that they can be quickly fetched elsewhere.
-    this.collectionsById = collectionsWithDomains.reduce(
-      (acc, c) => ({ ...acc, [c.id]: c }),
-      {}
-    );
-
-    // Now the valid collections have domains -- loop over them and assign the
-    // domains to their collected series.
-    const seriesWithCollectedDomains = this.getSeriesWithCollectedDomains(
-      seriesWithDomains
-    );
-
-    seriesWithCollectedDomains.forEach(s => {
-      this.seriesById[s.id] = s;
-      if (s.collectionId) {
-        if (!this.seriesByCollectionId[s.collectionId]) {
-          this.seriesByCollectionId[s.collectionId] = [];
-        }
-        this.seriesByCollectionId[s.collectionId].push(s.id);
-      }
-    });
-
-    const newContext = {
+    const context = {
       ...this.props,
 
       collections: collectionsWithDomains,
       collectionsById: this.collectionsById,
-      series: seriesWithCollectedDomains,
+      series: seriesWithDomains,
       seriesById: this.seriesById,
 
       updateDomains: this.updateDomains,
     };
 
-    return <DataProvider {...newContext}>{children}</DataProvider>;
+    return <DataProvider {...context}>{children}</DataProvider>;
   }
 }
 

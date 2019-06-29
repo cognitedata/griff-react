@@ -91,44 +91,122 @@ storiesOf('Griff/collections', module)
     </Griff>
   ))
   .add('Data Domains', () => (
-    <Griff loader={staticLoader} timeDomain={timeDomain}>
-      <Collection id="all" color="red">
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" yAccessor={d => +d.y + 2} />
-      </Collection>
-      <LineChart height={CHART_HEIGHT} />
-      <GriffDebugger />
-    </Griff>
+    <React.Fragment>
+      <p>
+        This collection should all have y-subdomain from <code>[2, 3]</code>
+      </p>
+      <Griff loader={staticLoader} timeDomain={timeDomain}>
+        <Collection id="all" color="red" yAccessor={d => +d.y + 2}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
+        </Collection>
+        <LineChart height={CHART_HEIGHT} />
+        <GriffDebugger />
+      </Griff>
+      <p>
+        This collection should all have y-subdomain from <code>[0, 3]</code>
+      </p>
+      <Griff loader={staticLoader} timeDomain={timeDomain}>
+        <Collection id="all" color="red">
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" yAccessor={d => +d.y + 2} />
+        </Collection>
+        <LineChart height={CHART_HEIGHT} />
+        <GriffDebugger />
+      </Griff>
+    </React.Fragment>
   ))
   .add('Domains', () => (
-    <Griff loader={staticLoader} timeDomain={timeDomain}>
-      <Collection id="all" color="red">
-        <Series id="1" color="steelblue" />
-        <Series
-          id="2"
-          color="maroon"
-          yAccessor={d => +d.y + 2}
-          yDomain={[0, 10]}
-        />
-      </Collection>
-      <LineChart height={CHART_HEIGHT} />
-      <GriffDebugger />
-    </Griff>
+    <React.Fragment>
+      <p>
+        The collections should all have y-domains from <code>[-10, 10]</code>
+      </p>
+      <Griff loader={staticLoader} timeDomain={timeDomain}>
+        <Collection id="all" color="red">
+          <Series id="1" color="steelblue" />
+          <Series
+            id="2"
+            color="maroon"
+            yAccessor={d => +d.y + 2}
+            yDomain={[-10, 10]}
+          />
+        </Collection>
+        <LineChart height={CHART_HEIGHT} />
+        <GriffDebugger />
+      </Griff>
+      <Griff loader={staticLoader} timeDomain={timeDomain}>
+        <Collection id="all" color="red" yDomain={[-5, 5]}>
+          <Series id="1" color="steelblue" />
+          <Series
+            id="2"
+            color="maroon"
+            yAccessor={d => +d.y + 2}
+            yDomain={[-10, 10]}
+          />
+        </Collection>
+        <LineChart height={CHART_HEIGHT} />
+        <GriffDebugger />
+      </Griff>
+      <Griff loader={staticLoader} timeDomain={timeDomain}>
+        <Collection id="all" color="red" yDomain={[-10, 10]}>
+          <Series id="1" color="steelblue" />
+          <Series
+            id="2"
+            color="maroon"
+            yAccessor={d => +d.y + 2}
+            yDomain={[2, 3]}
+          />
+        </Collection>
+        <LineChart height={CHART_HEIGHT} />
+        <GriffDebugger />
+      </Griff>
+    </React.Fragment>
   ))
   .add('Subdomains', () => (
-    <Griff loader={staticLoader} timeDomain={timeDomain}>
-      <Collection id="all" color="red">
-        <Series id="1" color="steelblue" />
-        <Series
-          id="2"
-          color="maroon"
-          yAccessor={d => +d.y + 2}
-          ySubDomain={[0, 10]}
-        />
-      </Collection>
-      <LineChart height={CHART_HEIGHT} />
-      <GriffDebugger />
-    </Griff>
+    <React.Fragment>
+      <p>
+        The collections should all have y-subdomains from <code>[-10, 10]</code>
+      </p>
+      <Griff loader={staticLoader} timeDomain={timeDomain}>
+        <Collection id="all" color="red">
+          <Series id="1" color="steelblue" />
+          <Series
+            id="2"
+            color="maroon"
+            yAccessor={d => +d.y + 2}
+            ySubDomain={[-10, 10]}
+          />
+        </Collection>
+        <LineChart height={CHART_HEIGHT} />
+        <GriffDebugger />
+      </Griff>
+      <Griff loader={staticLoader} timeDomain={timeDomain}>
+        <Collection id="all" color="red" ySubDomain={[-5, 5]}>
+          <Series id="1" color="steelblue" />
+          <Series
+            id="2"
+            color="maroon"
+            yAccessor={d => +d.y + 2}
+            ySubDomain={[-10, 10]}
+          />
+        </Collection>
+        <LineChart height={CHART_HEIGHT} />
+        <GriffDebugger />
+      </Griff>
+      <Griff loader={staticLoader} timeDomain={timeDomain}>
+        <Collection id="all" color="red" ySubDomain={[-10, 10]}>
+          <Series id="1" color="steelblue" />
+          <Series
+            id="2"
+            color="maroon"
+            yAccessor={d => +d.y + 2}
+            ySubDomain={[2, 3]}
+          />
+        </Collection>
+        <LineChart height={CHART_HEIGHT} />
+        <GriffDebugger />
+      </Griff>
+    </React.Fragment>
   ))
   .add('Both domain and subdomain', () => (
     <Griff loader={staticLoader} timeDomain={timeDomain}>

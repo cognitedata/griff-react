@@ -444,7 +444,7 @@ export default class Griff extends React.Component<Props, State> {
 }
 
 // @ts-ignore
-Griff.propTypes = {
+Griff.propTypes1 = {
   /**
    * A custom renderer for data points.
    *
@@ -527,7 +527,7 @@ Griff.propTypes = {
 };
 
 // @ts-ignore
-Griff.defaultProps = {
+Griff.defaultProps1 = {
   loader: undefined,
   drawPoints: undefined,
   drawLines: undefined,
