@@ -71,16 +71,22 @@ type DomainAxis = 'time' | 'x' | 'y';
 // subdomain), consider it to be attached to the leading edge of the timeDomain.
 const FRONT_OF_WINDOW_THRESHOLD = 0.02;
 
-const getDomain = (series: ScaledSeries, axis: 'time' | 'x' | 'y') => {
+const getDomain = (
+  item: ScaledSeries | ScaledCollection | undefined,
+  axis: 'time' | 'x' | 'y'
+): Domain | undefined => {
+  if (!item) {
+    return undefined;
+  }
   switch (String(axis)) {
     case 'time':
-      return series.timeDomain;
+      return item.timeDomain;
     case 'x':
-      return series.xDomain;
+      return item.xDomain;
     case 'y':
-      return series.yDomain;
+      return item.yDomain;
     default:
-      return null;
+      return undefined;
   }
 };
 
@@ -209,16 +215,20 @@ class Scaler extends React.Component<Props, State> {
 
   getCollectionsWithDomains = (): ScaledCollection[] => {
     const { collections } = this.props;
-    return collections.map(c => ({
-      ...c,
-      timeSubDomain:
-        withoutPlaceholder(c.timeSubDomain, c.timeDomain) ||
-        PLACEHOLDER_SUBDOMAIN,
-      xDomain: withoutPlaceholder(c.xDomain) || PLACEHOLDER_DOMAIN,
-      xSubDomain: withoutPlaceholder(c.xSubDomain) || PLACEHOLDER_SUBDOMAIN,
-      yDomain: withoutPlaceholder(c.yDomain) || PLACEHOLDER_DOMAIN,
-      ySubDomain: withoutPlaceholder(c.ySubDomain) || PLACEHOLDER_SUBDOMAIN,
-    }));
+    return collections.map(c => {
+      const withDomains = {
+        ...c,
+        timeSubDomain:
+          withoutPlaceholder(c.timeSubDomain, c.timeDomain) ||
+          PLACEHOLDER_SUBDOMAIN,
+        xDomain: withoutPlaceholder(c.xDomain) || PLACEHOLDER_DOMAIN,
+        xSubDomain: withoutPlaceholder(c.xSubDomain) || PLACEHOLDER_SUBDOMAIN,
+        yDomain: withoutPlaceholder(c.yDomain) || PLACEHOLDER_DOMAIN,
+        ySubDomain: withoutPlaceholder(c.ySubDomain) || PLACEHOLDER_SUBDOMAIN,
+      };
+      this.collectionsById[c.id] = withDomains;
+      return withDomains;
+    });
   };
 
   /**
@@ -293,7 +303,12 @@ class Scaler extends React.Component<Props, State> {
         const existingSubDomain = getSubDomain(s, axis) || newSubDomain;
         const existingSpan = existingSubDomain[1] - existingSubDomain[0];
 
+        const collection = s.collectionId
+          ? this.collectionsById[s.collectionId]
+          : undefined;
+
         const limits =
+          getDomain(collection, axis) ||
           getDomain(s, axis) ||
           // Set a large range because this is a limiting range.
           placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
