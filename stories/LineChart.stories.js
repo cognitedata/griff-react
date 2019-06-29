@@ -4,7 +4,14 @@ import Select from 'react-select';
 import isEqual from 'lodash.isequal';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { Brush, Collection, Griff, LineChart, Series } from '../build/src';
+import {
+  Brush,
+  Collection,
+  Griff,
+  LineChart,
+  Series,
+  GriffContext,
+} from '../build/src';
 import quandlLoader from './quandlLoader';
 
 import {
@@ -13,6 +20,7 @@ import {
   customAccessorLoader,
   liveLoader,
 } from './loaders';
+import GriffDebugger from './GriffDebugger';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const liveXDomain = [Date.now() - 1000 * 30, Date.now()];
@@ -348,13 +356,22 @@ storiesOf('LineChart', module)
               <Series id="1" color="steelblue" hidden={hiddenSeries[1]} />
               <Series id="2" color="maroon" hidden={hiddenSeries[2]} />
               <LineChart height={CHART_HEIGHT} />
+              <GriffContext.Consumer>
+                {({ seriesById }) => (
+                  <div>
+                    {Object.keys(seriesById).map(id => (
+                      <button
+                        key={`show-hide-${id}`}
+                        type="button"
+                        onClick={() => this.toggleHide(id)}
+                      >
+                        {seriesById[id].hidden ? 'Show' : 'Hide'} series {id}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </GriffContext.Consumer>
             </Griff>
-            <button type="button" onClick={() => this.toggleHide(1)}>
-              Hide series 1
-            </button>
-            <button type="button" onClick={() => this.toggleHide(2)}>
-              Hide series 2
-            </button>
           </React.Fragment>
         );
       }

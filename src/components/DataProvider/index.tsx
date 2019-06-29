@@ -110,7 +110,17 @@ class DataProvider extends React.Component<Props, State> {
       timeDomain: series.timeDomain,
       timeSubDomain: series.timeSubDomain,
       pointsPerSeries: series.pointsPerSeries,
-      oldSeries: { data: [], ...series, ...previousResult },
+      oldSeries: {
+        data: [],
+        ...series,
+        timeDomain: undefined,
+        timeSubDomain: undefined,
+        xDomain: undefined,
+        xSubDomain: undefined,
+        yDomain: undefined,
+        ySubDomain: undefined,
+        ...previousResult,
+      },
       reason,
     };
 
