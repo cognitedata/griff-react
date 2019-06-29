@@ -277,52 +277,42 @@ storiesOf('LineChart', module)
     </Griff>
   ))
   .add('min/max', () => {
-    const y0Accessor = d => d.value - 0.5;
-    const y1Accessor = d => d.value + 0.5;
+    const y0Accessor = d => d.y - 0.5;
+    const y1Accessor = d => d.y + 0.5;
     return (
-      <Griff loader={staticLoader} timeDomain={staticXDomain}>
-        <Series
-          id="1"
-          color="steelblue"
-          y0Accessor={y0Accessor}
-          y1Accessor={y1Accessor}
-        />
-        <Series id="2" color="maroon" />
-        <LineChart height={CHART_HEIGHT} />
-      </Griff>
-    );
-  })
-  .add('min/max (step series)', () => {
-    const y0Accessor = d => d.value - 0.5;
-    const y1Accessor = d => d.value + 0.5;
-    return (
-      <Griff loader={staticLoader} timeDomain={staticXDomain}>
-        <Series
-          id="1"
-          color="steelblue"
-          y0Accessor={y0Accessor}
-          y1Accessor={y1Accessor}
-          step
-        />
-        <Series id="2" color="maroon" step />
-        <LineChart height={CHART_HEIGHT} />
-      </Griff>
-    );
-  })
-  .add('min/max with raw points', () => {
-    const y0Accessor = d => d.value - 0.5;
-    const y1Accessor = d => d.value + 0.5;
-    return (
-      <Griff loader={staticLoader} timeDomain={staticXDomain}>
-        <Series
-          id="1"
-          color="steelblue"
-          y0Accessor={y0Accessor}
-          y1Accessor={y1Accessor}
-        />
-        <Series id="2" color="maroon" drawPoints />
-        <LineChart height={CHART_HEIGHT} />
-      </Griff>
+      <React.Fragment>
+        <Griff loader={staticLoader} timeDomain={staticXDomain}>
+          <Series
+            id="1"
+            color="steelblue"
+            y0Accessor={y0Accessor}
+            y1Accessor={y1Accessor}
+          />
+          <Series id="2" color="maroon" />
+          <LineChart height={CHART_HEIGHT} />
+        </Griff>
+        <Griff loader={staticLoader} timeDomain={staticXDomain}>
+          <Series
+            id="1"
+            color="steelblue"
+            y0Accessor={y0Accessor}
+            y1Accessor={y1Accessor}
+            step
+          />
+          <Series id="2" color="maroon" step />
+          <LineChart height={CHART_HEIGHT} />
+        </Griff>
+        <Griff loader={staticLoader} timeDomain={staticXDomain}>
+          <Series
+            id="1"
+            color="steelblue"
+            y0Accessor={y0Accessor}
+            y1Accessor={y1Accessor}
+          />
+          <Series id="2" color="maroon" drawPoints />
+          <LineChart height={CHART_HEIGHT} />
+        </Griff>
+      </React.Fragment>
     );
   })
   .add('Loading data from api', () => (
