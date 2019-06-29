@@ -15,15 +15,12 @@ import { Domain, ItemId } from '../../external';
 import {
   BaseSeries,
   BaseCollection,
-  BaseItem,
   ScaledSeries,
   ScaledCollection,
 } from '../../internal';
 import { DataProvider } from '../..';
 import { placeholder, withoutPlaceholder } from '../../utils/placeholder';
 import {
-  isEqual,
-  copyDomain,
   PLACEHOLDER_SUBDOMAIN,
   PLACEHOLDER_DOMAIN,
   newDomain,
@@ -145,90 +142,6 @@ class Scaler extends React.Component<Props, State> {
 
   fetchInterval?: NodeJS.Timeout;
 
-  componentDidUpdateNope(prevProps: Props) {
-    // We need to find when a Series' defined subDomains change because
-    // then the state needs to be updated.
-
-    const { series: prevSeries, collections: prevCollections } = prevProps;
-
-    const prevSeriesById: { [id: string]: BaseItem } = (prevCollections || [])
-      .concat(prevSeries)
-      .reduce((acc, s) => ({ ...acc, [s.id]: s }), {});
-
-    interface SubDomainChanges {
-      time?: boolean;
-      x?: boolean;
-      y?: boolean;
-    }
-
-    const changedSubDomainsById: {
-      [itemId: string]: SubDomainChanges;
-    } = {};
-    const { series, collections } = this.props;
-
-    let updateRequired = false;
-
-    const { subDomainsByItemId } = this.state;
-
-    const findChangedSubDomains = (item: BaseItem) => {
-      const p = prevSeriesById[item.id];
-
-      const changes: SubDomainChanges = {};
-      let changed = false;
-      if (p) {
-        const subDomains = subDomainsByItemId[item.id] || {};
-
-        if (
-          item.xSubDomain &&
-          p.xSubDomain &&
-          subDomains.x &&
-          !isEqual(item.xSubDomain, p.xSubDomain)
-        ) {
-          changes.x = true;
-          changed = true;
-        }
-        if (
-          item.ySubDomain &&
-          p.ySubDomain &&
-          subDomains.y &&
-          !isEqual(item.ySubDomain, p.ySubDomain)
-        ) {
-          changes.y = true;
-          changed = true;
-        }
-      }
-
-      changedSubDomainsById[item.id] = changes;
-      updateRequired = updateRequired || changed;
-    };
-
-    series.forEach(findChangedSubDomains);
-    collections.forEach(findChangedSubDomains);
-
-    if (updateRequired) {
-      this.setState(({ subDomainsByItemId }) => {
-        const newSubDomainsByItemId = Object.keys(changedSubDomainsById).reduce(
-          (acc, id) => {
-            const subDomains = { ...subDomainsByItemId[id] };
-            const changedSubDomains = changedSubDomainsById[id];
-
-            if (changedSubDomains.x) {
-              delete subDomains.x;
-            }
-
-            if (changedSubDomains.y) {
-              delete subDomains.y;
-            }
-
-            return { ...acc, [id]: subDomains };
-          },
-          {}
-        );
-        return { subDomainsByItemId: newSubDomainsByItemId };
-      });
-    }
-  }
-
   /**
    * Return an all of the series, with domains/subdomains guaranteed to be
    * populated, even if they're populated with placeholders.
@@ -284,6 +197,12 @@ class Scaler extends React.Component<Props, State> {
         ),
       };
       this.seriesById[id] = withDomains;
+      if (s.collectionId) {
+        if (!this.seriesByCollectionId[s.collectionId]) {
+          this.seriesByCollectionId[s.collectionId] = [];
+        }
+        this.seriesByCollectionId[s.collectionId].push(id);
+      }
       return withDomains;
     });
   };
@@ -300,131 +219,6 @@ class Scaler extends React.Component<Props, State> {
       yDomain: withoutPlaceholder(c.yDomain) || PLACEHOLDER_DOMAIN,
       ySubDomain: withoutPlaceholder(c.ySubDomain) || PLACEHOLDER_SUBDOMAIN,
     }));
-  };
-
-  getCollectionsWithDomainsOld = (
-    series: ScaledSeries[]
-  ): ScaledCollection[] => {
-    const { collections } = this.props;
-    if (collections.length === 0) {
-      return [];
-    }
-
-    // We can't store these in this.collectionsById because the collections
-    // have not been fully-resolved at this point in time and might have missing
-    // domains.
-    const collectionsById: {
-      [id: string]: ScaledCollection;
-    } = collections.reduce((acc, c) => ({ ...acc, [c.id]: c }), {});
-
-    const collectionDomainsById: PopulatedDomainsByItemId = {};
-    const collectionSubDomainsById: PopulatedDomainsByItemId = {};
-
-    series.forEach(s => {
-      if (!s.collectionId) {
-        return;
-      }
-
-      const c = collectionsById[s.collectionId];
-      if (!c) {
-        // This is pointing to a ficticious collection.
-        return;
-      }
-
-      const domains = collectionDomainsById[s.collectionId];
-      const subDomains = collectionSubDomainsById[s.collectionId];
-
-      let skip = false;
-      if (!domains) {
-        collectionDomainsById[s.collectionId] = {
-          time: copyDomain(s.timeDomain),
-          x: copyDomain(s.xDomain),
-          y: copyDomain(s.yDomain),
-        };
-        skip = true;
-      }
-
-      if (!subDomains) {
-        collectionSubDomainsById[s.collectionId] = {
-          time: copyDomain(s.timeSubDomain),
-          x: copyDomain(s.xSubDomain),
-          y: copyDomain(s.ySubDomain),
-        };
-        skip = true;
-      }
-
-      if (skip) {
-        // All done; we can skip to the next one.
-        return;
-      }
-
-      const collectionDomains = collectionDomainsById[s.collectionId];
-      collectionDomains.time[0] = Math.min(domains.time[0], s.timeDomain[0]);
-      collectionDomains.time[1] = Math.max(domains.time[1], s.timeDomain[1]);
-      collectionDomains.x[0] = Math.min(domains.x[0], s.xDomain[0]);
-      collectionDomains.x[1] = Math.max(domains.x[1], s.xDomain[1]);
-      collectionDomains.y[0] = Math.min(domains.y[0], s.yDomain[0]);
-      collectionDomains.y[1] = Math.max(domains.y[1], s.yDomain[1]);
-
-      const collectionSubDomains = collectionSubDomainsById[s.collectionId];
-      collectionSubDomains.time[0] = Math.min(
-        subDomains.time[0],
-        s.timeSubDomain[0]
-      );
-      collectionSubDomains.time[1] = Math.max(
-        subDomains.time[1],
-        s.timeSubDomain[1]
-      );
-      collectionSubDomains.x[0] = Math.min(subDomains.x[0], s.xSubDomain[0]);
-      collectionSubDomains.x[1] = Math.max(subDomains.x[1], s.xSubDomain[1]);
-      collectionSubDomains.y[0] = Math.min(subDomains.y[0], s.ySubDomain[0]);
-      collectionSubDomains.y[1] = Math.max(subDomains.y[1], s.ySubDomain[1]);
-    });
-
-    // Now we need to assemble the information we just computed!
-    return collections.reduce((acc, c) => {
-      const domains = collectionDomainsById[c.id];
-      const subDomains = collectionSubDomainsById[c.id];
-      if (!domains || !subDomains) {
-        // This represents a collection without any children.
-        return acc;
-      }
-
-      const scaledCollection: ScaledCollection = {
-        ...c,
-        timeDomain: domains.time,
-        xDomain: domains.x,
-        yDomain: domains.y,
-        timeSubDomain: subDomains.time,
-        xSubDomain: subDomains.x,
-        ySubDomain: subDomains.y,
-      };
-      return [...acc, scaledCollection];
-    }, new Array<ScaledCollection>());
-  };
-
-  getSeriesWithCollectedDomains = (series: ScaledSeries[]): ScaledSeries[] => {
-    return series.map(s => {
-      if (!s.collectionId) {
-        return s;
-      }
-
-      const collection = this.collectionsById[s.collectionId];
-      if (!collection) {
-        // This should never ever happen. But hey, solar flares ...
-        return s;
-      }
-
-      return {
-        ...s,
-        timeDomain: collection.timeDomain,
-        timeSubDomain: collection.timeSubDomain,
-        xDomain: collection.xDomain,
-        xSubDomain: collection.xSubDomain,
-        yDomain: collection.yDomain,
-        ySubDomain: collection.ySubDomain,
-      };
-    });
   };
 
   /**
