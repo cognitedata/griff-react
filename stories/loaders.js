@@ -2,7 +2,7 @@ import { action } from '@storybook/addon-actions';
 
 const randomData = ({
   timeDomain,
-  n = 1,
+  n = 250,
   singleValue = undefined,
   func = Math.random,
 }) => {
@@ -25,7 +25,7 @@ export const monoLoader = singleValue => ({
 }) => {
   if (reason === 'MOUNTED') {
     return {
-      data: randomData({ timeDomain, singleValue }),
+      data: randomData({ timeDomain, singleValue, n: 1 }),
     };
   }
   return {
@@ -87,7 +87,7 @@ export const liveLoader = ({ oldSeries, timeDomain, reason }) => {
 export const customAccessorLoader = ({ timeDomain, oldSeries, reason }) => {
   if (reason === 'MOUNTED') {
     return {
-      data: randomData({ timeDomain }).map(d => [d.timestamp, d.value]),
+      data: randomData({ timeDomain }).map(d => [d.timestamp, d.y]),
     };
   }
   return {
