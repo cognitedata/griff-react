@@ -29,7 +29,7 @@ export default async ({
   timeDomain,
   timeSubDomain,
   pointsPerSeries,
-  oldSeries,
+  oldSeries: { timeAccessor, data: oldData },
   reason,
 }) => {
   const granularity = calculateGranularity(timeSubDomain, pointsPerSeries);
@@ -50,35 +50,31 @@ export default async ({
   const { dataset } = result.data;
   let data = dataset.data.map(d => ({
     timestamp: +moment(d[0]),
-    value: d[1],
+    y: d[1],
   }));
-  if (reason === 'UPDATE_SUBDOMAIN') {
-    const oldData = [...oldSeries.data];
-    if (oldData.length > 0) {
-      const { xAccessor } = oldSeries;
-      const firstPoint = xAccessor(data[0]);
-      const lastPoint = xAccessor(data[data.length - 1]);
-      let insertionStart = 0;
-      let insertionEnd = oldData.length - 1;
+  if (oldData.length > 0) {
+    const firstPoint = timeAccessor(data[0]);
+    const lastPoint = timeAccessor(data[data.length - 1]);
+    let insertionStart = 0;
+    let insertionEnd = oldData.length - 1;
 
-      for (let idx = 1; idx < oldData.length; idx += 1) {
-        if (xAccessor(oldData[idx]) > firstPoint) {
-          insertionStart = idx - 1;
-          break;
-        }
+    for (let idx = 1; idx < oldData.length; idx += 1) {
+      if (timeAccessor(oldData[idx]) > firstPoint) {
+        insertionStart = idx - 1;
+        break;
       }
-      for (let idx = oldData.length - 2; idx > 0; idx -= 1) {
-        if (xAccessor(oldData[idx]) <= lastPoint) {
-          insertionEnd = idx + 1;
-          break;
-        }
-      }
-      data = [
-        ...oldData.slice(0, insertionStart),
-        ...data,
-        ...oldData.slice(insertionEnd),
-      ];
     }
+    for (let idx = oldData.length - 2; idx > 0; idx -= 1) {
+      if (timeAccessor(oldData[idx]) <= lastPoint) {
+        insertionEnd = idx + 1;
+        break;
+      }
+    }
+    data = [
+      ...oldData.slice(0, insertionStart),
+      ...data,
+      ...oldData.slice(insertionEnd),
+    ];
   }
   return { data, drawPoints: granularity === 'daily' };
 };

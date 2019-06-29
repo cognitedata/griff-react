@@ -105,7 +105,7 @@ export const functionLoader = func => ({ timeSubDomain, pointsPerSeries }) => {
   ) {
     data.push({
       timestamp,
-      value: func(timestamp),
+      y: func(timestamp),
     });
   }
   return { data };
