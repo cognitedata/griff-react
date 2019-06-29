@@ -15,7 +15,7 @@ import CollectionJSX from '../Collection';
 import SeriesJSX, { ItemProps } from '../Series';
 import { combineItems } from '../../utils/items';
 import { placeholder } from '../../utils/placeholder';
-import { AxisDisplayMode } from '../..';
+import { AxisDisplayMode, AxisPlacement } from '../..';
 import { copyDomain } from '../../utils/domains';
 
 const deleteUndefinedFromItem = (obj: IncomingItem): IncomingItem => {
@@ -78,8 +78,11 @@ const DEFAULT_SERIES_CONFIG: BaseSeries = {
   ySubDomain: undefined,
   pointWidth: 6,
   strokeWidth: 1,
+  yAxisPlacement: AxisPlacement.RIGHT,
   yAxisDisplayMode: AxisDisplayMode.ALL,
   pointsPerSeries: 50,
+  zoomable: true,
+  name: '',
 };
 
 export type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;

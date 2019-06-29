@@ -1,49 +1,14 @@
 import * as React from 'react';
-import {
-  ItemId,
-  AccessorFunction,
-  PointRenderer,
-  Domain,
-  LoaderFunction,
-} from '../../external';
+import { ItemId } from '../../external';
 import {
   Context as Griff,
   RegisterSeriesFunction,
   UpdateSeriesFunction,
 } from '../Griff';
-import { AxisPlacement } from '../AxisPlacement';
-import { AxisDisplayMode } from '../../utils/AxisDisplayMode';
 import { withDisplayName } from '../../utils/displayName';
+import { IncomingItem } from '../../internal';
 
-export interface ItemProps {
-  id: ItemId;
-  color?: string;
-  drawLines?: boolean;
-  drawPoints?: boolean | PointRenderer;
-  pointWidth?: number;
-  strokeWidth?: number;
-  hidden?: boolean;
-  loader?: LoaderFunction;
-  step?: boolean;
-  zoomable?: boolean;
-  name?: string;
-  timeAccessor?: AccessorFunction;
-  xAccessor?: AccessorFunction;
-  x0Accessor?: AccessorFunction;
-  x1Accessor?: AccessorFunction;
-  xDomain?: Domain;
-  xSubDomain?: Domain;
-  yAccessor?: AccessorFunction;
-  y0Accessor?: AccessorFunction;
-  y1Accessor?: AccessorFunction;
-  yDomain?: Domain;
-  ySubDomain?: Domain;
-  yAxisPlacement?: AxisPlacement;
-  yAxisDisplayMode?: AxisDisplayMode;
-  pointWidthAccessor?: AccessorFunction;
-  opacity?: number;
-  opacityAccessor?: AccessorFunction;
-}
+export interface ItemProps extends IncomingItem {}
 
 export const WATCHED_PROP_NAMES = [
   'color',
@@ -70,6 +35,7 @@ export const WATCHED_PROP_NAMES = [
   'pointWidthAccessor',
   'opacity',
   'opacityAccessor',
+  'zoomable',
 ];
 
 export interface Props extends ItemProps {

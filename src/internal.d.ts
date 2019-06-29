@@ -8,6 +8,8 @@ import {
 } from './external';
 import { AxisDisplayMode } from './utils/AxisDisplayMode';
 
+// If you add things to this, consider whether they should be added to the
+// WATCHED_PROP_NAMES array in the Series object!
 export interface IncomingItem {
   id: ItemId;
   color?: string;
@@ -15,11 +17,13 @@ export interface IncomingItem {
   drawLines?: boolean;
   drawPoints?: boolean | PointRenderer;
   step?: boolean;
+  name?: string;
   strokeWidth?: number;
   opacity?: number;
   opacityAccessor?: AccessorFunction;
   pointWidthAccessor?: AccessorFunction;
   timeAccessor?: AccessorFunction;
+  zoomable?: boolean;
   xAccessor?: AccessorFunction;
   x0Accessor?: AccessorFunction;
   x1Accessor?: AccessorFunction;
@@ -33,6 +37,7 @@ export interface IncomingItem {
   yDomain?: Domain;
   ySubDomain?: Domain;
   yAxisDisplayMode?: AxisDisplayMode;
+  yAxisPlacement?: AxisPlacement;
   pointWidth?: number;
   pointsPerSeries?: number;
   loader?: LoaderFunction;
@@ -71,6 +76,8 @@ export interface BaseItem extends IncomingItem {
   yAxisDisplayMode: AxisDisplayMode;
   pointWidth: number;
   pointsPerSeries: number;
+  zoomable: boolean;
+  name: string;
 
   timeDomain: Domain;
 }
