@@ -385,7 +385,7 @@ storiesOf('LineChart', module)
     class SpecifyDomain extends React.Component {
       state = { yDomains: {}, ySubDomains: {} };
 
-      setStaticDomain = key => {
+      toggleStaticDomain = key => {
         const { yDomains } = this.state;
         if (yDomains[key]) {
           const newYDomains = { ...yDomains };
@@ -398,7 +398,7 @@ storiesOf('LineChart', module)
         this.setState({ yDomains: { ...yDomains, [key]: staticDomain } });
       };
 
-      setStaticSubDomain = key => {
+      toggleStaticSubDomain = key => {
         const { ySubDomains } = this.state;
         if (ySubDomains[key]) {
           const newYSubDomains = { ...ySubDomains };
@@ -416,37 +416,48 @@ storiesOf('LineChart', module)
       render() {
         const { yDomains, ySubDomains } = this.state;
 
-        const isEnabled = domain => (domain ? '(enabled)' : '(disabled)');
-
         return (
           <React.Fragment>
             <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series
-                id="1"
+                id="steelblue"
                 color="steelblue"
-                yDomain={yDomains[1]}
-                ySubDomain={ySubDomains[1]}
+                yDomain={yDomains.steelblue}
+                ySubDomain={ySubDomains.steelblue}
               />
               <Series
-                id="2"
+                id="maroon"
                 color="maroon"
-                yDomain={yDomains[2]}
-                ySubDomain={ySubDomains[2]}
+                yDomain={yDomains.maroon}
+                ySubDomain={ySubDomains.maroon}
               />
               <LineChart height={CHART_HEIGHT} />
+              <GriffContext.Consumer>
+                {({ seriesById }) => (
+                  <div>
+                    {Object.keys(seriesById).map(id => (
+                      <React.Fragment>
+                        <button
+                          key={`domain-${id}`}
+                          type="button"
+                          onClick={() => this.toggleStaticDomain(id)}
+                        >
+                          {yDomains[id] ? 'Remove' : 'Add'} domain for {id}
+                        </button>
+                        <button
+                          key={`subdomain-${id}`}
+                          type="button"
+                          onClick={() => this.toggleStaticSubDomain(id)}
+                        >
+                          {ySubDomains[id] ? 'Remove' : 'Add'} subdomain for{' '}
+                          {id}
+                        </button>
+                      </React.Fragment>
+                    ))}
+                  </div>
+                )}
+              </GriffContext.Consumer>
             </Griff>
-            <button type="button" onClick={() => this.setStaticDomain(1)}>
-              Set blue domain {isEnabled(yDomains[1])}
-            </button>
-            <button type="button" onClick={() => this.setStaticSubDomain(1)}>
-              Set blue subdomain {isEnabled(ySubDomains[1])}
-            </button>
-            <button type="button" onClick={() => this.setStaticDomain(2)}>
-              Set maroon domain {isEnabled(yDomains[2])}
-            </button>
-            <button type="button" onClick={() => this.setStaticSubDomain(2)}>
-              Set maroon subdomain {isEnabled(ySubDomains[2])}
-            </button>
           </React.Fragment>
         );
       }
