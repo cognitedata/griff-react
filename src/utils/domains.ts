@@ -23,8 +23,11 @@ export const newDomain = (
   return domain as Domain;
 };
 
-export const copyDomain = (domain: Domain): Domain => {
-  return newDomain(domain[0], domain[1], domain.priority);
+export const copyDomain = (
+  domain: Domain,
+  priority?: DomainPriority
+): Domain => {
+  return newDomain(domain[0], domain[1], priority || domain.priority);
 };
 
 export const copyDataDomains = ({ time, x, y }: DataDomains): DataDomains => ({

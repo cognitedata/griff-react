@@ -769,13 +769,67 @@ storiesOf('LineChart', module)
     }
     return <CustomTimeSubDomain />;
   })
-  .add('Live loading', () => (
-    <Griff loader={liveLoader} timeDomain={liveXDomain} updateInterval={33}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <LineChart height={CHART_HEIGHT} />
-    </Griff>
-  ))
+  .add('Live loading', () => {
+    const INTERVALS = [0, 33, 500, 1000, 2000];
+    const randomInterval = () =>
+      INTERVALS[Math.floor(Math.random() * INTERVALS.length)];
+    class LiveLoadingStory extends React.Component {
+      state = {
+        intervals: {
+          steelblue: 2000, // randomInterval(),
+          maroon: 2000, // randomInterval(),
+        },
+      };
+
+      render() {
+        const { intervals } = this.state;
+        return (
+          <React.Fragment>
+            <div>
+              {Object.keys(intervals).map(id => (
+                <div style={{ display: 'flex', flexDirection: 'row' }}>
+                  <span>{id}</span>
+                  {INTERVALS.map(int => (
+                    <button
+                      key={`${id}-${int}`}
+                      type="button"
+                      onClick={() =>
+                        this.setState(state => ({
+                          intervals: {
+                            ...state.intervals,
+                            [id]: int,
+                          },
+                        }))
+                      }
+                      disabled={intervals[id] === int}
+                    >
+                      {int} milliseconds
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <Griff loader={liveLoader} timeDomain={liveXDomain}>
+              <Series
+                id="steelblue"
+                color="steelblue"
+                updateInterval={intervals.steelblue}
+              />
+              <Series
+                id="maroon"
+                color="maroon"
+                updateInterval={intervals.maroon}
+              />
+              <LineChart height={CHART_HEIGHT} />
+              <GriffDebugger />
+            </Griff>
+          </React.Fragment>
+        );
+      }
+    }
+
+    return <LiveLoadingStory />;
+  })
   .add('Live loading and ruler', () => (
     <div>
       <Griff loader={liveLoader} timeDomain={liveXDomain} updateInterval={33}>

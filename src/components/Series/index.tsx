@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ItemId } from '../../external';
+import { ItemId, DomainPriority } from '../../external';
 import {
   Context as Griff,
   RegisterSeriesFunction,
@@ -7,6 +7,7 @@ import {
 } from '../Griff';
 import { withDisplayName } from '../../utils/displayName';
 import { IncomingItem } from '../../internal';
+import { copyDomain } from '../../utils/domains';
 
 export interface ItemProps extends IncomingItem {}
 
@@ -14,27 +15,28 @@ export const WATCHED_PROP_NAMES = [
   'color',
   'drawLines',
   'drawPoints',
-  'pointWidth',
-  'strokeWidth',
   'hidden',
   'loader',
-  'step',
-  'zoomable',
   'name',
-  'timeAccessor',
-  'xAccessor',
-  'x0Accessor',
-  'x1Accessor',
-  'yAccessor',
-  'y0Accessor',
-  'y1Accessor',
-  'yDomain',
-  'ySubDomain',
-  'yAxisPlacement',
-  'yAxisDisplayMode',
-  'pointWidthAccessor',
   'opacity',
   'opacityAccessor',
+  'pointWidth',
+  'pointWidthAccessor',
+  'step',
+  'strokeWidth',
+  'timeAccessor',
+  'updateInterval',
+  'x0Accessor',
+  'x1Accessor',
+  'xAccessor',
+  'y0Accessor',
+  'y1Accessor',
+  'yAccessor',
+  'yAxisDisplayMode',
+  'yAxisPlacement',
+  'yDomain',
+  'ySubDomain',
+  'zoomable',
   'zoomable',
 ];
 

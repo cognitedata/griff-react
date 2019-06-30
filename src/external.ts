@@ -3,6 +3,7 @@ import { DataSeries, ScaledCollection } from './internal';
 export * from './components/AxisPlacement';
 
 export enum DomainPriority {
+  UNSPECIFIED,
   PLACEHOLDER,
   CALCULATED,
   GRIFF,

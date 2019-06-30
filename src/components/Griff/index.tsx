@@ -1,7 +1,12 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import Scaler, { DomainsByItemId, OnDomainsUpdated } from '../Scaler';
-import { Domain, LoaderFunction, Datapoint } from '../../external';
+import {
+  Domain,
+  LoaderFunction,
+  Datapoint,
+  DomainPriority,
+} from '../../external';
 import {
   IncomingCollection,
   IncomingSeries,
@@ -83,6 +88,7 @@ const DEFAULT_SERIES_CONFIG: BaseSeries = {
   pointsPerSeries: 50,
   zoomable: true,
   name: '',
+  updateInterval: 0,
 };
 
 export type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;
@@ -287,6 +293,7 @@ export default class Griff extends React.Component<Props, State> {
       pointWidthAccessor,
       timeDomain,
       timeSubDomain,
+      updateInterval,
     } = this.props;
     const { collectionsById, seriesById } = this.state;
     return Object.keys(seriesById).reduce((acc: BaseSeries[], id) => {
@@ -314,6 +321,7 @@ export default class Griff extends React.Component<Props, State> {
         xSubDomain,
         yDomain,
         ySubDomain,
+        updateInterval,
       };
       const collection: IncomingCollection =
         series.collectionId !== undefined
@@ -324,6 +332,10 @@ export default class Griff extends React.Component<Props, State> {
         dataProvider,
         collection,
         series
+      );
+      completedSeries.timeDomain = copyDomain(
+        completedSeries.timeDomain,
+        DomainPriority.GRIFF
       );
       return [...acc, completedSeries];
     }, []);

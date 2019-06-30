@@ -25,13 +25,13 @@ import {
   PLACEHOLDER_DOMAIN,
   newDomain,
   highestPriorityDomain,
+  copyDomain,
 } from '../../utils/domains';
 
 export interface Props {
   timeSubDomainChanged: OnTimeSubDomainChanged;
   limitTimeSubDomain?: LimitTimeSubDomain;
   onUpdateDomains?: OnUpdateDomains;
-  updateInterval?: number;
   children: JSX.Element | JSX.Element[];
 
   series: BaseSeries[];
@@ -58,9 +58,17 @@ export interface PopulatedDomainsByItemId {
   };
 }
 
+interface FetchIntervalRecord {
+  id: NodeJS.Timeout;
+  interval: number;
+}
+
 interface State {
   /** Subdomains of the items, according to the current state. */
   subDomainsByItemId: DomainsByItemId;
+
+  /** Domains of the items, according to the current state. */
+  domainsByItemId: DomainsByItemId;
 }
 
 export interface OnDomainsUpdated extends Function {}
@@ -133,20 +141,149 @@ class Scaler extends React.Component<Props, State> {
     limitTimeSubDomain: PropTypes.func,
     series: seriesPropType.isRequired,
     collections: GriffPropTypes.collections.isRequired,
-    updateInterval: PropTypes.number,
   };
 
   static defaultProps = {};
 
   state: State = {
     subDomainsByItemId: {},
+    domainsByItemId: {},
   };
+
+  fetchIntervals: { [seriesId: string]: FetchIntervalRecord } = {};
 
   seriesById: { [seriesId: string]: ScaledSeries } = {};
   collectionsById: { [collectionsId: string]: ScaledCollection } = {};
   seriesByCollectionId: { [collectionId: string]: ItemId[] } = {};
 
-  fetchInterval?: NodeJS.Timeout;
+  componentDidUpdate() {
+    const { series } = this.props;
+    series.forEach(s => {
+      // Update the domains/subdomains (if necessary).
+      const {
+        domainsByItemId: { [s.id]: domains },
+        subDomainsByItemId: { [s.id]: subDomains },
+      } = this.state;
+      if (!domains) {
+        this.setState((state: State) => ({
+          domainsByItemId: {
+            ...state.domainsByItemId,
+            [s.id]: {
+              time: copyDomain(s.timeDomain),
+              x: copyDomain(
+                withoutPlaceholder(s.xDomain) || PLACEHOLDER_DOMAIN
+              ),
+              y: copyDomain(
+                withoutPlaceholder(s.yDomain) || PLACEHOLDER_DOMAIN
+              ),
+            },
+          },
+        }));
+      }
+      if (!subDomains) {
+        this.setState((state: State) => ({
+          subDomainsByItemId: {
+            ...state.subDomainsByItemId,
+            [s.id]: {
+              time: copyDomain(
+                withoutPlaceholder(s.timeSubDomain) || s.timeDomain
+              ),
+              x: copyDomain(
+                withoutPlaceholder(s.xSubDomain) || PLACEHOLDER_SUBDOMAIN
+              ),
+              y: copyDomain(
+                withoutPlaceholder(s.ySubDomain) || PLACEHOLDER_SUBDOMAIN
+              ),
+            },
+          },
+        }));
+      }
+
+      // Update the live-loading information (if necessary).
+      const { [s.id]: fetchIntervalRecord } = this.fetchIntervals;
+      if (s.updateInterval) {
+        if (fetchIntervalRecord) {
+          if (s.updateInterval !== fetchIntervalRecord.interval) {
+            // The updateInterval changed; remove the old one.
+            clearInterval(fetchIntervalRecord.id);
+            delete this.fetchIntervals[s.id];
+            // Need to set a new one.
+            this.fetchIntervals[s.id] = this.scheduleUpdates(s);
+          } else {
+            // No-op -- the record is already up-to-date.
+          }
+        } else {
+          // Need to set a new one.
+          this.fetchIntervals[s.id] = this.scheduleUpdates(s);
+        }
+      } else {
+        if (fetchIntervalRecord) {
+          // The updateInterval was removed; clear the timeout.
+          clearInterval(fetchIntervalRecord.id);
+          delete this.fetchIntervals[s.id];
+        }
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    Object.keys(this.fetchIntervals)
+      .map(id => this.fetchIntervals[id])
+      .forEach(record => {
+        clearInterval(record.id);
+      });
+  }
+
+  scheduleUpdates = (series: BaseSeries): FetchIntervalRecord => {
+    const { updateInterval } = series;
+    if (!updateInterval) {
+      throw new Error('Invalid call path');
+    }
+
+    const advanceClock = () =>
+      this.setState(state => {
+        const {
+          subDomainsByItemId: { [series.id]: subDomains },
+          domainsByItemId: { [series.id]: domains },
+        } = state;
+
+        if (!domains) {
+          // I don't know what state we're in, but there's nothing we can do.
+          return null;
+        }
+
+        const newTimeDomain = copyDomain(domains.time);
+        newTimeDomain[0] += updateInterval;
+        newTimeDomain[1] += updateInterval;
+
+        const newTimeSubDomain = copyDomain(
+          subDomains ? subDomains.time : domains.time
+        );
+        newTimeSubDomain[0] += updateInterval;
+        newTimeSubDomain[1] += updateInterval;
+
+        return {
+          domainsByItemId: {
+            ...state.domainsByItemId,
+            [series.id]: {
+              ...state.domainsByItemId[series.id],
+              time: newTimeDomain,
+            },
+          },
+          subDomainsByItemId: {
+            ...state.subDomainsByItemId,
+            [series.id]: {
+              ...state.subDomainsByItemId[series.id],
+              time: newTimeSubDomain,
+            },
+          },
+        };
+      });
+    return {
+      id: setInterval(advanceClock, updateInterval),
+      interval: updateInterval,
+    };
+  };
 
   /**
    * Return an all of the series, with domains/subdomains guaranteed to be
@@ -155,7 +292,7 @@ class Scaler extends React.Component<Props, State> {
   getSeriesWithDomains = (): ScaledSeries[] => {
     const { series } = this.props;
 
-    const { subDomainsByItemId } = this.state;
+    const { domainsByItemId, subDomainsByItemId } = this.state;
 
     return series.map((s: BaseSeries) => {
       const {
@@ -168,10 +305,12 @@ class Scaler extends React.Component<Props, State> {
         ySubDomain,
       } = s;
 
+      const domains = domainsByItemId[id] || {};
       const subDomains = subDomainsByItemId[id] || {};
 
       const newTimeDomain =
-        timeDomain || placeholder(0, Number.MAX_SAFE_INTEGER);
+        highestPriorityDomain(domains.time, timeDomain) ||
+        placeholder(0, Number.MAX_SAFE_INTEGER);
       const newXDomain =
         xDomain ||
         placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
@@ -180,8 +319,7 @@ class Scaler extends React.Component<Props, State> {
         placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
 
       const newTimeSubDomain =
-        subDomains.time ||
-        timeSubDomain ||
+        highestPriorityDomain(subDomains.time, timeSubDomain) ||
         placeholder(0, Number.MAX_SAFE_INTEGER);
 
       const withDomains = {

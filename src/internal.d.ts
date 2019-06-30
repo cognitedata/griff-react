@@ -41,6 +41,7 @@ export interface IncomingItem {
   pointWidth?: number;
   pointsPerSeries?: number;
   loader?: LoaderFunction;
+  updateInterval?: number;
 }
 
 export interface IncomingCollection extends IncomingItem {}
@@ -78,6 +79,7 @@ export interface BaseItem extends IncomingItem {
   pointsPerSeries: number;
   zoomable: boolean;
   name: string;
+  updateInterval: number;
 
   timeDomain: Domain;
 }
@@ -85,6 +87,8 @@ export interface BaseItem extends IncomingItem {
 export interface BaseCollection extends IncomingCollection {
   color: string;
   hidden: boolean;
+  // TODO: Does it make sense to have this stuff? Collections don't have these
+  // for any purpose other than providing inheritance to its member Series ...
   drawLines: boolean;
   drawPoints: boolean;
   timeAccessor: AccessorFunction;
@@ -123,6 +127,7 @@ export interface BaseSeries extends IncomingSeries {
 
   // Only timeDomain is guaranteed to exist when it enters the pipeline.
   timeDomain: Domain;
+  updateInterval?: number;
 }
 
 export interface ScaledSeries extends BaseSeries {
