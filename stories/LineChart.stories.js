@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import moment from 'moment';
 import Select from 'react-select';
 import isEqual from 'lodash.isequal';
@@ -614,41 +615,62 @@ storiesOf('LineChart', module)
     return <ZoomToggle />;
   })
   .add('Dynamic time domain', () => {
+    const DOMAINS = {
+      small: {
+        timeDomain: [
+          +moment().subtract(2, 'years'),
+          +moment().subtract(1, 'years'),
+        ],
+        toString: () => 'small timespan',
+      },
+      large: {
+        timeDomain: [+moment().subtract(4, 'years'), +moment()],
+        toString: () => 'large timespan',
+      },
+    };
     class DynamicXDomain extends React.Component {
-      state = {
-        timeDomain: staticXDomain,
+      static propTypes = {
+        initialRange: PropTypes.oneOf(Object.keys(DOMAINS)).isRequired,
       };
 
-      toggleTimeDomain = () => {
-        const { timeDomain } = this.state;
-        const d = isEqual(timeDomain, staticXDomain)
-          ? [
-              staticXDomain[0] - 100000000 * 50,
-              staticXDomain[1] + 100000000 * 50,
-            ]
-          : staticXDomain;
-        this.setState({ timeDomain: d });
-      };
+      constructor(props) {
+        super(props);
+        this.state = {
+          range: props.initialRange,
+        };
+      }
 
       render() {
-        const { timeDomain } = this.state;
+        const { range } = this.state;
+        const { timeDomain } = DOMAINS[range];
         return (
           <div>
-            <button type="button" onClick={this.toggleTimeDomain}>
-              {isEqual(timeDomain, staticXDomain)
-                ? 'Shrink timeDomain'
-                : 'Reset base domain'}
-            </button>
+            {Object.keys(DOMAINS).map(key => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => this.setState({ range: key })}
+                disabled={key === range}
+                title={JSON.stringify(DOMAINS[key].timeDomain)}
+              >
+                {String(DOMAINS[key])}
+              </button>
+            ))}
             <Griff loader={staticLoader} timeDomain={timeDomain}>
               <Series id="1" color="steelblue" />
-              <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} />
+              <GriffDebugger />
             </Griff>
           </div>
         );
       }
     }
-    return <DynamicXDomain />;
+    return (
+      <React.Fragment>
+        <DynamicXDomain initialRange="large" />
+        <DynamicXDomain initialRange="small" />
+      </React.Fragment>
+    );
   })
   .add('ySubDomain', () => (
     <React.Fragment>
