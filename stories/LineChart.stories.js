@@ -1,3 +1,4 @@
+/* eslint-disable react/no-multi-comp */
 import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
@@ -27,13 +28,14 @@ const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const liveXDomain = [Date.now() - 1000 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
-/* eslint-disable react/no-multi-comp */
-storiesOf('LineChart', module)
-  .addDecorator(story => (
-    <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
-      {story()}
-    </div>
-  ))
+const withMargin = story => (
+  <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
+    {story()}
+  </div>
+);
+
+storiesOf('LineChart/series', module)
+  .addDecorator(withMargin)
   .add('Empty', () => (
     <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <LineChart height={CHART_HEIGHT} />
@@ -86,31 +88,6 @@ storiesOf('LineChart', module)
       <LineChart height={CHART_HEIGHT} />
     </Griff>
   ))
-  .add('Basic with yDomains', () => (
-    <Griff loader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" ySubDomain={[0, 5]} />
-      <Series id="2" color="maroon" ySubDomain={[-1, 1]} />
-      <LineChart height={CHART_HEIGHT} />
-    </Griff>
-  ))
-  .add('Custom tick formatting', () => (
-    <Griff loader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <LineChart
-        height={CHART_HEIGHT}
-        xAxisFormatter={n => n / 1000}
-        yAxisFormatter={n => n * 1000}
-      />
-    </Griff>
-  ))
-  .add('Custom # of y-axis ticks', () => (
-    <Griff loader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <LineChart height={CHART_HEIGHT} yAxisTicks={15} />
-    </Griff>
-  ))
   .add('Multiple', () => (
     <React.Fragment>
       <Griff loader={staticLoader} timeDomain={staticXDomain}>
@@ -132,16 +109,121 @@ storiesOf('LineChart', module)
       </Griff>
     </React.Fragment>
   ))
-  .add('Single-value in y axis', () => (
-    <React.Fragment>
-      <Griff timeDomain={staticXDomain}>
-        <Series id="1" color="steelblue" loader={monoLoader(0)} />
-        <Series id="2" color="maroon" loader={monoLoader(0.5)} />
-        <Series id="3" color="orange" loader={monoLoader(-0.5)} />
-        <LineChart height={CHART_HEIGHT} />
-      </Griff>
-    </React.Fragment>
+  .add('Hide series', () => {
+    class HiddenSeries extends React.Component {
+      state = { hiddenSeries: {} };
+
+      toggleHide = key => {
+        const { hiddenSeries } = this.state;
+        this.setState({
+          hiddenSeries: {
+            ...hiddenSeries,
+            [key]: !hiddenSeries[key],
+          },
+        });
+      };
+
+      render() {
+        const { hiddenSeries } = this.state;
+        return (
+          <React.Fragment>
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
+              <Series id="1" color="steelblue" hidden={hiddenSeries[1]} />
+              <Series id="2" color="maroon" hidden={hiddenSeries[2]} />
+              <LineChart height={CHART_HEIGHT} />
+              <GriffContext.Consumer>
+                {({ seriesById }) => (
+                  <div>
+                    {Object.keys(seriesById).map(id => (
+                      <button
+                        key={`show-hide-${id}`}
+                        type="button"
+                        onClick={() => this.toggleHide(id)}
+                      >
+                        {seriesById[id].hidden ? 'Show' : 'Hide'} series {id}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </GriffContext.Consumer>
+            </Griff>
+          </React.Fragment>
+        );
+      }
+    }
+    return <HiddenSeries />;
+  })
+  .add('Enable/disable series', () => {
+    const colors = {
+      'COM/COFFEE_BRZL': 'steelblue',
+      'COM/COFFEE_CLMB': 'maroon',
+    };
+    const options = [
+      { value: 'COM/COFFEE_BRZL', label: 'Brazil coffe price' },
+      { value: 'COM/COFFEE_CLMB', label: 'Columbia coffe price' },
+    ];
+
+    const xDomain = [+moment().subtract(10, 'year'), +moment()];
+
+    // eslint-disable-next-line
+    class EnableDisableSeries extends React.Component {
+      state = {
+        series: [options[0]],
+      };
+
+      onChangeSeries = series => this.setState({ series });
+
+      render() {
+        const { series } = this.state;
+        return (
+          <React.Fragment>
+            <Select
+              isMulti
+              value={series}
+              options={options}
+              onChange={this.onChangeSeries}
+              style={{ marginBottom: '15px' }}
+            />
+            <Griff
+              loader={quandlLoader}
+              pointsPerSeries={100}
+              timeDomain={xDomain}
+            >
+              {series.map(s => (
+                <Series key={s.value} id={s.value} color={colors[s.value]} />
+              ))}
+              <LineChart height={CHART_HEIGHT} />
+            </Griff>
+          </React.Fragment>
+        );
+      }
+    }
+    return <EnableDisableSeries />;
+  });
+
+storiesOf('LineChart/formatting', module)
+  .addDecorator(withMargin)
+  .add('Custom tick formatting', () => (
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
+      <LineChart
+        height={CHART_HEIGHT}
+        xAxisFormatter={n => n / 1000}
+        yAxisFormatter={n => n * 1000}
+      />
+    </Griff>
   ))
+  .add('Custom # of y-axis ticks', () => (
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
+      <LineChart height={CHART_HEIGHT} yAxisTicks={15} />
+    </Griff>
+  ));
+
+storiesOf('LineChart/sizing', module)
+  .addDecorator(withMargin)
   .add('Sized', () => (
     <div>
       <p>All of the components should be entirely contained in the red box</p>
@@ -272,7 +354,10 @@ storiesOf('LineChart', module)
       }
     }
     return <ResizingChart />;
-  })
+  });
+
+storiesOf('LineChart/data', module)
+  .addDecorator(withMargin)
   .add('Custom default accessors', () => (
     <Griff
       loader={customAccessorLoader}
@@ -285,45 +370,6 @@ storiesOf('LineChart', module)
       <LineChart height={CHART_HEIGHT} />
     </Griff>
   ))
-  .add('min/max', () => {
-    const y0Accessor = d => d.y - 0.5;
-    const y1Accessor = d => d.y + 0.5;
-    return (
-      <React.Fragment>
-        <Griff loader={staticLoader} timeDomain={staticXDomain}>
-          <Series
-            id="1"
-            color="steelblue"
-            y0Accessor={y0Accessor}
-            y1Accessor={y1Accessor}
-          />
-          <Series id="2" color="maroon" />
-          <LineChart height={CHART_HEIGHT} />
-        </Griff>
-        <Griff loader={staticLoader} timeDomain={staticXDomain}>
-          <Series
-            id="1"
-            color="steelblue"
-            y0Accessor={y0Accessor}
-            y1Accessor={y1Accessor}
-            step
-          />
-          <Series id="2" color="maroon" step />
-          <LineChart height={CHART_HEIGHT} />
-        </Griff>
-        <Griff loader={staticLoader} timeDomain={staticXDomain}>
-          <Series
-            id="1"
-            color="steelblue"
-            y0Accessor={y0Accessor}
-            y1Accessor={y1Accessor}
-          />
-          <Series id="2" color="maroon" drawPoints />
-          <LineChart height={CHART_HEIGHT} />
-        </Griff>
-      </React.Fragment>
-    );
-  })
   .add('Loading data from api', () => (
     <Griff
       loader={quandlLoader}
@@ -335,50 +381,19 @@ storiesOf('LineChart', module)
       <LineChart height={CHART_HEIGHT} />
     </Griff>
   ))
-  .add('Hide series', () => {
-    class HiddenSeries extends React.Component {
-      state = { hiddenSeries: {} };
+  .add('Single-value in y axis', () => (
+    <React.Fragment>
+      <Griff timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" loader={monoLoader(0)} />
+        <Series id="2" color="maroon" loader={monoLoader(0.5)} />
+        <Series id="3" color="orange" loader={monoLoader(-0.5)} />
+        <LineChart height={CHART_HEIGHT} />
+      </Griff>
+    </React.Fragment>
+  ));
 
-      toggleHide = key => {
-        const { hiddenSeries } = this.state;
-        this.setState({
-          hiddenSeries: {
-            ...hiddenSeries,
-            [key]: !hiddenSeries[key],
-          },
-        });
-      };
-
-      render() {
-        const { hiddenSeries } = this.state;
-        return (
-          <React.Fragment>
-            <Griff loader={staticLoader} timeDomain={staticXDomain}>
-              <Series id="1" color="steelblue" hidden={hiddenSeries[1]} />
-              <Series id="2" color="maroon" hidden={hiddenSeries[2]} />
-              <LineChart height={CHART_HEIGHT} />
-              <GriffContext.Consumer>
-                {({ seriesById }) => (
-                  <div>
-                    {Object.keys(seriesById).map(id => (
-                      <button
-                        key={`show-hide-${id}`}
-                        type="button"
-                        onClick={() => this.toggleHide(id)}
-                      >
-                        {seriesById[id].hidden ? 'Show' : 'Hide'} series {id}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </GriffContext.Consumer>
-            </Griff>
-          </React.Fragment>
-        );
-      }
-    }
-    return <HiddenSeries />;
-  })
+storiesOf('LineChart/domains', module)
+  .addDecorator(withMargin)
   .add('Specify y domain', () => {
     const staticDomain = [-5, 5];
     const staticSubDomain = [-2, 2];
@@ -463,155 +478,6 @@ storiesOf('LineChart', module)
       }
     }
     return <SpecifyDomain />;
-  })
-  .add('Annotations', () => {
-    const series = staticLoader({
-      id: 1,
-      reason: 'MOUNTED',
-      timeDomain: staticXDomain,
-    }).data;
-    const exampleAnnotations = [
-      {
-        id: 1,
-        data: [series[40].timestamp, series[60].timestamp],
-        color: 'black',
-      },
-    ];
-    return (
-      <Griff loader={staticLoader} timeDomain={staticXDomain}>
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" />
-        <LineChart height={CHART_HEIGHT} annotations={exampleAnnotations} />
-      </Griff>
-    );
-  })
-  .add('Click events', () => {
-    const series = staticLoader({
-      id: 1,
-      reason: 'MOUNTED',
-      timeDomain: staticXDomain,
-    }).data;
-    const exampleAnnotations = [
-      {
-        id: 1,
-        data: [series[40].timestamp, series[60].timestamp],
-        color: 'black',
-      },
-    ];
-    return (
-      <Griff loader={staticLoader} timeDomain={staticXDomain}>
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" />
-        <LineChart
-          height={CHART_HEIGHT}
-          annotations={exampleAnnotations}
-          onClickAnnotation={annotation => {
-            action('annotation click')(annotation);
-          }}
-          onClick={e => {
-            action('chart click')(e);
-          }}
-        />
-      </Griff>
-    );
-  })
-  .add('Draw points', () => (
-    <React.Fragment>
-      <Griff
-        loader={staticLoader}
-        timeDomain={staticXDomain}
-        pointsPerSeries={100}
-      >
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" drawPoints />
-        <LineChart height={CHART_HEIGHT} />
-      </Griff>
-      <Griff
-        loader={staticLoader}
-        timeDomain={staticXDomain}
-        pointsPerSeries={100}
-      >
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" drawPoints pointWidth={10} />
-        <LineChart height={CHART_HEIGHT} />
-      </Griff>
-      <Griff
-        loader={staticLoader}
-        timeDomain={staticXDomain}
-        pointsPerSeries={100}
-      >
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" drawPoints />
-        <LineChart height={CHART_HEIGHT} pointWidth={4} />
-      </Griff>
-      <Griff
-        loader={staticLoader}
-        timeDomain={staticXDomain}
-        pointsPerSeries={100}
-        drawPoints={(d, _, __, { x, y, color }) => (
-          <polygon
-            points={`${x - 5} ${y},${x} ${y - 5},${x + 5} ${y},${x} ${y + 5}`}
-            fill={color}
-          />
-        )}
-      >
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" />
-        <LineChart height={CHART_HEIGHT} pointWidth={4} />
-      </Griff>
-    </React.Fragment>
-  ))
-  .add('Without context chart', () => (
-    <Griff loader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <LineChart height={CHART_HEIGHT} contextChart={{ visible: false }} />
-    </Griff>
-  ))
-  .add('Non-Zoomable', () => {
-    class ZoomToggle extends React.Component {
-      state = {
-        zoomable: true,
-        yZoomable: { 1: false, 2: false },
-      };
-
-      toggleZoom = id => {
-        const { yZoomable } = this.state;
-        action('zoomed')(`${id} - ${!yZoomable[id]}`);
-        this.setState({
-          yZoomable: {
-            ...yZoomable,
-            [id]: !yZoomable[id],
-          },
-        });
-      };
-
-      render() {
-        const { zoomable, yZoomable } = this.state;
-        return (
-          <React.Fragment>
-            <Griff loader={staticLoader} timeDomain={staticXDomain}>
-              <Series id="1" color="steelblue" zoomable={yZoomable[1]} />
-              <Series id="2" color="maroon" zoomable={yZoomable[2]} />
-              <LineChart height={CHART_HEIGHT} zoomable={zoomable} />
-            </Griff>
-            <button
-              type="button"
-              onClick={() => this.setState({ zoomable: !zoomable })}
-            >
-              Toggle x zoom [{zoomable ? 'on' : 'off'}]
-            </button>
-            <button type="button" onClick={() => this.toggleZoom(1)}>
-              Toggle y1 zoom [{yZoomable[1] !== false ? 'on' : 'off'}]
-            </button>
-            <button type="button" onClick={() => this.toggleZoom(2)}>
-              Toggle y2 zoom [{yZoomable[2] !== false ? 'on' : 'off'}]
-            </button>
-          </React.Fragment>
-        );
-      }
-    }
-    return <ZoomToggle />;
   })
   .add('Dynamic time domain', () => {
     const DOMAINS = {
@@ -767,7 +633,241 @@ storiesOf('LineChart', module)
       }
     }
     return <CustomTimeSubDomain />;
+  });
+
+storiesOf('LineChart/rendering', module)
+  .addDecorator(withMargin)
+  .add('Draw points', () => (
+    <React.Fragment>
+      <Griff
+        loader={staticLoader}
+        timeDomain={staticXDomain}
+        pointsPerSeries={100}
+      >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" drawPoints />
+        <LineChart height={CHART_HEIGHT} />
+      </Griff>
+      <Griff
+        loader={staticLoader}
+        timeDomain={staticXDomain}
+        pointsPerSeries={100}
+      >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" drawPoints pointWidth={10} />
+        <LineChart height={CHART_HEIGHT} />
+      </Griff>
+      <Griff
+        loader={staticLoader}
+        timeDomain={staticXDomain}
+        pointsPerSeries={100}
+      >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" drawPoints />
+        <LineChart height={CHART_HEIGHT} pointWidth={4} />
+      </Griff>
+      <Griff
+        loader={staticLoader}
+        timeDomain={staticXDomain}
+        pointsPerSeries={100}
+        drawPoints={(d, _, __, { x, y, color }) => (
+          <polygon
+            points={`${x - 5} ${y},${x} ${y - 5},${x + 5} ${y},${x} ${y + 5}`}
+            fill={color}
+          />
+        )}
+      >
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <LineChart height={CHART_HEIGHT} pointWidth={4} />
+      </Griff>
+    </React.Fragment>
+  ))
+  .add('Without context chart', () => (
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
+      <LineChart height={CHART_HEIGHT} contextChart={{ visible: false }} />
+    </Griff>
+  ))
+  .add('Custom context brush', () => {
+    const width = 600;
+    const height = 50;
+    // eslint-disable-next-line
+    class BrushComponent extends React.Component {
+      state = {
+        selection: [0, width],
+      };
+
+      onUpdateSelection = selection => {
+        this.setState({
+          selection,
+        });
+      };
+
+      render() {
+        const { selection } = this.state;
+        return (
+          <div>
+            <svg width={width} height={height} stroke="#777">
+              <Brush
+                height={height}
+                width={width}
+                selection={selection}
+                onUpdateSelection={this.onUpdateSelection}
+              />
+            </svg>
+            <p>width: {width}</p>
+            <p>
+              selection: [{selection[0]}, {selection[1]}]
+            </p>
+          </div>
+        );
+      }
+    }
+    return <BrushComponent />;
   })
+  .add('min/max', () => {
+    const y0Accessor = d => d.y - 0.5;
+    const y1Accessor = d => d.y + 0.5;
+    return (
+      <React.Fragment>
+        <Griff loader={staticLoader} timeDomain={staticXDomain}>
+          <Series
+            id="1"
+            color="steelblue"
+            y0Accessor={y0Accessor}
+            y1Accessor={y1Accessor}
+          />
+          <Series id="2" color="maroon" />
+          <LineChart height={CHART_HEIGHT} />
+        </Griff>
+        <Griff loader={staticLoader} timeDomain={staticXDomain}>
+          <Series
+            id="1"
+            color="steelblue"
+            y0Accessor={y0Accessor}
+            y1Accessor={y1Accessor}
+            step
+          />
+          <Series id="2" color="maroon" step />
+          <LineChart height={CHART_HEIGHT} />
+        </Griff>
+        <Griff loader={staticLoader} timeDomain={staticXDomain}>
+          <Series
+            id="1"
+            color="steelblue"
+            y0Accessor={y0Accessor}
+            y1Accessor={y1Accessor}
+          />
+          <Series id="2" color="maroon" drawPoints />
+          <LineChart height={CHART_HEIGHT} />
+        </Griff>
+      </React.Fragment>
+    );
+  });
+
+storiesOf('LineChart/interactions', module)
+  .addDecorator(withMargin)
+  .add('Annotations', () => {
+    const series = staticLoader({
+      id: 1,
+      reason: 'MOUNTED',
+      timeDomain: staticXDomain,
+    }).data;
+    const exampleAnnotations = [
+      {
+        id: 1,
+        data: [series[40].timestamp, series[60].timestamp],
+        color: 'black',
+      },
+    ];
+    return (
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <LineChart height={CHART_HEIGHT} annotations={exampleAnnotations} />
+      </Griff>
+    );
+  })
+  .add('Click events', () => {
+    const series = staticLoader({
+      id: 1,
+      reason: 'MOUNTED',
+      timeDomain: staticXDomain,
+    }).data;
+    const exampleAnnotations = [
+      {
+        id: 1,
+        data: [series[40].timestamp, series[60].timestamp],
+        color: 'black',
+      },
+    ];
+    return (
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <LineChart
+          height={CHART_HEIGHT}
+          annotations={exampleAnnotations}
+          onClickAnnotation={annotation => {
+            action('annotation click')(annotation);
+          }}
+          onClick={e => {
+            action('chart click')(e);
+          }}
+        />
+      </Griff>
+    );
+  })
+  .add('Non-Zoomable', () => {
+    class ZoomToggle extends React.Component {
+      state = {
+        zoomable: true,
+        yZoomable: { 1: false, 2: false },
+      };
+
+      toggleZoom = id => {
+        const { yZoomable } = this.state;
+        action('zoomed')(`${id} - ${!yZoomable[id]}`);
+        this.setState({
+          yZoomable: {
+            ...yZoomable,
+            [id]: !yZoomable[id],
+          },
+        });
+      };
+
+      render() {
+        const { zoomable, yZoomable } = this.state;
+        return (
+          <React.Fragment>
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
+              <Series id="1" color="steelblue" zoomable={yZoomable[1]} />
+              <Series id="2" color="maroon" zoomable={yZoomable[2]} />
+              <LineChart height={CHART_HEIGHT} zoomable={zoomable} />
+            </Griff>
+            <button
+              type="button"
+              onClick={() => this.setState({ zoomable: !zoomable })}
+            >
+              Toggle x zoom [{zoomable ? 'on' : 'off'}]
+            </button>
+            <button type="button" onClick={() => this.toggleZoom(1)}>
+              Toggle y1 zoom [{yZoomable[1] !== false ? 'on' : 'off'}]
+            </button>
+            <button type="button" onClick={() => this.toggleZoom(2)}>
+              Toggle y2 zoom [{yZoomable[2] !== false ? 'on' : 'off'}]
+            </button>
+          </React.Fragment>
+        );
+      }
+    }
+    return <ZoomToggle />;
+  });
+
+storiesOf('LineChart/live loading', module)
+  .addDecorator(withMargin)
   .add('Live loading', () => {
     const INTERVALS = [0, 33, 500, 1000, 2000];
     const randomInterval = () =>
@@ -883,91 +983,6 @@ storiesOf('LineChart', module)
       </Griff>
     </div>
   ))
-
-  .add('Enable/disable series', () => {
-    const colors = {
-      'COM/COFFEE_BRZL': 'steelblue',
-      'COM/COFFEE_CLMB': 'maroon',
-    };
-    const options = [
-      { value: 'COM/COFFEE_BRZL', label: 'Brazil coffe price' },
-      { value: 'COM/COFFEE_CLMB', label: 'Columbia coffe price' },
-    ];
-
-    const xDomain = [+moment().subtract(10, 'year'), +moment()];
-
-    // eslint-disable-next-line
-    class EnableDisableSeries extends React.Component {
-      state = {
-        series: [options[0]],
-      };
-
-      onChangeSeries = series => this.setState({ series });
-
-      render() {
-        const { series } = this.state;
-        return (
-          <React.Fragment>
-            <Select
-              isMulti
-              value={series}
-              options={options}
-              onChange={this.onChangeSeries}
-              style={{ marginBottom: '15px' }}
-            />
-            <Griff
-              loader={quandlLoader}
-              pointsPerSeries={100}
-              timeDomain={xDomain}
-            >
-              {series.map(s => (
-                <Series key={s.value} id={s.value} color={colors[s.value]} />
-              ))}
-              <LineChart height={CHART_HEIGHT} />
-            </Griff>
-          </React.Fragment>
-        );
-      }
-    }
-    return <EnableDisableSeries />;
-  })
-  .add('Custom context brush', () => {
-    const width = 600;
-    const height = 50;
-    // eslint-disable-next-line
-    class BrushComponent extends React.Component {
-      state = {
-        selection: [0, width],
-      };
-
-      onUpdateSelection = selection => {
-        this.setState({
-          selection,
-        });
-      };
-
-      render() {
-        const { selection } = this.state;
-        return (
-          <div>
-            <svg width={width} height={height} stroke="#777">
-              <Brush
-                height={height}
-                width={width}
-                selection={selection}
-                onUpdateSelection={this.onUpdateSelection}
-              />
-            </svg>
-            <p>width: {width}</p>
-            <p>
-              selection: [{selection[0]}, {selection[1]}]
-            </p>
-          </div>
-        );
-      }
-    }
-    return <BrushComponent />;
-  })
   .add('Sticky time subdomain', () => (
     <Griff
       loader={liveLoader}
@@ -1036,7 +1051,10 @@ storiesOf('LineChart', module)
       }
     }
     return <LimitTimeSubDomain />;
-  })
+  });
+
+storiesOf('LineChart/callbacks', module)
+  .addDecorator(withMargin)
   .add('onMouseOut', () => (
     <Griff
       loader={staticLoader}
