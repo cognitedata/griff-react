@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import moment from 'moment';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { DataProvider, LineChart, Series } from '../build/src';
+import { Griff, LineChart, Series } from '../build/src';
 import { functionLoader, staticLoader } from './loaders';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
@@ -13,14 +13,9 @@ storiesOf('components/InteractionLayer', module)
   .add('Ruler', () => (
     <React.Fragment>
       <div style={{ height: 500 }}>
-        <DataProvider
-          timeDomain={staticXDomain}
-          defaultLoader={staticLoader}
-          xAccessor={d => d.timestamp}
-          yAccessor={d => d.value}
-        >
-          <Series id="1" color="steelblue" name="name1" />
-          <Series id="2" color="maroon" name="name2" />
+        <Griff timeDomain={staticXDomain} loader={staticLoader}>
+          <Series id="steelblue" color="steelblue" name="name1" />
+          <Series id="maroon" color="maroon" name="name2" />
           <LineChart
             height={CHART_HEIGHT}
             crosshair={false}
@@ -32,19 +27,17 @@ storiesOf('components/InteractionLayer', module)
                 moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
             }}
           />
-        </DataProvider>
+        </Griff>
       </div>
       <div style={{ height: 500 }}>
-        <DataProvider
+        <Griff
           timeDomain={staticXDomain}
-          defaultLoader={functionLoader(d =>
+          loader={functionLoader(d =>
             Math.sin((d / (staticXDomain[1] - staticXDomain[0])) * 2 * Math.PI)
           )}
-          xAccessor={d => d.timestamp}
-          yAccessor={d => d.value}
         >
-          <Series id="1" color="steelblue" name="name1" />
-          <Series id="2" color="maroon" name="name2" />
+          <Series id="steelblue" color="steelblue" name="name1" />
+          <Series id="maroon" color="maroon" name="name2" />
           <LineChart
             height={CHART_HEIGHT}
             crosshair={false}
@@ -56,12 +49,12 @@ storiesOf('components/InteractionLayer', module)
                 moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
             }}
           />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('Area (no zoom)', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart
@@ -70,7 +63,7 @@ storiesOf('components/InteractionLayer', module)
           action('Area defined')(area);
         }}
       />
-    </DataProvider>
+    </Griff>
   ))
   .add('Area (x-zoom)', () => {
     class ZoomByArea extends React.Component {
@@ -88,8 +81,8 @@ storiesOf('components/InteractionLayer', module)
       render() {
         const { xSubDomain } = this.state;
         return (
-          <DataProvider
-            defaultLoader={staticLoader}
+          <Griff
+            loader={staticLoader}
             timeDomain={staticXDomain}
             timeSubDomain={xSubDomain}
           >
@@ -99,7 +92,7 @@ storiesOf('components/InteractionLayer', module)
               height={CHART_HEIGHT}
               onAreaDefined={this.onAreaDefined}
             />
-          </DataProvider>
+          </Griff>
         );
       }
     }
@@ -139,17 +132,14 @@ storiesOf('components/InteractionLayer', module)
         const { enableArea } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
               <LineChart
                 height={CHART_HEIGHT}
                 onAreaDefined={enableArea ? this.onAreaDefined : null}
               />
-            </DataProvider>
+            </Griff>
             (You might need to click here first)
           </React.Fragment>
         );
@@ -193,10 +183,7 @@ storiesOf('components/InteractionLayer', module)
         const { enableArea, area } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
               <LineChart
@@ -204,7 +191,7 @@ storiesOf('components/InteractionLayer', module)
                 areas={area ? [area] : []}
                 onAreaDefined={enableArea ? this.onAreaDefined : null}
               />
-            </DataProvider>
+            </Griff>
             (You might need to click here first)
           </React.Fragment>
         );
@@ -237,10 +224,7 @@ storiesOf('components/InteractionLayer', module)
         const { areas } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
               <LineChart
@@ -249,7 +233,7 @@ storiesOf('components/InteractionLayer', module)
                 onAreaDefined={this.onAreaDefined}
                 onAreaClicked={this.onAreaClicked}
               />
-            </DataProvider>
+            </Griff>
             (You might need to click here first)
           </React.Fragment>
         );
@@ -283,10 +267,7 @@ storiesOf('components/InteractionLayer', module)
         const { areas } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
               <LineChart
@@ -296,7 +277,7 @@ storiesOf('components/InteractionLayer', module)
                 onAreaClicked={this.onAreaClicked}
                 onClick={this.onChartClicked}
               />
-            </DataProvider>
+            </Griff>
             (You might need to click here first)
           </React.Fragment>
         );
@@ -359,10 +340,7 @@ storiesOf('components/InteractionLayer', module)
         const { enableArea, areas } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
               <LineChart
@@ -370,7 +348,7 @@ storiesOf('components/InteractionLayer', module)
                 areas={areas}
                 onAreaDefined={enableArea ? this.onAreaDefined : null}
               />
-            </DataProvider>
+            </Griff>
             (You might need to click here first)
           </React.Fragment>
         );
@@ -379,14 +357,14 @@ storiesOf('components/InteractionLayer', module)
     return <OnDemandArea />;
   })
   .add('Double-click events', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart
         height={CHART_HEIGHT}
         onDoubleClick={action('onDoubleClick')}
       />
-    </DataProvider>
+    </Griff>
   ))
   .add('Regression: onMouseUp', () => {
     // eslint-disable-next-line
@@ -413,14 +391,11 @@ storiesOf('components/InteractionLayer', module)
         const { onAreaDefined } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
               <LineChart height={CHART_HEIGHT} onAreaDefined={onAreaDefined} />
-            </DataProvider>
+            </Griff>
             onAreaDefined:
             {onAreaDefined ? 'function' : 'null'}
             <h2>Test</h2>

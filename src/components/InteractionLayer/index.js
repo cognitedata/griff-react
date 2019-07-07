@@ -374,8 +374,8 @@ class InteractionLayer extends React.Component {
       const { timeSubDomain, ySubDomain } = s;
       const xScale = createXScale(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos);
-      const { data, xAccessor, yAccessor } = s;
-      const rawX = d3.bisector(xAccessor).left(data, rawTimestamp, 1);
+      const { data, timeAccessor, yAccessor } = s;
+      const rawX = d3.bisector(timeAccessor).left(data, rawTimestamp, 1);
       const x0 = data[rawX - 1];
       const x1 = data[rawX];
       let d = null;
@@ -393,7 +393,7 @@ class InteractionLayer extends React.Component {
       }
       if (d) {
         const yScale = createYScale(ySubDomain, height);
-        const ts = xAccessor(d);
+        const ts = timeAccessor(d);
         const value = yAccessor(d);
         newPoints.push({
           id: s.id,
