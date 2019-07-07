@@ -311,34 +311,28 @@ class Scaler extends React.Component<Props, State> {
       const newTimeDomain =
         highestPriorityDomain(domains.time, timeDomain) ||
         placeholder(0, Number.MAX_SAFE_INTEGER);
-      const newXDomain =
-        xDomain ||
-        placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
-      const newYDomain =
-        yDomain ||
-        placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
+      const newXDomain = xDomain || PLACEHOLDER_DOMAIN;
+      const newYDomain = yDomain || PLACEHOLDER_DOMAIN;
 
       const newTimeSubDomain =
         highestPriorityDomain(subDomains.time, timeSubDomain) ||
         placeholder(0, Number.MAX_SAFE_INTEGER);
 
+      const newXSubDomain =
+        highestPriorityDomain(subDomains.x, xSubDomain) ||
+        PLACEHOLDER_SUBDOMAIN;
+
+      const newYSubDomain =
+        highestPriorityDomain(subDomains.y, ySubDomain) ||
+        PLACEHOLDER_SUBDOMAIN;
+
       const withDomains = {
         ...s,
         timeSubDomain: getLimitedSubDomain(newTimeSubDomain, newTimeDomain),
         xDomain: newXDomain,
-        xSubDomain: getLimitedSubDomain(
-          subDomains.x ||
-            xSubDomain ||
-            placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
-          newXDomain
-        ),
+        xSubDomain: getLimitedSubDomain(newXSubDomain, newXDomain),
         yDomain: newYDomain,
-        ySubDomain: getLimitedSubDomain(
-          subDomains.y ||
-            ySubDomain ||
-            placeholder(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
-          newYDomain
-        ),
+        ySubDomain: getLimitedSubDomain(newYSubDomain, newYDomain),
       };
       this.seriesById[id] = withDomains;
       if (s.collectionId) {

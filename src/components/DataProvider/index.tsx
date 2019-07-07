@@ -1,6 +1,10 @@
 import * as React from 'react';
 import { UpdateDomains } from '../Griff';
-import { calculateDomains, isEqual } from '../../utils/domains';
+import {
+  calculateDomains,
+  isEqual,
+  highestPriorityDomain,
+} from '../../utils/domains';
 import { deleteUndefinedFromObject } from '../../utils/cleaner';
 import { placeholder, withoutPlaceholder } from '../../utils/placeholder';
 import { LoaderResult, Domain, LoaderReason } from '../../external';
@@ -157,6 +161,12 @@ class DataProvider extends React.Component<Props, State> {
         ...s,
         ...deleteUndefinedFromObject(loaderResult),
         data: loaderResult.data || s.data || [],
+        ySubDomain:
+          highestPriorityDomain(
+            s.ySubDomain,
+            loaderResult.ySubDomain,
+            (loaderResult.dataDomains || {}).y
+          ) || s.ySubDomain,
       };
       return output;
     });

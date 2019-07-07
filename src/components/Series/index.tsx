@@ -11,6 +11,15 @@ import { copyDomain } from '../../utils/domains';
 
 export interface ItemProps extends IncomingItem {}
 
+export const DOMAIN_PROP_NAMES = [
+  'timeDomain',
+  'timeSubDomain',
+  'xDomain',
+  'xSubDomain',
+  'yDomain',
+  'ySubDomain',
+];
+
 export const WATCHED_PROP_NAMES = [
   'color',
   'drawLines',
@@ -34,8 +43,6 @@ export const WATCHED_PROP_NAMES = [
   'yAccessor',
   'yAxisDisplayMode',
   'yAxisPlacement',
-  'yDomain',
-  'ySubDomain',
   'zoomable',
   'zoomable',
 ];
@@ -75,6 +82,24 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
     });
     // @ts-ignore - It's okay for props[name] to be implicit any.
   }, WATCHED_PROP_NAMES.map(name => props[name]).concat(props.collectionId));
+
+  // Domains get special treatment :)
+  React.useEffect(() => {
+    const updates = DOMAIN_PROP_NAMES.reduce(
+      (acc, name) => {
+        // @ts-ignore - This is an acceptable implicit any.
+        let domain = props[name];
+        if (domain) {
+          domain = copyDomain(domain, DomainPriority.SERIES);
+        }
+        return { ...acc, [name]: domain };
+      },
+      { id }
+    );
+    return updateSeries(updates);
+    // @ts-ignore - This is okay for implicit any.
+  }, DOMAIN_PROP_NAMES.map(name => props[name]));
+
   return null;
 };
 (Series as any).griffDataItem = true;

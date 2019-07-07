@@ -39,18 +39,23 @@ export const copyDataDomains = ({ time, x, y }: DataDomains): DataDomains => ({
 export const highestPriorityDomain = (
   ...domains: Array<Domain | undefined>
 ): Domain | undefined => {
-  // @ts-ignore - This is okay, TypeScript.
-  const filtered: Domain[] = domains.filter(domain => domain !== undefined);
+  const filtered: Domain[] = domains.filter(
+    domain => domain !== undefined
+  ) as Domain[];
   if (filtered.length === 0) {
     return undefined;
+  }
+  if (filtered.length === 1) {
+    return filtered[0];
   }
 
   // Note that sort() updates the array (but also returns it) so filtered is
   // also sorted by this. However, the returned variable is renamed in the
   // interest of readability.
-  return filtered.sort((a: Domain, b: Domain) => {
+  const sorted = filtered.sort((a: Domain, b: Domain) => {
     return b.priority - a.priority;
-  })[0];
+  });
+  return sorted[0];
 };
 
 const withPadding = (extent: [number, number]): Domain => {

@@ -383,6 +383,8 @@ storiesOf('LineChart', module)
     const staticDomain = [-5, 5];
     const staticSubDomain = [-2, 2];
 
+    const SERIES = ['steelblue', 'maroon'];
+
     class SpecifyDomain extends React.Component {
       state = { yDomains: {}, ySubDomains: {} };
 
@@ -420,18 +422,15 @@ storiesOf('LineChart', module)
         return (
           <React.Fragment>
             <Griff loader={staticLoader} timeDomain={staticXDomain}>
-              <Series
-                id="steelblue"
-                color="steelblue"
-                yDomain={yDomains.steelblue}
-                ySubDomain={ySubDomains.steelblue}
-              />
-              <Series
-                id="maroon"
-                color="maroon"
-                yDomain={yDomains.maroon}
-                ySubDomain={ySubDomains.maroon}
-              />
+              {SERIES.map(s => (
+                <Series
+                  key={s}
+                  id={s}
+                  color={s}
+                  yDomain={yDomains[s]}
+                  ySubDomain={ySubDomains[s]}
+                />
+              ))}
               <LineChart height={CHART_HEIGHT} />
               <GriffContext.Consumer>
                 {({ seriesById }) => (
