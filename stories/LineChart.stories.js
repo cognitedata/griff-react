@@ -493,7 +493,7 @@ storiesOf('LineChart/domains', module)
         toString: () => 'large timespan',
       },
     };
-    class DynamicXDomain extends React.Component {
+    class DynamicTimeDomain extends React.Component {
       static propTypes = {
         initialRange: PropTypes.oneOf(Object.keys(DOMAINS)).isRequired,
       };
@@ -524,7 +524,6 @@ storiesOf('LineChart/domains', module)
             <Griff loader={staticLoader} timeDomain={timeDomain}>
               <Series id="1" color="steelblue" />
               <LineChart height={CHART_HEIGHT} />
-              <GriffDebugger />
             </Griff>
           </div>
         );
@@ -532,8 +531,8 @@ storiesOf('LineChart/domains', module)
     }
     return (
       <React.Fragment>
-        <DynamicXDomain initialRange="large" />
-        <DynamicXDomain initialRange="small" />
+        <DynamicTimeDomain initialRange="large" />
+        <DynamicTimeDomain initialRange="small" />
       </React.Fragment>
     );
   })

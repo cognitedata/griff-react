@@ -309,7 +309,7 @@ class Scaler extends React.Component<Props, State> {
       const subDomains = subDomainsByItemId[id] || {};
 
       const newTimeDomain =
-        highestPriorityDomain(domains.time, timeDomain) ||
+        highestPriorityDomain(timeDomain, domains.time) ||
         placeholder(0, Number.MAX_SAFE_INTEGER);
       const newXDomain = xDomain || PLACEHOLDER_DOMAIN;
       const newYDomain = yDomain || PLACEHOLDER_DOMAIN;
