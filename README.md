@@ -22,7 +22,6 @@ Our tip-of-tree Storybook can be found on [griff-master.surge.sh](https://griff-
 ```sh
 git clone https://github.com/cognitedata/griff-react
 yarn
-yarn start #starts the demo
 yarn storybook #starts the stories
 ```
 
@@ -34,7 +33,7 @@ or
 
 `npm i @cognite/griff-react`
 
-See examples in `demo/src` and `stories/index.js`
+See examples in `stories/index.js`
 
 ## Concepts
 
