@@ -536,6 +536,48 @@ storiesOf('LineChart/domains', module)
       </React.Fragment>
     );
   })
+  .add('Dynamic time sub domain', () => {
+    const timeDomain = [+moment().subtract(1, 'year'), +moment()];
+
+    const subDomains = {
+      front: [+moment().subtract(6, 'months'), +moment()],
+      back: [+moment().subtract(1, 'year'), +moment().subtract(6, 'months')],
+    };
+
+    class CustomTimeSubDomain extends React.Component {
+      state = {
+        range: 'front',
+      };
+
+      render() {
+        const { range } = this.state;
+        return (
+          <React.Fragment>
+            {Object.keys(subDomains).map(r => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => this.setState({ range: r })}
+                disabled={r === range}
+              >
+                {r}
+              </button>
+            ))}
+            <Griff
+              loader={staticLoader}
+              timeDomain={timeDomain}
+              timeSubDomain={subDomains[range]}
+            >
+              <Series id="1" color="steelblue" />
+              <Series id="2" color="maroon" />
+              <LineChart height={CHART_HEIGHT} />
+            </Griff>
+          </React.Fragment>
+        );
+      }
+    }
+    return <CustomTimeSubDomain />;
+  })
   .add('ySubDomain', () => (
     <React.Fragment>
       <h1>Set on Griff ([0.25, 0.5])</h1>
@@ -591,48 +633,7 @@ storiesOf('LineChart/domains', module)
         <LineChart height={CHART_HEIGHT} />
       </Griff>
     </React.Fragment>
-  ))
-  .add('Dynamic time sub domain', () => {
-    const timeSubDomainFirst = [
-      Date.now() - 1000 * 60 * 60 * 24 * 20,
-      Date.now() - 1000 * 60 * 60 * 24 * 10,
-    ];
-
-    const timeSubDomainSecond = [
-      Date.now() - 1000 * 60 * 60 * 24 * 10,
-      Date.now(),
-    ];
-
-    class CustomTimeSubDomain extends React.Component {
-      state = {
-        isFirst: true,
-      };
-
-      render() {
-        const { isFirst } = this.state;
-        return (
-          <React.Fragment>
-            <button
-              type="button"
-              onClick={() => this.setState({ isFirst: !isFirst })}
-            >
-              {isFirst ? `Switch timeSubDomain` : `Switch back timeSubDomain`}
-            </button>
-            <Griff
-              loader={staticLoader}
-              timeDomain={staticXDomain}
-              timeSubDomain={isFirst ? timeSubDomainFirst : timeSubDomainSecond}
-            >
-              <Series id="1" color="steelblue" />
-              <Series id="2" color="maroon" />
-              <LineChart height={CHART_HEIGHT} />
-            </Griff>
-          </React.Fragment>
-        );
-      }
-    }
-    return <CustomTimeSubDomain />;
-  });
+  ));
 
 storiesOf('LineChart/rendering', module)
   .addDecorator(withMargin)
