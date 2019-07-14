@@ -145,7 +145,3 @@ export interface DataSeries extends ScaledSeries {
   data: Datapoint[];
   dataDomains: DataDomains;
 }
-
-export interface ItemsByItemId<T> {
-  [itemId: string]: T;
-}

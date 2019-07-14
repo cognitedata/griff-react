@@ -6,12 +6,13 @@ import {
   highestPriorityDomain,
 } from '../../utils/domains';
 import { deleteUndefinedFromObject } from '../../utils/cleaner';
-import { placeholder, withoutPlaceholder } from '../../utils/placeholder';
+import { placeholder } from '../../utils/placeholder';
 import { LoaderResult, Domain, LoaderReason } from '../../external';
 import { ScaledSeries, ScaledCollection } from '../../internal';
 import { debounce } from 'lodash';
 import { Props as ScalerProps } from '../Scaler';
 import Joiner from '../Joiner';
+import getItemsByItemId from '../../utils/itemsById';
 
 export interface Props extends ScalerProps {
   series: ScaledSeries[];
@@ -181,18 +182,9 @@ class DataProvider extends React.Component<Props, State> {
     const newContext = {
       ...rest,
       series,
-      seriesById: series.reduce(
-        (acc: SeriesById, s: ScaledSeries) => ({ ...acc, [s.id]: s }),
-        {}
-      ),
+      seriesById: getItemsByItemId(series),
       collections,
-      collectionsById: collections.reduce(
-        (acc: SeriesByCollectionId, c: ScaledCollection) => ({
-          ...acc,
-          [c.id]: c,
-        }),
-        {}
-      ),
+      collectionsById: getItemsByItemId(collections),
     };
 
     return <Joiner {...newContext}>{children}</Joiner>;

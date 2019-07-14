@@ -17,7 +17,7 @@ import {
   BaseCollection,
   ScaledSeries,
   ScaledCollection,
-  ItemsByItemId,
+  ItemIdMap,
 } from '../../internal';
 import { DataProvider } from '../..';
 import { placeholder, withoutPlaceholder } from '../../utils/placeholder';
@@ -38,7 +38,7 @@ export interface Props {
 
   series: BaseSeries[];
   collections: BaseCollection[];
-  seriesById: ItemsByItemId<BaseSeries>;
+  seriesById: ItemIdMap<BaseSeries>;
 
   registerSeries: RegisterSeriesFunction;
   updateSeries: UpdateSeriesFunction;

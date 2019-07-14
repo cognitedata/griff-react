@@ -7,7 +7,6 @@ import {
 } from '../../internal';
 import { Props as DataProviderProps } from '../DataProvider';
 import { GriffContext } from '../..';
-import { withoutPlaceholder } from '../../utils/placeholder';
 import {
   copyDomain,
   copyDataDomains,
@@ -19,17 +18,13 @@ import { DomainPriority } from '../../external';
 export interface Props extends DataProviderProps {
   series: DataSeries[];
   collections: ScaledCollection[];
+  collectionsById: ItemIdMap<ScaledCollection>;
 }
 
 const Joiner: React.FunctionComponent<Props> = (props: Props) => {
-  const { children, series, collections, ...rest } = props;
+  const { children, series, collections, collectionsById, ...rest } = props;
 
   const seriesById: { [seriesId: string]: DataSeries } = {};
-
-  const collectionsById: ItemIdMap<ScaledCollection> = collections.reduce(
-    (acc, c) => ({ ...acc, [c.id]: { ...c } }),
-    {}
-  );
 
   const dataDomainsByCollectionId: { [collectionId: string]: DataDomains } = {};
 
