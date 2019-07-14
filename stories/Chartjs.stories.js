@@ -2,12 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
 import { Bar, Doughnut } from 'react-chartjs-2';
-import {
-  ContextChart,
-  DataProvider,
-  ScalerContext,
-  Series,
-} from '../build/src';
+import { ContextChart, Griff, GriffContext, Series } from '../build/src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
@@ -19,10 +14,10 @@ storiesOf('integrations/ChartJS', module)
     </div>
   ))
   .add('Bar', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
-      <ScalerContext.Consumer>
+      <GriffContext.Consumer>
         {({ series }) => (
           <Bar
             data={{
@@ -48,7 +43,7 @@ storiesOf('integrations/ChartJS', module)
                   )
                   .reduce((acc, datapoint) => {
                     const updated = [...acc];
-                    const index = Math.floor(datapoint.value * 10);
+                    const index = Math.floor(datapoint.y * 10);
                     updated[index] = (acc[index] || 0) + 1;
                     return updated;
                   }, []);
@@ -63,15 +58,15 @@ storiesOf('integrations/ChartJS', module)
             }}
           />
         )}
-      </ScalerContext.Consumer>
+      </GriffContext.Consumer>
       <ContextChart />
-    </DataProvider>
+    </Griff>
   ))
   .add('Doughnut', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
-      <ScalerContext.Consumer>
+      <GriffContext.Consumer>
         {({ series }) => (
           <Doughnut
             data={{
@@ -97,7 +92,7 @@ storiesOf('integrations/ChartJS', module)
                   )
                   .reduce((acc, datapoint) => {
                     const updated = [...acc];
-                    const index = Math.floor(datapoint.value * 10);
+                    const index = Math.floor(datapoint.y * 10);
                     updated[index] = (acc[index] || 0) + 1;
                     return updated;
                   }, []);
@@ -113,7 +108,7 @@ storiesOf('integrations/ChartJS', module)
             }}
           />
         )}
-      </ScalerContext.Consumer>
+      </GriffContext.Consumer>
       <ContextChart />
-    </DataProvider>
+    </Griff>
   ));

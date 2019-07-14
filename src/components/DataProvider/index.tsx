@@ -65,7 +65,6 @@ class DataProvider extends React.Component<Props, State> {
 
     series.forEach((s: ScaledSeries) => {
       const reason = this.getLoaderReason(s);
-      console.log('TCL: DataProvider -> componentDidUpdate -> reason', reason);
       if (reason) {
         let fetchFunction = this.fetchFunctionsById[s.id];
         if (!fetchFunction) {
