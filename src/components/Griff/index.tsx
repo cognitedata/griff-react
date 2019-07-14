@@ -104,6 +104,7 @@ export interface Props extends ItemProps {
   timeDomain: Domain;
   timeSubDomain?: Domain;
   limitTimeSubDomain?: TimeSubDomainLimiter;
+  onUpdateDomains?: OnUpdateDomains;
 
   series: IncomingSeries[];
   collections: IncomingCollection[];
@@ -388,7 +389,7 @@ export default class Griff extends React.Component<Props, State> {
   };
 
   render() {
-    const { children } = this.props;
+    const { children, onUpdateDomains } = this.props;
 
     const series = this.getSeriesObjects();
     const collections = this.getCollectionObjects();
@@ -409,7 +410,7 @@ export default class Griff extends React.Component<Props, State> {
     return (
       <Scaler
         timeSubDomainChanged={() => null}
-        onUpdateDomains={() => null}
+        onUpdateDomains={onUpdateDomains}
         {...context}
       >
         {children}
