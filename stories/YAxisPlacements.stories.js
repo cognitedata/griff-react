@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import {
-  DataProvider,
+  Griff,
   LineChart,
   AxisPlacement,
   AxisDisplayMode,
@@ -13,110 +13,70 @@ import { staticLoader } from './loaders';
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
-storiesOf('Y-Axis Placement', module)
+storiesOf('Axes/placement/Y', module)
   .add('Unspecified', () => [
-    <DataProvider
-      key="series"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    <Griff key="series" loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>,
-    <DataProvider
-      key="collections"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    </Griff>,
+    <Griff key="collections" loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="1+2" color="red">
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
       </Collection>
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>,
+    </Griff>,
   ])
   .add('Left', () => [
-    <DataProvider
-      key="series"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    <Griff key="series" loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
-    </DataProvider>,
-    <DataProvider
-      key="collections"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    </Griff>,
+    <Griff key="collections" loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="1+2" color="red">
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
-    </DataProvider>,
+    </Griff>,
   ])
   .add('Right', () => [
-    <DataProvider
-      key="series"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    <Griff key="series" loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
-    </DataProvider>,
-    <DataProvider
-      key="collections"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    </Griff>,
+    <Griff key="collections" loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="1+2" color="red">
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
-    </DataProvider>,
+    </Griff>,
   ])
   .add('Both', () => [
-    <DataProvider
-      key="series"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    <Griff key="series" loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
-    </DataProvider>,
-    <DataProvider
-      key="collections"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    </Griff>,
+    <Griff key="collections" loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="1+2" color="red">
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
-    </DataProvider>,
+    </Griff>,
   ])
   .add('Split', () => [
-    <DataProvider
-      key="series"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    <Griff key="series" loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
       <Series id="2" color="maroon" yAxisPlacement={AxisPlacement.RIGHT} />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>,
-    <DataProvider
-      key="collections"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    </Griff>,
+    <Griff key="collections" loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="1" color="red" yAxisPlacement={AxisPlacement.LEFT}>
         <Series id="1" color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
       </Collection>
@@ -124,24 +84,16 @@ storiesOf('Y-Axis Placement', module)
         <Series id="2" color="maroon" yAxisPlacement={AxisPlacement.RIGHT} />
       </Collection>
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>,
+    </Griff>,
   ])
   .add('Split, with BOTH', () => [
-    <DataProvider
-      key="series"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    <Griff key="series" loader={staticLoader} timeDomain={staticXDomain}>
       <Series id={1} color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
       <Series id={2} color="maroon" yAxisPlacement={AxisPlacement.RIGHT} />
       <Series id={3} color="orange" yAxisPlacement={AxisPlacement.BOTH} />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>,
-    <DataProvider
-      key="collections"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    </Griff>,
+    <Griff key="collections" loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="1" color="red" yAxisPlacement={AxisPlacement.LEFT}>
         <Series id="1" color="steelblue" />
       </Collection>
@@ -152,24 +104,16 @@ storiesOf('Y-Axis Placement', module)
         <Series id="3" color="orange" />
       </Collection>
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>,
+    </Griff>,
   ])
   .add('Split, overriding chart', () => [
-    <DataProvider
-      key="series"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    <Griff key="series" loader={staticLoader} timeDomain={staticXDomain}>
       <Series id={1} color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
       <Series id={2} color="maroon" yAxisPlacement={AxisPlacement.RIGHT} />
       <Series id={3} color="orange" yAxisPlacement={AxisPlacement.BOTH} />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
-    </DataProvider>,
-    <DataProvider
-      key="collections"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    </Griff>,
+    <Griff key="collections" loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="1" color="red" yAxisPlacement={AxisPlacement.LEFT}>
         <Series id="1" color="steelblue" />
       </Collection>
@@ -180,47 +124,31 @@ storiesOf('Y-Axis Placement', module)
         <Series id="3" color="orange" />
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
-    </DataProvider>,
+    </Griff>,
   ])
   .add('All on the wrong side', () => [
-    <DataProvider
-      key="series"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    <Griff key="series" loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
       <Series id="2" color="maroon" yAxisPlacement={AxisPlacement.LEFT} />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
-    </DataProvider>,
-    <DataProvider
-      key="collections"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    </Griff>,
+    <Griff key="collections" loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="1+2" color="red" yAxisPlacement={AxisPlacement.LEFT}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
-    </DataProvider>,
+    </Griff>,
   ])
   .add('Misleading placements', () => [
-    <DataProvider
-      key="series"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    <Griff key="series" loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
-    </DataProvider>,
+    </Griff>,
   ])
   .add('Collapsed axis', () => [
-    <DataProvider
-      key="series"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    <Griff key="series" loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart
@@ -228,12 +156,8 @@ storiesOf('Y-Axis Placement', module)
         yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
         yAxisPlacement={AxisPlacement.BOTH}
       />
-    </DataProvider>,
-    <DataProvider
-      key="collections"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    </Griff>,
+    <Griff key="collections" loader={staticLoader} timeDomain={staticXDomain}>
       <Collection
         id="1+2"
         color="red"
@@ -243,14 +167,10 @@ storiesOf('Y-Axis Placement', module)
         <Series id="2" color="maroon" />
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
-    </DataProvider>,
+    </Griff>,
   ])
   .add('Mixed axis modes', () => [
-    <DataProvider
-      key="series"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    <Griff key="series" loader={staticLoader} timeDomain={staticXDomain}>
       <Series
         id="1"
         color="steelblue"
@@ -263,12 +183,8 @@ storiesOf('Y-Axis Placement', module)
       />
       <Series id="3" color="orange" yAxisDisplayMode={AxisDisplayMode.ALL} />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
-    </DataProvider>,
-    <DataProvider
-      key="collections"
-      defaultLoader={staticLoader}
-      timeDomain={staticXDomain}
-    >
+    </Griff>,
+    <Griff key="collections" loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="all" color="red">
         <Series
           id="1"
@@ -283,5 +199,5 @@ storiesOf('Y-Axis Placement', module)
         <Series id="3" color="orange" yAxisDisplayMode={AxisDisplayMode.ALL} />
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
-    </DataProvider>,
+    </Griff>,
   ]);
