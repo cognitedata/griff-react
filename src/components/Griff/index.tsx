@@ -166,53 +166,6 @@ export default class Griff extends React.Component<Props, State> {
     seriesById: {},
   };
 
-  // async componentDidUpdate_old(prevProps) {
-  //   // If new series are present in prop,
-  //   // run the fetchData lifecycle for those series
-  //   const {
-  //     limitTimeSubDomain,
-  //     onTimeSubDomainChanged,
-  //     pointsPerSeries,
-  //     series,
-  //     timeDomain: propsTimeDomain,
-  //     timeSubDomain: propsTimeSubDomain,
-  //   } = this.props;
-  //   // check if pointsPerSeries changed in props -- if so fetch new data
-  //   if (pointsPerSeries !== prevProps.pointsPerSeries) {
-  //     await Promise.map(series, s =>
-  //       this.fetchData(s.id, 'UPDATE_POINTS_PER_SERIES')
-  //     );
-  //   }
-
-  //   if (!isEqual(propsTimeSubDomain, prevProps.timeSubDomain)) {
-  //     this.timeSubDomainChanged(propsTimeSubDomain);
-  //   }
-
-  //   // Check if timeDomain changed in props -- if so reset state.
-  //   if (!isEqual(propsTimeDomain, prevProps.timeDomain)) {
-  //     const { seriesById } = this.state;
-
-  //     const newTimeSubDomain = getTimeSubDomain(
-  //       propsTimeDomain,
-  //       propsTimeSubDomain,
-  //       limitTimeSubDomain
-  //     );
-  //     // eslint-disable-next-line
-  //     this.setState(
-  //       {
-  //         timeDomain: propsTimeDomain,
-  //         timeSubDomain: newTimeSubDomain,
-  //       },
-  //       () => {
-  //         Object.keys(seriesById).map(id => this.fetchData(id, 'MOUNTED'));
-  //         if (onTimeSubDomainChanged) {
-  //           onTimeSubDomainChanged(newTimeSubDomain);
-  //         }
-  //       }
-  //     );
-  //   }
-  // }
-
   getCollectionObjects = () => {
     const {
       drawLines,
