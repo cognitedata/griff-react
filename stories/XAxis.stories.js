@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
-import { DataProvider, XAxis, AxisPlacement, Series } from '../build/src';
+import { Griff, XAxis, AxisPlacement, Series } from '../build/src';
 import { staticLoader } from './loaders';
 
 storiesOf('components/XAxis', module)
@@ -13,130 +13,130 @@ storiesOf('components/XAxis', module)
   .add('Sizes', () => (
     <React.Fragment>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
+        <Griff
+          loader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <Series id="1" color="steelblue" />
           <XAxis />
-        </DataProvider>
+        </Griff>
       </div>
       <div style={{ width: '50%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
+        <Griff
+          loader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <Series id="1" color="steelblue" />
           <XAxis />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('color', () => (
     <React.Fragment>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
+        <Griff
+          loader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <Series id="1" color="steelblue" />
           <XAxis />
-        </DataProvider>
+        </Griff>
       </div>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
+        <Griff
+          loader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <Series id="1" color="steelblue" />
           <XAxis stroke="red" />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('placement', () => (
     <React.Fragment>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
+        <Griff
+          loader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <Series id="1" color="steelblue" />
           <XAxis />
-        </DataProvider>
+        </Griff>
       </div>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
+        <Griff
+          loader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <Series id="1" color="steelblue" />
           <XAxis placement={AxisPlacement.TOP} />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('tickFormatter', () => (
     <React.Fragment>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
+        <Griff
+          loader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <Series id="1" color="steelblue" />
           <XAxis />
-        </DataProvider>
+        </Griff>
       </div>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
+        <Griff
+          loader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <Series id="1" color="steelblue" />
           <XAxis tickFormatter={n => moment(n).fromNow()} />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('ticks', () => (
     <React.Fragment>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
+        <Griff
+          loader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <Series id="1" color="steelblue" />
           <XAxis />
-        </DataProvider>
+        </Griff>
       </div>
       <div style={{ width: '100%' }}>
-        <DataProvider
-          defaultLoader={staticLoader}
+        <Griff
+          loader={staticLoader}
           timeDomain={[+moment().subtract(1, 'week'), +moment()]}
           timeAccessor={d => +d.timestamp}
           yAccessor={d => +d.y}
         >
           <Series id="1" color="steelblue" />
           <XAxis ticks={20} tickFormatter={() => ''} />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ));
