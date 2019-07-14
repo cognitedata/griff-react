@@ -17,6 +17,7 @@ import {
   BaseCollection,
   ScaledSeries,
   ScaledCollection,
+  ItemsByItemId,
 } from '../../internal';
 import { DataProvider } from '../..';
 import { placeholder, withoutPlaceholder } from '../../utils/placeholder';
@@ -26,6 +27,7 @@ import {
   newDomain,
   highestPriorityDomain,
   copyDomain,
+  isEqual,
 } from '../../utils/domains';
 
 export interface Props {
@@ -36,6 +38,8 @@ export interface Props {
 
   series: BaseSeries[];
   collections: BaseCollection[];
+  seriesById: ItemsByItemId<BaseSeries>;
+
   registerSeries: RegisterSeriesFunction;
   updateSeries: UpdateSeriesFunction;
   registerCollection: RegisterCollectionFunction;
@@ -141,6 +145,7 @@ class Scaler extends React.Component<Props, State> {
     limitTimeSubDomain: PropTypes.func,
     series: seriesPropType.isRequired,
     collections: GriffPropTypes.collections.isRequired,
+    seriesById: GriffPropTypes.itemsByItemId.isRequired,
   };
 
   static defaultProps = {};
@@ -156,7 +161,8 @@ class Scaler extends React.Component<Props, State> {
   collectionsById: { [collectionsId: string]: ScaledCollection } = {};
   seriesByCollectionId: { [collectionId: string]: ItemId[] } = {};
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: Props) {
+    const { seriesById: oldSeriesById = {} } = prevProps;
     const { series } = this.props;
     series.forEach(s => {
       // Update the domains/subdomains (if necessary).
@@ -197,6 +203,35 @@ class Scaler extends React.Component<Props, State> {
             },
           },
         }));
+      }
+
+      // If the domains were changed externally, then we need to update the
+      // internal map because that's the new source of truth.
+      const oldSeries = oldSeriesById[s.id];
+      if (oldSeries) {
+        const {
+          timeDomain: oldTimeDomain,
+          xDomain: oldXDomain,
+          yDomain: oldYDomain,
+        } = oldSeries;
+        const { timeDomain, xDomain, yDomain } = s;
+        if (
+          !isEqual(timeDomain, oldTimeDomain) ||
+          !isEqual(xDomain, oldXDomain) ||
+          !isEqual(yDomain, oldYDomain)
+        ) {
+          const updates = {
+            time: timeDomain || oldTimeDomain,
+            x: xDomain || oldXDomain,
+            y: yDomain || oldYDomain,
+          };
+          this.setState((state: State) => ({
+            domainsByItemId: {
+              ...state.domainsByItemId,
+              [s.id]: updates,
+            },
+          }));
+        }
       }
 
       // Update the live-loading information (if necessary).

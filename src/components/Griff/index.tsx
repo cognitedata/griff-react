@@ -22,6 +22,7 @@ import { combineItems } from '../../utils/items';
 import { placeholder } from '../../utils/placeholder';
 import { AxisDisplayMode, AxisPlacement } from '../..';
 import { copyDomain } from '../../utils/domains';
+import getItemsById from '../../utils/itemsById';
 
 const deleteUndefinedFromItem = (obj: IncomingItem): IncomingItem => {
   return Object.keys(obj).reduce(
@@ -389,10 +390,15 @@ export default class Griff extends React.Component<Props, State> {
   render() {
     const { children } = this.props;
 
+    const series = this.getSeriesObjects();
+    const collections = this.getCollectionObjects();
+
     const context = {
       limitTimeSubDomain: DEFAULT_TIME_SUBDOMAIN_LIMITER,
-      series: this.getSeriesObjects(),
-      collections: this.getCollectionObjects(),
+      series,
+      collections,
+      seriesById: getItemsById(series),
+      collectionsById: getItemsById(collections),
 
       registerCollection: this.registerCollection,
       registerSeries: this.registerSeries,

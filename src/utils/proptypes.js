@@ -250,6 +250,12 @@ const zoomAxes = PropTypes.shape({
 
 const axes = PropTypes.oneOf(['time', 'x', 'y']);
 
+const itemsByItemId = PropTypes.objectOf(
+  PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+  })
+);
+
 export default {
   axisPlacement,
   collection,
@@ -257,6 +263,7 @@ export default {
   contextChart,
   drawPoints,
   grid,
+  itemsByItemId,
   multipleSeries,
   singleSeries,
   updateDomains,

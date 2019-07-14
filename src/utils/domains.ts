@@ -2,11 +2,16 @@ import { placeholder } from './placeholder';
 import { Domain, Datapoint, DomainPriority } from '../external';
 import { ScaledSeries, DataDomains } from '../internal';
 
-export const isEqual = (a: Domain, b: Domain): boolean => {
+export const isEqual = (a?: Domain, b?: Domain): boolean => {
   if (a === b) {
     return true;
   }
   if (!!a !== !!b) {
+    return false;
+  }
+  // This should never happen, but TypeScript isn't smart enough to see what
+  // happened with the check above.
+  if (!a || !b) {
     return false;
   }
   return a[0] === b[0] && a[1] === b[1];
