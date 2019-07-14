@@ -2,12 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import moment from 'moment';
-import {
-  AxisPlacement,
-  DataProvider,
-  AxisDisplayMode,
-  Series,
-} from '../build/src';
+import { AxisPlacement, Griff, AxisDisplayMode, Series } from '../build/src';
 import { staticLoader } from './loaders';
 import AxisCollection from '../build/src/components/AxisCollection';
 
@@ -21,36 +16,36 @@ storiesOf('components/AxisCollection', module)
   ))
   .add('default', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <AxisCollection height={300} />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('ticks', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <AxisCollection height={300} ticks={20} />
         <AxisCollection height={300} ticks={2} />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('zoomable', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <AxisCollection height={300} zoomable />
         <AxisCollection height={300} zoomable={false} />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('axisDisplayMode', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <AxisCollection height={300} axisDisplayMode={AxisDisplayMode.ALL} />
@@ -59,12 +54,12 @@ storiesOf('components/AxisCollection', module)
           axisDisplayMode={AxisDisplayMode.COLLAPSED}
         />
         <AxisCollection height={300} axisDisplayMode={AxisDisplayMode.NONE} />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('events', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <AxisCollection
@@ -78,26 +73,26 @@ storiesOf('components/AxisCollection', module)
           onMouseEnter={action('onMouseEnter')}
           onMouseLeave={action('onMouseLeave')}
         />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('placement', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <AxisCollection height={300} yAxisPlacement={AxisPlacement.LEFT} />
         <AxisCollection height={300} yAxisPlacement={AxisPlacement.RIGHT} />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('yAxisWidth', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <AxisCollection height={300} />
         <AxisCollection height={300} yAxisWidth={100} />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ));
