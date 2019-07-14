@@ -3,7 +3,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import moment from 'moment';
 import Select from 'react-select';
-import isEqual from 'lodash.isequal';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import {
