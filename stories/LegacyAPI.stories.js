@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { DataProvider, LineChart } from '../build/src';
+import { Griff, LineChart } from '../build/src';
 
 import { staticLoader } from './loaders';
 
@@ -14,17 +14,17 @@ storiesOf('legacy/API', module)
     </div>
   ))
   .add('Series', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
+    <Griff
+      loader={staticLoader}
       timeDomain={staticXDomain}
       series={[{ id: '1', color: 'steelblue' }]}
     >
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ))
   .add('Collections', () => (
-    <DataProvider
-      defaultLoader={staticLoader}
+    <Griff
+      loader={staticLoader}
       timeDomain={staticXDomain}
       series={[
         { id: '1', color: 'steelblue', collectionId: 'grouped' },
@@ -34,5 +34,5 @@ storiesOf('legacy/API', module)
       collections={[{ id: 'grouped' }]}
     >
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ));
