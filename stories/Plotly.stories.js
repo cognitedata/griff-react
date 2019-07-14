@@ -3,12 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import moment from 'moment';
 import Plot from 'react-plotly.js';
-import {
-  ContextChart,
-  DataProvider,
-  ScalerContext,
-  Series,
-} from '../build/src';
+import { ContextChart, Griff, GriffContext, Series } from '../build/src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
@@ -22,7 +17,7 @@ const seriesToPlotly = ({ color, data, timeSubDomain }) => {
     : data;
   return {
     x: filteredData.map(({ timestamp }) => new Date(timestamp)),
-    y: filteredData.map(({ value }) => value),
+    y: filteredData.map(({ y }) => y),
     type: 'scatter',
     mode: 'lines+points',
     marker: { color },
@@ -37,10 +32,10 @@ storiesOf('integrations/Plotly', module)
   ))
   .add('Basic', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
-        <ScalerContext.Consumer>
+        <GriffContext.Consumer>
           {({ series }) => (
             <Plot
               data={series.map(s => seriesToPlotly(s))}
@@ -51,16 +46,16 @@ storiesOf('integrations/Plotly', module)
               }}
             />
           )}
-        </ScalerContext.Consumer>
-      </DataProvider>
+        </GriffContext.Consumer>
+      </Griff>
     </React.Fragment>
   ))
   .add('Controlled by ContextChart', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
-        <ScalerContext.Consumer>
+        <GriffContext.Consumer>
           {({ series }) => (
             <Plot
               data={series.map(s => seriesToPlotly(s))}
@@ -71,17 +66,17 @@ storiesOf('integrations/Plotly', module)
               }}
             />
           )}
-        </ScalerContext.Consumer>
+        </GriffContext.Consumer>
         <ContextChart />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('Interacting with ContextChart', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
-        <ScalerContext.Consumer>
+        <GriffContext.Consumer>
           {({ series, updateDomains }) => (
             <Plot
               key={series.map(s => s.id).join('-')}
@@ -116,8 +111,8 @@ storiesOf('integrations/Plotly', module)
               }}
             />
           )}
-        </ScalerContext.Consumer>
+        </GriffContext.Consumer>
         <ContextChart />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ));
