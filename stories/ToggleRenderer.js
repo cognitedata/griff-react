@@ -8,7 +8,7 @@ import {
   Collection,
   LineChart,
   Series,
-  DataProvider,
+  Griff,
 } from '../build/src';
 
 const pointRenderer = (
@@ -177,10 +177,10 @@ class ToggleRenderer extends React.Component {
   };
 
   render() {
-    const { collectionIds, defaultLoader, seriesIds, timeDomain } = this.props;
+    const { collectionIds, loader, seriesIds, timeDomain } = this.props;
     return (
       <div>
-        <DataProvider defaultLoader={defaultLoader} timeDomain={timeDomain}>
+        <Griff loader={loader} timeDomain={timeDomain}>
           {collectionIds.map(collectionId => (
             <Collection
               key={collectionId}
@@ -200,7 +200,7 @@ class ToggleRenderer extends React.Component {
               <Series key={id} id={id} {...this.getItemOptions(id)} />
             ))}
           <LineChart height={400} />
-        </DataProvider>
+        </Griff>
         {this.renderPropertyTable()}
       </div>
     );
@@ -208,14 +208,14 @@ class ToggleRenderer extends React.Component {
 }
 
 ToggleRenderer.propTypes = {
-  defaultLoader: PropTypes.func,
+  loader: PropTypes.func,
   timeDomain: PropTypes.arrayOf(PropTypes.number),
   collectionIds: PropTypes.arrayOf(PropTypes.string),
   seriesIds: PropTypes.arrayOf(PropTypes.string),
 };
 
 ToggleRenderer.defaultProps = {
-  defaultLoader: staticLoader,
+  loader: staticLoader,
   timeDomain: [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()],
   collectionIds: [],
   seriesIds: [],
