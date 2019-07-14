@@ -21,17 +21,6 @@ storiesOf('Series Collections', module)
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </Griff>,
-    // <Griff
-    //   key="scaled"
-    //   timeDomain={staticXDomain}
-    //   loader={staticLoader}
-    // >
-    //   <Collection id="all" color="red">
-    //     <Series id="1" color="steelblue" />
-    //     <Series id="2" color="maroon" yAccessor={d => d.value + 2} />
-    //   </Collection>
-    //   <LineChart height={CHART_HEIGHT} />
-    // </Griff>,
   ])
   .add('Multiple collections', () => (
     <Griff timeDomain={staticXDomain} loader={staticLoader}>
