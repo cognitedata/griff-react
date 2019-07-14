@@ -2,7 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import {
   Collection,
-  DataProvider,
+  Griff,
   LineChart,
   Series,
   Scatterplot,
@@ -10,7 +10,6 @@ import {
 
 import { staticLoader } from './loaders';
 import ToggleRenderer from './ToggleRenderer';
-import ScalerDebugger from './ScalerDebugger';
 import { scatterplotloader } from './Scatterplot.stories';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
@@ -24,27 +23,25 @@ storiesOf('components/Collection', module)
     </div>
   ))
   .add('Basic LineChart', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="collection">
         <Series id="1" />
       </Collection>
       <LineChart height={CHART_HEIGHT} />
-      <ScalerDebugger />
-    </DataProvider>
+    </Griff>
   ))
   .add('LineChart with two items', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="collection">
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" yAccessor={d => +(d.value + 2)} />
       </Collection>
       <LineChart height={CHART_HEIGHT} />
-      <ScalerDebugger />
-    </DataProvider>
+    </Griff>
   ))
   .add('Basic Scatterplot', () => (
-    <DataProvider
-      defaultLoader={scatterplotloader}
+    <Griff
+      loader={scatterplotloader}
       timeDomain={[0, 1]}
       xAccessor={d => +d.x}
       yAccessor={d => +d.y}
@@ -56,15 +53,15 @@ storiesOf('components/Collection', module)
       <div style={{ height: '500px', width: '100%' }}>
         <Scatterplot zoomable />
       </div>
-    </DataProvider>
+    </Griff>
   ))
   .add('Flat structure', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="collection" />
       <Series id="1" color="steelblue" collectionId="collection" />
       <Series id="2" color="maroon" collectionId="collection" />
       <LineChart height={CHART_HEIGHT} />
-    </DataProvider>
+    </Griff>
   ))
   .add('Change props', () => (
     <ToggleRenderer
