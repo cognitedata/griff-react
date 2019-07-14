@@ -102,7 +102,6 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
 
   return null;
 };
-(Series as any).griffDataItem = true;
 
 export default withDisplayName('Series', (props: Props) => (
   <Griff.Consumer>
