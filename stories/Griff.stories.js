@@ -4,7 +4,6 @@ import { storiesOf } from '@storybook/react';
 import { Griff, LineChart, Series, Collection } from '../build/src';
 
 import { staticLoader } from './loaders';
-import GriffDebugger from './GriffDebugger';
 
 const CHART_HEIGHT = 500;
 const timeDomain = [+moment().subtract(24, 'days'), +moment()];
@@ -27,7 +26,6 @@ storiesOf('Griff/series', module)
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
-      <GriffDebugger />
     </Griff>
   ))
   .add('Data Domains', () => (
@@ -35,7 +33,6 @@ storiesOf('Griff/series', module)
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" yAccessor={d => +d.y + 2} />
       <LineChart height={CHART_HEIGHT} />
-      <GriffDebugger />
     </Griff>
   ))
   .add('Domains', () => (
@@ -48,7 +45,6 @@ storiesOf('Griff/series', module)
         yDomain={[0, 10]}
       />
       <LineChart height={CHART_HEIGHT} />
-      <GriffDebugger />
     </Griff>
   ))
   .add('Subdomains', () => (
@@ -61,7 +57,6 @@ storiesOf('Griff/series', module)
         ySubDomain={[0, 10]}
       />
       <LineChart height={CHART_HEIGHT} />
-      <GriffDebugger />
     </Griff>
   ))
   .add('Both domain and subdomain', () => (
@@ -75,7 +70,6 @@ storiesOf('Griff/series', module)
         ySubDomain={[2, 5]}
       />
       <LineChart height={CHART_HEIGHT} />
-      <GriffDebugger />
     </Griff>
   ));
 
@@ -87,7 +81,6 @@ storiesOf('Griff/collections', module)
         <Series id="2" color="maroon" />
       </Collection>
       <LineChart height={CHART_HEIGHT} />
-      <GriffDebugger />
     </Griff>
   ))
   .add('Data Domains', () => (
@@ -101,7 +94,6 @@ storiesOf('Griff/collections', module)
           <Series id="2" color="maroon" />
         </Collection>
         <LineChart height={CHART_HEIGHT} />
-        <GriffDebugger />
       </Griff>
       <p>
         This collection should all have y-subdomain from <code>[0, 3]</code>
@@ -112,7 +104,6 @@ storiesOf('Griff/collections', module)
           <Series id="2" color="maroon" yAccessor={d => +d.y + 2} />
         </Collection>
         <LineChart height={CHART_HEIGHT} />
-        <GriffDebugger />
       </Griff>
     </React.Fragment>
   ))
@@ -132,7 +123,6 @@ storiesOf('Griff/collections', module)
           />
         </Collection>
         <LineChart height={CHART_HEIGHT} />
-        <GriffDebugger />
       </Griff>
       <Griff loader={staticLoader} timeDomain={timeDomain}>
         <Collection id="all" color="red" yDomain={[-5, 5]}>
@@ -145,7 +135,6 @@ storiesOf('Griff/collections', module)
           />
         </Collection>
         <LineChart height={CHART_HEIGHT} />
-        <GriffDebugger />
       </Griff>
       <Griff loader={staticLoader} timeDomain={timeDomain}>
         <Collection id="all" color="red" yDomain={[-10, 10]}>
@@ -158,7 +147,6 @@ storiesOf('Griff/collections', module)
           />
         </Collection>
         <LineChart height={CHART_HEIGHT} />
-        <GriffDebugger />
       </Griff>
     </React.Fragment>
   ))
@@ -178,7 +166,6 @@ storiesOf('Griff/collections', module)
           />
         </Collection>
         <LineChart height={CHART_HEIGHT} />
-        <GriffDebugger />
       </Griff>
       <Griff loader={staticLoader} timeDomain={timeDomain}>
         <Collection id="all" color="red" ySubDomain={[-5, 5]}>
@@ -191,7 +178,6 @@ storiesOf('Griff/collections', module)
           />
         </Collection>
         <LineChart height={CHART_HEIGHT} />
-        <GriffDebugger />
       </Griff>
       <Griff loader={staticLoader} timeDomain={timeDomain}>
         <Collection id="all" color="red" ySubDomain={[-10, 10]}>
@@ -204,7 +190,6 @@ storiesOf('Griff/collections', module)
           />
         </Collection>
         <LineChart height={CHART_HEIGHT} />
-        <GriffDebugger />
       </Griff>
     </React.Fragment>
   ))
@@ -221,6 +206,5 @@ storiesOf('Griff/collections', module)
         />
       </Collection>
       <LineChart height={CHART_HEIGHT} />
-      <GriffDebugger />
     </Griff>
   ));
