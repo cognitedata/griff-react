@@ -4,7 +4,7 @@ import { action } from '@storybook/addon-actions';
 import {
   AxisDisplayMode,
   Collection,
-  DataProvider,
+  Griff,
   LineChart,
   Series,
 } from '../build/src';
@@ -13,14 +13,14 @@ import { staticLoader } from './loaders';
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
-storiesOf('Y-Axis Modes', module)
+storiesOf('Axes/modes/Y', module)
   .add('Mouse events', () => {
     const mouseEvent = (e, seriesId) => {
       action('Axis mouse event')(e.type, seriesId);
     };
     return (
       <React.Fragment>
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Griff loader={staticLoader} timeDomain={staticXDomain}>
           <Series id="1" color="steelblue" />
           <Series id="2" color="maroon" />
           <Series
@@ -39,32 +39,32 @@ storiesOf('Y-Axis Modes', module)
             onAxisMouseEnter={mouseEvent}
             onAxisMouseLeave={mouseEvent}
           />
-        </DataProvider>
+        </Griff>
       </React.Fragment>
     );
   })
   .add('Without y axis', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart
         height={CHART_HEIGHT}
         yAxisDisplayMode={AxisDisplayMode.NONE}
       />
-    </DataProvider>
+    </Griff>
   ))
   .add('Collapsed y axis', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
       <LineChart
         height={CHART_HEIGHT}
         yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
       />
-    </DataProvider>
+    </Griff>
   ))
   .add('Collapsed collection', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="all" color="deepred">
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
@@ -73,10 +73,10 @@ storiesOf('Y-Axis Modes', module)
         height={CHART_HEIGHT}
         yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
       />
-    </DataProvider>
+    </Griff>
   ))
   .add('Collapsed collected series', () => (
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="all" color="deepred">
         <Series
           id="1"
@@ -89,7 +89,7 @@ storiesOf('Y-Axis Modes', module)
         height={CHART_HEIGHT}
         yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
       />
-    </DataProvider>
+    </Griff>
   ))
   .add('Some hidden', () => {
     // eslint-disable-next-line
@@ -102,10 +102,7 @@ storiesOf('Y-Axis Modes', module)
         const { yAxisDisplayMode } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series
                 id="1"
                 color="steelblue"
@@ -122,7 +119,7 @@ storiesOf('Y-Axis Modes', module)
                 height={CHART_HEIGHT}
                 yAxisDisplayMode={yAxisDisplayMode}
               />
-            </DataProvider>
+            </Griff>
             <button
               type="button"
               onClick={() =>
@@ -161,7 +158,7 @@ storiesOf('Y-Axis Modes', module)
   })
   .add('Some collapsed', () => (
     <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series
           id="1"
           color="steelblue"
@@ -178,7 +175,7 @@ storiesOf('Y-Axis Modes', module)
           height={CHART_HEIGHT}
           yAxisDisplayMode={AxisDisplayMode.ALL}
         />
-      </DataProvider>
+      </Griff>
     </React.Fragment>
   ))
   .add('Some collapsed (until hover)', () => {
@@ -238,10 +235,7 @@ storiesOf('Y-Axis Modes', module)
         const { series, yAxisDisplayMode } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               {series.map(s => (
                 <Series key={s.id} {...s} />
               ))}
@@ -251,7 +245,7 @@ storiesOf('Y-Axis Modes', module)
                 onAxisMouseEnter={this.expandAll}
                 onAxisMouseLeave={this.collapseSome}
               />
-            </DataProvider>
+            </Griff>
           </React.Fragment>
         );
       }
@@ -321,10 +315,7 @@ storiesOf('Y-Axis Modes', module)
         const { collections, series } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series id="1" color="steelblue" yAxisDisplayMode={series[1]} />
               <Collection
                 id="default-expanded"
@@ -347,7 +338,7 @@ storiesOf('Y-Axis Modes', module)
                 onAxisMouseEnter={this.expandAll}
                 onAxisMouseLeave={this.collapseSome}
               />
-            </DataProvider>
+            </Griff>
           </React.Fragment>
         );
       }
@@ -365,17 +356,14 @@ storiesOf('Y-Axis Modes', module)
         const { yAxisDisplayMode } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
               <LineChart
                 height={CHART_HEIGHT}
                 yAxisDisplayMode={yAxisDisplayMode}
               />
-            </DataProvider>
+            </Griff>
             <button
               type="button"
               onClick={() =>
@@ -440,10 +428,7 @@ storiesOf('Y-Axis Modes', module)
         const { yAxisDisplayMode } = this.state;
         return (
           <React.Fragment>
-            <DataProvider
-              defaultLoader={staticLoader}
-              timeDomain={staticXDomain}
-            >
+            <Griff loader={staticLoader} timeDomain={staticXDomain}>
               <Series id="1" color="steelblue" />
               <Series id="2" color="maroon" />
               <LineChart
@@ -452,7 +437,7 @@ storiesOf('Y-Axis Modes', module)
                 onAxisMouseEnter={this.expand}
                 onAxisMouseLeave={this.collapse}
               />
-            </DataProvider>
+            </Griff>
           </React.Fragment>
         );
       }
