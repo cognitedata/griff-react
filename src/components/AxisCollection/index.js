@@ -140,7 +140,7 @@ const renderAllVisibleAxes = (
           <YAxis
             key={`y-axis--${s.id}`}
             offsetx={axisOffsetX}
-            zoomable={s.zoomable !== undefined ? s.zoomable : zoomable}
+            zoomable={zoomable === undefined ? s.zoomable : zoomable}
             series={s}
             height={height}
             width={yAxisWidth}
