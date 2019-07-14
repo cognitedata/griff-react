@@ -5,7 +5,7 @@ import moment from 'moment';
 import {
   AxisPlacement,
   ContextChart,
-  DataProvider,
+  Griff,
   GridLines,
   Scatterplot,
   Series,
@@ -208,22 +208,22 @@ storiesOf('Scatterplot', module)
       <div>
         <h3>One series</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
           >
             <Series id="1 2" color="steelblue" drawPoints />
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
       <div>
         <h3>One collection</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             collections={[]}
             xAccessor={d => +d.x}
@@ -234,14 +234,14 @@ storiesOf('Scatterplot', module)
               <Series id="2 3" color="maroon" />
             </Collection>
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
       <div>
         <h3>Geometric series</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -251,14 +251,14 @@ storiesOf('Scatterplot', module)
             <Series id="sintan" color="#E85F5C" />
             <Series id="pow" color="#9CFFFA" />
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
       <div>
         <h3>Many pairs</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -266,7 +266,7 @@ storiesOf('Scatterplot', module)
           >
             {generateSeries(10)}
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
     </React.Fragment>
@@ -276,8 +276,8 @@ storiesOf('Scatterplot', module)
       <div>
         <h3>Different Y domains</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -288,7 +288,7 @@ storiesOf('Scatterplot', module)
               <Series id="sum-y" color="maroon" />
             </Collection>
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
     </React.Fragment>
@@ -298,8 +298,8 @@ storiesOf('Scatterplot', module)
       <div>
         <h3>Specified domains</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xDomain={[-1, 2]}
             yDomain={[-1, 2]}
@@ -309,14 +309,14 @@ storiesOf('Scatterplot', module)
           >
             <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
       <div>
         <h3>Specified x domain</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xDomain={[-1, 2]}
             xAccessor={d => +d.x}
@@ -325,14 +325,14 @@ storiesOf('Scatterplot', module)
           >
             <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
       <div>
         <h3>Specified y domain</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             yDomain={[-1, 2]}
             xAccessor={d => +d.x}
@@ -341,14 +341,14 @@ storiesOf('Scatterplot', module)
           >
             <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
       <div>
         <h3>Calculated domains</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -356,14 +356,14 @@ storiesOf('Scatterplot', module)
           >
             <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
       <div>
         <h3>Smaller domains</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xDomain={[0.25, 0.75]}
             yDomain={[0.25, 0.75]}
@@ -373,7 +373,7 @@ storiesOf('Scatterplot', module)
           >
             <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
     </React.Fragment>
@@ -381,8 +381,8 @@ storiesOf('Scatterplot', module)
   .add('Custom tick formatting', () => (
     <React.Fragment>
       <div style={{ height: '500px', width: '100%' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
+        <Griff
+          loader={scatterplotloader}
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -394,14 +394,14 @@ storiesOf('Scatterplot', module)
             xAxisFormatter={n => n.toFixed(3)}
             yAxisFormatter={n => n.toFixed(2)}
           />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('Grid', () => (
     <div style={{ height: '500px', width: '500px' }}>
-      <DataProvider
-        defaultLoader={scatterplotloader}
+      <Griff
+        loader={scatterplotloader}
         timeDomain={[0, 1]}
         xAccessor={d => +d.x}
         yAccessor={d => +d.y}
@@ -411,7 +411,7 @@ storiesOf('Scatterplot', module)
         <Scatterplot zoomable xAxisTicks={5} yAxisTicks={5}>
           <GridLines x={{ ticks: 5 }} y={{ count: 5, seriesIds: ['1 2'] }} />
         </Scatterplot>
-      </DataProvider>
+      </Griff>
     </div>
   ))
   .add('Axes', () => (
@@ -427,8 +427,8 @@ storiesOf('Scatterplot', module)
               margin: '1em',
             }}
           >
-            <DataProvider
-              defaultLoader={scatterplotloader}
+            <Griff
+              loader={scatterplotloader}
               timeDomain={[0, 1]}
               xAccessor={d => +d.x}
               yAccessor={d => +d.y}
@@ -436,7 +436,7 @@ storiesOf('Scatterplot', module)
             >
               <Series id="1 2" color="steelblue" />
               <Scatterplot zoomable yAxisPlacement={placement} />
-            </DataProvider>
+            </Griff>
           </div>
         )
       )}
@@ -451,8 +451,8 @@ storiesOf('Scatterplot', module)
               margin: '1em',
             }}
           >
-            <DataProvider
-              defaultLoader={scatterplotloader}
+            <Griff
+              loader={scatterplotloader}
               timeDomain={[0, 1]}
               xAccessor={d => +d.x}
               yAccessor={d => +d.y}
@@ -460,7 +460,7 @@ storiesOf('Scatterplot', module)
             >
               <Series id="1 2" color="steelblue" />
               <Scatterplot zoomable xAxisPlacement={placement} />
-            </DataProvider>
+            </Griff>
           </div>
         )
       )}
@@ -472,8 +472,8 @@ storiesOf('Scatterplot', module)
           margin: '1em',
         }}
       >
-        <DataProvider
-          defaultLoader={scatterplotloader}
+        <Griff
+          loader={scatterplotloader}
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -485,7 +485,7 @@ storiesOf('Scatterplot', module)
             xAxisPlacement={AxisPlacement.BOTH}
             yAxisPlacement={AxisPlacement.BOTH}
           />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
@@ -498,8 +498,8 @@ storiesOf('Scatterplot', module)
         margin: '1em',
       }}
     >
-      <DataProvider
-        defaultLoader={scatterplotloader}
+      <Griff
+        loader={scatterplotloader}
         timeDomain={[0, 1]}
         xDomain={[-1, 2]}
         yDomain={[-1, 2]}
@@ -516,14 +516,14 @@ storiesOf('Scatterplot', module)
           <Series id="4 5" color="gray" />
         </Collection>
         <Scatterplot zoomable />
-      </DataProvider>
+      </Griff>
     </div>
   ))
   .add('Stroke width', () => (
     <React.Fragment>
       <div style={{ height: '500px', width: '500px' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
+        <Griff
+          loader={scatterplotloader}
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -532,11 +532,11 @@ storiesOf('Scatterplot', module)
           <Series id="1 2" color="steelblue" strokeWidth={2} />
           <Series id="3 4" color="maroon" strokeWidth={10} />
           <Scatterplot zoomable />
-        </DataProvider>
+        </Griff>
       </div>
       <div style={{ height: '500px', width: '500px' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
+        <Griff
+          loader={scatterplotloader}
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -546,15 +546,15 @@ storiesOf('Scatterplot', module)
           <Series id="1 2" color="steelblue" />
           <Series id="3 4" color="maroon" />
           <Scatterplot zoomable />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('Point width', () => (
     <React.Fragment>
       <div style={{ height: '500px', width: '500px' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
+        <Griff
+          loader={scatterplotloader}
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -563,11 +563,11 @@ storiesOf('Scatterplot', module)
           <Series id="1 2" color="steelblue" pointWidth={2} />
           <Series id="3 4" color="maroon" pointWidth={10} />
           <Scatterplot zoomable />
-        </DataProvider>
+        </Griff>
       </div>
       <div style={{ height: '500px', width: '500px' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
+        <Griff
+          loader={scatterplotloader}
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -577,11 +577,11 @@ storiesOf('Scatterplot', module)
           <Series id="1 2" color="steelblue" />
           <Series id="3 4" color="maroon" />
           <Scatterplot zoomable />
-        </DataProvider>
+        </Griff>
       </div>
       <div style={{ height: '500px', width: '500px' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
+        <Griff
+          loader={scatterplotloader}
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -591,15 +591,15 @@ storiesOf('Scatterplot', module)
           <Series id="1 2" color="steelblue" />
           <Series id="3 4" color="maroon" />
           <Scatterplot zoomable />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('Opacity', () => (
     <React.Fragment>
       <div style={{ height: '500px', width: '500px' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
+        <Griff
+          loader={scatterplotloader}
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -609,11 +609,11 @@ storiesOf('Scatterplot', module)
           <Series id="1 2" color="steelblue" opacity={0.25} />
           <Series id="3 4" color="maroon" opacity={0.75} />
           <Scatterplot zoomable />
-        </DataProvider>
+        </Griff>
       </div>
       <div style={{ height: '500px', width: '500px' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
+        <Griff
+          loader={scatterplotloader}
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
@@ -624,15 +624,15 @@ storiesOf('Scatterplot', module)
           <Series id="1 2" color="steelblue" opacity={0.25} />
           <Series id="3 4" color="maroon" opacity={0.75} />
           <Scatterplot zoomable />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('Min/Max', () => (
     <React.Fragment>
       <div style={{ height: '500px', width: '500px' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
+        <Griff
+          loader={scatterplotloader}
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           x0Accessor={d => +d.x * 0.9}
@@ -645,15 +645,15 @@ storiesOf('Scatterplot', module)
           <Series id="1 2" color="steelblue" />
           <Series id="3 4" color="maroon" />
           <Scatterplot zoomable />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('Context Chart', () => (
     <React.Fragment>
       <div style={{ width: 500 }}>
-        <DataProvider
-          defaultLoader={scatterplotFunctionLoader}
+        <Griff
+          loader={scatterplotFunctionLoader}
           timeDomain={[+moment().subtract(1, 'year'), +moment()]}
           pointsPerSeries={100}
           timeAccessor={d => +d.timestamp}
@@ -668,15 +668,15 @@ storiesOf('Scatterplot', module)
           <div style={{ width: 450 }}>
             <ContextChart />
           </div>
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('Zoomable', () => (
     <React.Fragment>
       <div style={{ width: 500, height: 500 }}>
-        <DataProvider
-          defaultLoader={scatterplotFunctionLoader}
+        <Griff
+          loader={scatterplotFunctionLoader}
           timeDomain={[+moment().subtract(1, 'year'), +moment()]}
           pointsPerSeries={100}
           timeAccessor={d => +d.timestamp}
@@ -686,17 +686,17 @@ storiesOf('Scatterplot', module)
         >
           <Series id="1 2" color="steelblue" />
           <Scatterplot zoomable={false} />
-        </DataProvider>
+        </Griff>
       </div>
     </React.Fragment>
   ))
   .add('Draw lines', () => (
     <React.Fragment>
       <div>
-        <h3>Set on DataProvider</h3>
+        <h3>Set on Griff</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -708,14 +708,14 @@ storiesOf('Scatterplot', module)
             <Series id="sintan" color="#E85F5C" />
             <Series id="pow" color="#9CFFFA" />
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
       <div>
         <h3>Set on the series</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -732,14 +732,14 @@ storiesOf('Scatterplot', module)
             />
             <Series id="pow" color="#9CFFFA" />
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
       <div>
         <h3>Set on the collection</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -756,7 +756,7 @@ storiesOf('Scatterplot', module)
               <Series id="pow" color="#9CFFFA" />
             </Collection>
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
     </React.Fragment>
@@ -764,10 +764,10 @@ storiesOf('Scatterplot', module)
   .add('Point Renderer', () => (
     <React.Fragment>
       <div>
-        <h3>Set on DataProvider</h3>
+        <h3>Set on Griff</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -775,14 +775,14 @@ storiesOf('Scatterplot', module)
           >
             <Series id="1 2" color="steelblue" />
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
       <div>
         <h3>Set on the series</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -794,14 +794,14 @@ storiesOf('Scatterplot', module)
             />
             <Series id="2 3" color="maroon" drawPoints={latestPointRenderer} />
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
       <div>
         <h3>Set on the collection</h3>
         <div style={{ height: '500px', width: '100%' }}>
-          <DataProvider
-            defaultLoader={scatterplotloader}
+          <Griff
+            loader={scatterplotloader}
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
@@ -811,7 +811,7 @@ storiesOf('Scatterplot', module)
               <Series id="3 4" color="maroon" />
             </Collection>
             <Scatterplot zoomable />
-          </DataProvider>
+          </Griff>
         </div>
       </div>
     </React.Fragment>
