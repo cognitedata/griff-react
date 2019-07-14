@@ -211,10 +211,20 @@ class Scaler extends React.Component<Props, State> {
       if (oldSeries) {
         const {
           timeDomain: oldTimeDomain,
+          timeSubDomain: oldTimeSubDomain,
           xDomain: oldXDomain,
+          xSubDomain: oldXSubDomain,
           yDomain: oldYDomain,
+          ySubDomain: oldYSubDomain,
         } = oldSeries;
-        const { timeDomain, xDomain, yDomain } = s;
+        const {
+          timeDomain,
+          timeSubDomain,
+          xDomain,
+          xSubDomain,
+          yDomain,
+          ySubDomain,
+        } = s;
         if (
           !isEqual(timeDomain, oldTimeDomain) ||
           !isEqual(xDomain, oldXDomain) ||
@@ -229,6 +239,22 @@ class Scaler extends React.Component<Props, State> {
             domainsByItemId: {
               ...state.domainsByItemId,
               [s.id]: updates,
+            },
+          }));
+        }
+        if (
+          (timeSubDomain && !isEqual(timeSubDomain, oldTimeSubDomain)) ||
+          (xSubDomain && !isEqual(xSubDomain, oldXSubDomain)) ||
+          (ySubDomain && !isEqual(ySubDomain, oldYSubDomain))
+        ) {
+          this.setState((state: State) => ({
+            subDomainsByItemId: {
+              ...state.subDomainsByItemId,
+              [s.id]: {
+                time: timeSubDomain || state.subDomainsByItemId[s.id].time,
+                x: xSubDomain || state.subDomainsByItemId[s.id].x,
+                y: ySubDomain || state.subDomainsByItemId[s.id].y,
+              },
             },
           }));
         }
