@@ -9,14 +9,19 @@ charge of fetching the data given input parameters. For instance, if the current
 domain is 1 year, you might want to fetch daily aggregates instead of the raw
 process values.
 
-### Storybook & demo: https://griff.surge.sh
+## Slack
+
+Join us on Slack at [cognite-community.slack.com](https://cognite-community.slack.com/messages/CKH5R0JH5).
+(Get invited to join the Slack workspace [here](http://join-slack.cogniteapp.com))
+
+## Storybook & demo
+Our tip-of-tree Storybook can be found on [griff-master.surge.sh](https://griff-master.surge.sh)
 
 ## Test locally
 
 ```sh
 git clone https://github.com/cognitedata/griff-react
 yarn
-yarn start #starts the demo
 yarn storybook #starts the stories
 ```
 
@@ -28,7 +33,7 @@ or
 
 `npm i @cognite/griff-react`
 
-See examples in `demo/src` and `stories/index.js`
+See examples in `stories/index.js`
 
 ## Concepts
 
