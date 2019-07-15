@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
 import AxisCollection from '../AxisCollection';
-import ScalerContext from '../../context/Scaler';
 import ContextChart from '../ContextChart';
 import GriffPropTypes, {
   areaPropType,

@@ -869,8 +869,8 @@ storiesOf('LineChart/live loading', module)
   .addDecorator(withMargin)
   .add('Live loading', () => {
     const INTERVALS = [0, 33, 500, 1000, 2000];
-    const randomInterval = () =>
-      INTERVALS[Math.floor(Math.random() * INTERVALS.length)];
+    // const randomInterval = () =>
+    //   INTERVALS[Math.floor(Math.random() * INTERVALS.length)];
     class LiveLoadingStory extends React.Component {
       state = {
         intervals: {
