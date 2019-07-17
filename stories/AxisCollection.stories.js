@@ -37,7 +37,8 @@ storiesOf('components/AxisCollection', module)
     <React.Fragment>
       <Griff loader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" />
+        <Series id="2" color="maroon" zoomable={false} />
+        <AxisCollection height={300} />
         <AxisCollection height={300} zoomable />
         <AxisCollection height={300} zoomable={false} />
       </Griff>
@@ -46,14 +47,44 @@ storiesOf('components/AxisCollection', module)
   .add('axisDisplayMode', () => (
     <React.Fragment>
       <Griff loader={staticLoader} timeDomain={staticXDomain}>
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" />
-        <AxisCollection height={300} axisDisplayMode={AxisDisplayMode.ALL} />
-        <AxisCollection
-          height={300}
-          axisDisplayMode={AxisDisplayMode.COLLAPSED}
+        <Series
+          id="1"
+          color="steelblue"
+          yAxisDisplayMode={AxisDisplayMode.ALL}
         />
-        <AxisCollection height={300} axisDisplayMode={AxisDisplayMode.NONE} />
+        <Series
+          id="2"
+          color="maroon"
+          yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+        />
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <div style={{ padding: '1em' }}>
+            <h2>unspecified</h2>
+            <AxisCollection height={300} />
+          </div>
+          <div style={{ padding: '1em' }}>
+            <h2>ALL</h2>
+            <AxisCollection
+              height={300}
+              axisDisplayMode={AxisDisplayMode.ALL}
+            />
+          </div>
+          <div style={{ padding: '1em' }}>
+            <h2>COLLAPSED</h2>
+            <AxisCollection
+              height={300}
+              axisDisplayMode={AxisDisplayMode.COLLAPSED}
+            />
+          </div>
+          <div style={{ padding: '1em' }}>
+            <h2>NONE</h2>
+            <AxisCollection
+              height={300}
+              axisDisplayMode={AxisDisplayMode.NONE}
+            />
+            <p>(this space intentionally left blank)</p>
+          </div>
+        </div>
       </Griff>
     </React.Fragment>
   ))
@@ -79,8 +110,9 @@ storiesOf('components/AxisCollection', module)
   .add('placement', () => (
     <React.Fragment>
       <Griff loader={staticLoader} timeDomain={staticXDomain}>
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" />
+        <Series id="1" color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
+        <Series id="2" color="maroon" yAxisPlacement={AxisPlacement.RIGHT} />
+        <AxisCollection height={300} />
         <AxisCollection height={300} yAxisPlacement={AxisPlacement.LEFT} />
         <AxisCollection height={300} yAxisPlacement={AxisPlacement.RIGHT} />
       </Griff>

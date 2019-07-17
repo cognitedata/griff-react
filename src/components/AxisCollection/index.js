@@ -32,7 +32,7 @@ const propTypes = {
 const defaultProps = {
   series: [],
   collections: [],
-  zoomable: true,
+  zoomable: null,
   ticks: 5,
   yAxisWidth: 50,
   axisDisplayMode: null,
@@ -110,7 +110,6 @@ const renderAllVisibleAxes = (
     ticks,
     yAxisPlacement,
     yAxisWidth,
-    zoomable,
   }
 ) => {
   let axisOffsetX = offsetx - yAxisWidth;
@@ -140,7 +139,7 @@ const renderAllVisibleAxes = (
           <YAxis
             key={`y-axis--${s.id}`}
             offsetx={axisOffsetX}
-            zoomable={zoomable === undefined ? s.zoomable : zoomable}
+            zoomable={s.zoomable}
             series={s}
             height={height}
             width={yAxisWidth}
@@ -160,7 +159,7 @@ const renderAllVisibleAxes = (
           <YAxis
             key={`y-axis-collection-${c.id}`}
             offsetx={axisOffsetX}
-            zoomable={c.zoomable !== undefined ? c.zoomable : zoomable}
+            zoomable={c.zoomable}
             collection={c}
             height={height}
             width={yAxisWidth}
@@ -211,7 +210,7 @@ const renderPlaceholderAxis = (
 
 const AxisCollection = ({
   axisDisplayMode,
-  collections,
+  collections: incomingCollections,
   height,
   onMouseEnter,
   onMouseLeave,
@@ -223,13 +222,20 @@ const AxisCollection = ({
   zoomable,
 }) => {
   // We need to apply any local props to override the ones from the series.
-  const series = incomingSeries.map(s => {
-    const copy = { ...s };
+  const overrideCopier = item => {
+    const copy = { ...item };
     if (axisDisplayMode) {
       copy.yAxisDisplayMode = axisDisplayMode;
     }
+    if (zoomable !== null) {
+      copy.zoomable = !!zoomable;
+    }
     return copy;
-  });
+  };
+
+  const series = incomingSeries.map(overrideCopier);
+  const collections = incomingCollections.map(overrideCopier);
+
   const calculatedWidth = []
     .concat(series)
     .concat(collections)
