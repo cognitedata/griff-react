@@ -8,6 +8,7 @@ export interface Props {
   y: number;
   chartWidth: number;
   padding?: number;
+  offset?: number;
 }
 
 interface State {
@@ -39,13 +40,14 @@ class RulerTooltip extends React.Component<Props, State> {
       y,
       padding = 10,
       chartWidth,
+      offset = 10,
     } = this.props;
     const { textHeight, textWidth } = this.state;
 
     const xTranslate =
-      x + 2 * padding + textWidth > chartWidth
-        ? x - padding - padding - textWidth
-        : x + padding;
+      x + (padding + offset) + textWidth > chartWidth
+        ? x - padding - offset - textWidth
+        : x + offset;
 
     const height = (labelHeight || textHeight) + padding;
 
