@@ -35,7 +35,7 @@ const defaultProps = {
   zoomable: true,
   ticks: 5,
   yAxisWidth: 50,
-  axisDisplayMode: AxisDisplayMode.ALL,
+  axisDisplayMode: null,
   yAxisPlacement: AxisPlacement.RIGHT,
   onMouseEnter: null,
   onMouseLeave: null,
@@ -215,19 +215,30 @@ const AxisCollection = ({
   height,
   onMouseEnter,
   onMouseLeave,
-  series,
+  series: incomingSeries,
   tickFormatter,
   ticks,
   yAxisPlacement,
   yAxisWidth,
   zoomable,
 }) => {
+  // We need to apply any local props to override the ones from the series.
+  const series = incomingSeries.map(s => {
+    const copy = { ...s };
+    if (axisDisplayMode) {
+      copy.yAxisDisplayMode = axisDisplayMode;
+    }
+    return copy;
+  });
   const calculatedWidth = []
     .concat(series)
     .concat(collections)
-    .filter(item => item.collectionId === undefined)
-    .filter(item => ALL_FILTER(item, { axisDisplayMode }))
-    .filter(item => placementFilter(item, { yAxisPlacement }))
+    .filter(
+      item =>
+        item.collectionId === undefined ||
+        ALL_FILTER(item, { axisDisplayMode }) ||
+        placementFilter(item, { yAxisPlacement })
+    )
     .reduce(
       (acc, item) => {
         if (item.yAxisDisplayMode === AxisDisplayMode.COLLAPSED) {
