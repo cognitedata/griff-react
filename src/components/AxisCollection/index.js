@@ -209,7 +209,7 @@ const renderPlaceholderAxis = (
 };
 
 const AxisCollection = ({
-  axisDisplayMode,
+  axisDisplayMode: incomingAxisDisplayMode,
   collections: incomingCollections,
   height,
   onMouseEnter,
@@ -221,11 +221,15 @@ const AxisCollection = ({
   yAxisWidth,
   zoomable,
 }) => {
+  const axisDisplayMode =
+    incomingAxisDisplayMode === null
+      ? AxisDisplayMode.ALL
+      : incomingAxisDisplayMode;
   // We need to apply any local props to override the ones from the series.
   const overrideCopier = item => {
     const copy = { ...item };
-    if (axisDisplayMode) {
-      copy.yAxisDisplayMode = axisDisplayMode;
+    if (incomingAxisDisplayMode) {
+      copy.yAxisDisplayMode = incomingAxisDisplayMode;
     }
     if (zoomable !== null) {
       copy.zoomable = !!zoomable;
@@ -241,8 +245,8 @@ const AxisCollection = ({
     .concat(collections)
     .filter(
       item =>
-        item.collectionId === undefined ||
-        ALL_FILTER(item, { axisDisplayMode }) ||
+        item.collectionId === undefined &&
+        ALL_FILTER(item, { axisDisplayMode }) &&
         placementFilter(item, { yAxisPlacement })
     )
     .reduce(

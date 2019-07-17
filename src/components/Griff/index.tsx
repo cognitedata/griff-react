@@ -83,7 +83,7 @@ const DEFAULT_SERIES_CONFIG: BaseSeries = {
   ySubDomain: undefined,
   pointWidth: 6,
   strokeWidth: 1,
-  yAxisPlacement: AxisPlacement.RIGHT,
+  yAxisPlacement: undefined,
   yAxisDisplayMode: AxisDisplayMode.ALL,
   pointsPerSeries: 50,
   zoomable: true,

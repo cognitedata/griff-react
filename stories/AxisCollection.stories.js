@@ -110,9 +110,10 @@ storiesOf('components/AxisCollection', module)
   .add('placement', () => (
     <React.Fragment>
       <Griff loader={staticLoader} timeDomain={staticXDomain}>
-        <Series id="1" color="steelblue" yAxisPlacement={AxisPlacement.LEFT} />
-        <Series id="2" color="maroon" yAxisPlacement={AxisPlacement.RIGHT} />
-        <AxisCollection height={300} />
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        {/* This should only show up on the second AxisCollection. */}
+        <Series id="3" color="darkgreen" yAxisPlacement={AxisPlacement.RIGHT} />
         <AxisCollection height={300} yAxisPlacement={AxisPlacement.LEFT} />
         <AxisCollection height={300} yAxisPlacement={AxisPlacement.RIGHT} />
       </Griff>
