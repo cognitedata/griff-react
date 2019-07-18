@@ -118,6 +118,7 @@ const ContextChart = ({
       placement={xAxisPlacement}
       scaled={false}
       axis={Axes.time}
+      zoomable={zoomable}
     />
   );
 

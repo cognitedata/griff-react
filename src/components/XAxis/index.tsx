@@ -18,6 +18,7 @@ export interface Props {
   tickFormatter: TickFormatter;
   ticks: number;
   height: number;
+  zoomable: boolean;
 }
 
 interface ScalerProps {
@@ -156,6 +157,7 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   tickFormatter = Number,
   ticks = 0,
   width = 1,
+  zoomable = true,
 }) => {
   if (series.length === 0) {
     return null;
@@ -259,12 +261,14 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
       height={height}
     >
       {axisElement}
-      <ZoomRect
-        width={width}
-        height={height}
-        itemIds={series.filter(s => !s.hidden).map(s => s.id)}
-        zoomAxes={{ [a]: true }}
-      />
+      {zoomable && (
+        <ZoomRect
+          width={width}
+          height={height}
+          itemIds={series.filter(s => !s.hidden).map(s => s.id)}
+          zoomAxes={{ [a]: true }}
+        />
+      )}
     </svg>
   );
 };
