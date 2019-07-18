@@ -167,7 +167,7 @@ export default class Griff extends React.Component<Props, State> {
     seriesById: {},
   };
 
-  getCollectionObjects = () => {
+  getCollectionObjects = (memberCount: { [collectionId: string]: number }) => {
     const {
       drawLines,
       drawPoints,
@@ -192,6 +192,9 @@ export default class Griff extends React.Component<Props, State> {
     } = this.props;
     const { collectionsById } = this.state;
     return Object.keys(collectionsById).reduce((acc: BaseCollection[], id) => {
+      if (!memberCount[id]) {
+        return acc;
+      }
       const collection = collectionsById[id];
       const dataProvider = {
         drawLines,
@@ -391,14 +394,36 @@ export default class Griff extends React.Component<Props, State> {
     const { children, onUpdateDomains } = this.props;
 
     const series = this.getSeriesObjects();
-    const collections = this.getCollectionObjects();
+    const collectionIds = series.reduce<{
+      [collectionId: string]: number;
+    }>((ids, { collectionId }) => {
+      if (!collectionId) {
+        return ids;
+      }
+      return { ...ids, [collectionId]: (ids[collectionId] || 0) + 1 };
+    }, {});
+    const collections = this.getCollectionObjects(collectionIds);
+    const collectionsById = getItemsById(collections);
+
+    const filteredSeries = series.map(s => {
+      if (!s.collectionId) {
+        return s;
+      }
+      if (!collectionsById[s.collectionId]) {
+        // This points to an invalid collection.
+        const copy = { ...s };
+        delete copy.collectionId;
+        return copy;
+      }
+      return s;
+    });
 
     const context = {
       limitTimeSubDomain: DEFAULT_TIME_SUBDOMAIN_LIMITER,
-      series,
+      series: filteredSeries,
       collections,
       seriesById: getItemsById(series),
-      collectionsById: getItemsById(collections),
+      collectionsById,
 
       registerCollection: this.registerCollection,
       registerSeries: this.registerSeries,
