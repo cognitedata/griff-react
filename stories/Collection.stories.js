@@ -34,7 +34,7 @@ storiesOf('components/Collection', module)
     <Griff loader={staticLoader} timeDomain={staticXDomain}>
       <Collection id="collection">
         <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" yAccessor={d => +(d.value + 2)} />
+        <Series id="2" color="maroon" yAccessor={d => +(d.y + 2)} />
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </Griff>
