@@ -25,10 +25,10 @@ const mapping = {
   sincos: { x: Math.sin, y: Math.cos },
   sintan: { x: Math.sin, y: Math.tan },
   pow: { x: v => v, y: v => v * 10 },
-  'pow-y': { x: () => Math.random(), y: () => Math.random() * 10 },
-  'sum-y': { x: () => Math.random(), y: () => Math.random() + 19 },
-  'pow-x': { y: () => Math.random(), x: () => Math.random() * 10 },
-  'sum-x': { y: () => Math.random(), x: () => Math.random() + 9 },
+  'pow-y': { x: Math.random(), y: Math.random() * 10 },
+  'sum-y': { x: Math.random(), y: Math.random() + 19 },
+  'pow-x': { y: Math.random(), x: Math.random() * 10 },
+  'sum-x': { y: Math.random(), x: Math.random() + 9 },
 };
 
 const NUM_POINTS = 50;

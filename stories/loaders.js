@@ -42,7 +42,7 @@ export const staticLoader = input => {
     oldSeries,
     reason,
   } = input;
-  action(`staticLoader(${id}: ${reason})`)(input);
+  action(`staticLoader(${id}): ${reason})`)(input);
   let out = { ...oldSeries };
   if (reason === 'MOUNTED') {
     // Create dataset on mount
