@@ -55,7 +55,7 @@ podTemplate(
 
       stage('Build storybook') {
         // Increase the heap size.
-        sh("export NODE_OPTIONS='--max-old-space-size=2048' ; yarn storybook:build")
+        sh("export NODE_OPTIONS='--max-old-space-size=4096' ; yarn storybook:build")
       }
       if (env.CHANGE_ID) {
         // This needs to follow the delete-pr.sh step because we don't want to
