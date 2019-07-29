@@ -163,6 +163,10 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
     return null;
   }
 
+  if (width === 0 || height === 0) {
+    return <div style={{ width: '100%' }} />;
+  }
+
   const { timeDomain, timeSubDomain, xDomain, xSubDomain } = series[0];
   const domains = {
     time: timeDomain,
@@ -274,13 +278,14 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
 };
 
 export default withDisplayName('XAxis', (props: Props) => (
-  <GriffContext.Consumer>
-    {({ series }: ScalerProps) => (
-      <SizeMe monitorWidth>
-        {({ size }: { size: SizeProps }) => (
-          <XAxis series={series} {...props} width={size.width} />
-        )}
-      </SizeMe>
+  <SizeMe monitorWidth noPlaceholder>
+    {({ size }: { size: SizeProps }) => (
+      <GriffContext.Consumer>
+        {({ series }: ScalerProps) => {
+          console.log(size.width);
+          return <XAxis series={series} {...props} width={size.width} />;
+        }}
+      </GriffContext.Consumer>
     )}
-  </GriffContext.Consumer>
+  </SizeMe>
 ));
