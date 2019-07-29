@@ -54,6 +54,12 @@ const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
     return null;
   }
 
+  if (width === 0 || height === 0) {
+    // Without a width & height, we can't render things, so wait for those to
+    // be populated.
+    return null;
+  }
+
   const lines = [];
 
   if (y) {
