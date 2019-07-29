@@ -55,6 +55,7 @@ podTemplate(
 
       stage('Build storybook') {
         // Increase the heap size.
+        sh("yarn tsc")
         sh("export NODE_OPTIONS='--max-old-space-size=4096' ; yarn storybook:build")
       }
       if (env.CHANGE_ID) {
