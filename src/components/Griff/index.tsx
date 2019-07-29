@@ -19,7 +19,7 @@ import CollectionJSX from '../Collection';
 import SeriesJSX, { ItemProps } from '../Series';
 import { combineItems } from '../../utils/items';
 import { placeholder } from '../../utils/placeholder';
-import { AxisDisplayMode, AxisPlacement } from '../..';
+import { AxisDisplayMode } from '../..';
 import { copyDomain } from '../../utils/domains';
 import getItemsById from '../../utils/itemsById';
 

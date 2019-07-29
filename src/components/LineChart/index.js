@@ -80,7 +80,7 @@ const propTypes = {
   yAxisWidth: PropTypes.number,
 
   // The following props are all supplied by internals (eg, React).
-  children: PropTypes.arrayOf(PropTypes.node),
+  children: PropTypes.node,
 };
 
 const defaultProps = {
