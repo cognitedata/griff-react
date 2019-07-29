@@ -40,7 +40,7 @@ export const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
     const { x, y } = {
       x: staticLoader({
         id: pair.x,
-        n: NUM_POINTS,
+        pointsPerSeries: NUM_POINTS,
         reason,
         oldSeries,
         ...params,
@@ -48,7 +48,7 @@ export const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
       }),
       y: staticLoader({
         id: pair.y,
-        n: NUM_POINTS,
+        pointsPerSeries: NUM_POINTS,
         reason,
         oldSeries,
         ...params,
@@ -59,18 +59,18 @@ export const scatterplotloader = ({ id, reason, oldSeries, ...params }) => {
     const data = [];
     const lastKnown = { x: undefined, y: undefined, timestamp: undefined };
     while (x.data.length || y.data.length) {
-      const points = {
+      const { x: xPoint, y: yPoint } = {
         x: x.data.length ? x.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
         y: y.data.length ? y.data[0] : { timestamp: Number.MAX_SAFE_INTEGER },
       };
       let point;
-      if (points.x.timestamp <= points.y.timestamp) {
+      if (xPoint.timestamp <= yPoint.timestamp) {
         point = x.data.shift();
-        lastKnown.x = point.value;
+        lastKnown.x = point.y;
       }
-      if (points.y.timestamp <= points.x.timestamp) {
+      if (yPoint.timestamp <= xPoint.timestamp) {
         point = y.data.shift();
-        lastKnown.y = point.value;
+        lastKnown.y = point.y;
       }
       lastKnown.timestamp = point.timestamp;
       if (
@@ -207,67 +207,69 @@ storiesOf('Scatterplot', module)
     <React.Fragment>
       <div>
         <h3>One series</h3>
-        <div style={{ height: '500px', width: '100%' }}>
-          <Griff
-            loader={scatterplotloader}
-            timeDomain={[0, 1]}
-            xAccessor={d => +d.x}
-            yAccessor={d => +d.y}
-          >
-            <Series id="1 2" color="steelblue" drawPoints />
+        <Griff
+          loader={scatterplotloader}
+          timeDomain={[+moment().subtract(2, 'months'), +moment()]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+        >
+          <Series id="1 2" color="steelblue" drawLines={false} drawPoints />
+          <div style={{ height: '500px', width: '100%' }}>
             <Scatterplot zoomable />
-          </Griff>
-        </div>
+          </div>
+        </Griff>
       </div>
       <div>
         <h3>One collection</h3>
-        <div style={{ height: '500px', width: '100%' }}>
-          <Griff
-            loader={scatterplotloader}
-            timeDomain={[0, 1]}
-            collections={[]}
-            xAccessor={d => +d.x}
-            yAccessor={d => +d.y}
-          >
-            <Collection id="scatter" drawPoints>
-              <Series id="1 2" color="steelblue" />
-              <Series id="2 3" color="maroon" />
-            </Collection>
+        <Griff
+          loader={scatterplotloader}
+          timeDomain={[0, 1]}
+          collections={[]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+        >
+          <Collection id="scatter" drawLines={false} drawPoints>
+            <Series id="1 2" color="steelblue" />
+            <Series id="2 3" color="maroon" />
+          </Collection>
+          <div style={{ height: '500px', width: '100%' }}>
             <Scatterplot zoomable />
-          </Griff>
-        </div>
+          </div>
+        </Griff>
       </div>
       <div>
         <h3>Geometric series</h3>
-        <div style={{ height: '500px', width: '100%' }}>
-          <Griff
-            loader={scatterplotloader}
-            timeDomain={[0, 1]}
-            xAccessor={d => +d.x}
-            yAccessor={d => +d.y}
-            drawPoints
-          >
-            <Series id="sincos" color="#ACF39D" />
-            <Series id="sintan" color="#E85F5C" />
-            <Series id="pow" color="#9CFFFA" />
+        <Griff
+          loader={scatterplotloader}
+          timeDomain={[0, 1]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+          drawLines={false}
+          drawPoints
+        >
+          <Series id="sincos" color="#ACF39D" />
+          <Series id="sintan" color="#E85F5C" />
+          <Series id="pow" color="#9CFFFA" />
+          <div style={{ height: '500px', width: '100%' }}>
             <Scatterplot zoomable />
-          </Griff>
-        </div>
+          </div>
+        </Griff>
       </div>
       <div>
         <h3>Many pairs</h3>
-        <div style={{ height: '500px', width: '100%' }}>
-          <Griff
-            loader={scatterplotloader}
-            timeDomain={[0, 1]}
-            xAccessor={d => +d.x}
-            yAccessor={d => +d.y}
-            drawPoints
-          >
-            {generateSeries(10)}
+        <Griff
+          loader={scatterplotloader}
+          timeDomain={[0, 1]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+          drawLines={false}
+          drawPoints
+        >
+          {generateSeries(10)}
+          <div style={{ height: '500px', width: '100%' }}>
             <Scatterplot zoomable />
-          </Griff>
-        </div>
+          </div>
+        </Griff>
       </div>
     </React.Fragment>
   ))
@@ -275,21 +277,22 @@ storiesOf('Scatterplot', module)
     <React.Fragment>
       <div>
         <h3>Different Y domains</h3>
-        <div style={{ height: '500px', width: '100%' }}>
-          <Griff
-            loader={scatterplotloader}
-            timeDomain={[0, 1]}
-            xAccessor={d => +d.x}
-            yAccessor={d => +d.y}
-            drawPoints
-          >
-            <Collection id="scatter">
-              <Series id="1 2" color="steelblue" />
-              <Series id="sum-y" color="maroon" />
-            </Collection>
+        <Griff
+          loader={scatterplotloader}
+          timeDomain={[0, 1]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+          drawLines={false}
+          drawPoints
+        >
+          <Collection id="scatter">
+            <Series id="1 2" color="steelblue" />
+            <Series id="sum-y" color="maroon" />
+          </Collection>
+          <div style={{ height: '500px', width: '100%' }}>
             <Scatterplot zoomable />
-          </Griff>
-        </div>
+          </div>
+        </Griff>
       </div>
     </React.Fragment>
   ))
@@ -305,6 +308,7 @@ storiesOf('Scatterplot', module)
             yDomain={[-1, 2]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawLines={false}
             drawPoints
           >
             <Series id="1 2" color="steelblue" />
@@ -321,6 +325,7 @@ storiesOf('Scatterplot', module)
             xDomain={[-1, 2]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawLines={false}
             drawPoints
           >
             <Series id="1 2" color="steelblue" />
@@ -337,6 +342,7 @@ storiesOf('Scatterplot', module)
             yDomain={[-1, 2]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawLines={false}
             drawPoints
           >
             <Series id="1 2" color="steelblue" />
@@ -352,6 +358,7 @@ storiesOf('Scatterplot', module)
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawLines={false}
             drawPoints
           >
             <Series id="1 2" color="steelblue" />
@@ -369,6 +376,7 @@ storiesOf('Scatterplot', module)
             yDomain={[0.25, 0.75]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawLines={false}
             drawPoints
           >
             <Series id="1 2" color="steelblue" />
@@ -386,6 +394,7 @@ storiesOf('Scatterplot', module)
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" />
@@ -405,6 +414,7 @@ storiesOf('Scatterplot', module)
         timeDomain={[0, 1]}
         xAccessor={d => +d.x}
         yAccessor={d => +d.y}
+        drawLines={false}
         drawPoints
       >
         <Series id="1 2" color="steelblue" />
@@ -432,6 +442,7 @@ storiesOf('Scatterplot', module)
               timeDomain={[0, 1]}
               xAccessor={d => +d.x}
               yAccessor={d => +d.y}
+              drawLines={false}
               drawPoints
             >
               <Series id="1 2" color="steelblue" />
@@ -456,6 +467,7 @@ storiesOf('Scatterplot', module)
               timeDomain={[0, 1]}
               xAccessor={d => +d.x}
               yAccessor={d => +d.y}
+              drawLines={false}
               drawPoints
             >
               <Series id="1 2" color="steelblue" />
@@ -477,6 +489,7 @@ storiesOf('Scatterplot', module)
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" />
@@ -505,6 +518,7 @@ storiesOf('Scatterplot', module)
         yDomain={[-1, 2]}
         xAccessor={d => +d.x}
         yAccessor={d => +d.y}
+        drawLines={false}
         drawPoints
       >
         <Collection id="left" yAxisPlacement={AxisPlacement.LEFT}>
@@ -527,6 +541,7 @@ storiesOf('Scatterplot', module)
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" strokeWidth={2} />
@@ -541,6 +556,7 @@ storiesOf('Scatterplot', module)
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
           strokeWidth={10}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" />
@@ -558,6 +574,7 @@ storiesOf('Scatterplot', module)
           timeDomain={[0, 1]}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" pointWidth={2} />
@@ -572,6 +589,7 @@ storiesOf('Scatterplot', module)
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
           pointWidth={10}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" />
@@ -586,6 +604,7 @@ storiesOf('Scatterplot', module)
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
           pointWidthAccessor={d => ((+d.x + +d.y) / 2) * 16 + 1}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" />
@@ -604,6 +623,7 @@ storiesOf('Scatterplot', module)
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
           pointWidth={10}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" opacity={0.25} />
@@ -619,6 +639,7 @@ storiesOf('Scatterplot', module)
           yAccessor={d => +d.y}
           opacityAccessor={(d, i, arr) => (i / arr.length) * 0.9 + 0.1}
           pointWidth={20}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" opacity={0.25} />
@@ -640,6 +661,7 @@ storiesOf('Scatterplot', module)
           yAccessor={d => +d.y}
           y0Accessor={d => +d.y * 0.9}
           y1Accessor={d => +d.y * 1.1}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" />
@@ -659,6 +681,7 @@ storiesOf('Scatterplot', module)
           timeAccessor={d => +d.timestamp}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" />
@@ -682,6 +705,7 @@ storiesOf('Scatterplot', module)
           timeAccessor={d => +d.timestamp}
           xAccessor={d => +d.x}
           yAccessor={d => +d.y}
+          drawLines={false}
           drawPoints
         >
           <Series id="1 2" color="steelblue" />
@@ -719,6 +743,7 @@ storiesOf('Scatterplot', module)
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawLines={false}
             drawPoints
           >
             <Series id="sincos" color="#ACF39D" drawLines />
@@ -771,6 +796,7 @@ storiesOf('Scatterplot', module)
             timeDomain={[0, 1]}
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
+            drawLines={false}
             drawPoints={latestPointRenderer}
           >
             <Series id="1 2" color="steelblue" />
@@ -790,9 +816,15 @@ storiesOf('Scatterplot', module)
             <Series
               id="1 2"
               color="steelblue"
+              drawLines={false}
               drawPoints={latestPointRenderer}
             />
-            <Series id="2 3" color="maroon" drawPoints={latestPointRenderer} />
+            <Series
+              id="2 3"
+              color="maroon"
+              drawLines={false}
+              drawPoints={latestPointRenderer}
+            />
             <Scatterplot zoomable />
           </Griff>
         </div>
@@ -806,7 +838,11 @@ storiesOf('Scatterplot', module)
             xAccessor={d => +d.x}
             yAccessor={d => +d.y}
           >
-            <Collection id="scatter" drawPoints={latestPointRenderer}>
+            <Collection
+              id="scatter"
+              drawLines={false}
+              drawPoints={latestPointRenderer}
+            >
               <Series id="1 2" color="steelblue" />
               <Series id="3 4" color="maroon" />
             </Collection>

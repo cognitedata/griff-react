@@ -161,6 +161,12 @@ class DataProvider extends React.Component<Props, State> {
         ...s,
         ...deleteUndefinedFromObject(loaderResult),
         data: loaderResult.data || s.data || [],
+        xSubDomain:
+          highestPriorityDomain(
+            s.xSubDomain,
+            loaderResult.xSubDomain,
+            (loaderResult.dataDomains || {}).x
+          ) || s.xSubDomain,
         ySubDomain:
           highestPriorityDomain(
             s.ySubDomain,

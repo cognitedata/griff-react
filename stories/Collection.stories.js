@@ -47,8 +47,8 @@ storiesOf('components/Collection', module)
       yAccessor={d => +d.y}
     >
       <Collection id="collection">
-        <Series id="1 2" color="steelblue" drawPoints />
-        <Series id="2 3" color="maroon" drawPoints />
+        <Series id="1 2" color="steelblue" drawPoints drawLines={false} />
+        <Series id="2 3" color="maroon" drawPoints drawLines={false} />
       </Collection>
       <div style={{ height: '500px', width: '100%' }}>
         <Scatterplot zoomable />

@@ -35,7 +35,7 @@ storiesOf('components/Series', module)
       xAccessor={d => +d.x}
       yAccessor={d => +d.y}
     >
-      <Series id="1 2" color="steelblue" drawPoints />
+      <Series id="1 2" color="steelblue" drawPoints drawLines={false} />
       <div style={{ height: '500px', width: '100%' }}>
         <Scatterplot zoomable />
       </div>

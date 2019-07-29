@@ -11,6 +11,28 @@ const printData = data => {
   return `/* SNIP ${data.length} POINTS */`;
 };
 
+const printableSeries = s =>
+  Object.keys(s).reduce((acc, key) => {
+    const val = s[key];
+    if (typeof val === 'function') {
+      const { name = 'FUNCTION' } = val;
+      return {
+        ...acc,
+        [key]: `/* ${name}(< ${val.length} args >) */`,
+      };
+    }
+    if (key === 'data') {
+      return {
+        ...acc,
+        data: printData(val),
+      };
+    }
+    return {
+      ...acc,
+      [key]: val,
+    };
+  }, {});
+
 export default () => (
   <Griff.Consumer>
     {({
@@ -47,10 +69,7 @@ export default () => (
               Object.keys(seriesById).reduce(
                 (acc, id) => ({
                   ...acc,
-                  [id]: {
-                    ...seriesById[id],
-                    data: printData(seriesById[id].data),
-                  },
+                  [id]: printableSeries(seriesById[id]),
                 }),
                 {}
               ),
@@ -61,16 +80,7 @@ export default () => (
         </div>
         <div>
           <h3 style={{ fontFamily: 'monospace' }}>series</h3>
-          <pre>
-            {JSON.stringify(
-              series.map(s => ({
-                ...s,
-                data: printData(s.data),
-              })),
-              null,
-              2
-            )}
-          </pre>
+          <pre>{JSON.stringify(series.map(printableSeries), null, 2)}</pre>
         </div>
       </div>
     )}
