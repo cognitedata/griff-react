@@ -125,11 +125,11 @@ const scatterplotFunctionLoader = ({
     let point;
     if (points.x.timestamp <= points.y.timestamp) {
       point = x.data.shift();
-      lastKnown.x = point.value;
+      lastKnown.x = point.y;
     }
     if (points.y.timestamp <= points.x.timestamp) {
       point = y.data.shift();
-      lastKnown.y = point.value;
+      lastKnown.y = point.y;
     }
     lastKnown.timestamp = point.timestamp;
     if (
@@ -673,7 +673,7 @@ storiesOf('Scatterplot', module)
   ))
   .add('Context Chart', () => (
     <React.Fragment>
-      <div style={{ width: 500 }}>
+      <div style={{ width: '100%' }}>
         <Griff
           loader={scatterplotFunctionLoader}
           timeDomain={[+moment().subtract(1, 'year'), +moment()]}
@@ -688,7 +688,7 @@ storiesOf('Scatterplot', module)
           <div style={{ height: 500 }}>
             <Scatterplot zoomable />
           </div>
-          <div style={{ width: 450 }}>
+          <div>
             <ContextChart />
           </div>
         </Griff>
