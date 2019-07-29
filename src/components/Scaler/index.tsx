@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as PropTypes from 'prop-types';
 import {
   OnTimeSubDomainChanged,
   LimitTimeSubDomain,
@@ -140,16 +139,6 @@ const getLimitedSubDomain = (subDomain: Domain, domain: Domain): Domain => {
  * made available through the {@link ScalerContext}.
  */
 class Scaler extends React.Component<Props, State> {
-  static propTypes = {
-    children: PropTypes.node.isRequired,
-    limitTimeSubDomain: PropTypes.func,
-    series: seriesPropType.isRequired,
-    collections: GriffPropTypes.collections.isRequired,
-    seriesById: GriffPropTypes.itemsByItemId.isRequired,
-  };
-
-  static defaultProps = {};
-
   state: State = {
     subDomainsByItemId: {},
     domainsByItemId: {},
