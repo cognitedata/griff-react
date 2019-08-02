@@ -298,16 +298,9 @@ export default class Griff extends React.Component<Props, State> {
     }, []);
   };
 
-  registerCollection = ({ id, ...collection }: IncomingCollection) => {
-    this.setState(({ collectionsById }) => ({
-      collectionsById: {
-        ...collectionsById,
-        [id]: deleteUndefinedFromItem({
-          ...collection,
-          id,
-        }),
-      },
-    }));
+  registerCollection = (incomingCollection: IncomingCollection) => {
+    const { id } = incomingCollection;
+    this.updateCollection(incomingCollection);
 
     // Return an unregistration so that we can do some cleanup.
     return () => {
@@ -334,16 +327,9 @@ export default class Griff extends React.Component<Props, State> {
     }));
   };
 
-  registerSeries = ({ id, ...series }: IncomingSeries) => {
-    this.setState(({ seriesById }) => ({
-      seriesById: {
-        ...seriesById,
-        [id]: deleteUndefinedFromItem({
-          ...series,
-          id,
-        }),
-      },
-    }));
+  registerSeries = (incomingSeries: IncomingSeries) => {
+    const { id } = incomingSeries;
+    this.updateSeries(incomingSeries);
 
     // Return an unregistration so that we can do some cleanup.
     return () => {
