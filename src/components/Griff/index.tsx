@@ -370,26 +370,6 @@ export default class Griff extends React.Component<Props, State> {
     }));
   };
 
-  // Add a helper method to render the legacy props using the new tree structure
-  // format. This is only intended to ease the transition pain and is not
-  // intended to be an ongoing solution.
-  renderLegacyItems = () => {
-    const { series, collections } = this.props;
-    if (series || collections) {
-      return (
-        <React.Fragment>
-          {(series || []).map(s => (
-            <SeriesJSX key={s.id} {...s} />
-          ))}
-          {(collections || []).map(c => (
-            <CollectionJSX key={c.id} {...c} />
-          ))}
-        </React.Fragment>
-      );
-    }
-    return null;
-  };
-
   render() {
     const { children, onUpdateDomains } = this.props;
 
