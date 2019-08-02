@@ -1,13 +1,13 @@
-# griff-react
+<!-- Place each sentence on a separate line for easy diffing. -->
 
-High-performance charting of time series with dynamic data in mind. Using the
-power of React to render, with event-handling and maths by d3.
+# @cognitedata/griff-react
 
-`griff-react` introduces the concept of dynamic data loading for
-displaying complex time series. You provide a `loader` function which is in
-charge of fetching the data given input parameters. For instance, if the current
-domain is 1 year, you might want to fetch daily aggregates instead of the raw
-process values.
+High-performance charting of time series with dynamic data in mind.
+Using the power of React to render, with event-handling and maths by d3.
+
+`griff-react` introduces the concept of dynamic data loading for displaying complex time series.
+You provide a `loader` function which is in charge of fetching the data given input parameters.
+For instance, if the current domain is 1 year, you might want to fetch daily aggregates instead of the raw process values.
 
 ## Slack
 
@@ -15,6 +15,7 @@ Join us on Slack at [cognite-community.slack.com](https://cognite-community.slac
 (Get invited to join the Slack workspace [here](http://join-slack.cogniteapp.com))
 
 ## Storybook & demo
+
 Our tip-of-tree Storybook can be found on [griff-master.surge.sh](https://griff-master.surge.sh)
 
 ## Test locally
@@ -37,44 +38,33 @@ See examples in `stories/index.js`
 
 ## Concepts
 
-### DataProvider
+### Series
 
-The outermost component in the hierarchy. The DataProvider is in charge of handling the data for all the other components. It uses React's new context API to expose the properties sent.
+The Series represents a single data stream.
+This data stream can have data points across multiple dimensions (x, y, and time).
+How these data points are rendered is controlled by the rendering properties, which can be set on a per-Series basis.
 
-```js
-DataProvider.propTypes = {
-  xDomain: PropTypes.arrayOf(PropTypes.number).isRequired,
-  updateInterval: PropTypes.number,
-  yAccessor: PropTypes.func,
-  xAccessor: PropTypes.func,
-  yAxisWidth: PropTypes.number,
-  pointsPerSeries: PropTypes.number,
-  children: PropTypes.node.isRequired,
-  defaultLoader: PropTypes.func,
-  series: seriesPropType.isRequired,
-};
-```
+### Collection
 
-The series prop type is
+A Collection represents a group of Series which should behave as one.
+That is to say, they should be zoomed / translated / scaled as a single group.
+The rendering properties of a Collection are passed down to the Series.
 
-```js
-export const singleSeriePropType = PropTypes.shape({
-  id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
-  color: PropTypes.string,
-  hidden: PropTypes.bool,
-  strokeWidth: PropTypes.number,
-  drawPoints: PropTypes.bool,
-  loader: PropTypes.func,
-  step: PropTypes.bool,
-  xAccessor: PropTypes.func,
-  yAccessor: PropTypes.func,
-  yDomain: PropTypes.arrayOf(PropTypes.number.isRequired),
-});
-```
+### Griff
 
-### The data loader
+The outermost component in the hierarchy, Griff holds all of the state for the system.
+Specifically, it is responsible for managing the Series and Collections which should be rendered, and passes them on down to the rendering layer.
 
-The thing that separates this library with other libraries is the concept of the data loader. The data loader is a function that gets called by the `DataProvider` with information about the current state of the chart as well as the reason why it's called. The different reasons are
+The data controlled by Griff is exposed through React's [Context](https://reactjs.org/docs/context.html) API, by way of `Griff.Context`.
+
+### Data loading
+
+Data loading happens through the `loader` function, which is provided to Griff.
+This loader function is responsible for taking in a Series and information about the current state, and returning a Promise which will resolve a new Series object.
+This resulting Series is then merged with the old one and then rendered.
+
+The data loader can be called for several reasons.
+The different reasons that the loader can be called are:
 
 ```js
 MOUNTED, // First render of the chart
