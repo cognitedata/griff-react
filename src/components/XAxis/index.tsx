@@ -282,7 +282,6 @@ export default withDisplayName('XAxis', (props: Props) => (
     {({ size }: { size: SizeProps }) => (
       <GriffContext.Consumer>
         {({ series }: ScalerProps) => {
-          console.log(size.width);
           return <XAxis series={series} {...props} width={size.width} />;
         }}
       </GriffContext.Consumer>
