@@ -67,12 +67,12 @@ export const placeholder = (min: number, max: number): Domain => {
 };
 
 const haveDomainsChanged = (before: Item, after: Item) =>
-  before.timeDomain !== after.timeDomain ||
-  before.timeSubDomain !== after.timeSubDomain ||
-  before.xDomain !== after.xDomain ||
-  before.xSubDomain !== after.xSubDomain ||
-  before.yDomain !== after.yDomain ||
-  before.ySubDomain !== after.ySubDomain;
+  !isEqual(before.timeDomain, after.timeDomain) ||
+  !isEqual(before.timeSubDomain, after.timeSubDomain) ||
+  !isEqual(before.xDomain, after.xDomain) ||
+  !isEqual(before.xSubDomain, after.xSubDomain) ||
+  !isEqual(before.yDomain, after.yDomain) ||
+  !isEqual(before.ySubDomain, after.ySubDomain);
 
 const findItemsWithChangedDomains = (
   previousItems: Item[],
@@ -96,11 +96,11 @@ const findItemsWithChangedDomains = (
   }, []);
 };
 
-const isEqual = (a: Domain, b: Domain): boolean => {
+const isEqual = (a: Domain | undefined, b: Domain | undefined): boolean => {
   if (a === b) {
     return true;
   }
-  if ((!a && b) || (a && !b)) {
+  if (!a || !b) {
     return false;
   }
   return a[0] === b[0] && a[1] === b[1];
