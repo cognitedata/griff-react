@@ -392,10 +392,8 @@ class InteractionLayer extends React.Component {
       if (!subDomainsByItemId[s.id]) {
         return;
       }
-      const {
-        [Axes.time]: timeSubDomain,
-        [Axes.y]: ySubDomain,
-      } = subDomainsByItemId[s.id];
+      const { [Axes.time]: timeSubDomain, [Axes.y]: ySubDomain } =
+        subDomainsByItemId[s.collectionId] || subDomainsByItemId[s.id];
       const xScale = createXScale(timeSubDomain, width);
       const rawTimestamp = xScale.invert(xpos);
       const { data, xAccessor, yAccessor } = s;
