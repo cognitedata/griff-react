@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import moment from 'moment';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { DataProvider, LineChart, Series } from '../build/src';
+import { DataProvider, LineChart, Series } from '../src';
 import { functionLoader, staticLoader } from './loaders';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];

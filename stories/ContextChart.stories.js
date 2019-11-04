@@ -1,12 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
-import {
-  AxisPlacement,
-  ContextChart,
-  DataProvider,
-  Series,
-} from '../build/src';
+import { AxisPlacement, ContextChart, DataProvider, Series } from '../src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];

@@ -6,7 +6,7 @@ import {
   LineChart,
   Series,
   Scatterplot,
-} from '../build/src';
+} from '../src';
 
 import { staticLoader } from './loaders';
 import ToggleRenderer from './ToggleRenderer';

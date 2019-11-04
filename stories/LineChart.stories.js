@@ -4,13 +4,7 @@ import Select from 'react-select';
 import isEqual from 'lodash.isequal';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import {
-  DataProvider,
-  LineChart,
-  Brush,
-  Series,
-  Collection,
-} from '../build/src';
+import { DataProvider, LineChart, Brush, Series, Collection } from '../src';
 import quandlLoader from './quandlLoader';
 
 import {

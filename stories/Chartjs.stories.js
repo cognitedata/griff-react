@@ -2,12 +2,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
 import { Bar, Doughnut } from 'react-chartjs-2';
-import {
-  ContextChart,
-  DataProvider,
-  ScalerContext,
-  Series,
-} from '../build/src';
+import { ContextChart, DataProvider, ScalerContext, Series } from '../src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];

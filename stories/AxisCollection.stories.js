@@ -2,14 +2,9 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import moment from 'moment';
-import {
-  AxisPlacement,
-  DataProvider,
-  AxisDisplayMode,
-  Series,
-} from '../build/src';
+import { AxisPlacement, DataProvider, AxisDisplayMode, Series } from '../src';
 import { staticLoader } from './loaders';
-import AxisCollection from '../build/src/components/AxisCollection';
+import AxisCollection from '../src/components/AxisCollection';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
 

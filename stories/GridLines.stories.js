@@ -1,9 +1,9 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
-import { DataProvider, LineChart, Series } from '../build/src';
+import { DataProvider, LineChart, Series } from '../src';
 import { staticLoader } from './loaders';
-import GridLines from '../build/src/components/GridLines';
+import GridLines from '../src/components/GridLines';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;

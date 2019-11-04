@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { DataProvider, LineChart, Series, Scatterplot } from '../build/src';
+import { DataProvider, LineChart, Series, Scatterplot } from '../src';
 
 import { staticLoader } from './loaders';
 import ToggleRenderer from './ToggleRenderer';
@@ -8,12 +8,6 @@ import { scatterplotloader } from './Scatterplot.stories';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
-
-export const makePrintable = arr => {
-  const copy = [...arr];
-  copy.toString = () => `[${arr.join(', ')}]`;
-  return copy;
-};
 
 /* eslint-disable react/no-multi-comp */
 storiesOf('components/Series', module)

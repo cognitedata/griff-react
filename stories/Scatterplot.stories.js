@@ -10,7 +10,7 @@ import {
   Scatterplot,
   Series,
   Collection,
-} from '../build/src';
+} from '../src';
 import { staticLoader, functionLoader } from './loaders';
 
 const mapping = {

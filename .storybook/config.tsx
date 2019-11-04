@@ -2,12 +2,6 @@ import React from 'react';
 import { configure, addDecorator } from '@storybook/react';
 import { withInfo, setDefaults } from '@storybook/addon-info';
 
-// automatically import all files ending in *.stories.js
-const req = require.context('../stories', true, /.stories.js$/);
-function loadStories() {
-  req.keys().forEach(filename => req(filename));
-}
-
 setDefaults({ inline: true, header: false });
 
 addDecorator((story, context) => (
@@ -25,4 +19,4 @@ addDecorator((story, context) => (
   </div>
 ));
 
-configure(loadStories, module);
+configure(require.context('../stories', true, /\.stories\.(tsx|js)$/), module);

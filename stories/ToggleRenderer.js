@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { staticLoader } from './loaders';
-import { makePrintable } from './Series.stories';
+import { makePrintable } from './utils';
 import {
   AxisPlacement,
   AxisDisplayMode,
@@ -9,7 +9,7 @@ import {
   LineChart,
   Series,
   DataProvider,
-} from '../build/src';
+} from '../src';
 
 const pointRenderer = (
   d,

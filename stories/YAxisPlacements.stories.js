@@ -7,7 +7,7 @@ import {
   AxisDisplayMode,
   Series,
   Collection,
-} from '../build/src';
+} from '../src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];

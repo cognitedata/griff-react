@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { DataProvider, LineChart } from '../build/src';
+import { DataProvider, LineChart } from '../src';
 
 import { staticLoader } from './loaders';
 

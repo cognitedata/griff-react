@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
-import { DataProvider, XAxis, AxisPlacement, Series } from '../build/src';
+import { DataProvider, XAxis, AxisPlacement, Series } from '../src';
 import { staticLoader } from './loaders';
 
 storiesOf('components/XAxis', module)

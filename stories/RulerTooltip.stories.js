@@ -1,6 +1,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import RulerTooltip from '../build/src/components/RulerTooltip';
+import RulerTooltip from '../src/components/RulerTooltip';
 
 const CHART_WIDTH = 500;
 const CHART_HEIGHT = 500;

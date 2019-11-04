@@ -3,12 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import moment from 'moment';
 import Plot from 'react-plotly.js';
-import {
-  ContextChart,
-  DataProvider,
-  ScalerContext,
-  Series,
-} from '../build/src';
+import { ContextChart, DataProvider, ScalerContext, Series } from '../src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];

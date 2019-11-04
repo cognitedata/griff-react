@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import moment from 'moment';
-import Ruler from '../build/src/components/Ruler';
+import Ruler from '../src/components/Ruler';
 
 storiesOf('components/Ruler', module)
   .addDecorator(story => (
