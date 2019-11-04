@@ -5,6 +5,7 @@ static final String PR_COMMENT_MARKER = "[pr-server]\n"
 static final String BASE_URL_BRANCH="griff-"
 static final String BASE_URL_PR="griff-react-pr-"
 static final String DEPLOY_URL="griff.surge.sh"
+static final String GITHUB_CICD_USER = "jenkins-cognite"
 
 def label = "${REPO}-${UUID.randomUUID().toString().substring(0, 5)}"
 podTemplate(
@@ -96,7 +97,7 @@ podTemplate(
               // remove the comments if the teardown didn't succeed.
               stage('Remove GitHub comments') {
                 pullRequest.comments.each({
-                  if (it.body.startsWith(PR_COMMENT_MARKER) && it.user == "cognite-cicd") {
+                  if (it.body.startsWith(PR_COMMENT_MARKER) && GITHUB_CICD_USER) {
                     pullRequest.deleteComment(it.id)
                   }
                 })
