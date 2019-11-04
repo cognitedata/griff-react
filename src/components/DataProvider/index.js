@@ -52,18 +52,6 @@ const deleteUndefinedFromObject = obj => {
   }, {});
 };
 
-/**
- * Return the first thing which is not `undefined`.
- * @param {*} first
- * @param  {...any} others
- */
-const firstDefined = (first, ...others) => {
-  if (first !== undefined || others.length === 0) {
-    return first;
-  }
-  return firstDefined(others[0], ...others.splice(1));
-};
-
 const getTimeSubDomain = (
   timeDomain,
   timeSubDomain,

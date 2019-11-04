@@ -14,7 +14,6 @@ const propTypes = {
 const defaultProps = {
   xAxisPlacement: AxisPlacement.BOTTOM,
   yAxisPlacement: AxisPlacement.RIGHT,
-  contextChart: null,
 };
 
 const xAxisContainer = area => (axis, placement) => (

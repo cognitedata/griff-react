@@ -1,12 +1,6 @@
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import moment from 'moment';
-import {
-  AxisPlacement,
-  ContextChart,
-  DataProvider,
-  Series,
-} from '../build/src';
+import { AxisPlacement, ContextChart, DataProvider, Series } from '../src';
 import { staticLoader } from './loaders';
 
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
@@ -19,78 +13,112 @@ const exampleAnnotations = [
   },
 ];
 
-storiesOf('components/ContextChart', module)
-  .addDecorator(story => (
-    <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
-      {story()}
-    </div>
-  ))
-  .add('default', () => (
-    <div style={{ width: '100%' }}>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" />
-        <ContextChart />
-      </DataProvider>
-    </div>
-  ))
-  .add('height', () => (
-    <div style={{ width: '100%' }}>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" />
-        <ContextChart height={500} />
-      </DataProvider>
-    </div>
-  ))
-  .add('annotations', () => (
-    <div style={{ width: '100%' }}>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" />
-        <ContextChart annotations={exampleAnnotations} />
-      </DataProvider>
-    </div>
-  ))
-  .add('zoomable', () => (
-    <React.Fragment>
-      <div style={{ width: '100%' }}>
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-          <ContextChart zoomable />
-        </DataProvider>
+export default {
+  title: 'components/ContextChart',
+
+  decorators: [
+    story => (
+      <div style={{ marginLeft: 'auto', marginRight: 'auto', width: '80%' }}>
+        {story()}
       </div>
-      <div style={{ width: '100%' }}>
-        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-          <Series id="1" color="steelblue" />
-          <Series id="2" color="maroon" />
-          <ContextChart zoomable={false} />
-        </DataProvider>
-      </div>
-    </React.Fragment>
-  ))
-  .add('xAxisFormatter', () => (
+    ),
+  ],
+};
+
+export const defaultStory = () => (
+  <div style={{ width: '100%' }}>
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
+      <ContextChart />
+    </DataProvider>
+  </div>
+);
+
+defaultStory.story = {
+  name: 'default',
+};
+
+export const heightStory = () => (
+  <div style={{ width: '100%' }}>
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
+      <ContextChart height={500} />
+    </DataProvider>
+  </div>
+);
+
+heightStory.story = {
+  name: 'height',
+};
+
+export const annotationsStory = () => (
+  <div style={{ width: '100%' }}>
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
+      <ContextChart annotations={exampleAnnotations} />
+    </DataProvider>
+  </div>
+);
+
+annotationsStory.story = {
+  name: 'annotations',
+};
+
+export const zoomableStory = () => (
+  <React.Fragment>
+    <div style={{ width: '100%' }}>
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <ContextChart zoomable />
+      </DataProvider>
+    </div>
     <div style={{ width: '100%' }}>
       <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
-        <ContextChart
-          xAxisFormatter={date =>
-            `${(
-              100 *
-              ((date - staticXDomain[0]) /
-                (staticXDomain[1] - staticXDomain[0]))
-            ).toFixed(0)}%`
-          }
-        />
+        <ContextChart zoomable={false} />
       </DataProvider>
     </div>
-  ))
-  .add('xAxisPlacement', () => (
-    <div style={{ width: '100%' }}>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" />
-        <ContextChart xAxisPlacement={AxisPlacement.TOP} />
-      </DataProvider>
-    </div>
-  ));
+  </React.Fragment>
+);
+
+zoomableStory.story = {
+  name: 'zoomable',
+};
+
+export const xAxisFormatterStory = () => (
+  <div style={{ width: '100%' }}>
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
+      <ContextChart
+        xAxisFormatter={date =>
+          `${(
+            100 *
+            ((date - staticXDomain[0]) / (staticXDomain[1] - staticXDomain[0]))
+          ).toFixed(0)}%`
+        }
+      />
+    </DataProvider>
+  </div>
+);
+
+xAxisFormatterStory.story = {
+  name: 'xAxisFormatter',
+};
+
+export const xAxisPlacementStory = () => (
+  <div style={{ width: '100%' }}>
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
+      <ContextChart xAxisPlacement={AxisPlacement.TOP} />
+    </DataProvider>
+  </div>
+);
+
+xAxisPlacementStory.story = {
+  name: 'xAxisPlacement',
+};
