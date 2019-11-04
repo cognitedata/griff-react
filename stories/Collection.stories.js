@@ -66,6 +66,10 @@ export const flatStructure = () => (
   </DataProvider>
 );
 
+flatStructure.story = {
+  name: 'Flat structure',
+};
+
 export const Ruler = () => (
   <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
     <Collection id="collection" />
@@ -89,10 +93,6 @@ export const Ruler = () => (
     />
   </DataProvider>
 );
-
-flatStructure.story = {
-  name: 'Flat structure',
-};
 
 export const changeProps = () => (
   <ToggleRenderer
