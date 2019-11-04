@@ -1,4 +1,5 @@
 import React from 'react';
+import moment from 'moment';
 import {
   Collection,
   DataProvider,
@@ -62,6 +63,30 @@ export const flatStructure = () => (
     <Series id="1" color="steelblue" collectionId="collection" />
     <Series id="2" color="maroon" collectionId="collection" />
     <LineChart height={CHART_HEIGHT} />
+  </DataProvider>
+);
+
+export const Ruler = () => (
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Collection id="collection" />
+    <Series
+      id="1"
+      color="steelblue"
+      collectionId="collection"
+      name="Series 1"
+    />
+    <Series id="2" color="maroon" collectionId="collection" name="Series 2" />
+    <LineChart
+      height={CHART_HEIGHT}
+      crosshair={false}
+      ruler={{
+        visible: true,
+        yLabel: point =>
+          `${point.name}: ${Number.parseFloat(point.value).toFixed(3)}`,
+        timeLabel: point =>
+          moment(point.timestamp).format('DD-MM-YYYY HH:mm:ss'),
+      }}
+    />
   </DataProvider>
 );
 
