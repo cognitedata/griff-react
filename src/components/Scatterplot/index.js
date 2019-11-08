@@ -31,6 +31,8 @@ const propTypes = {
   yAxisTicks: PropTypes.number,
   collections: GriffPropTypes.collections.isRequired,
   series: seriesPropType.isRequired,
+  xAxisHeight: PropTypes.number,
+  yAxisWidth: PropTypes.number,
 
   // The following props are all supplied internally (eg, by React).
   children: PropTypes.arrayOf(PropTypes.node),
@@ -45,12 +47,11 @@ const defaultProps = {
   yAxisFormatter: Number,
   yAxisPlacement: AxisPlacement.RIGHT,
   yAxisTicks: null,
+  xAxisHeight: 50,
+  yAxisWidth: 50,
 
   children: [],
 };
-
-const Y_AXIS_WIDTH = 50;
-const X_AXIS_HEIGHT = 50;
 
 const getYAxisPlacement = ({ collections, series, yAxisPlacement }) => {
   const yAxisPlacements = series
@@ -91,6 +92,8 @@ const ScatterplotComponent = ({
   yAxisFormatter,
   yAxisPlacement: propsYAxisPlacement,
   yAxisTicks,
+  xAxisHeight,
+  yAxisWidth,
 }) => {
   const chartSize = {
     width,
@@ -135,14 +138,14 @@ const ScatterplotComponent = ({
     yAxisPlacement: propsYAxisPlacement,
   });
 
-  chartSize.width -= visibleAxes * Y_AXIS_WIDTH;
+  chartSize.width -= visibleAxes * yAxisWidth;
 
   switch (xAxisPlacement) {
     case AxisPlacement.BOTH:
-      chartSize.height -= 2 * X_AXIS_HEIGHT;
+      chartSize.height -= 2 * xAxisHeight;
       break;
     default:
-      chartSize.height -= X_AXIS_HEIGHT;
+      chartSize.height -= xAxisHeight;
       break;
   }
 
@@ -182,14 +185,14 @@ const ScatterplotComponent = ({
           tickFormatter={yAxisFormatter}
           yAxisPlacement={yAxisPlacement}
           height={chartSize.height}
-          width={Y_AXIS_WIDTH}
+          yAxisWidth={yAxisWidth}
           ticks={yAxisTicks}
         />
       }
       xAxis={
         <XAxis
           width={chartSize.width}
-          height={X_AXIS_HEIGHT}
+          height={xAxisHeight}
           tickFormatter={xAxisFormatter}
           ticks={xAxisTicks}
           axis={Axes.x}

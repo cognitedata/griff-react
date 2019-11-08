@@ -1,5 +1,6 @@
 import React from 'react';
 import { action } from '@storybook/addon-actions';
+import { withKnobs, number } from '@storybook/addon-knobs';
 import moment from 'moment';
 import {
   AxisPlacement,
@@ -873,3 +874,39 @@ export const pointRenderer = () => (
     </div>
   </React.Fragment>
 );
+
+export const CustomAxisSize = () => {
+  const xAxisHeight = number('X Axis height', 20);
+  const yAxisWidth = number('Y Axis width', 20);
+  return (
+    <React.Fragment>
+      <div
+        style={{
+          width: '500px',
+          height: '500px',
+          outline: '1px solid red',
+          margin: '1em',
+        }}
+      >
+        <DataProvider
+          defaultLoader={scatterplotloader}
+          timeDomain={[0, 1]}
+          xAccessor={d => +d.x}
+          yAccessor={d => +d.y}
+          drawPoints
+        >
+          <Series id="1 2" color="steelblue" />
+          <Scatterplot
+            zoomable
+            xAxisHeight={xAxisHeight}
+            yAxisWidth={yAxisWidth}
+          />
+        </DataProvider>
+      </div>
+    </React.Fragment>
+  );
+};
+
+CustomAxisSize.story = {
+  decorators: [withKnobs],
+};
