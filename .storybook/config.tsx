@@ -19,4 +19,12 @@ addDecorator((story, context) => (
   </div>
 ));
 
-configure(require.context('../stories', true, /\.stories\.(tsx|js)$/), module);
+configure(
+  [
+    // This is where demo stories will live -- end-to-end examples.
+    require.context('../stories', true, /\.stories\.(tsx|js)$/),
+    // Component stories should live next to their implementations.
+    require.context('../src', true, /\.stories\.(tsx|js)$/),
+  ],
+  module
+);
