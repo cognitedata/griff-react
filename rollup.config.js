@@ -23,6 +23,7 @@ export default {
     typescript({
       typescript: typescriptPkg,
       include: ['*.js', '**/*.js', '*.ts', '**/*.ts', '*.tsx', '**/*.tsx'],
+      exclude: ['*.stories.*', '*.spec.*'],
     }),
     json(),
   ],
