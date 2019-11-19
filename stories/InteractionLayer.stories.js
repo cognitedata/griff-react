@@ -513,6 +513,32 @@ export const AreasOnSeries = () => {
 };
 AreasOnSeries.story = { name: 'Areas on series' };
 
+export const AreasNoEnd = () => {
+  return (
+    <React.Fragment>
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <LineChart
+          height={CHART_HEIGHT}
+          areas={[
+            {
+              id: '1',
+              seriesId: '1',
+              color: 'lightblue',
+              start: {
+                xval: 1571577832254,
+                yval: 0.5,
+              },
+            },
+          ]}
+        />
+      </DataProvider>
+    </React.Fragment>
+  );
+};
+AreasOnSeries.story = { name: 'Areas with no end' };
+
 export const AreasOnSeriesInCollection = () => {
   return (
     <React.Fragment>

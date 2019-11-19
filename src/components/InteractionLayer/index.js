@@ -545,10 +545,9 @@ class InteractionLayer extends React.Component {
 
       let s = null;
 
-      if (a.start.xval) {
-        scaledArea.start.xpos = xScale(a.start.xval);
-      }
-      if (a.end.xval) {
+      scaledArea.start.xpos = xScale(a.start.xval);
+
+      if (a.end !== undefined) {
         scaledArea.end.xpos = xScale(a.end.xval);
       }
 
@@ -559,11 +558,16 @@ class InteractionLayer extends React.Component {
             s.collectionId || s.id
           ];
           const yScale = createYScale(ySubDomain, height);
-          if (a.start.yval) {
-            scaledArea.start.ypos = yScale(a.start.yval);
-          }
-          if (a.end.yval) {
+
+          scaledArea.start.ypos = yScale(a.start.yval);
+
+          if (a.end !== undefined) {
             scaledArea.end.ypos = yScale(a.end.yval);
+          } else {
+            scaledArea.end = {
+              xpos: xScale(timeSubDomain[1]),
+              ypos: yScale(ySubDomain[1]),
+            };
           }
         }
       }

@@ -107,8 +107,8 @@ export const scaleFuncPropType = PropTypes.func;
 const axisPlacement = PropTypes.oneOf(Object.values(AxisPlacement));
 
 export const coordinatePropType = PropTypes.shape({
-  xpos: PropTypes.number.isRequired,
-  ypos: PropTypes.number.isRequired,
+  xval: PropTypes.number.isRequired,
+  yval: PropTypes.number.isRequired,
   points: PropTypes.arrayOf(pointPropType),
 });
 
