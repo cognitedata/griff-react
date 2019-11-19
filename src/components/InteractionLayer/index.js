@@ -555,7 +555,9 @@ class InteractionLayer extends React.Component {
       if (a.seriesId) {
         s = series.find(s1 => s1.id === a.seriesId);
         if (s) {
-          const { [Axes.y]: ySubDomain } = subDomainsByItemId[s.id];
+          const { [Axes.y]: ySubDomain } = subDomainsByItemId[
+            s.collectionId || s.id
+          ];
           const yScale = createYScale(ySubDomain, height);
           if (a.start.yval) {
             scaledArea.start.ypos = yScale(a.start.yval);

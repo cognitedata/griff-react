@@ -2,7 +2,7 @@ import React from 'react';
 import * as d3 from 'd3';
 import moment from 'moment';
 import { action } from '@storybook/addon-actions';
-import { DataProvider, LineChart, Series } from '../src';
+import { DataProvider, LineChart, Series, Collection } from '../src';
 import { functionLoader, staticLoader } from './loaders';
 
 const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
@@ -470,3 +470,60 @@ export const regressionOnMouseUp = () => {
 regressionOnMouseUp.story = {
   name: 'Regression: onMouseUp',
 };
+
+const mockAreas = [
+  {
+    id: '1',
+    seriesId: '1',
+    color: 'lightblue',
+    start: {
+      xval: 1571577832254,
+      yval: 0.5,
+    },
+    end: {
+      xval: 1574169832254,
+      yval: 1,
+    },
+  },
+  {
+    id: '2',
+    seriesId: '2',
+    color: 'maroon',
+    start: {
+      xval: 1571577832254,
+      yval: 0.1,
+    },
+    end: {
+      xval: 1574169832254,
+      yval: 0.2,
+    },
+  },
+];
+
+export const AreasOnSeries = () => {
+  return (
+    <React.Fragment>
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Series id="1" color="steelblue" />
+        <Series id="2" color="maroon" />
+        <LineChart height={CHART_HEIGHT} areas={mockAreas} />
+      </DataProvider>
+    </React.Fragment>
+  );
+};
+AreasOnSeries.story = { name: 'Areas on series' };
+
+export const AreasOnSeriesInCollection = () => {
+  return (
+    <React.Fragment>
+      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+        <Collection id="collection-1">
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
+        </Collection>
+        <LineChart height={CHART_HEIGHT} areas={mockAreas} />
+      </DataProvider>
+    </React.Fragment>
+  );
+};
+AreasOnSeries.story = { name: 'Areas on series in collection' };
