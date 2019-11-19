@@ -229,9 +229,11 @@ const YAxis = ({
     </g>
   );
   const cursor = zoomable ? 'move' : 'inherit';
+  const id = collection ? collection.id : series.id;
+
   return (
     <g
-      className="axis-y"
+      className={`axis-y axis-y-${id}`}
       transform={`translate(${offsetx}, 0)`}
       cursor={cursor}
       onMouseEnter={onMouseEnter}
