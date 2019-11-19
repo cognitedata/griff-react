@@ -566,13 +566,7 @@ class InteractionLayer extends React.Component {
         }
       }
       const color = scaledArea.color || (s ? s.color : null);
-      return (
-        <Area
-          key={`${scaledArea.id || ''}-${scaledArea.seriesId || ''}`}
-          color={color}
-          {...scaledArea}
-        />
-      );
+      return <Area key={scaledArea.id} color={color} {...scaledArea} />;
     });
     const areaBeingDefined = area ? (
       <Area key="user" {...area} color="#999" />
