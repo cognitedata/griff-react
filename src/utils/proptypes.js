@@ -107,15 +107,15 @@ export const scaleFuncPropType = PropTypes.func;
 const axisPlacement = PropTypes.oneOf(Object.values(AxisPlacement));
 
 export const coordinatePropType = PropTypes.shape({
-  xval: PropTypes.number.isRequired,
-  yval: PropTypes.number.isRequired,
+  xval: PropTypes.number,
+  yval: PropTypes.number,
   points: PropTypes.arrayOf(pointPropType),
 });
 
 export const areaPropType = PropTypes.shape({
   id: idPropType,
   color: PropTypes.string,
-  start: coordinatePropType.isRequired,
+  start: coordinatePropType,
   end: coordinatePropType,
 });
 

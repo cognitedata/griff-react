@@ -9,7 +9,7 @@ export interface Position {
 
 export interface Props {
   start: Position;
-  end?: Position;
+  end: Position;
   color?: string;
   opacity?: number;
 }
@@ -42,14 +42,13 @@ const Area: React.FunctionComponent<Props> = ({
 Area.propTypes = {
   color: PropTypes.string,
   start: coordinatePropType.isRequired,
-  end: coordinatePropType,
+  end: coordinatePropType.isRequired,
   opacity: PropTypes.number,
 };
 
 Area.defaultProps = {
   color: '#000',
   opacity: 0.15,
-  end: undefined,
 };
 
 export default Area;

@@ -545,10 +545,12 @@ class InteractionLayer extends React.Component {
 
       let s = null;
 
-      scaledArea.start.xpos = xScale(a.start.xval);
+      if (a.start !== undefined) {
+        scaledArea.start.xpos = xScale(a.start.xval || timeSubDomain[0]);
+      }
 
       if (a.end !== undefined) {
-        scaledArea.end.xpos = xScale(a.end.xval);
+        scaledArea.end.xpos = xScale(a.end.xval || timeSubDomain[1]);
       }
 
       if (a.seriesId) {
@@ -559,10 +561,17 @@ class InteractionLayer extends React.Component {
           ];
           const yScale = createYScale(ySubDomain, height);
 
-          scaledArea.start.ypos = yScale(a.start.yval);
+          if (a.start !== undefined) {
+            scaledArea.start.ypos = yScale(a.start.yval || ySubDomain[0]);
+          } else {
+            scaledArea.start = {
+              xpos: xScale(timeSubDomain[0]),
+              ypos: yScale(ySubDomain[0]),
+            };
+          }
 
           if (a.end !== undefined) {
-            scaledArea.end.ypos = yScale(a.end.yval);
+            scaledArea.end.ypos = yScale(a.end.yval || ySubDomain[1]);
           } else {
             scaledArea.end = {
               xpos: xScale(timeSubDomain[1]),
