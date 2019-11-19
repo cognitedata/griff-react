@@ -13,7 +13,7 @@ const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
 export default {
-  title: 'Y-Axis Modes',
+  title: 'Demo|Y-Axis Modes',
 };
 
 export const mouseEvents = () => {

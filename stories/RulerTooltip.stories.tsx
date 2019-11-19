@@ -11,7 +11,7 @@ type StoryProps = {
 };
 
 export default {
-  title: 'components/RulerTooltip',
+  title: 'Demo|components/RulerTooltip',
 
   decorators: [
     story => {

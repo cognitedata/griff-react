@@ -7,7 +7,7 @@ import { staticLoader } from './loaders';
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
 
 export default {
-  title: 'integrations/ChartJS',
+  title: 'Demo|integrations/ChartJS',
 
   decorators: [
     story => (

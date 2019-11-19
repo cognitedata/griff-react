@@ -8,7 +8,7 @@ import AxisCollection from '../src/components/AxisCollection';
 const staticXDomain = [+moment().subtract(1, 'week'), +moment()];
 
 export default {
-  title: 'components/AxisCollection',
+  title: 'Demo|components/AxisCollection',
 
   decorators: [
     story => (

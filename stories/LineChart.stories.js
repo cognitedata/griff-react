@@ -20,7 +20,7 @@ const liveXDomain = [Date.now() - 1000 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
 export default {
-  title: 'LineChart',
+  title: 'Demo|LineChart',
 
   decorators: [
     story => (

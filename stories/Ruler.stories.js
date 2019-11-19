@@ -3,7 +3,7 @@ import moment from 'moment';
 import Ruler from '../src/components/Ruler';
 
 export default {
-  title: 'components/Ruler',
+  title: 'Demo|components/Ruler',
 
   decorators: [
     story => (

@@ -191,7 +191,7 @@ const latestPointRenderer = (
 };
 
 export default {
-  title: 'Scatterplot',
+  title: 'Demo|Scatterplot',
 
   decorators: [
     story => (

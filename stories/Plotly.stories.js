@@ -25,7 +25,7 @@ const seriesToPlotly = ({ color, data, id }, subDomainsByItemId) => {
 };
 
 export default {
-  title: 'integrations/Plotly',
+  title: 'Demo|integrations/Plotly',
 
   decorators: [
     story => (
@@ -48,7 +48,7 @@ export const basic = () => (
             layout={{
               width: '100%',
               height: 400,
-              title: 'A Fancy Plot',
+              title: 'Demo|A Fancy Plot',
             }}
           />
         )}
@@ -69,7 +69,7 @@ export const controlledByContextChart = () => (
             layout={{
               width: '100%',
               height: 400,
-              title: 'A Fancy Plot controlled by a ContextChart',
+              title: 'Demo|A Fancy Plot controlled by a ContextChart',
             }}
           />
         )}
@@ -96,7 +96,7 @@ export const interactingWithContextChart = () => (
             layout={{
               width: '100%',
               height: 400,
-              title: 'A Fancy Plot interacting with a ContextChart',
+              title: 'Demo|A Fancy Plot interacting with a ContextChart',
             }}
             onRelayout={input => {
               const {

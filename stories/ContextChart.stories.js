@@ -14,7 +14,7 @@ const exampleAnnotations = [
 ];
 
 export default {
-  title: 'components/ContextChart',
+  title: 'Demo|components/ContextChart',
 
   decorators: [
     story => (

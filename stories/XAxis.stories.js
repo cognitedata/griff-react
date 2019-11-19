@@ -4,7 +4,7 @@ import { DataProvider, XAxis, AxisPlacement, Series } from '../src';
 import { staticLoader } from './loaders';
 
 export default {
-  title: 'components/XAxis',
+  title: 'Demo|components/XAxis',
 
   decorators: [
     story => (
