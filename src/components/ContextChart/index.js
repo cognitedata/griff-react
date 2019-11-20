@@ -129,7 +129,7 @@ const ContextChart = ({
   );
 
   return (
-    <React.Fragment>
+    <>
       {renderXAxis(AxisPlacement.TOP, xAxis, { xAxisPlacement })}
       <svg
         height={height}
@@ -162,7 +162,7 @@ const ContextChart = ({
         />
       </svg>
       {renderXAxis(AxisPlacement.BOTTOM, xAxis, { xAxisPlacement })}
-    </React.Fragment>
+    </>
   );
 };
 

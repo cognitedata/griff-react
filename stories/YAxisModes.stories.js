@@ -1,3 +1,5 @@
+/* eslint-disable max-classes-per-file */
+/* eslint-disable react/no-this-in-sfc */
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import {
@@ -21,7 +23,7 @@ export const mouseEvents = () => {
     action('Axis mouse event')(e.type, seriesId);
   };
   return (
-    <React.Fragment>
+    <>
       <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
@@ -42,7 +44,7 @@ export const mouseEvents = () => {
           onAxisMouseLeave={mouseEvent}
         />
       </DataProvider>
-    </React.Fragment>
+    </>
   );
 };
 
@@ -125,7 +127,7 @@ export const someHidden = () => {
     render() {
       const { yAxisDisplayMode } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series
               id="1"
@@ -174,7 +176,7 @@ export const someHidden = () => {
           >
             COLLAPSED
           </button>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -186,7 +188,7 @@ someHidden.story = {
 };
 
 export const someCollapsed = () => (
-  <React.Fragment>
+  <>
     <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
       <Series
         id="1"
@@ -202,7 +204,7 @@ export const someCollapsed = () => (
       <Series id="4" color="green" />
       <LineChart height={CHART_HEIGHT} yAxisDisplayMode={AxisDisplayMode.ALL} />
     </DataProvider>
-  </React.Fragment>
+  </>
 );
 
 someCollapsed.story = {
@@ -265,7 +267,7 @@ export const someCollapsedUntilHover = () => {
     render() {
       const { series, yAxisDisplayMode } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             {series.map(s => (
               <Series key={s.id} {...s} />
@@ -277,7 +279,7 @@ export const someCollapsedUntilHover = () => {
               onAxisMouseLeave={this.collapseSome}
             />
           </DataProvider>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -350,7 +352,7 @@ export const someCollapsedUntilHoverWithCollections = () => {
     render() {
       const { collections, series } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" yAxisDisplayMode={series[1]} />
             <Collection
@@ -375,7 +377,7 @@ export const someCollapsedUntilHoverWithCollections = () => {
               onAxisMouseLeave={this.collapseSome}
             />
           </DataProvider>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -396,7 +398,7 @@ export const axisCollectionModesButton = () => {
     render() {
       const { yAxisDisplayMode } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" />
             <Series id="2" color="maroon" />
@@ -435,7 +437,7 @@ export const axisCollectionModesButton = () => {
           >
             COLLAPSED
           </button>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -473,7 +475,7 @@ export const axisCollectionModesHover = () => {
     render() {
       const { yAxisDisplayMode } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" />
             <Series id="2" color="maroon" />
@@ -484,7 +486,7 @@ export const axisCollectionModesHover = () => {
               onAxisMouseLeave={this.collapse}
             />
           </DataProvider>
-        </React.Fragment>
+        </>
       );
     }
   }

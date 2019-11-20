@@ -30,9 +30,8 @@ interface InternalProps {
   subDomainsByItemId: DomainsByItemId;
 }
 
-const LineCollection: React.FunctionComponent<
-  Props & InternalProps
-> = props => {
+const LineCollection: React.FunctionComponent<Props &
+  InternalProps> = props => {
   const {
     domainsByItemId,
     subDomainsByItemId,

@@ -57,8 +57,14 @@ class ZoomRect extends React.Component {
     const { width, height } = this.props;
     this.zoom = d3
       .zoom()
-      .translateExtent([[0, 0], [width, height]])
-      .extent([[0, 0], [width, height]]);
+      .translateExtent([
+        [0, 0],
+        [width, height],
+      ])
+      .extent([
+        [0, 0],
+        [width, height],
+      ]);
     this.rectSelection = d3.select(this.zoomNode);
     this.syncZoomingState();
   }

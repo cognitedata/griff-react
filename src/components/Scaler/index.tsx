@@ -137,6 +137,7 @@ export const firstResolvedDomain = (
  * made available through the {@link ScalerContext}.
  */
 class Scaler extends React.Component<Props, State> {
+  // eslint-disable-next-line react/static-property-placement
   static propTypes = {
     children: PropTypes.node.isRequired,
     dataContext: PropTypes.shape({
@@ -150,6 +151,7 @@ class Scaler extends React.Component<Props, State> {
     }).isRequired,
   };
 
+  // eslint-disable-next-line react/static-property-placement
   static defaultProps = {};
 
   static getDerivedStateFromProps(
@@ -249,8 +251,8 @@ class Scaler extends React.Component<Props, State> {
           time:
             firstResolvedDomain(
               dataContext.timeSubDomain ||
-                (item.timeSubDomain ||
-                  Axes.time(oldSubDomainsByItemId[item.id]))
+                item.timeSubDomain ||
+                Axes.time(oldSubDomainsByItemId[item.id])
             ) ||
             // Set a large range because this is a subdomain.
             placeholder(0, Date.now()),

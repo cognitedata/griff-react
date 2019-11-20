@@ -39,13 +39,16 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
     });
   }, []);
 
-  React.useEffect(() => {
-    return updateCollection({
-      id,
-      ...props,
-    });
+  React.useEffect(
+    () => {
+      return updateCollection({
+        id,
+        ...props,
+      });
+    },
     // @ts-ignore - It's okay for props[name] to be implicit any.
-  }, WATCHED_PROP_NAMES.map(name => props[name]));
+    WATCHED_PROP_NAMES.map(name => props[name])
+  );
 
   if (React.Children.count(children) === 0) {
     return null;

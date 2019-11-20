@@ -170,9 +170,9 @@ const getYAxisCollectionWidth = (
       item =>
         !item.hidden &&
         item.collectionId === undefined &&
-        ((item.yAxisPlacement || yAxisPlacement) &&
-          ((item.yAxisPlacement || yAxisPlacement) === AxisPlacement.BOTH ||
-            (item.yAxisPlacement || yAxisPlacement) === placement))
+        (item.yAxisPlacement || yAxisPlacement) &&
+        ((item.yAxisPlacement || yAxisPlacement) === AxisPlacement.BOTH ||
+          (item.yAxisPlacement || yAxisPlacement) === placement)
     );
 
   const hasCollapsed =

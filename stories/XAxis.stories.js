@@ -16,7 +16,7 @@ export default {
 };
 
 export const sizes = () => (
-  <React.Fragment>
+  <>
     <div style={{ width: '100%' }}>
       <DataProvider
         defaultLoader={staticLoader}
@@ -39,11 +39,11 @@ export const sizes = () => (
         <XAxis />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 export const colorStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ width: '100%' }}>
       <DataProvider
         defaultLoader={staticLoader}
@@ -66,7 +66,7 @@ export const colorStory = () => (
         <XAxis stroke="red" />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 colorStory.story = {
@@ -74,7 +74,7 @@ colorStory.story = {
 };
 
 export const placementStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ width: '100%' }}>
       <DataProvider
         defaultLoader={staticLoader}
@@ -97,7 +97,7 @@ export const placementStory = () => (
         <XAxis placement={AxisPlacement.TOP} />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 placementStory.story = {
@@ -105,7 +105,7 @@ placementStory.story = {
 };
 
 export const tickFormatterStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ width: '100%' }}>
       <DataProvider
         defaultLoader={staticLoader}
@@ -128,7 +128,7 @@ export const tickFormatterStory = () => (
         <XAxis tickFormatter={n => moment(n).fromNow()} />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 tickFormatterStory.story = {
@@ -136,7 +136,7 @@ tickFormatterStory.story = {
 };
 
 export const ticksStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ width: '100%' }}>
       <DataProvider
         defaultLoader={staticLoader}
@@ -159,7 +159,7 @@ export const ticksStory = () => (
         <XAxis ticks={20} tickFormatter={() => ''} />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 ticksStory.story = {

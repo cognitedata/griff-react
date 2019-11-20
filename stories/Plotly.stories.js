@@ -37,7 +37,7 @@ export default {
 };
 
 export const basic = () => (
-  <React.Fragment>
+  <>
     <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
@@ -54,11 +54,11 @@ export const basic = () => (
         )}
       </ScalerContext.Consumer>
     </DataProvider>
-  </React.Fragment>
+  </>
 );
 
 export const controlledByContextChart = () => (
-  <React.Fragment>
+  <>
     <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
@@ -76,7 +76,7 @@ export const controlledByContextChart = () => (
       </ScalerContext.Consumer>
       <ContextChart />
     </DataProvider>
-  </React.Fragment>
+  </>
 );
 
 controlledByContextChart.story = {
@@ -84,7 +84,7 @@ controlledByContextChart.story = {
 };
 
 export const interactingWithContextChart = () => (
-  <React.Fragment>
+  <>
     <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
@@ -126,7 +126,7 @@ export const interactingWithContextChart = () => (
       </ScalerContext.Consumer>
       <ContextChart />
     </DataProvider>
-  </React.Fragment>
+  </>
 );
 
 interactingWithContextChart.story = {

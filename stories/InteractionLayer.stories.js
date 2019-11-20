@@ -1,3 +1,5 @@
+/* eslint-disable max-classes-per-file */
+/* eslint-disable react/no-this-in-sfc */
 import React from 'react';
 import * as d3 from 'd3';
 import moment from 'moment';
@@ -13,7 +15,7 @@ export default {
 };
 
 export const rulerStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ height: 500 }}>
       <DataProvider
         timeDomain={staticXDomain}
@@ -60,7 +62,7 @@ export const rulerStory = () => (
         />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 rulerStory.story = {
@@ -152,7 +154,7 @@ export const areaHoldShiftToEnable = () => {
     render() {
       const { enableArea } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" />
             <Series id="2" color="maroon" />
@@ -162,7 +164,7 @@ export const areaHoldShiftToEnable = () => {
             />
           </DataProvider>
           (You might need to click here first)
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -208,7 +210,7 @@ export const persistentFixedAreaHoldShiftToEnable = () => {
     render() {
       const { enableArea, area } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" />
             <Series id="2" color="maroon" />
@@ -219,7 +221,7 @@ export const persistentFixedAreaHoldShiftToEnable = () => {
             />
           </DataProvider>
           (You might need to click here first)
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -254,7 +256,7 @@ export const persistentFixedAreasClickToRemove = () => {
     render() {
       const { areas } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" />
             <Series id="2" color="maroon" />
@@ -266,7 +268,7 @@ export const persistentFixedAreasClickToRemove = () => {
             />
           </DataProvider>
           (You might need to click here first)
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -302,7 +304,7 @@ export const persistentFixedAreasClickOutsideToClear = () => {
     render() {
       const { areas } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" />
             <Series id="2" color="maroon" />
@@ -315,7 +317,7 @@ export const persistentFixedAreasClickOutsideToClear = () => {
             />
           </DataProvider>
           (You might need to click here first)
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -380,7 +382,7 @@ export const persistentSeriesAreaHoldShiftToEnable = () => {
     render() {
       const { enableArea, areas } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" />
             <Series id="2" color="maroon" />
@@ -391,7 +393,7 @@ export const persistentSeriesAreaHoldShiftToEnable = () => {
             />
           </DataProvider>
           (You might need to click here first)
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -438,7 +440,7 @@ export const regressionOnMouseUp = () => {
     render() {
       const { onAreaDefined } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" />
             <Series id="2" color="maroon" />
@@ -460,7 +462,7 @@ export const regressionOnMouseUp = () => {
             </li>
             <li>Check that there are no errors in the console</li>
           </ol>
-        </React.Fragment>
+        </>
       );
     }
   }

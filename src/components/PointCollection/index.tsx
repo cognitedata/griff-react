@@ -25,9 +25,9 @@ const propTypes = {
 };
 const defaultProps = {};
 
-const PointCollection: React.FunctionComponent<
-  Props & SizeProps & InternalProps
-> = ({ width, height, series, subDomainsByItemId }) => {
+const PointCollection: React.FunctionComponent<Props &
+  SizeProps &
+  InternalProps> = ({ width, height, series, subDomainsByItemId }) => {
   const points = series
     .filter(s => !s.hidden && s.drawPoints !== false)
     .map(s => {

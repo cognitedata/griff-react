@@ -546,14 +546,14 @@ export default class DataProvider extends Component {
     const { series, collections } = this.props;
     if (series || collections) {
       return (
-        <React.Fragment>
+        <>
           {(series || []).map(s => (
             <Series key={s.id} {...s} />
           ))}
           {(collections || []).map(c => (
             <Collection key={c.id} {...c} />
           ))}
-        </React.Fragment>
+        </>
       );
     }
     return null;

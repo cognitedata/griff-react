@@ -212,7 +212,7 @@ export default {
 };
 
 export const basicUsage = () => (
-  <React.Fragment>
+  <>
     <div>
       <h3>One series</h3>
       <div style={{ height: '500px', width: '100%' }}>
@@ -277,7 +277,7 @@ export const basicUsage = () => (
         </DataProvider>
       </div>
     </div>
-  </React.Fragment>
+  </>
 );
 
 basicUsage.story = {
@@ -285,7 +285,7 @@ basicUsage.story = {
 };
 
 export const differentDomains = () => (
-  <React.Fragment>
+  <>
     <div>
       <h3>Different Y domains</h3>
       <div style={{ height: '500px', width: '100%' }}>
@@ -304,7 +304,7 @@ export const differentDomains = () => (
         </DataProvider>
       </div>
     </div>
-  </React.Fragment>
+  </>
 );
 
 differentDomains.story = {
@@ -312,7 +312,7 @@ differentDomains.story = {
 };
 
 export const domains = () => (
-  <React.Fragment>
+  <>
     <div>
       <h3>Specified domains</h3>
       <div style={{ height: '500px', width: '100%' }}>
@@ -394,11 +394,11 @@ export const domains = () => (
         </DataProvider>
       </div>
     </div>
-  </React.Fragment>
+  </>
 );
 
 export const customTickFormatting = () => (
-  <React.Fragment>
+  <>
     <div style={{ height: '500px', width: '100%' }}>
       <DataProvider
         defaultLoader={scatterplotloader}
@@ -415,7 +415,7 @@ export const customTickFormatting = () => (
         />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 customTickFormatting.story = {
@@ -440,7 +440,7 @@ export const grid = () => (
 );
 
 export const axes = () => (
-  <React.Fragment>
+  <>
     {[AxisPlacement.RIGHT, AxisPlacement.BOTH, AxisPlacement.LEFT].map(
       placement => (
         <div
@@ -512,7 +512,7 @@ export const axes = () => (
         />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 export const splitAxes = () => (
@@ -551,7 +551,7 @@ splitAxes.story = {
 };
 
 export const strokeWidthStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ height: '500px', width: '500px' }}>
       <DataProvider
         defaultLoader={scatterplotloader}
@@ -579,7 +579,7 @@ export const strokeWidthStory = () => (
         <Scatterplot zoomable />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 strokeWidthStory.story = {
@@ -587,7 +587,7 @@ strokeWidthStory.story = {
 };
 
 export const pointWidthStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ height: '500px', width: '500px' }}>
       <DataProvider
         defaultLoader={scatterplotloader}
@@ -629,7 +629,7 @@ export const pointWidthStory = () => (
         <Scatterplot zoomable />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 pointWidthStory.story = {
@@ -637,7 +637,7 @@ pointWidthStory.story = {
 };
 
 export const opacityStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ height: '500px', width: '500px' }}>
       <DataProvider
         defaultLoader={scatterplotloader}
@@ -667,7 +667,7 @@ export const opacityStory = () => (
         <Scatterplot zoomable />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 opacityStory.story = {
@@ -675,7 +675,7 @@ opacityStory.story = {
 };
 
 export const minMax = () => (
-  <React.Fragment>
+  <>
     <div style={{ height: '500px', width: '500px' }}>
       <DataProvider
         defaultLoader={scatterplotloader}
@@ -693,7 +693,7 @@ export const minMax = () => (
         <Scatterplot zoomable />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 minMax.story = {
@@ -701,7 +701,7 @@ minMax.story = {
 };
 
 export const contextChart = () => (
-  <React.Fragment>
+  <>
     <div style={{ width: 500 }}>
       <DataProvider
         defaultLoader={scatterplotFunctionLoader}
@@ -721,11 +721,11 @@ export const contextChart = () => (
         </div>
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 export const zoomableStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ width: 500, height: 500 }}>
       <DataProvider
         defaultLoader={scatterplotFunctionLoader}
@@ -740,7 +740,7 @@ export const zoomableStory = () => (
         <Scatterplot zoomable={false} />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 zoomableStory.story = {
@@ -748,7 +748,7 @@ zoomableStory.story = {
 };
 
 export const drawLinesStory = () => (
-  <React.Fragment>
+  <>
     <div>
       <h3>Set on DataProvider</h3>
       <div style={{ height: '500px', width: '100%' }}>
@@ -816,7 +816,7 @@ export const drawLinesStory = () => (
         </DataProvider>
       </div>
     </div>
-  </React.Fragment>
+  </>
 );
 
 drawLinesStory.story = {
@@ -824,7 +824,7 @@ drawLinesStory.story = {
 };
 
 export const pointRenderer = () => (
-  <React.Fragment>
+  <>
     <div>
       <h3>Set on DataProvider</h3>
       <div style={{ height: '500px', width: '100%' }}>
@@ -872,14 +872,14 @@ export const pointRenderer = () => (
         </DataProvider>
       </div>
     </div>
-  </React.Fragment>
+  </>
 );
 
 export const CustomAxisSize = () => {
   const xAxisHeight = number('X Axis height', 20);
   const yAxisWidth = number('Y Axis width', 20);
   return (
-    <React.Fragment>
+    <>
       <div
         style={{
           width: '500px',
@@ -903,7 +903,7 @@ export const CustomAxisSize = () => {
           />
         </DataProvider>
       </div>
-    </React.Fragment>
+    </>
   );
 };
 

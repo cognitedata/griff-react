@@ -7,12 +7,12 @@ export interface AxisPlacement {
 }
 
 const AXIS_PLACEMENTS: {
-  UNSPECIFIED: AxisPlacement,
-  RIGHT: AxisPlacement,
-  LEFT: AxisPlacement,
-  BOTH: AxisPlacement,
-  BOTTOM: AxisPlacement,
-  TOP: AxisPlacement,
+  UNSPECIFIED: AxisPlacement;
+  RIGHT: AxisPlacement;
+  LEFT: AxisPlacement;
+  BOTH: AxisPlacement;
+  BOTTOM: AxisPlacement;
+  TOP: AxisPlacement;
 } = {
   UNSPECIFIED: { id: 0, name: 'UNSPECIFIED', toString: () => 'UNSPECIFIED' },
   RIGHT: { id: 1, name: 'RIGHT', toString: () => 'RIGHT' },
