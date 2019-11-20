@@ -3,9 +3,10 @@ import * as d3 from 'd3';
 import Points from '../Points';
 import { boundedSeries } from '../../utils/boundedseries';
 import { ScalerFunction } from '../../utils/scale-helpers';
-import { AccessorFunction, Datapoint } from '../../external';
+import { AccessorFunction, Datapoint, ItemId } from '../../external';
 
 export interface Props {
+  id: ItemId;
   data: Datapoint[];
   xScale: ScalerFunction;
   xAxisAccessor: AccessorFunction;
@@ -26,6 +27,7 @@ export interface Props {
 }
 
 const Line: React.FC<Props> = ({
+  id,
   data,
   xAxisAccessor,
   xScale,
@@ -147,6 +149,7 @@ const Line: React.FC<Props> = ({
         />
       )}
       <path
+        data-testid={`Line-${id}`}
         className="line"
         d={line(
           // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.
