@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import Data from '../../context/Data';
 import { ItemProps, WATCHED_PROP_NAMES, Props as SeriesProps } from '../Series';
 import { ItemId } from '../../external';
@@ -69,7 +69,7 @@ export default withDisplayName(
   'Collection',
   (props: Props & { children: React.ReactNode[] }) => (
     <Data.Consumer>
-      {({ registerCollection, updateCollection }: InternalProps) => (
+      {({ registerCollection, updateCollection }: any) => (
         <Collection
           registerCollection={registerCollection}
           updateCollection={updateCollection}

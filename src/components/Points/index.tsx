@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { boundedSeries } from '../../utils/boundedseries';
 import { Datapoint, PointRenderer, AccessorFunction } from '../../external';
 import { ScalerFunction } from '../../utils/scale-helpers';

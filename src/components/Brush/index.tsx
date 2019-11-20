@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Domain } from '../../external';
 
 export type OnUpdateSelection = (domain: Domain) => void;

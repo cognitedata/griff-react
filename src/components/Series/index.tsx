@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import { Domain } from 'domain';
 import { ItemId, AccessorFunction, PointRenderer } from '../../external';
 import Data from '../../context/Data';

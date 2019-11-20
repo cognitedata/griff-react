@@ -1,5 +1,5 @@
-import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import React from 'react';
+import PropTypes from 'prop-types';
 import DataContext from '../../context/Data';
 import ScalerContext from '../../context/Scaler';
 import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
@@ -441,7 +441,7 @@ class Scaler extends React.Component<Props, State> {
     };
 
     return (
-      <ScalerContext.Provider value={finalContext}>
+      <ScalerContext.Provider value={finalContext as any}>
         {children}
       </ScalerContext.Provider>
     );
@@ -450,8 +450,11 @@ class Scaler extends React.Component<Props, State> {
 
 export default withDisplayName('Scaler', (props: Props) => (
   <DataContext.Consumer>
-    {(dataContext: DataContext) => (
-      <Scaler {...props} dataContext={dataContext} />
+    {dataContext => (
+      <Scaler
+        {...props}
+        dataContext={(dataContext as unknown) as DataContext}
+      />
     )}
   </DataContext.Consumer>
 ));

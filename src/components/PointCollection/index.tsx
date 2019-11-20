@@ -1,8 +1,6 @@
-import * as React from 'react';
-import * as PropTypes from 'prop-types';
+import React from 'react';
 import ScalerContext from '../../context/Scaler';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
-import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
 import Axes from '../../utils/Axes';
 import { SizeProps } from '../../internal';
 import { Series, Datapoint } from '../../external';
@@ -10,24 +8,19 @@ import { DomainsByItemId } from '../Scaler';
 import Points from '../Points';
 import { withDisplayName } from '../../utils/displayName';
 
-export interface Props {}
+export interface Props extends InternalProps, SizeProps {}
 
 interface InternalProps {
   series: Series[];
   subDomainsByItemId: DomainsByItemId;
 }
 
-const propTypes = {
-  width: PropTypes.number.isRequired,
-  height: PropTypes.number.isRequired,
-  series: seriesPropType.isRequired,
-  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
-};
-const defaultProps = {};
-
-const PointCollection: React.FunctionComponent<Props &
-  SizeProps &
-  InternalProps> = ({ width, height, series, subDomainsByItemId }) => {
+const PointCollection: React.FunctionComponent<Props> = ({
+  width,
+  height,
+  series,
+  subDomainsByItemId,
+}: Props) => {
   const points = series
     .filter(s => !s.hidden && s.drawPoints !== false)
     .map(s => {
@@ -71,14 +64,11 @@ const PointCollection: React.FunctionComponent<Props &
   );
 };
 
-PointCollection.propTypes = propTypes;
-PointCollection.defaultProps = defaultProps;
-
 export default withDisplayName(
   'PointCollection',
   (props: Props & SizeProps) => (
     <ScalerContext.Consumer>
-      {({ subDomainsByItemId, series }: InternalProps) => (
+      {({ subDomainsByItemId, series }: any) => (
         <PointCollection
           {...props}
           series={series}

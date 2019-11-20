@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { annotationShape } from '../../utils/proptypes';
+import React from 'react';
 import { ItemId } from '../../external';
 import { ScalerFunction } from '../../utils/scale-helpers';
 
@@ -13,14 +12,14 @@ export interface Props {
   id: ItemId;
 }
 
-const Annotation: React.FunctionComponent<Props> = ({
+const Annotation: React.FC<Props> = ({
   data,
   xScale,
   height,
   color = '#e8336d',
   fillOpacity = 0.1,
   id,
-}) => (
+}: Props) => (
   <rect
     key={id}
     className={`griff-annotation griff-annotation-${id}`}
@@ -31,7 +30,5 @@ const Annotation: React.FunctionComponent<Props> = ({
     style={{ stroke: color, fill: color, fillOpacity }}
   />
 );
-
-Annotation.propTypes = annotationShape;
 
 export default Annotation;

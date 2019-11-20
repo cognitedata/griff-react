@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import ScalerContext from '../../context/Scaler';
 import { createYScale, createXScale } from '../../utils/scale-helpers';
 import Axes from '../../utils/Axes';

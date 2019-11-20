@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import RulerTooltip from '../RulerTooltip';
 import { ItemId } from '../../external';
 
