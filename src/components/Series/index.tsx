@@ -1,7 +1,7 @@
 import * as React from 'react';
+import { Domain } from 'domain';
 import { ItemId, AccessorFunction, PointRenderer } from '../../external';
 import Data from '../../context/Data';
-import { Domain } from 'domain';
 import { AxisPlacement } from '../AxisPlacement';
 import { AxisDisplayMode } from '../../utils/AxisDisplayMode';
 import { withDisplayName } from '../../utils/displayName';
@@ -112,7 +112,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
 
 export default withDisplayName('Series', (props: Props) => (
   <Data.Consumer>
-    {({ registerSeries, updateSeries }: InternalProps) => (
+    {({ registerSeries, updateSeries }: any) => (
       <Series
         {...props}
         registerSeries={registerSeries}

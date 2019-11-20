@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React from 'react';
 import * as d3 from 'd3';
 import { SizeMe } from 'react-sizeme';
 import AxisPlacement, {
@@ -11,7 +11,7 @@ import { Domain, Series } from '../../external';
 import { DomainsByItemId } from '../Scaler';
 import { withDisplayName } from '../../utils/displayName';
 
-export interface Props {
+export interface Props extends ScalerProps, SizeProps {
   axis: 'time' | 'x';
   placement: AxisPlacementType;
   scaled: boolean;
@@ -149,7 +149,7 @@ const getTextProps = ({
   }
 };
 
-const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
+const XAxis: React.FC<Props> = ({
   axis: a = 'time',
   domainsByItemId,
   height = 50,
@@ -158,10 +158,10 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   series,
   stroke = 'black',
   subDomainsByItemId,
-  tickFormatter = Number,
+  tickFormatter = x => Number(x).toString(),
   ticks = 0,
   width = 1,
-}) => {
+}: Props) => {
   if (series.length === 0) {
     return null;
   }

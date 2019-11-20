@@ -93,7 +93,7 @@ hugePadding.story = {
 };
 
 export const colors = ({ options: { x } }: StoryProps) => (
-  <React.Fragment>
+  <>
     <RulerTooltip
       label="sample"
       x={x}
@@ -118,5 +118,5 @@ export const colors = ({ options: { x } }: StoryProps) => (
       labelHeight={20}
       chartWidth={CHART_WIDTH}
     />
-  </React.Fragment>
+  </>
 );

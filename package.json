@@ -16,7 +16,7 @@
     "clean": "rm -rf build/ es/ lib/",
     "compile": "tsc -p .",
     "fix": "gts fix",
-    "lint": "eslint src stories",
+    "lint": "eslint 'src/**/*.{ts,tsx,js}' 'stories/**/*.{ts,tsx,js}'",
     "prepare": "yarn compile",
     "prepush": "yarn lint",
     "pretest": "yarn compile",

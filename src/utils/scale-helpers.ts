@@ -1,8 +1,7 @@
 import * as d3 from 'd3';
-import { ScaleContinuousNumeric } from 'd3';
 import { Domain } from '../external';
 
-export type ScalerFunction = ScaleContinuousNumeric<number, number>;
+export type ScalerFunction = d3.ScaleContinuousNumeric<number, number>;
 
 export type ScalerFunctionFactory = (domain: Domain, height: number) => void;
 

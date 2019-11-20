@@ -25,7 +25,7 @@ export interface Props {
   clipPath: string;
 }
 
-const Line: React.FunctionComponent<Props> = ({
+const Line: React.FC<Props> = ({
   data,
   xAxisAccessor,
   xScale,
@@ -43,7 +43,7 @@ const Line: React.FunctionComponent<Props> = ({
   pointWidth = 6,
   pointWidthAccessor,
   clipPath,
-}) => {
+}: Props) => {
   let area;
   const curve = step ? d3.curveStepAfter : d3.curveLinear;
   const line = d3

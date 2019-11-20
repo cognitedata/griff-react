@@ -26,7 +26,7 @@ export interface GridY {
   ticks?: number;
 }
 
-export interface Props {
+export interface Props extends InternalProps, SizeProps {
   axes?: {
     x: 'time' | 'x';
   };
@@ -42,7 +42,7 @@ interface InternalProps {
   subDomainsByItemId: DomainsByItemId;
 }
 
-const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
+const GridLines: React.FC<Props> = ({
   axes = { x: 'x' },
   color = '#666',
   height,
@@ -53,7 +53,7 @@ const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
   width,
   x,
   y,
-}) => {
+}: Props) => {
   if (!x && !y) {
     return null;
   }

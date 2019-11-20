@@ -23,7 +23,7 @@ export interface Props {
   yScale: ScalerFunction;
 }
 
-const Points: React.FunctionComponent<Props> = ({
+const Points: React.FC<Props> = ({
   data,
   drawPoints = false,
   xAccessor,
@@ -41,7 +41,7 @@ const Points: React.FunctionComponent<Props> = ({
   pointWidth,
   pointWidthAccessor,
   strokeWidth,
-}) => {
+}: Props) => {
   if (drawPoints === false) {
     return null;
   }
