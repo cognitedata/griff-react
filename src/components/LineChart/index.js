@@ -120,8 +120,6 @@ const defaultProps = {
   xAxisPlacement: AxisPlacement.BOTTOM,
   yAxisDisplayMode: AxisDisplayMode.ALL,
   yAxisFormatter: Number,
-  // eslint-disable-next-line react/default-props-match-prop-types
-  yAxisPlacement: AxisPlacement.RIGHT,
   onAxisMouseEnter: null,
   onAxisMouseLeave: null,
   areas: [],
@@ -166,14 +164,15 @@ const getYAxisCollectionWidth = (
   const filteredItems = []
     .concat(series)
     .concat(collections)
-    .filter(
-      item =>
+    .filter(item => {
+      const finalYAxisPlacement = item.yAxisPlacement || yAxisPlacement;
+      return (
         !item.hidden &&
         item.collectionId === undefined &&
-        (item.yAxisPlacement || yAxisPlacement) &&
-        ((item.yAxisPlacement || yAxisPlacement) === AxisPlacement.BOTH ||
-          (item.yAxisPlacement || yAxisPlacement) === placement)
-    );
+        (finalYAxisPlacement === AxisPlacement.BOTH ||
+          finalYAxisPlacement === placement)
+      );
+    });
 
   const hasCollapsed =
     filteredItems.filter(displayModeFilter(AxisDisplayMode.COLLAPSED)).length >
@@ -270,7 +269,8 @@ const LineChart = props => {
   const chartWidth =
     width -
     getYAxisCollectionWidth(AxisPlacement.LEFT, props) -
-    getYAxisCollectionWidth(AxisPlacement.RIGHT, props);
+    getYAxisCollectionWidth(AxisPlacement.RIGHT, props) -
+    getYAxisCollectionWidth(undefined, props);
   const chartHeight = height - getXAxisHeight(xAxisHeight) - contextChartSpace;
   const chartSize = {
     width: Math.max(0, chartWidth),
