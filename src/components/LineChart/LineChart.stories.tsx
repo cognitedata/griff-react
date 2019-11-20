@@ -1,8 +1,8 @@
 import React from 'react';
 import { DataProvider, LineChart, Series } from '../..';
-import { sineLoader } from '../../../stories/utils';
+import { sineLoader, StoryContainer } from '../../../stories/utils';
 
-const DEFAULT_HEIGHT = 800;
+const DEFAULT_HEIGHT = 500;
 
 export default {
   title: 'Components|LineChart',
@@ -11,9 +11,11 @@ export default {
 export const Base = () => {
   const timeDomain = [0, 10000000];
   return (
-    <DataProvider defaultLoader={sineLoader} timeDomain={timeDomain}>
-      <Series id="1" color="steelblue" />
-      <LineChart height={DEFAULT_HEIGHT} />
-    </DataProvider>
+    <StoryContainer>
+      <DataProvider defaultLoader={sineLoader} timeDomain={timeDomain}>
+        <Series id="1" color="steelblue" />
+        <LineChart height={DEFAULT_HEIGHT} />
+      </DataProvider>
+    </StoryContainer>
   );
 };
