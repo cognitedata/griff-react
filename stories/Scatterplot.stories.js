@@ -285,26 +285,24 @@ basicUsage.story = {
 };
 
 export const differentDomains = () => (
-  <>
-    <div>
-      <h3>Different Y domains</h3>
-      <div style={{ height: '500px', width: '100%' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
-          timeDomain={[0, 1]}
-          xAccessor={d => +d.x}
-          yAccessor={d => +d.y}
-          drawPoints
-        >
-          <Collection id="scatter">
-            <Series id="1 2" color="steelblue" />
-            <Series id="sum-y" color="maroon" />
-          </Collection>
-          <Scatterplot zoomable />
-        </DataProvider>
-      </div>
+  <div>
+    <h3>Different Y domains</h3>
+    <div style={{ height: '500px', width: '100%' }}>
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        timeDomain={[0, 1]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+        drawPoints
+      >
+        <Collection id="scatter">
+          <Series id="1 2" color="steelblue" />
+          <Series id="sum-y" color="maroon" />
+        </Collection>
+        <Scatterplot zoomable />
+      </DataProvider>
     </div>
-  </>
+  </div>
 );
 
 differentDomains.story = {
@@ -675,25 +673,23 @@ opacityStory.story = {
 };
 
 export const minMax = () => (
-  <>
-    <div style={{ height: '500px', width: '500px' }}>
-      <DataProvider
-        defaultLoader={scatterplotloader}
-        timeDomain={[0, 1]}
-        xAccessor={d => +d.x}
-        x0Accessor={d => +d.x * 0.9}
-        x1Accessor={d => +d.x * 1.1}
-        yAccessor={d => +d.y}
-        y0Accessor={d => +d.y * 0.9}
-        y1Accessor={d => +d.y * 1.1}
-        drawPoints
-      >
-        <Series id="1 2" color="steelblue" />
-        <Series id="3 4" color="maroon" />
-        <Scatterplot zoomable />
-      </DataProvider>
-    </div>
-  </>
+  <div style={{ height: '500px', width: '500px' }}>
+    <DataProvider
+      defaultLoader={scatterplotloader}
+      timeDomain={[0, 1]}
+      xAccessor={d => +d.x}
+      x0Accessor={d => +d.x * 0.9}
+      x1Accessor={d => +d.x * 1.1}
+      yAccessor={d => +d.y}
+      y0Accessor={d => +d.y * 0.9}
+      y1Accessor={d => +d.y * 1.1}
+      drawPoints
+    >
+      <Series id="1 2" color="steelblue" />
+      <Series id="3 4" color="maroon" />
+      <Scatterplot zoomable />
+    </DataProvider>
+  </div>
 );
 
 minMax.story = {
@@ -701,46 +697,42 @@ minMax.story = {
 };
 
 export const contextChart = () => (
-  <>
-    <div style={{ width: 500 }}>
-      <DataProvider
-        defaultLoader={scatterplotFunctionLoader}
-        timeDomain={[+moment().subtract(1, 'year'), +moment()]}
-        pointsPerSeries={100}
-        timeAccessor={d => +d.timestamp}
-        xAccessor={d => +d.x}
-        yAccessor={d => +d.y}
-        drawPoints
-      >
-        <Series id="1 2" color="steelblue" />
-        <div style={{ height: 500 }}>
-          <Scatterplot zoomable />
-        </div>
-        <div style={{ width: 450 }}>
-          <ContextChart />
-        </div>
-      </DataProvider>
-    </div>
-  </>
+  <div style={{ width: 500 }}>
+    <DataProvider
+      defaultLoader={scatterplotFunctionLoader}
+      timeDomain={[+moment().subtract(1, 'year'), +moment()]}
+      pointsPerSeries={100}
+      timeAccessor={d => +d.timestamp}
+      xAccessor={d => +d.x}
+      yAccessor={d => +d.y}
+      drawPoints
+    >
+      <Series id="1 2" color="steelblue" />
+      <div style={{ height: 500 }}>
+        <Scatterplot zoomable />
+      </div>
+      <div style={{ width: 450 }}>
+        <ContextChart />
+      </div>
+    </DataProvider>
+  </div>
 );
 
 export const zoomableStory = () => (
-  <>
-    <div style={{ width: 500, height: 500 }}>
-      <DataProvider
-        defaultLoader={scatterplotFunctionLoader}
-        timeDomain={[+moment().subtract(1, 'year'), +moment()]}
-        pointsPerSeries={100}
-        timeAccessor={d => +d.timestamp}
-        xAccessor={d => +d.x}
-        yAccessor={d => +d.y}
-        drawPoints
-      >
-        <Series id="1 2" color="steelblue" />
-        <Scatterplot zoomable={false} />
-      </DataProvider>
-    </div>
-  </>
+  <div style={{ width: 500, height: 500 }}>
+    <DataProvider
+      defaultLoader={scatterplotFunctionLoader}
+      timeDomain={[+moment().subtract(1, 'year'), +moment()]}
+      pointsPerSeries={100}
+      timeAccessor={d => +d.timestamp}
+      xAccessor={d => +d.x}
+      yAccessor={d => +d.y}
+      drawPoints
+    >
+      <Series id="1 2" color="steelblue" />
+      <Scatterplot zoomable={false} />
+    </DataProvider>
+  </div>
 );
 
 zoomableStory.story = {
@@ -879,31 +871,29 @@ export const CustomAxisSize = () => {
   const xAxisHeight = number('X Axis height', 20);
   const yAxisWidth = number('Y Axis width', 20);
   return (
-    <>
-      <div
-        style={{
-          width: '500px',
-          height: '500px',
-          outline: '1px solid red',
-          margin: '1em',
-        }}
+    <div
+      style={{
+        width: '500px',
+        height: '500px',
+        outline: '1px solid red',
+        margin: '1em',
+      }}
+    >
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        timeDomain={[0, 1]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+        drawPoints
       >
-        <DataProvider
-          defaultLoader={scatterplotloader}
-          timeDomain={[0, 1]}
-          xAccessor={d => +d.x}
-          yAccessor={d => +d.y}
-          drawPoints
-        >
-          <Series id="1 2" color="steelblue" />
-          <Scatterplot
-            zoomable
-            xAxisHeight={xAxisHeight}
-            yAxisWidth={yAxisWidth}
-          />
-        </DataProvider>
-      </div>
-    </>
+        <Series id="1 2" color="steelblue" />
+        <Scatterplot
+          zoomable
+          xAxisHeight={xAxisHeight}
+          yAxisWidth={yAxisWidth}
+        />
+      </DataProvider>
+    </div>
   );
 };
 

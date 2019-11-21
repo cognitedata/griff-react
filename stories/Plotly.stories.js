@@ -37,46 +37,42 @@ export default {
 };
 
 export const basic = () => (
-  <>
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <ScalerContext.Consumer>
-        {({ series }) => (
-          <Plot
-            data={series.map(s => seriesToPlotly(s))}
-            layout={{
-              width: '100%',
-              height: 400,
-              title: 'Demo|A Fancy Plot',
-            }}
-          />
-        )}
-      </ScalerContext.Consumer>
-    </DataProvider>
-  </>
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Series id="1" color="steelblue" />
+    <Series id="2" color="maroon" />
+    <ScalerContext.Consumer>
+      {({ series }) => (
+        <Plot
+          data={series.map(s => seriesToPlotly(s))}
+          layout={{
+            width: '100%',
+            height: 400,
+            title: 'Demo|A Fancy Plot',
+          }}
+        />
+      )}
+    </ScalerContext.Consumer>
+  </DataProvider>
 );
 
 export const controlledByContextChart = () => (
-  <>
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <ScalerContext.Consumer>
-        {({ series, subDomainsByItemId }) => (
-          <Plot
-            data={series.map(s => seriesToPlotly(s, subDomainsByItemId))}
-            layout={{
-              width: '100%',
-              height: 400,
-              title: 'Demo|A Fancy Plot controlled by a ContextChart',
-            }}
-          />
-        )}
-      </ScalerContext.Consumer>
-      <ContextChart />
-    </DataProvider>
-  </>
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Series id="1" color="steelblue" />
+    <Series id="2" color="maroon" />
+    <ScalerContext.Consumer>
+      {({ series, subDomainsByItemId }) => (
+        <Plot
+          data={series.map(s => seriesToPlotly(s, subDomainsByItemId))}
+          layout={{
+            width: '100%',
+            height: 400,
+            title: 'Demo|A Fancy Plot controlled by a ContextChart',
+          }}
+        />
+      )}
+    </ScalerContext.Consumer>
+    <ContextChart />
+  </DataProvider>
 );
 
 controlledByContextChart.story = {
@@ -84,49 +80,45 @@ controlledByContextChart.story = {
 };
 
 export const interactingWithContextChart = () => (
-  <>
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <ScalerContext.Consumer>
-        {({ series, domainsByItemId, subDomainsByItemId, updateDomains }) => (
-          <Plot
-            key={series.map(s => s.id).join('-')}
-            data={series.map(s => seriesToPlotly(s, subDomainsByItemId))}
-            layout={{
-              width: '100%',
-              height: 400,
-              title: 'Demo|A Fancy Plot interacting with a ContextChart',
-            }}
-            onRelayout={input => {
-              const {
-                'xaxis.range[0]': lowerTime,
-                'xaxis.range[1]': upperTime,
-                'xaxis.autorange': autorange,
-              } = input;
-              updateDomains(
-                series.reduce(
-                  (update, { id }) => ({
-                    ...update,
-                    [id]: {
-                      time: autorange
-                        ? domainsByItemId[id].time
-                        : [lowerTime, upperTime].map(d =>
-                            new Date(d).getTime()
-                          ),
-                    },
-                  }),
-                  {}
-                ),
-                action('updateDomains')
-              );
-            }}
-          />
-        )}
-      </ScalerContext.Consumer>
-      <ContextChart />
-    </DataProvider>
-  </>
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Series id="1" color="steelblue" />
+    <Series id="2" color="maroon" />
+    <ScalerContext.Consumer>
+      {({ series, domainsByItemId, subDomainsByItemId, updateDomains }) => (
+        <Plot
+          key={series.map(s => s.id).join('-')}
+          data={series.map(s => seriesToPlotly(s, subDomainsByItemId))}
+          layout={{
+            width: '100%',
+            height: 400,
+            title: 'Demo|A Fancy Plot interacting with a ContextChart',
+          }}
+          onRelayout={input => {
+            const {
+              'xaxis.range[0]': lowerTime,
+              'xaxis.range[1]': upperTime,
+              'xaxis.autorange': autorange,
+            } = input;
+            updateDomains(
+              series.reduce(
+                (update, { id }) => ({
+                  ...update,
+                  [id]: {
+                    time: autorange
+                      ? domainsByItemId[id].time
+                      : [lowerTime, upperTime].map(d => new Date(d).getTime()),
+                  },
+                }),
+                {}
+              ),
+              action('updateDomains')
+            );
+          }}
+        />
+      )}
+    </ScalerContext.Consumer>
+    <ContextChart />
+  </DataProvider>
 );
 
 interactingWithContextChart.story = {
