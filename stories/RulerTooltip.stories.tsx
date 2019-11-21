@@ -14,13 +14,13 @@ export default {
   title: 'Demo|components/RulerTooltip',
 
   decorators: [
-    story => {
+    (story: React.FC<StoryProps>) => {
       class FakeChart extends React.Component {
         state = {
           x: CHART_WIDTH / 2,
         };
 
-        onMouseMove = ({ nativeEvent: { offsetX } }) => {
+        onMouseMove = ({ nativeEvent: { offsetX } }: React.MouseEvent) => {
           this.setState({ x: offsetX });
         };
 
