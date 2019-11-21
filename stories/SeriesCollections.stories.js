@@ -12,7 +12,7 @@ const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
 export default {
-  title: 'Series Collections',
+  title: 'Demo|Series Collections',
 };
 
 export const singleCollection = () => [

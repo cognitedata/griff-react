@@ -191,7 +191,7 @@ const latestPointRenderer = (
 };
 
 export default {
-  title: 'Scatterplot',
+  title: 'Demo|Scatterplot',
 
   decorators: [
     story => (
@@ -212,7 +212,7 @@ export default {
 };
 
 export const basicUsage = () => (
-  <React.Fragment>
+  <>
     <div>
       <h3>One series</h3>
       <div style={{ height: '500px', width: '100%' }}>
@@ -277,7 +277,7 @@ export const basicUsage = () => (
         </DataProvider>
       </div>
     </div>
-  </React.Fragment>
+  </>
 );
 
 basicUsage.story = {
@@ -285,26 +285,24 @@ basicUsage.story = {
 };
 
 export const differentDomains = () => (
-  <React.Fragment>
-    <div>
-      <h3>Different Y domains</h3>
-      <div style={{ height: '500px', width: '100%' }}>
-        <DataProvider
-          defaultLoader={scatterplotloader}
-          timeDomain={[0, 1]}
-          xAccessor={d => +d.x}
-          yAccessor={d => +d.y}
-          drawPoints
-        >
-          <Collection id="scatter">
-            <Series id="1 2" color="steelblue" />
-            <Series id="sum-y" color="maroon" />
-          </Collection>
-          <Scatterplot zoomable />
-        </DataProvider>
-      </div>
+  <div>
+    <h3>Different Y domains</h3>
+    <div style={{ height: '500px', width: '100%' }}>
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        timeDomain={[0, 1]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+        drawPoints
+      >
+        <Collection id="scatter">
+          <Series id="1 2" color="steelblue" />
+          <Series id="sum-y" color="maroon" />
+        </Collection>
+        <Scatterplot zoomable />
+      </DataProvider>
     </div>
-  </React.Fragment>
+  </div>
 );
 
 differentDomains.story = {
@@ -312,7 +310,7 @@ differentDomains.story = {
 };
 
 export const domains = () => (
-  <React.Fragment>
+  <>
     <div>
       <h3>Specified domains</h3>
       <div style={{ height: '500px', width: '100%' }}>
@@ -394,11 +392,11 @@ export const domains = () => (
         </DataProvider>
       </div>
     </div>
-  </React.Fragment>
+  </>
 );
 
 export const customTickFormatting = () => (
-  <React.Fragment>
+  <>
     <div style={{ height: '500px', width: '100%' }}>
       <DataProvider
         defaultLoader={scatterplotloader}
@@ -415,7 +413,7 @@ export const customTickFormatting = () => (
         />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 customTickFormatting.story = {
@@ -440,7 +438,7 @@ export const grid = () => (
 );
 
 export const axes = () => (
-  <React.Fragment>
+  <>
     {[AxisPlacement.RIGHT, AxisPlacement.BOTH, AxisPlacement.LEFT].map(
       placement => (
         <div
@@ -512,7 +510,7 @@ export const axes = () => (
         />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 export const splitAxes = () => (
@@ -551,7 +549,7 @@ splitAxes.story = {
 };
 
 export const strokeWidthStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ height: '500px', width: '500px' }}>
       <DataProvider
         defaultLoader={scatterplotloader}
@@ -579,7 +577,7 @@ export const strokeWidthStory = () => (
         <Scatterplot zoomable />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 strokeWidthStory.story = {
@@ -587,7 +585,7 @@ strokeWidthStory.story = {
 };
 
 export const pointWidthStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ height: '500px', width: '500px' }}>
       <DataProvider
         defaultLoader={scatterplotloader}
@@ -629,7 +627,7 @@ export const pointWidthStory = () => (
         <Scatterplot zoomable />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 pointWidthStory.story = {
@@ -637,7 +635,7 @@ pointWidthStory.story = {
 };
 
 export const opacityStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ height: '500px', width: '500px' }}>
       <DataProvider
         defaultLoader={scatterplotloader}
@@ -667,7 +665,7 @@ export const opacityStory = () => (
         <Scatterplot zoomable />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 opacityStory.story = {
@@ -675,25 +673,23 @@ opacityStory.story = {
 };
 
 export const minMax = () => (
-  <React.Fragment>
-    <div style={{ height: '500px', width: '500px' }}>
-      <DataProvider
-        defaultLoader={scatterplotloader}
-        timeDomain={[0, 1]}
-        xAccessor={d => +d.x}
-        x0Accessor={d => +d.x * 0.9}
-        x1Accessor={d => +d.x * 1.1}
-        yAccessor={d => +d.y}
-        y0Accessor={d => +d.y * 0.9}
-        y1Accessor={d => +d.y * 1.1}
-        drawPoints
-      >
-        <Series id="1 2" color="steelblue" />
-        <Series id="3 4" color="maroon" />
-        <Scatterplot zoomable />
-      </DataProvider>
-    </div>
-  </React.Fragment>
+  <div style={{ height: '500px', width: '500px' }}>
+    <DataProvider
+      defaultLoader={scatterplotloader}
+      timeDomain={[0, 1]}
+      xAccessor={d => +d.x}
+      x0Accessor={d => +d.x * 0.9}
+      x1Accessor={d => +d.x * 1.1}
+      yAccessor={d => +d.y}
+      y0Accessor={d => +d.y * 0.9}
+      y1Accessor={d => +d.y * 1.1}
+      drawPoints
+    >
+      <Series id="1 2" color="steelblue" />
+      <Series id="3 4" color="maroon" />
+      <Scatterplot zoomable />
+    </DataProvider>
+  </div>
 );
 
 minMax.story = {
@@ -701,46 +697,42 @@ minMax.story = {
 };
 
 export const contextChart = () => (
-  <React.Fragment>
-    <div style={{ width: 500 }}>
-      <DataProvider
-        defaultLoader={scatterplotFunctionLoader}
-        timeDomain={[+moment().subtract(1, 'year'), +moment()]}
-        pointsPerSeries={100}
-        timeAccessor={d => +d.timestamp}
-        xAccessor={d => +d.x}
-        yAccessor={d => +d.y}
-        drawPoints
-      >
-        <Series id="1 2" color="steelblue" />
-        <div style={{ height: 500 }}>
-          <Scatterplot zoomable />
-        </div>
-        <div style={{ width: 450 }}>
-          <ContextChart />
-        </div>
-      </DataProvider>
-    </div>
-  </React.Fragment>
+  <div style={{ width: 500 }}>
+    <DataProvider
+      defaultLoader={scatterplotFunctionLoader}
+      timeDomain={[+moment().subtract(1, 'year'), +moment()]}
+      pointsPerSeries={100}
+      timeAccessor={d => +d.timestamp}
+      xAccessor={d => +d.x}
+      yAccessor={d => +d.y}
+      drawPoints
+    >
+      <Series id="1 2" color="steelblue" />
+      <div style={{ height: 500 }}>
+        <Scatterplot zoomable />
+      </div>
+      <div style={{ width: 450 }}>
+        <ContextChart />
+      </div>
+    </DataProvider>
+  </div>
 );
 
 export const zoomableStory = () => (
-  <React.Fragment>
-    <div style={{ width: 500, height: 500 }}>
-      <DataProvider
-        defaultLoader={scatterplotFunctionLoader}
-        timeDomain={[+moment().subtract(1, 'year'), +moment()]}
-        pointsPerSeries={100}
-        timeAccessor={d => +d.timestamp}
-        xAccessor={d => +d.x}
-        yAccessor={d => +d.y}
-        drawPoints
-      >
-        <Series id="1 2" color="steelblue" />
-        <Scatterplot zoomable={false} />
-      </DataProvider>
-    </div>
-  </React.Fragment>
+  <div style={{ width: 500, height: 500 }}>
+    <DataProvider
+      defaultLoader={scatterplotFunctionLoader}
+      timeDomain={[+moment().subtract(1, 'year'), +moment()]}
+      pointsPerSeries={100}
+      timeAccessor={d => +d.timestamp}
+      xAccessor={d => +d.x}
+      yAccessor={d => +d.y}
+      drawPoints
+    >
+      <Series id="1 2" color="steelblue" />
+      <Scatterplot zoomable={false} />
+    </DataProvider>
+  </div>
 );
 
 zoomableStory.story = {
@@ -748,7 +740,7 @@ zoomableStory.story = {
 };
 
 export const drawLinesStory = () => (
-  <React.Fragment>
+  <>
     <div>
       <h3>Set on DataProvider</h3>
       <div style={{ height: '500px', width: '100%' }}>
@@ -816,7 +808,7 @@ export const drawLinesStory = () => (
         </DataProvider>
       </div>
     </div>
-  </React.Fragment>
+  </>
 );
 
 drawLinesStory.story = {
@@ -824,7 +816,7 @@ drawLinesStory.story = {
 };
 
 export const pointRenderer = () => (
-  <React.Fragment>
+  <>
     <div>
       <h3>Set on DataProvider</h3>
       <div style={{ height: '500px', width: '100%' }}>
@@ -872,38 +864,36 @@ export const pointRenderer = () => (
         </DataProvider>
       </div>
     </div>
-  </React.Fragment>
+  </>
 );
 
 export const CustomAxisSize = () => {
   const xAxisHeight = number('X Axis height', 20);
   const yAxisWidth = number('Y Axis width', 20);
   return (
-    <React.Fragment>
-      <div
-        style={{
-          width: '500px',
-          height: '500px',
-          outline: '1px solid red',
-          margin: '1em',
-        }}
+    <div
+      style={{
+        width: '500px',
+        height: '500px',
+        outline: '1px solid red',
+        margin: '1em',
+      }}
+    >
+      <DataProvider
+        defaultLoader={scatterplotloader}
+        timeDomain={[0, 1]}
+        xAccessor={d => +d.x}
+        yAccessor={d => +d.y}
+        drawPoints
       >
-        <DataProvider
-          defaultLoader={scatterplotloader}
-          timeDomain={[0, 1]}
-          xAccessor={d => +d.x}
-          yAccessor={d => +d.y}
-          drawPoints
-        >
-          <Series id="1 2" color="steelblue" />
-          <Scatterplot
-            zoomable
-            xAxisHeight={xAxisHeight}
-            yAxisWidth={yAxisWidth}
-          />
-        </DataProvider>
-      </div>
-    </React.Fragment>
+        <Series id="1 2" color="steelblue" />
+        <Scatterplot
+          zoomable
+          xAxisHeight={xAxisHeight}
+          yAxisWidth={yAxisWidth}
+        />
+      </DataProvider>
+    </div>
   );
 };
 

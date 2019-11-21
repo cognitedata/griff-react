@@ -1,3 +1,5 @@
+/* eslint-disable max-classes-per-file */
+/* eslint-disable react/no-this-in-sfc */
 import React from 'react';
 import { action } from '@storybook/addon-actions';
 import {
@@ -13,7 +15,7 @@ const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
 export default {
-  title: 'Y-Axis Modes',
+  title: 'Demo|Y-Axis Modes',
 };
 
 export const mouseEvents = () => {
@@ -21,28 +23,26 @@ export const mouseEvents = () => {
     action('Axis mouse event')(e.type, seriesId);
   };
   return (
-    <React.Fragment>
-      <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-        <Series id="1" color="steelblue" />
-        <Series id="2" color="maroon" />
-        <Series
-          id="3"
-          color="orange"
-          yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
-        />
-        <Series
-          id="4"
-          color="green"
-          yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
-        />
-        <LineChart
-          height={CHART_HEIGHT}
-          yAxisDisplayMode={AxisDisplayMode.ALL}
-          onAxisMouseEnter={mouseEvent}
-          onAxisMouseLeave={mouseEvent}
-        />
-      </DataProvider>
-    </React.Fragment>
+    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+      <Series id="1" color="steelblue" />
+      <Series id="2" color="maroon" />
+      <Series
+        id="3"
+        color="orange"
+        yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+      />
+      <Series
+        id="4"
+        color="green"
+        yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+      />
+      <LineChart
+        height={CHART_HEIGHT}
+        yAxisDisplayMode={AxisDisplayMode.ALL}
+        onAxisMouseEnter={mouseEvent}
+        onAxisMouseLeave={mouseEvent}
+      />
+    </DataProvider>
   );
 };
 
@@ -125,7 +125,7 @@ export const someHidden = () => {
     render() {
       const { yAxisDisplayMode } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series
               id="1"
@@ -174,7 +174,7 @@ export const someHidden = () => {
           >
             COLLAPSED
           </button>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -186,23 +186,21 @@ someHidden.story = {
 };
 
 export const someCollapsed = () => (
-  <React.Fragment>
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-      <Series
-        id="1"
-        color="steelblue"
-        yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
-      />
-      <Series id="2" color="maroon" />
-      <Series
-        id="3"
-        color="orange"
-        yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
-      />
-      <Series id="4" color="green" />
-      <LineChart height={CHART_HEIGHT} yAxisDisplayMode={AxisDisplayMode.ALL} />
-    </DataProvider>
-  </React.Fragment>
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Series
+      id="1"
+      color="steelblue"
+      yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+    />
+    <Series id="2" color="maroon" />
+    <Series
+      id="3"
+      color="orange"
+      yAxisDisplayMode={AxisDisplayMode.COLLAPSED}
+    />
+    <Series id="4" color="green" />
+    <LineChart height={CHART_HEIGHT} yAxisDisplayMode={AxisDisplayMode.ALL} />
+  </DataProvider>
 );
 
 someCollapsed.story = {
@@ -265,19 +263,17 @@ export const someCollapsedUntilHover = () => {
     render() {
       const { series, yAxisDisplayMode } = this.state;
       return (
-        <React.Fragment>
-          <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-            {series.map(s => (
-              <Series key={s.id} {...s} />
-            ))}
-            <LineChart
-              height={CHART_HEIGHT}
-              yAxisDisplayMode={yAxisDisplayMode}
-              onAxisMouseEnter={this.expandAll}
-              onAxisMouseLeave={this.collapseSome}
-            />
-          </DataProvider>
-        </React.Fragment>
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          {series.map(s => (
+            <Series key={s.id} {...s} />
+          ))}
+          <LineChart
+            height={CHART_HEIGHT}
+            yAxisDisplayMode={yAxisDisplayMode}
+            onAxisMouseEnter={this.expandAll}
+            onAxisMouseLeave={this.collapseSome}
+          />
+        </DataProvider>
       );
     }
   }
@@ -350,32 +346,30 @@ export const someCollapsedUntilHoverWithCollections = () => {
     render() {
       const { collections, series } = this.state;
       return (
-        <React.Fragment>
-          <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-            <Series id="1" color="steelblue" yAxisDisplayMode={series[1]} />
-            <Collection
-              id="default-expanded"
-              color="red"
-              yAxisDisplayMode={collections['default-expanded']}
-            >
-              <Series id="2" color="maroon" yAxisDisplayMode={series[2]} />
-              <Series id="3" color="orange" yAxisDisplayMode={series[3]} />
-            </Collection>
-            <Collection
-              id="default-collapsed"
-              color="blue"
-              yAxisDisplayMode={collections['default-collapsed']}
-            >
-              <Series id="4" color="green" yAxisDisplayMode={series[4]} />
-              <Series id="5" color="gray" yAxisDisplayMode={series[5]} />
-            </Collection>
-            <LineChart
-              height={CHART_HEIGHT}
-              onAxisMouseEnter={this.expandAll}
-              onAxisMouseLeave={this.collapseSome}
-            />
-          </DataProvider>
-        </React.Fragment>
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" yAxisDisplayMode={series[1]} />
+          <Collection
+            id="default-expanded"
+            color="red"
+            yAxisDisplayMode={collections['default-expanded']}
+          >
+            <Series id="2" color="maroon" yAxisDisplayMode={series[2]} />
+            <Series id="3" color="orange" yAxisDisplayMode={series[3]} />
+          </Collection>
+          <Collection
+            id="default-collapsed"
+            color="blue"
+            yAxisDisplayMode={collections['default-collapsed']}
+          >
+            <Series id="4" color="green" yAxisDisplayMode={series[4]} />
+            <Series id="5" color="gray" yAxisDisplayMode={series[5]} />
+          </Collection>
+          <LineChart
+            height={CHART_HEIGHT}
+            onAxisMouseEnter={this.expandAll}
+            onAxisMouseLeave={this.collapseSome}
+          />
+        </DataProvider>
       );
     }
   }
@@ -396,7 +390,7 @@ export const axisCollectionModesButton = () => {
     render() {
       const { yAxisDisplayMode } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" />
             <Series id="2" color="maroon" />
@@ -435,7 +429,7 @@ export const axisCollectionModesButton = () => {
           >
             COLLAPSED
           </button>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -473,18 +467,16 @@ export const axisCollectionModesHover = () => {
     render() {
       const { yAxisDisplayMode } = this.state;
       return (
-        <React.Fragment>
-          <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-            <Series id="1" color="steelblue" />
-            <Series id="2" color="maroon" />
-            <LineChart
-              height={CHART_HEIGHT}
-              yAxisDisplayMode={yAxisDisplayMode}
-              onAxisMouseEnter={this.expand}
-              onAxisMouseLeave={this.collapse}
-            />
-          </DataProvider>
-        </React.Fragment>
+        <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+          <Series id="1" color="steelblue" />
+          <Series id="2" color="maroon" />
+          <LineChart
+            height={CHART_HEIGHT}
+            yAxisDisplayMode={yAxisDisplayMode}
+            onAxisMouseEnter={this.expand}
+            onAxisMouseLeave={this.collapse}
+          />
+        </DataProvider>
       );
     }
   }

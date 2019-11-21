@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { boundedSeries } from '../../utils/boundedseries';
-import { Datapoint, PointRenderer, AccessorFunction } from '../../external';
-import { ScalerFunction } from '../../utils/scale-helpers';
+import React from 'react';
+import { boundedSeries } from 'utils/boundedseries';
+import { Datapoint, PointRenderer, AccessorFunction } from 'external';
+import { ScalerFunction } from 'utils/scale-helpers';
 
 export interface Props {
   drawPoints?: boolean | PointRenderer;
@@ -23,7 +23,7 @@ export interface Props {
   yScale: ScalerFunction;
 }
 
-const Points: React.FunctionComponent<Props> = ({
+const Points: React.FC<Props> = ({
   data,
   drawPoints = false,
   xAccessor,
@@ -41,7 +41,7 @@ const Points: React.FunctionComponent<Props> = ({
   pointWidth,
   pointWidthAccessor,
   strokeWidth,
-}) => {
+}: Props) => {
   if (drawPoints === false) {
     return null;
   }

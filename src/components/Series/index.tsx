@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { ItemId, AccessorFunction, PointRenderer } from '../../external';
-import Data from '../../context/Data';
+import React from 'react';
 import { Domain } from 'domain';
-import { AxisPlacement } from '../AxisPlacement';
-import { AxisDisplayMode } from '../../utils/AxisDisplayMode';
-import { withDisplayName } from '../../utils/displayName';
+import { ItemId, AccessorFunction, PointRenderer } from 'external';
+import Data from 'context/Data';
+import { AxisPlacement } from 'components/AxisPlacement';
+import { AxisDisplayMode } from 'utils/AxisDisplayMode';
+import { withDisplayName } from 'utils/displayName';
 
 // TODO: Move this to DataProvider (and define it properly over there)
 type LoaderFunction = (params: any) => any;
@@ -112,7 +112,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
 
 export default withDisplayName('Series', (props: Props) => (
   <Data.Consumer>
-    {({ registerSeries, updateSeries }: InternalProps) => (
+    {({ registerSeries, updateSeries }: any) => (
       <Series
         {...props}
         registerSeries={registerSeries}

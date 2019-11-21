@@ -1,11 +1,11 @@
-import * as React from 'react';
-import ScalerContext from '../../context/Scaler';
-import { createYScale, createXScale } from '../../utils/scale-helpers';
-import Axes from '../../utils/Axes';
-import { ItemId, Series } from '../../external';
-import { DomainsByItemId } from '../Scaler/index';
-import { SizeProps, ItemIdMap } from '../../internal';
-import { withDisplayName } from '../../utils/displayName';
+import React from 'react';
+import ScalerContext from 'context/Scaler';
+import { createYScale, createXScale } from 'utils/scale-helpers';
+import Axes from 'utils/Axes';
+import { ItemId, Series } from 'external';
+import { DomainsByItemId } from 'components/Scaler/index';
+import { SizeProps, ItemIdMap } from 'internal';
+import { withDisplayName } from 'utils/displayName';
 
 export interface GridX {
   pixels?: number;
@@ -26,7 +26,7 @@ export interface GridY {
   ticks?: number;
 }
 
-export interface Props {
+export interface Props extends InternalProps, SizeProps {
   axes?: {
     x: 'time' | 'x';
   };
@@ -42,7 +42,7 @@ interface InternalProps {
   subDomainsByItemId: DomainsByItemId;
 }
 
-const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
+const GridLines: React.FC<Props> = ({
   axes = { x: 'x' },
   color = '#666',
   height,
@@ -53,7 +53,7 @@ const GridLines: React.FunctionComponent<Props & InternalProps & SizeProps> = ({
   width,
   x,
   y,
-}) => {
+}: Props) => {
   if (!x && !y) {
     return null;
   }
