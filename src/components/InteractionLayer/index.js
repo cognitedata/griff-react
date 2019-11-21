@@ -2,20 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
-import ScalerContext from '../../context/Scaler';
-import { createYScale, createXScale } from '../../utils/scale-helpers';
+import ScalerContext from 'context/Scaler';
+import { createYScale, createXScale } from 'utils/scale-helpers';
 import GriffPropTypes, {
   areaPropType,
   seriesPropType,
   annotationPropType,
   rulerPropType,
-} from '../../utils/proptypes';
-import Annotation from '../Annotation';
-import Ruler from '../Ruler';
-import Area from '../Area';
-import ZoomRect from '../ZoomRect';
-import Axes from '../../utils/Axes';
-import { withDisplayName } from '../../utils/displayName';
+} from 'utils/proptypes';
+import Annotation from 'components/Annotation';
+import Ruler from 'components/Ruler';
+import Area from 'components/Area';
+import ZoomRect from 'components/ZoomRect';
+import Axes from 'utils/Axes';
+import { withDisplayName } from 'utils/displayName';
 
 export const ZoomMode = {
   X: 0,

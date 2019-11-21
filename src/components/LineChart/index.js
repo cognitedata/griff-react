@@ -1,24 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
-import AxisCollection from '../AxisCollection';
-import ScalerContext from '../../context/Scaler';
-import ContextChart from '../ContextChart';
+import AxisCollection from 'components/AxisCollection';
+import ScalerContext from 'context/Scaler';
+import ContextChart from 'components/ContextChart';
 import GriffPropTypes, {
   areaPropType,
   annotationPropType,
   rulerPropType,
   axisDisplayModeType,
-} from '../../utils/proptypes';
-import LineCollection from '../LineCollection';
-import InteractionLayer from '../InteractionLayer';
-import XAxis from '../XAxis';
-import AxisDisplayMode from '../../utils/AxisDisplayMode';
-import AxisPlacement from '../AxisPlacement';
+} from 'utils/proptypes';
+import LineCollection from 'components/LineCollection';
+import InteractionLayer from 'components/InteractionLayer';
+import XAxis from 'components/XAxis';
+import AxisDisplayMode from 'utils/AxisDisplayMode';
+import AxisPlacement from 'components/AxisPlacement';
+import { multiFormat } from 'utils/multiFormat';
+import Axes from 'utils/Axes';
+import { withDisplayName } from 'utils/displayName';
 import Layout from './Layout';
-import { multiFormat } from '../../utils/multiFormat';
-import Axes from '../../utils/Axes';
-import { withDisplayName } from '../../utils/displayName';
 
 const propTypes = {
   // Disable the ESLinter for this because they'll show up from react-sizeme.
@@ -120,8 +120,6 @@ const defaultProps = {
   xAxisPlacement: AxisPlacement.BOTTOM,
   yAxisDisplayMode: AxisDisplayMode.ALL,
   yAxisFormatter: Number,
-  // eslint-disable-next-line react/default-props-match-prop-types
-  yAxisPlacement: AxisPlacement.RIGHT,
   onAxisMouseEnter: null,
   onAxisMouseLeave: null,
   areas: [],
@@ -166,14 +164,15 @@ const getYAxisCollectionWidth = (
   const filteredItems = []
     .concat(series)
     .concat(collections)
-    .filter(
-      item =>
+    .filter(item => {
+      const finalYAxisPlacement = item.yAxisPlacement || yAxisPlacement;
+      return (
         !item.hidden &&
         item.collectionId === undefined &&
-        (item.yAxisPlacement || yAxisPlacement) &&
-        ((item.yAxisPlacement || yAxisPlacement) === AxisPlacement.BOTH ||
-          (item.yAxisPlacement || yAxisPlacement) === placement)
-    );
+        (finalYAxisPlacement === AxisPlacement.BOTH ||
+          finalYAxisPlacement === placement)
+      );
+    });
 
   const hasCollapsed =
     filteredItems.filter(displayModeFilter(AxisDisplayMode.COLLAPSED)).length >
@@ -270,7 +269,8 @@ const LineChart = props => {
   const chartWidth =
     width -
     getYAxisCollectionWidth(AxisPlacement.LEFT, props) -
-    getYAxisCollectionWidth(AxisPlacement.RIGHT, props);
+    getYAxisCollectionWidth(AxisPlacement.RIGHT, props) -
+    getYAxisCollectionWidth(undefined, props);
   const chartHeight = height - getXAxisHeight(xAxisHeight) - contextChartSpace;
   const chartSize = {
     width: Math.max(0, chartWidth),
@@ -339,6 +339,7 @@ const LineChart = props => {
       }
       xAxis={
         <XAxis
+          width={chartWidth}
           domain={xSubDomain}
           height={xAxisHeight}
           placement={xAxisPlacement}
@@ -348,6 +349,7 @@ const LineChart = props => {
       contextChart={
         contextChart.visible && (
           <ContextChart
+            width={chartWidth}
             height={contextChartSpace}
             zoomable={zoomable}
             annotations={annotations}
@@ -365,10 +367,44 @@ LineChart.defaultProps = defaultProps;
 
 const SizedLineChart = sizeMe({ monitorHeight: true })(LineChart);
 
-export default withDisplayName('LineChart', props => (
-  <ScalerContext.Consumer>
-    {({ collections, series }) => (
-      <SizedLineChart {...props} collections={collections} series={series} />
-    )}
-  </ScalerContext.Consumer>
-));
+export default withDisplayName('LineChart', props => {
+  const newProps = { ...props };
+  if (props.size === undefined) {
+    delete newProps.size;
+  }
+  return (
+    <ScalerContext.Consumer>
+      {({ collections, series }) => (
+        <SizedLineChart
+          {...newProps}
+          collections={collections}
+          series={series}
+        />
+      )}
+    </ScalerContext.Consumer>
+  );
+});
+
+export const CustomSizeLineChart = props => {
+  const newProps = { ...props };
+  // eslint-disable-next-line react/prop-types
+  if (props.size === undefined) {
+    delete newProps.size;
+  }
+  return (
+    <ScalerContext.Consumer>
+      {({ collections, series }) =>
+        // eslint-disable-next-line react/prop-types
+        props.size !== undefined ? (
+          <LineChart {...newProps} collections={collections} series={series} />
+        ) : (
+          <SizedLineChart
+            {...newProps}
+            collections={collections}
+            series={series}
+          />
+        )
+      }
+    </ScalerContext.Consumer>
+  );
+};

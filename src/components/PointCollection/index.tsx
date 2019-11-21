@@ -1,12 +1,12 @@
 import React from 'react';
-import ScalerContext from '../../context/Scaler';
-import { createYScale, createXScale } from '../../utils/scale-helpers';
-import Axes from '../../utils/Axes';
-import { SizeProps } from '../../internal';
-import { Series, Datapoint } from '../../external';
-import { DomainsByItemId } from '../Scaler';
-import Points from '../Points';
-import { withDisplayName } from '../../utils/displayName';
+import ScalerContext from 'context/Scaler';
+import { createYScale, createXScale } from 'utils/scale-helpers';
+import Axes from 'utils/Axes';
+import { SizeProps } from 'internal';
+import { Series, Datapoint } from 'external';
+import { DomainsByItemId } from 'components/Scaler';
+import Points from 'components/Points';
+import { withDisplayName } from 'utils/displayName';
 
 export interface Props extends InternalProps, SizeProps {}
 

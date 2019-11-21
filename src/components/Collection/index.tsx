@@ -1,8 +1,12 @@
 import React from 'react';
-import Data from '../../context/Data';
-import { ItemProps, WATCHED_PROP_NAMES, Props as SeriesProps } from '../Series';
-import { ItemId } from '../../external';
-import { withDisplayName } from '../../utils/displayName';
+import Data from 'context/Data';
+import {
+  ItemProps,
+  WATCHED_PROP_NAMES,
+  Props as SeriesProps,
+} from 'components/Series';
+import { ItemId } from 'external';
+import { withDisplayName } from 'utils/displayName';
 
 export interface Props extends ItemProps {
   id: ItemId;

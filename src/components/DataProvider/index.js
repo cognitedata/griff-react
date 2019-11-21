@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import Promise from 'bluebird';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
-import DataContext from '../../context/Data';
-import Scaler from '../Scaler';
-import Series from '../Series';
-import Collection from '../Collection';
+import DataContext from 'context/Data';
+import Scaler from 'components/Scaler';
+import Series from 'components/Series';
+import Collection from 'components/Collection';
 
 export const calculateDomainFromData = (
   data,

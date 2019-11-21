@@ -1,18 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
-import ScalerContext from '../../context/Scaler';
-import PointCollection from '../PointCollection';
-import InteractionLayer, { ZoomMode } from '../InteractionLayer';
-import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
-import XAxis from '../XAxis';
+import ScalerContext from 'context/Scaler';
+import PointCollection from 'components/PointCollection';
+import InteractionLayer, { ZoomMode } from 'components/InteractionLayer';
+import GriffPropTypes, { seriesPropType } from 'utils/proptypes';
+import XAxis from 'components/XAxis';
+import AxisPlacement from 'components/AxisPlacement';
+import Axes from 'utils/Axes';
+import AxisCollection from 'components/AxisCollection';
+import LineCollection from 'components/LineCollection';
+import AxisDisplayMode from 'utils/AxisDisplayMode';
+import { withDisplayName } from 'utils/displayName';
 import Layout from './Layout';
-import AxisPlacement from '../AxisPlacement';
-import Axes from '../../utils/Axes';
-import AxisCollection from '../AxisCollection';
-import LineCollection from '../LineCollection';
-import AxisDisplayMode from '../../utils/AxisDisplayMode';
-import { withDisplayName } from '../../utils/displayName';
 
 const propTypes = {
   size: PropTypes.shape({

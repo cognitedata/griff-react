@@ -1,6 +1,6 @@
 import React from 'react';
-import RulerTooltip from '../RulerTooltip';
-import { ItemId } from '../../external';
+import RulerTooltip from 'components/RulerTooltip';
+import { ItemId } from 'external';
 
 export interface RulerConfig {
   visible: boolean;

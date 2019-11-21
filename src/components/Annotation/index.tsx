@@ -1,6 +1,6 @@
 import React from 'react';
-import { ItemId } from '../../external';
-import { ScalerFunction } from '../../utils/scale-helpers';
+import { ItemId } from 'external';
+import { ScalerFunction } from 'utils/scale-helpers';
 
 export interface Props {
   /** Two timestamps representing the bounds of this annotation. */

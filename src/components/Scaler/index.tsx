@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import DataContext from '../../context/Data';
-import ScalerContext from '../../context/Scaler';
-import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
-import Axes, { Domains } from '../../utils/Axes';
-import { Domain, Series, Collection } from '../../external';
-import { Item } from '../../internal';
-import { withDisplayName } from '../../utils/displayName';
+import DataContext from 'context/Data';
+import ScalerContext from 'context/Scaler';
+import GriffPropTypes, { seriesPropType } from 'utils/proptypes';
+import Axes, { Domains } from 'utils/Axes';
+import { Domain, Series, Collection } from 'external';
+import { Item } from 'internal';
+import { withDisplayName } from 'utils/displayName';
 
 // TODO: Move this to DataProvider.
 type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;
