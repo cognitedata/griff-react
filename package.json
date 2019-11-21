@@ -18,7 +18,7 @@
     "fix": "gts fix",
     "lint": "eslint 'src/**/*.{ts,tsx,js}' 'stories/**/*.{ts,tsx,js}'",
     "prepare": "yarn compile",
-    "prepush": "yarn lint",
+    "prepush": "yarn lint && yarn test",
     "prettier": "prettier -l 'src/**/*.{js,ts,tsx}' || (echo '\nThese files are not formatted correctly' && false)",
     "prettier:fix": "prettier --write 'src/**/*.{js,ts,tsx}'",
     "release": "yarn clean && yarn build && node scripts/publish-release.js",
