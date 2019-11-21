@@ -1,6 +1,6 @@
 import React from 'react';
 import * as d3 from 'd3';
-import { SizeMe } from 'react-sizeme';
+import { SizeMe, SizeMeProps } from 'react-sizeme';
 import AxisPlacement, {
   AxisPlacement as AxisPlacementType,
 } from '../AxisPlacement';
@@ -11,7 +11,7 @@ import { Domain, Series } from '../../external';
 import { DomainsByItemId } from '../Scaler';
 import { withDisplayName } from '../../utils/displayName';
 
-export interface Props extends ScalerProps, SizeProps {
+export interface Props extends ScalerProps {
   axis: 'time' | 'x';
   placement: AxisPlacementType;
   scaled: boolean;
@@ -19,16 +19,13 @@ export interface Props extends ScalerProps, SizeProps {
   tickFormatter: TickFormatter;
   ticks: number;
   height: number;
+  width?: number;
 }
 
 interface ScalerProps {
   domainsByItemId: DomainsByItemId;
   subDomainsByItemId: DomainsByItemId;
   series: Series[];
-}
-
-interface SizeProps {
-  width: number;
 }
 
 export type TickFormatter = (value: number, values: number[]) => string;
@@ -274,10 +271,10 @@ export default withDisplayName('XAxis', (props: Props) => {
     <ScalerContext.Consumer>
       {({ domainsByItemId, subDomainsByItemId, series }: ScalerProps) => (
         <SizeMe monitorWidth>
-          {({ size }: { size: SizeProps }) => (
+          {({ size }: SizeMeProps) => (
             <XAxis
               series={series}
-              width={size.width}
+              width={size.width || undefined}
               {...newProps}
               domainsByItemId={domainsByItemId}
               subDomainsByItemId={subDomainsByItemId}

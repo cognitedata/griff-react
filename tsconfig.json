@@ -14,15 +14,7 @@
     "esModuleInterop": true
   },
   "include": [
-    "src/*.js",
-    "src/**/*.js",
-    "src/*.ts",
-    "src/**/*.ts",
-    "test/*.ts",
-    "test/**/*.ts",
-    "src/*.tsx",
-    "src/**/*.tsx",
-    "test/*.tsx",
-    "test/**/*.tsx"
+    "src/**/*",
+    "stories/**/*"
   ]
 }

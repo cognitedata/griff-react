@@ -7398,7 +7398,7 @@ electron-to-chromium@^1.3.247, electron-to-chromium@^1.3.295:
   resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.302.tgz#4c7ba3d56166507a56f7eb603fdde1ed701f5ac8"
   integrity sha512-1qConyiVEbj4xZRBXqtGR003+9tV0rJF0PS6aeO0Ln/UL637js9hdwweCl07meh/kJoI2N4W8q3R3g3F5z46ww==
 
-element-resize-detector@^1.1.12, element-resize-detector@^1.1.15:
+element-resize-detector@^1.1.15:
   version "1.1.15"
   resolved "https://registry.yarnpkg.com/element-resize-detector/-/element-resize-detector-1.1.15.tgz#48eba1a2eaa26969a4c998d972171128c971d8d2"
   integrity sha512-16/5avDegXlUxytGgaumhjyQoM6hpp5j3+L79sYq5hlXfTNRy5WMMuTVWkZU3egp/CokCmTmvf18P3KeB57Iog==
@@ -15267,18 +15267,7 @@ react-select@^3.0.0:
     react-input-autosize "^2.2.2"
     react-transition-group "^2.2.1"
 
-react-sizeme@^2.5.2:
-  version "2.5.2"
-  resolved "https://registry.yarnpkg.com/react-sizeme/-/react-sizeme-2.5.2.tgz#e7041390cfb895ed15d896aa91d76e147e3b70b5"
-  integrity sha512-hYvcncV1FxVzPm2EhVwlOLf7Tk+k/ttO6rI7bfKUL/aL1gYzrY3DXJsdZ6nFaFgGSU/i8KC6gCoptOhBbRJpXQ==
-  dependencies:
-    element-resize-detector "^1.1.12"
-    invariant "^2.2.2"
-    lodash.debounce "^4.0.8"
-    lodash.throttle "^4.1.1"
-    shallowequal "^1.0.2"
-
-react-sizeme@^2.6.7:
+react-sizeme@^2.6.10, react-sizeme@^2.6.7:
   version "2.6.10"
   resolved "https://registry.yarnpkg.com/react-sizeme/-/react-sizeme-2.6.10.tgz#9993dcb5e67fab94a8e5d078a0d3820609010f17"
   integrity sha512-OJAPQxSqbcpbsXFD+fr5ARw4hNSAOimWcaTOLcRkIqnTp9+IFWY0w3Qdw1sMez6Ao378aimVL/sW6TTsgigdOA==
@@ -16470,7 +16459,7 @@ shallow-equal@^1.1.0:
   resolved "https://registry.yarnpkg.com/shallow-equal/-/shallow-equal-1.2.0.tgz#fd828d2029ff4e19569db7e19e535e94e2d1f5cc"
   integrity sha512-Z21pVxR4cXsfwpMKMhCEIO1PCi5sp7KEp+CmOpBQ+E8GpHwKOw2sEzk7sgblM3d/j4z4gakoWEoPcjK0VJQogA==
 
-shallowequal@^1.0.2, shallowequal@^1.1.0:
+shallowequal@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/shallowequal/-/shallowequal-1.1.0.tgz#188d521de95b9087404fd4dcb68b13df0ae4e7f8"
   integrity sha512-y0m1JoUZSlPAjXVtPPW70aZWfIL/dSP7AFkRnniLCrK/8MDKog3TySTBmckD+RObVxH0v4Tox67+F14PdED2oQ==
