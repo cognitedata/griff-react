@@ -218,6 +218,7 @@ const XAxis: React.FC<Props> = ({
 
   const axisElement = (
     <g
+      data-testid="xAxis"
       className="axis x-axis"
       fill="none"
       fontSize={tickFontSize}
@@ -264,20 +265,26 @@ const XAxis: React.FC<Props> = ({
   );
 };
 
-export default withDisplayName('XAxis', (props: Props) => (
-  <ScalerContext.Consumer>
-    {({ domainsByItemId, subDomainsByItemId, series }: ScalerProps) => (
-      <SizeMe monitorWidth>
-        {({ size }: { size: SizeProps }) => (
-          <XAxis
-            series={series}
-            {...props}
-            width={size.width}
-            domainsByItemId={domainsByItemId}
-            subDomainsByItemId={subDomainsByItemId}
-          />
-        )}
-      </SizeMe>
-    )}
-  </ScalerContext.Consumer>
-));
+export default withDisplayName('XAxis', (props: Props) => {
+  const newProps = { ...props };
+  if (props.width === undefined) {
+    delete newProps.width;
+  }
+  return (
+    <ScalerContext.Consumer>
+      {({ domainsByItemId, subDomainsByItemId, series }: ScalerProps) => (
+        <SizeMe monitorWidth>
+          {({ size }: { size: SizeProps }) => (
+            <XAxis
+              series={series}
+              width={size.width}
+              {...newProps}
+              domainsByItemId={domainsByItemId}
+              subDomainsByItemId={subDomainsByItemId}
+            />
+          )}
+        </SizeMe>
+      )}
+    </ScalerContext.Consumer>
+  );
+});

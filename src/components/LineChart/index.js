@@ -339,6 +339,7 @@ const LineChart = props => {
       }
       xAxis={
         <XAxis
+          width={chartWidth}
           domain={xSubDomain}
           height={xAxisHeight}
           placement={xAxisPlacement}
@@ -348,6 +349,7 @@ const LineChart = props => {
       contextChart={
         contextChart.visible && (
           <ContextChart
+            width={chartWidth}
             height={contextChartSpace}
             zoomable={zoomable}
             annotations={annotations}
@@ -365,10 +367,44 @@ LineChart.defaultProps = defaultProps;
 
 const SizedLineChart = sizeMe({ monitorHeight: true })(LineChart);
 
-export default withDisplayName('LineChart', props => (
-  <ScalerContext.Consumer>
-    {({ collections, series }) => (
-      <SizedLineChart {...props} collections={collections} series={series} />
-    )}
-  </ScalerContext.Consumer>
-));
+export default withDisplayName('LineChart', props => {
+  const newProps = { ...props };
+  if (props.size === undefined) {
+    delete newProps.size;
+  }
+  return (
+    <ScalerContext.Consumer>
+      {({ collections, series }) => (
+        <SizedLineChart
+          {...newProps}
+          collections={collections}
+          series={series}
+        />
+      )}
+    </ScalerContext.Consumer>
+  );
+});
+
+export const CustomSizeLineChart = props => {
+  const newProps = { ...props };
+  // eslint-disable-next-line react/prop-types
+  if (props.size === undefined) {
+    delete newProps.size;
+  }
+  return (
+    <ScalerContext.Consumer>
+      {({ collections, series }) =>
+        // eslint-disable-next-line react/prop-types
+        props.size !== undefined ? (
+          <LineChart {...newProps} collections={collections} series={series} />
+        ) : (
+          <SizedLineChart
+            {...newProps}
+            collections={collections}
+            series={series}
+          />
+        )
+      }
+    </ScalerContext.Consumer>
+  );
+};

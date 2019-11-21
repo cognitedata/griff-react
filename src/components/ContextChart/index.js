@@ -169,21 +169,27 @@ const ContextChart = ({
 ContextChart.propTypes = propTypes;
 ContextChart.defaultProps = defaultProps;
 
-export default withDisplayName('ContextChart', props => (
-  <ScalerContext.Consumer>
-    {({ domainsByItemId, subDomainsByItemId, updateDomains, series }) => (
-      <SizeMe monitorWidth>
-        {({ size }) => (
-          <ContextChart
-            width={size.width}
-            series={series}
-            {...props}
-            subDomainsByItemId={subDomainsByItemId}
-            domainsByItemId={domainsByItemId}
-            updateDomains={updateDomains}
-          />
-        )}
-      </SizeMe>
-    )}
-  </ScalerContext.Consumer>
-));
+export default withDisplayName('ContextChart', props => {
+  const newProps = { ...props };
+  if (props.width === undefined) {
+    delete newProps.width;
+  }
+  return (
+    <ScalerContext.Consumer>
+      {({ domainsByItemId, subDomainsByItemId, updateDomains, series }) => (
+        <SizeMe monitorWidth>
+          {({ size }) => (
+            <ContextChart
+              width={size.width}
+              series={series}
+              {...newProps}
+              subDomainsByItemId={subDomainsByItemId}
+              domainsByItemId={domainsByItemId}
+              updateDomains={updateDomains}
+            />
+          )}
+        </SizeMe>
+      )}
+    </ScalerContext.Consumer>
+  );
+});
