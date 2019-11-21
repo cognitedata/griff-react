@@ -1,15 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import CollapsedAxis from './CollapsedAxis';
-import YAxis from './YAxis';
-import ScalerContext from '../../context/Scaler';
+import ScalerContext from 'context/Scaler';
 import GriffPropTypes, {
   seriesPropType,
   axisDisplayModeType,
-} from '../../utils/proptypes';
-import AxisDisplayMode from '../../utils/AxisDisplayMode';
-import AxisPlacement from '../AxisPlacement';
-import { withDisplayName } from '../../utils/displayName';
+} from 'utils/proptypes';
+import AxisDisplayMode from 'utils/AxisDisplayMode';
+import AxisPlacement from 'components/AxisPlacement';
+import { withDisplayName } from 'utils/displayName';
+import YAxis from './YAxis';
+import CollapsedAxis from './CollapsedAxis';
 
 const propTypes = {
   height: PropTypes.number.isRequired,

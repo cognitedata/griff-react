@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import AxisPlacement from '../AxisPlacement';
-import GriffPropTypes from '../../utils/proptypes';
+import AxisPlacement from 'components/AxisPlacement';
+import GriffPropTypes from 'utils/proptypes';
 
 const propTypes = {
   chart: PropTypes.node.isRequired,

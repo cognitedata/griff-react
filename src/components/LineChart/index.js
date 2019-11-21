@@ -1,24 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
-import AxisCollection from '../AxisCollection';
-import ScalerContext from '../../context/Scaler';
-import ContextChart from '../ContextChart';
+import AxisCollection from 'components/AxisCollection';
+import ScalerContext from 'context/Scaler';
+import ContextChart from 'components/ContextChart';
 import GriffPropTypes, {
   areaPropType,
   annotationPropType,
   rulerPropType,
   axisDisplayModeType,
-} from '../../utils/proptypes';
-import LineCollection from '../LineCollection';
-import InteractionLayer from '../InteractionLayer';
-import XAxis from '../XAxis';
-import AxisDisplayMode from '../../utils/AxisDisplayMode';
-import AxisPlacement from '../AxisPlacement';
+} from 'utils/proptypes';
+import LineCollection from 'components/LineCollection';
+import InteractionLayer from 'components/InteractionLayer';
+import XAxis from 'components/XAxis';
+import AxisDisplayMode from 'utils/AxisDisplayMode';
+import AxisPlacement from 'components/AxisPlacement';
+import { multiFormat } from 'utils/multiFormat';
+import Axes from 'utils/Axes';
+import { withDisplayName } from 'utils/displayName';
 import Layout from './Layout';
-import { multiFormat } from '../../utils/multiFormat';
-import Axes from '../../utils/Axes';
-import { withDisplayName } from '../../utils/displayName';
 
 const propTypes = {
   // Disable the ESLinter for this because they'll show up from react-sizeme.

@@ -1,9 +1,9 @@
 import React from 'react';
 import * as d3 from 'd3';
-import Points from '../Points';
-import { boundedSeries } from '../../utils/boundedseries';
-import { ScalerFunction } from '../../utils/scale-helpers';
-import { AccessorFunction, Datapoint, ItemId } from '../../external';
+import Points from 'components/Points';
+import { boundedSeries } from 'utils/boundedseries';
+import { ScalerFunction } from 'utils/scale-helpers';
+import { AccessorFunction, Datapoint, ItemId } from 'external';
 
 export interface Props {
   id: ItemId;

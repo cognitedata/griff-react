@@ -1,11 +1,11 @@
 import React from 'react';
-import ScalerContext from '../../context/Scaler';
-import { createYScale, createXScale } from '../../utils/scale-helpers';
-import Axes from '../../utils/Axes';
-import { ItemId, Series } from '../../external';
-import { DomainsByItemId } from '../Scaler/index';
-import { SizeProps, ItemIdMap } from '../../internal';
-import { withDisplayName } from '../../utils/displayName';
+import ScalerContext from 'context/Scaler';
+import { createYScale, createXScale } from 'utils/scale-helpers';
+import Axes from 'utils/Axes';
+import { ItemId, Series } from 'external';
+import { DomainsByItemId } from 'components/Scaler/index';
+import { SizeProps, ItemIdMap } from 'internal';
+import { withDisplayName } from 'utils/displayName';
 
 export interface GridX {
   pixels?: number;

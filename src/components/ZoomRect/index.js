@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
-import ScalerContext from '../../context/Scaler';
-import GriffPropTypes from '../../utils/proptypes';
-import Axes from '../../utils/Axes';
-import { withDisplayName } from '../../utils/displayName';
+import ScalerContext from 'context/Scaler';
+import GriffPropTypes from 'utils/proptypes';
+import Axes from 'utils/Axes';
+import { withDisplayName } from 'utils/displayName';
 
 const propTypes = {
   width: PropTypes.number.isRequired,

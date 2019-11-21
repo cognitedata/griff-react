@@ -1,7 +1,7 @@
 import React from 'react';
-import { boundedSeries } from '../../utils/boundedseries';
-import { Datapoint, PointRenderer, AccessorFunction } from '../../external';
-import { ScalerFunction } from '../../utils/scale-helpers';
+import { boundedSeries } from 'utils/boundedseries';
+import { Datapoint, PointRenderer, AccessorFunction } from 'external';
+import { ScalerFunction } from 'utils/scale-helpers';
 
 export interface Props {
   drawPoints?: boolean | PointRenderer;

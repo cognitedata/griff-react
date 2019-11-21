@@ -1,19 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SizeMe } from 'react-sizeme';
-import ScalerContext from '../../context/Scaler';
-import LineCollection from '../LineCollection';
-import XAxis from '../XAxis';
-import Annotation from '../Annotation';
-import GriffPropTypes, { annotationPropType } from '../../utils/proptypes';
-import Brush from '../Brush';
-import AxisPlacement from '../AxisPlacement';
-import { multiFormat } from '../../utils/multiFormat';
-import Axes from '../../utils/Axes';
-import { createYScale, createXScale } from '../../utils/scale-helpers';
-import { firstResolvedDomain } from '../Scaler';
-import { calculateDomainFromData } from '../DataProvider';
-import { withDisplayName } from '../../utils/displayName';
+import ScalerContext from 'context/Scaler';
+import LineCollection from 'components/LineCollection';
+import XAxis from 'components/XAxis';
+import Annotation from 'components/Annotation';
+import GriffPropTypes, { annotationPropType } from 'utils/proptypes';
+import Brush from 'components/Brush';
+import AxisPlacement from 'components/AxisPlacement';
+import { multiFormat } from 'utils/multiFormat';
+import Axes from 'utils/Axes';
+import { createYScale, createXScale } from 'utils/scale-helpers';
+import { firstResolvedDomain } from 'components/Scaler';
+import { calculateDomainFromData } from 'components/DataProvider';
+import { withDisplayName } from 'utils/displayName';
 
 const propTypes = {
   height: PropTypes.number,

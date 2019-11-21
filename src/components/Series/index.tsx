@@ -1,10 +1,10 @@
 import React from 'react';
 import { Domain } from 'domain';
-import { ItemId, AccessorFunction, PointRenderer } from '../../external';
-import Data from '../../context/Data';
-import { AxisPlacement } from '../AxisPlacement';
-import { AxisDisplayMode } from '../../utils/AxisDisplayMode';
-import { withDisplayName } from '../../utils/displayName';
+import { ItemId, AccessorFunction, PointRenderer } from 'external';
+import Data from 'context/Data';
+import { AxisPlacement } from 'components/AxisPlacement';
+import { AxisDisplayMode } from 'utils/AxisDisplayMode';
+import { withDisplayName } from 'utils/displayName';
 
 // TODO: Move this to DataProvider (and define it properly over there)
 type LoaderFunction = (params: any) => any;

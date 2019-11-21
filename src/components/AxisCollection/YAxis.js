@@ -1,13 +1,13 @@
 import React from 'react';
 import * as d3 from 'd3';
 import PropTypes from 'prop-types';
-import { createYScale } from '../../utils/scale-helpers';
-import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
-import AxisPlacement from '../AxisPlacement';
-import ScalerContext from '../../context/Scaler';
-import ZoomRect from '../ZoomRect';
-import Axes from '../../utils/Axes';
-import { withDisplayName } from '../../utils/displayName';
+import { createYScale } from 'utils/scale-helpers';
+import GriffPropTypes, { singleSeriePropType } from 'utils/proptypes';
+import AxisPlacement from 'components/AxisPlacement';
+import ScalerContext from 'context/Scaler';
+import ZoomRect from 'components/ZoomRect';
+import Axes from 'utils/Axes';
+import { withDisplayName } from 'utils/displayName';
 
 const propTypes = {
   zoomable: PropTypes.bool,
