@@ -24,8 +24,8 @@
     "release": "yarn clean && yarn build && node scripts/publish-release.js",
     "storybook": "start-storybook -p 9001 -c .storybook",
     "storybook:build": "build-storybook -c .storybook -o .out",
-    "test": "TZ=Europe/Amsterdam yarn jest",
-    "test:watch": "TZ=Europe/Amsterdam yarn test --watchAll"
+    "test": "TZ=Europe/Oslo yarn jest",
+    "test:watch": "TZ=Europe/Oslo yarn test --watchAll"
   },
   "dependencies": {
     "bluebird": "^3.5.1",
