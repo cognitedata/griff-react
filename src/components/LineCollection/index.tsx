@@ -3,14 +3,14 @@ import {
   createXScale,
   createYScale,
   ScalerFunction,
-} from '../../utils/scale-helpers';
-import ScalerContext from '../../context/Scaler';
-import Line from '../Line';
-import AxisDisplayMode from '../../utils/AxisDisplayMode';
-import Axes, { Dimension } from '../../utils/Axes';
-import { Series } from '../../external';
-import { DomainsByItemId } from '../Scaler';
-import { withDisplayName } from '../../utils/displayName';
+} from 'utils/scale-helpers';
+import ScalerContext from 'context/Scaler';
+import Line from 'components/Line';
+import AxisDisplayMode from 'utils/AxisDisplayMode';
+import Axes, { Dimension } from 'utils/Axes';
+import { Series } from 'external';
+import { DomainsByItemId } from 'components/Scaler';
+import { withDisplayName } from 'utils/displayName';
 
 const { time } = Axes;
 

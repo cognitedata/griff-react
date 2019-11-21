@@ -1,9 +1,9 @@
 import React from 'react';
 import * as d3 from 'd3';
 import PropTypes from 'prop-types';
-import { createYScale } from '../../utils/scale-helpers';
-import GriffPropTypes from '../../utils/proptypes';
-import AxisPlacement from '../AxisPlacement';
+import { createYScale } from 'utils/scale-helpers';
+import GriffPropTypes from 'utils/proptypes';
+import AxisPlacement from 'components/AxisPlacement';
 
 const propTypes = {
   height: PropTypes.number.isRequired,

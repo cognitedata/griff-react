@@ -1,6 +1,8 @@
 import React from 'react';
-import { DataProvider, Series, LineChart } from '../..';
-import { sineLoader, StoryContainer } from '../../../stories/utils';
+import { sineLoader, StoryContainer } from 'storybook/utils';
+import DataProvider from 'components/DataProvider';
+import Series from 'components/Series';
+import LineChart from '.';
 
 const DEFAULT_HEIGHT = 500;
 

@@ -3,13 +3,13 @@ import * as d3 from 'd3';
 import { SizeMe, SizeMeProps } from 'react-sizeme';
 import AxisPlacement, {
   AxisPlacement as AxisPlacementType,
-} from '../AxisPlacement';
-import ScalerContext from '../../context/Scaler';
-import ZoomRect from '../ZoomRect';
-import { createXScale, ScalerFunctionFactory } from '../../utils/scale-helpers';
-import { Domain, Series } from '../../external';
-import { DomainsByItemId } from '../Scaler';
-import { withDisplayName } from '../../utils/displayName';
+} from 'components/AxisPlacement';
+import ScalerContext from 'context/Scaler';
+import ZoomRect from 'components/ZoomRect';
+import { createXScale, ScalerFunctionFactory } from 'utils/scale-helpers';
+import { Domain, Series } from 'external';
+import { DomainsByItemId } from 'components/Scaler';
+import { withDisplayName } from 'utils/displayName';
 
 export interface Props extends ScalerProps {
   axis: 'time' | 'x';
