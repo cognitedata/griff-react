@@ -644,7 +644,7 @@ exports[`LineChart should base render correctly 1`] = `
           <svg
             height="50"
             style="width: 100%; display: block;"
-            width="0"
+            width="1"
           >
             <g
               class="axis x-axis"
@@ -655,12 +655,12 @@ exports[`LineChart should base render correctly 1`] = `
               text-anchor="middle"
             >
               <path
-                d="M1,6V1H-1V6"
+                d="M1,6V1H0V6"
                 stroke="black"
               />
               <g
                 opacity="1"
-                transform="translate(0, 0)"
+                transform="translate(0.72, 0)"
               >
                 <line
                   stroke="black"
@@ -683,7 +683,7 @@ exports[`LineChart should base render correctly 1`] = `
               fill="none"
               height="50"
               pointer-events="all"
-              width="0"
+              width="1"
             />
             <div
               class="erd_scroll_detection_container erd_scroll_detection_container_animation_active"
