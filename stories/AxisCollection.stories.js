@@ -20,13 +20,11 @@ export default {
 };
 
 export const defaultStory = () => (
-  <>
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <AxisCollection height={300} />
-    </DataProvider>
-  </>
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Series id="1" color="steelblue" />
+    <Series id="2" color="maroon" />
+    <AxisCollection height={300} />
+  </DataProvider>
 );
 
 defaultStory.story = {
@@ -34,14 +32,12 @@ defaultStory.story = {
 };
 
 export const ticksStory = () => (
-  <>
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <AxisCollection height={300} ticks={20} />
-      <AxisCollection height={300} ticks={2} />
-    </DataProvider>
-  </>
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Series id="1" color="steelblue" />
+    <Series id="2" color="maroon" />
+    <AxisCollection height={300} ticks={20} />
+    <AxisCollection height={300} ticks={2} />
+  </DataProvider>
 );
 
 ticksStory.story = {
@@ -49,14 +45,12 @@ ticksStory.story = {
 };
 
 export const zoomableStory = () => (
-  <>
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <AxisCollection height={300} zoomable />
-      <AxisCollection height={300} zoomable={false} />
-    </DataProvider>
-  </>
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Series id="1" color="steelblue" />
+    <Series id="2" color="maroon" />
+    <AxisCollection height={300} zoomable />
+    <AxisCollection height={300} zoomable={false} />
+  </DataProvider>
 );
 
 zoomableStory.story = {
@@ -64,18 +58,13 @@ zoomableStory.story = {
 };
 
 export const axisDisplayModeStory = () => (
-  <>
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <AxisCollection height={300} axisDisplayMode={AxisDisplayMode.ALL} />
-      <AxisCollection
-        height={300}
-        axisDisplayMode={AxisDisplayMode.COLLAPSED}
-      />
-      <AxisCollection height={300} axisDisplayMode={AxisDisplayMode.NONE} />
-    </DataProvider>
-  </>
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Series id="1" color="steelblue" />
+    <Series id="2" color="maroon" />
+    <AxisCollection height={300} axisDisplayMode={AxisDisplayMode.ALL} />
+    <AxisCollection height={300} axisDisplayMode={AxisDisplayMode.COLLAPSED} />
+    <AxisCollection height={300} axisDisplayMode={AxisDisplayMode.NONE} />
+  </DataProvider>
 );
 
 axisDisplayModeStory.story = {
@@ -83,23 +72,21 @@ axisDisplayModeStory.story = {
 };
 
 export const events = () => (
-  <>
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <AxisCollection
-        height={300}
-        onMouseEnter={action('onMouseEnter')}
-        onMouseLeave={action('onMouseLeave')}
-      />
-      <AxisCollection
-        height={300}
-        axisDisplayMode={AxisDisplayMode.COLLAPSED}
-        onMouseEnter={action('onMouseEnter')}
-        onMouseLeave={action('onMouseLeave')}
-      />
-    </DataProvider>
-  </>
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Series id="1" color="steelblue" />
+    <Series id="2" color="maroon" />
+    <AxisCollection
+      height={300}
+      onMouseEnter={action('onMouseEnter')}
+      onMouseLeave={action('onMouseLeave')}
+    />
+    <AxisCollection
+      height={300}
+      axisDisplayMode={AxisDisplayMode.COLLAPSED}
+      onMouseEnter={action('onMouseEnter')}
+      onMouseLeave={action('onMouseLeave')}
+    />
+  </DataProvider>
 );
 
 events.story = {
@@ -107,14 +94,12 @@ events.story = {
 };
 
 export const placement = () => (
-  <>
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <AxisCollection height={300} yAxisPlacement={AxisPlacement.LEFT} />
-      <AxisCollection height={300} yAxisPlacement={AxisPlacement.RIGHT} />
-    </DataProvider>
-  </>
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Series id="1" color="steelblue" />
+    <Series id="2" color="maroon" />
+    <AxisCollection height={300} yAxisPlacement={AxisPlacement.LEFT} />
+    <AxisCollection height={300} yAxisPlacement={AxisPlacement.RIGHT} />
+  </DataProvider>
 );
 
 placement.story = {
@@ -122,14 +107,12 @@ placement.story = {
 };
 
 export const yAxisWidthStory = () => (
-  <>
-    <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
-      <Series id="1" color="steelblue" />
-      <Series id="2" color="maroon" />
-      <AxisCollection height={300} />
-      <AxisCollection height={300} yAxisWidth={100} />
-    </DataProvider>
-  </>
+  <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
+    <Series id="1" color="steelblue" />
+    <Series id="2" color="maroon" />
+    <AxisCollection height={300} />
+    <AxisCollection height={300} yAxisWidth={100} />
+  </DataProvider>
 );
 
 yAxisWidthStory.story = {
