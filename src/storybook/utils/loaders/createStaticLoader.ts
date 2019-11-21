@@ -9,14 +9,14 @@ type CreateTrigValueFuncOptions = {
 };
 
 export const createTrigValueFunc = (
-  trigFn: (n: number) => number,
+  trigFunc: (n: number) => number,
   {
     oscillations = 1,
     yOffset = 0,
     xOffset = 0,
   }: CreateTrigValueFuncOptions = {}
 ): ValueFunc => (i, n) =>
-  trigFn(xOffset + 2 * Math.PI * (i / n) * oscillations) + yOffset;
+  trigFunc(xOffset + 2 * Math.PI * (i / n) * oscillations) + yOffset;
 
 type CreateStaticLoaderOptions = {
   pointCount?: number;
