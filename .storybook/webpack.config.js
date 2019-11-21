@@ -23,5 +23,10 @@ module.exports = ({ config }) => {
 
   config.resolve.extensions.push('.ts', '.tsx');
 
+  // Required for absolute imports in Storybook
+  const resolvedModules = config.resolve.modules || [];
+  config.resolve.modules = [...resolvedModules, path.resolve(process.cwd(), 'src')];
+
+
   return config;
 };
