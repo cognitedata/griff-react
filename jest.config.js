@@ -12,4 +12,5 @@ module.exports = {
       '<rootDir>/node_modules/jest-css-modules-transform',
   },
   modulePaths: ['<rootDir>/src'],
+  setupFilesAfterEnv: ['./src/setupTests.ts'],
 };
