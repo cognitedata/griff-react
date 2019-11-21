@@ -179,6 +179,7 @@ const YAxis = ({
   const range = scale.range().map(r => r + halfStrokeWidth);
   const axisElement = (
     <g
+      data-testid={`yAxis-${item.id}`}
       className="axis y-axis"
       fill="none"
       fontSize={tickFontSize}
