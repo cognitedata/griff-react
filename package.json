@@ -23,7 +23,7 @@
     "prettier:fix": "prettier --write 'src/**/*.{js,ts,tsx}'",
     "release": "yarn clean && yarn build && node scripts/publish-release.js",
     "storybook": "start-storybook -p 9001",
-    "storybook:build": "build-storybook",
+    "storybook:build": "build-storybook -o .out",
     "test": "TZ=Europe/Oslo yarn jest",
     "test:watch": "TZ=Europe/Oslo yarn test --watchAll"
   },
@@ -59,7 +59,6 @@
     "axios": "^0.18.1",
     "babel-eslint": "^10.0.3",
     "babel-loader": "^8.0.6",
-    "babel-preset-react-app": "^9.0.2",
     "chart.js": "^2.8.0",
     "csstype": "^2.6.3",
     "eslint": "^6.6.0",
