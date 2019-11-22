@@ -5,22 +5,17 @@ import {
   createTrigValueFunc,
 } from 'storybook/utils';
 
-import Collection from 'components/Collection';
 import DataProvider from 'components/DataProvider';
+import Collection from 'components/Collection';
 import Series from 'components/Series';
-import LineChart from '.';
 
-const DEFAULT_HEIGHT = 500;
-
-export default {
-  title: 'Components|LineChart',
+type Props = {
+  children: React.ReactNode;
 };
 
-type StoryProps = {
-  size?: { width: number; height: number };
-};
-
-export const Base = ({ size }: StoryProps) => {
+export const SingleSeriesStoryProvider: React.FC<Props> = ({
+  children,
+}: Props) => {
   const timeDomain = [0, 10000000];
   return (
     <StoryContainer>
@@ -29,17 +24,22 @@ export const Base = ({ size }: StoryProps) => {
         timeDomain={timeDomain}
       >
         <Series id="Series-1" color="steelblue" />
-        <LineChart height={DEFAULT_HEIGHT} size={size} />
+        {children}
       </DataProvider>
     </StoryContainer>
   );
 };
 
-export const MultiSeries = ({ size }: StoryProps) => {
-  const timeDomain = [0, 100000000];
+export const MultiSeriesStoryProvider: React.FC<Props> = ({
+  children,
+}: Props) => {
+  const timeDomain = [0, 10000000];
   return (
     <StoryContainer>
-      <DataProvider timeDomain={timeDomain}>
+      <DataProvider
+        defaultLoader={createStaticLoader()}
+        timeDomain={timeDomain}
+      >
         <Series id="Series-1" color="steelblue" loader={createStaticLoader()} />
         <Series
           id="Series-2"
@@ -55,17 +55,22 @@ export const MultiSeries = ({ size }: StoryProps) => {
             valueFunc: createTrigValueFunc(Math.tan),
           })}
         />
-        <LineChart height={DEFAULT_HEIGHT} size={size} />
+        {children}
       </DataProvider>
     </StoryContainer>
   );
 };
 
-export const MultiSeriesCollection = ({ size }: StoryProps) => {
-  const timeDomain = [0, 1000000000];
+export const MultiSeriesCollectionStoryProvider: React.FC<Props> = ({
+  children,
+}: Props) => {
+  const timeDomain = [0, 10000000];
   return (
     <StoryContainer>
-      <DataProvider timeDomain={timeDomain}>
+      <DataProvider
+        defaultLoader={createStaticLoader()}
+        timeDomain={timeDomain}
+      >
         <Collection id="Collection-1" color="darkkhaki">
           <Series id="Series-1" loader={createStaticLoader()} />
           <Series
@@ -80,8 +85,8 @@ export const MultiSeriesCollection = ({ size }: StoryProps) => {
               valueFunc: createTrigValueFunc(Math.tan),
             })}
           />
-          <LineChart height={DEFAULT_HEIGHT} size={size} />
         </Collection>
+        {children}
       </DataProvider>
     </StoryContainer>
   );

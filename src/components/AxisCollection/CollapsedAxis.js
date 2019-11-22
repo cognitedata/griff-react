@@ -122,6 +122,7 @@ const CollapsedAxis = ({
 
   return (
     <g
+      data-testid="yAxis-Collapsed"
       className="axis-y collapsed-axis-y"
       transform={`translate(${initialOffsetX}, 0)`}
     >
