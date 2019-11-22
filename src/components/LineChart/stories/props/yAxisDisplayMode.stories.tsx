@@ -5,7 +5,7 @@ import {
   SingleSeriesStoryProvider,
   MultiSeriesStoryProvider,
   MultiSeriesCollectionStoryProvider,
-} from '../Providers';
+} from 'storybook/utils';
 import LineChartDefault from '../LineChartDefault';
 
 export default {

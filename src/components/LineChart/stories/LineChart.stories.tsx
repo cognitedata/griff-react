@@ -4,7 +4,7 @@ import {
   SingleSeriesStoryProvider,
   MultiSeriesStoryProvider,
   MultiSeriesCollectionStoryProvider,
-} from './Providers';
+} from 'storybook/utils';
 import LineChartDefault from './LineChartDefault';
 import { LineChartProps } from '../types';
 
