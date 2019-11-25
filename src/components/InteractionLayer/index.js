@@ -488,7 +488,12 @@ class InteractionLayer extends React.Component {
     const timeSubDomain = Axes.time(subDomainsByItemId[series[0].id]);
     const xScale = createXScale(timeSubDomain, width);
     const annotations = propsAnnotations.map(a => (
-      <Annotation key={a.id} {...a} height={height} xScale={xScale} />
+      <Annotation
+        key={`annotation-${a.id}`}
+        {...a}
+        height={height}
+        xScale={xScale}
+      />
     ));
     const areas = propsAreas.map(a => {
       const scaledArea = {
@@ -518,7 +523,9 @@ class InteractionLayer extends React.Component {
         }
       }
       const color = scaledArea.color || (s ? s.color : null);
-      return <Area key={scaledArea.id} color={color} {...scaledArea} />;
+      return (
+        <Area key={`area-${scaledArea.id}`} color={color} {...scaledArea} />
+      );
     });
     const areaBeingDefined = area ? (
       <Area key="user" {...area} color="#999" />
