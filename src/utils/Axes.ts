@@ -81,4 +81,9 @@ const AXES: {
   ALL: [time, x, y],
 };
 
+export type TickFormatter = (
+  value: number,
+  values: number[]
+) => number | string;
+
 export default AXES;

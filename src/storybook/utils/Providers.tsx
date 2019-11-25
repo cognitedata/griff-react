@@ -3,6 +3,7 @@ import {
   StoryContainer,
   createStaticLoader,
   createTrigValueFunc,
+  createStaticScatterplotLoader,
 } from 'storybook/utils';
 
 import DataProvider from 'components/DataProvider';
@@ -86,6 +87,56 @@ export const MultiSeriesCollectionStoryProvider: React.FC<Props> = ({
             })}
           />
         </Collection>
+        {children}
+      </DataProvider>
+    </StoryContainer>
+  );
+};
+
+export const ScatterplotSingleSeriesStoryProvider: React.FC<Props> = ({
+  children,
+}: Props) => {
+  const timeDomain = [0, 10000000];
+  return (
+    <StoryContainer>
+      <DataProvider timeDomain={timeDomain}>
+        <Series
+          id="Series-1"
+          loader={createStaticScatterplotLoader({ pointCount: 100 })}
+          xAccessor={d => d.x || 0}
+          yAccessor={d => d.y || 0}
+          color="steelblue"
+        />
+        {children}
+      </DataProvider>
+    </StoryContainer>
+  );
+};
+
+export const ScatterplotMultiSeriesStoryProvider: React.FC<Props> = ({
+  children,
+}: Props) => {
+  const timeDomain = [0, 10000000];
+  return (
+    <StoryContainer>
+      <DataProvider timeDomain={timeDomain}>
+        <Series
+          id="Series-1"
+          loader={createStaticScatterplotLoader({ pointCount: 100 })}
+          xAccessor={d => d.x || 0}
+          yAccessor={d => d.y || 0}
+          color="steelblue"
+        />
+        <Series
+          id="Series-2"
+          loader={createStaticScatterplotLoader({
+            pointCount: 125,
+            yValueFunc: createTrigValueFunc(Math.tan),
+          })}
+          xAccessor={d => d.x || 0}
+          yAccessor={d => d.y || 0}
+          color="maroon"
+        />
         {children}
       </DataProvider>
     </StoryContainer>

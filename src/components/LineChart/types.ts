@@ -2,6 +2,7 @@ import { SizeMeProps } from 'react-sizeme';
 import { ItemId, Domain } from 'external';
 import { AxisPlacement } from 'components/AxisPlacement';
 import { AxisDisplayMode } from 'utils/AxisDisplayMode';
+import { TickFormatter } from 'utils/Axes';
 
 type Point = {
   id: ItemId;
@@ -41,8 +42,6 @@ type Annotation = {
   color: string;
   fillOpacity: number;
 };
-
-type TickFormatter = (value: number, values: number[]) => number | string;
 
 type Coordinate = {
   xval?: number;
