@@ -18,6 +18,10 @@ import {
 import { CustomXAxisFormatter } from './stories/props/xAxisFormatter.stories';
 import { CustomYAxisFormatter } from './stories/props/yAxisFormatter.stories';
 import { CustomYAxisTicks } from './stories/props/yAxisTicks.stories';
+import {
+  ContextChartNotVisible,
+  CustomHeightContextChart,
+} from './stories/props/contextChart.stories';
 
 describe('LineChart', () => {
   it('should render base correctly', async () => {
@@ -126,6 +130,17 @@ describe('LineChart', () => {
     it('should render yAxisTicks prop stories correctly', () => {
       const customYAxisTicks = render(<CustomYAxisTicks />);
       expect(customYAxisTicks.asFragment()).toMatchSnapshot('yAxitTicks');
+    });
+
+    it('should render contextChart prop stories correctly', () => {
+      const contextChartNotVisible = render(<ContextChartNotVisible />);
+      expect(contextChartNotVisible.asFragment()).toMatchSnapshot(
+        'contextChart - not visible'
+      );
+      const customHeightContextChart = render(<CustomHeightContextChart />);
+      expect(customHeightContextChart.asFragment()).toMatchSnapshot(
+        'contextChart - custom height'
+      );
     });
   });
 });

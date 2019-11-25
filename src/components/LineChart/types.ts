@@ -31,7 +31,6 @@ type Ruler = {
 type ContextChart = {
   visible: boolean;
   height: number;
-  isDefault: boolean;
 };
 
 type Annotation = {
@@ -46,16 +45,17 @@ type Annotation = {
 type TickFormatter = (value: number, values: number[]) => number | string;
 
 type Coordinate = {
-  xval: number;
-  yval: number;
-  points: Point[];
+  xval?: number;
+  yval?: number;
+  points?: Point[];
 };
 
-type Area = {
+export type Area = {
   id: ItemId;
   color: string;
   start?: Coordinate;
   end?: Coordinate;
+  seriesId: ItemId;
 };
 
 export type LineChartProps = SizeMeProps & {
