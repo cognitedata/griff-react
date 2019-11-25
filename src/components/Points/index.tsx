@@ -1,9 +1,10 @@
 import React from 'react';
 import { boundedSeries } from 'utils/boundedseries';
-import { Datapoint, PointRenderer, AccessorFunction } from 'external';
+import { Datapoint, PointRenderer, AccessorFunction, ItemId } from 'external';
 import { ScalerFunction } from 'utils/scale-helpers';
 
 export interface Props {
+  id: ItemId;
   drawPoints?: boolean | PointRenderer;
   color?: string;
   opacity?: number;
@@ -24,6 +25,7 @@ export interface Props {
 }
 
 const Points: React.FC<Props> = ({
+  id,
   data,
   drawPoints = false,
   xAccessor,
@@ -134,7 +136,7 @@ const Points: React.FC<Props> = ({
     }
     return uiElements;
   });
-  return <g>{points}</g>;
+  return <g data-testid={`Points-${id}`}>{points}</g>;
 };
 
 export default Points;
