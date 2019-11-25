@@ -114,9 +114,12 @@ export const coordinatePropType = PropTypes.shape({
 
 export const areaPropType = PropTypes.shape({
   id: idPropType,
+  seriesId: idPropType,
   color: PropTypes.string,
-  start: coordinatePropType,
-  end: coordinatePropType,
+  xMin: PropTypes.number.isRequired,
+  xMax: PropTypes.number.isRequired,
+  yMin: PropTypes.number.isRequired,
+  yMax: PropTypes.number.isRequired,
 });
 
 const collection = PropTypes.shape({

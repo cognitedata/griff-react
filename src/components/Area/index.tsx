@@ -1,6 +1,5 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
-import { coordinatePropType } from 'utils/proptypes';
 
 export interface Position {
   xpos: number;
@@ -9,33 +8,32 @@ export interface Position {
 
 export interface Props {
   id: string;
-  start: Position;
-  end: Position;
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
   color?: string;
   opacity?: number;
 }
 
 const Area: React.FunctionComponent<Props> = ({
   id,
-  start,
-  end,
+  xMin,
+  xMax,
+  yMin,
+  yMax,
   color = '#000',
   opacity = 0.15,
 }) => {
-  if (!start || !end) {
-    return null;
-  }
-  const width = Math.abs(start.xpos - end.xpos);
-  const left = Math.min(start.xpos, end.xpos);
-  const height = Math.abs(start.ypos - end.ypos);
-  const top = Math.min(start.ypos, end.ypos);
+  const width = Math.abs(xMax - xMin);
+  const height = Math.abs(yMax - yMin);
   return (
     <rect
       className={`area area-${id}`}
       width={width}
       height={height}
-      x={left}
-      y={top}
+      x={xMin}
+      y={yMax}
       pointerEvents="none"
       style={{ stroke: color, fill: color, fillOpacity: opacity }}
     />
@@ -45,8 +43,10 @@ const Area: React.FunctionComponent<Props> = ({
 Area.propTypes = {
   id: PropTypes.string.isRequired,
   color: PropTypes.string,
-  start: coordinatePropType.isRequired,
-  end: coordinatePropType.isRequired,
+  xMin: PropTypes.number.isRequired,
+  xMax: PropTypes.number.isRequired,
+  yMin: PropTypes.number.isRequired,
+  yMax: PropTypes.number.isRequired,
   opacity: PropTypes.number,
 };
 

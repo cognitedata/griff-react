@@ -187,7 +187,21 @@ export const persistentFixedAreaHoldShiftToEnable = () => {
 
     onAreaDefined = area => {
       this.setState({
-        area,
+        area: {
+          ...area,
+          xMin: Math.min(
+            area.start.points[0].timestamp,
+            area.end.points[0].timestamp
+          ),
+          xMax: Math.max(
+            area.start.points[0].timestamp,
+            area.end.points[0].timestamp
+          ),
+          yMin: Math.min(area.start.points[0].y, area.end.points[0].y),
+          yMax: Math.max(area.start.points[0].y, area.end.points[0].y),
+          seriesId: '1',
+          color: 'steelblue',
+        },
       });
     };
 
@@ -240,7 +254,24 @@ export const persistentFixedAreasClickToRemove = () => {
     onAreaDefined = area => {
       const { areas } = this.state;
       this.setState({
-        areas: [...areas, area],
+        areas: [
+          ...areas,
+          {
+            ...area,
+            xMin: Math.min(
+              area.start.points[0].timestamp,
+              area.end.points[0].timestamp
+            ),
+            xMax: Math.max(
+              area.start.points[0].timestamp,
+              area.end.points[0].timestamp
+            ),
+            yMin: Math.min(area.start.points[0].y, area.end.points[0].y),
+            yMax: Math.max(area.start.points[0].y, area.end.points[0].y),
+            seriesId: '1',
+            color: 'steelblue',
+          },
+        ],
       });
     };
 
@@ -287,7 +318,24 @@ export const persistentFixedAreasClickOutsideToClear = () => {
     onAreaDefined = area => {
       const { areas } = this.state;
       this.setState({
-        areas: [...areas, area],
+        areas: [
+          ...areas,
+          {
+            ...area,
+            xMin: Math.min(
+              area.start.points[0].timestamp,
+              area.end.points[0].timestamp
+            ),
+            xMax: Math.max(
+              area.start.points[0].timestamp,
+              area.end.points[0].timestamp
+            ),
+            yMin: Math.min(area.start.points[0].y, area.end.points[0].y),
+            yMax: Math.max(area.start.points[0].y, area.end.points[0].y),
+            seriesId: '1',
+            color: 'steelblue',
+          },
+        ],
       });
     };
 
@@ -343,18 +391,19 @@ export const persistentSeriesAreaHoldShiftToEnable = () => {
       const newAreas = [...areas];
       for (let i = 0; i < area.start.points.length; i += 1) {
         const newArea = {
-          id: area.id,
-          seriesId: area.start.points[i].id,
-          start: {
-            ...area.start,
-            xval: area.start.points[i].timestamp,
-            yval: area.start.points[i].value,
-          },
-          end: {
-            ...area.end,
-            xval: area.end.points[i].timestamp,
-            yval: area.end.points[i].value,
-          },
+          ...area,
+          id: `${area.id}-${i}`,
+          xMin: Math.min(
+            area.start.points[i].timestamp,
+            area.end.points[i].timestamp
+          ),
+          xMax: Math.max(
+            area.start.points[i].timestamp,
+            area.end.points[i].timestamp
+          ),
+          yMin: Math.min(area.start.points[i].y, area.end.points[i].y),
+          yMax: Math.max(area.start.points[i].y, area.end.points[i].y),
+          seriesId: `${i + 1}`,
         };
         newAreas.push(newArea);
       }
@@ -478,46 +527,38 @@ const mockAreas = [
     id: '1',
     seriesId: '1',
     color: 'lightblue',
-    start: {
-      xval: 1571577832254,
-      yval: 0.5,
-    },
-    end: {
-      xval: 1574169832254,
-      yval: 1,
-    },
+    xMin: 1571577832254,
+    yMin: 0.5,
+    xMax: 1574169832254,
+    yMax: 1,
   },
   {
     id: '2',
     seriesId: '2',
     color: 'maroon',
-    start: {
-      xval: 1571577832254,
-      yval: 0.1,
-    },
-    end: {
-      xval: 1574169832254,
-      yval: 0.2,
-    },
+    xMin: 1571577832254,
+    yMin: 0.1,
+    xMax: 1574169832254,
+    yMax: 0.2,
   },
 ];
 
 export const AreasOnSeries = () => {
   return (
-    <React.Fragment>
+    <>
       <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
         <LineChart height={CHART_HEIGHT} areas={mockAreas} />
       </DataProvider>
-    </React.Fragment>
+    </>
   );
 };
 AreasOnSeries.story = { name: 'Areas on series' };
 
 export const AreasNoEnd = () => {
   return (
-    <React.Fragment>
+    <>
       <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
         <Series id="1" color="steelblue" />
         <Series id="2" color="maroon" />
@@ -528,22 +569,19 @@ export const AreasNoEnd = () => {
               id: '1',
               seriesId: '1',
               color: 'lightblue',
-              start: {
-                xval: 1571577832254,
-                yval: 0.5,
-              },
+              yMin: 0.5,
             },
           ]}
         />
       </DataProvider>
-    </React.Fragment>
+    </>
   );
 };
-AreasOnSeries.story = { name: 'Areas with no end' };
+AreasNoEnd.story = { name: 'Areas with no end' };
 
 export const AreasOnSeriesInCollection = () => {
   return (
-    <React.Fragment>
+    <>
       <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
         <Collection id="collection-1">
           <Series id="1" color="steelblue" />
@@ -551,7 +589,7 @@ export const AreasOnSeriesInCollection = () => {
         </Collection>
         <LineChart height={CHART_HEIGHT} areas={mockAreas} />
       </DataProvider>
-    </React.Fragment>
+    </>
   );
 };
-AreasOnSeries.story = { name: 'Areas on series in collection' };
+AreasOnSeriesInCollection.story = { name: 'Areas on series in collection' };

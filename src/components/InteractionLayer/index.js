@@ -208,9 +208,11 @@ class InteractionLayer extends React.Component {
       onAreaClicked,
       onClick,
       width,
+      height,
       annotations,
       areas,
       subDomainsByItemId,
+      series,
     } = this.props;
     if (this.dragging) {
       return;
@@ -228,26 +230,28 @@ class InteractionLayer extends React.Component {
       if (onAreaClicked) {
         let stopNotifying = false;
         areas.forEach(a => {
-          if (!a.start || !a.end) {
-            // If we have a partial area, then we're in the middle of defining
-            // a new area and this is the mouseup event. This means that we
-            // should stop searching for other areas to "click" on.
-            stopNotifying = true;
-            return;
-          }
           if (stopNotifying) {
             return;
           }
-          const x =
-            xpos > Math.min(a.start.xpos, a.end.xpos) &&
-            xpos < Math.max(a.start.xpos, a.end.xpos);
-          const y =
-            ypos > Math.min(a.start.ypos, a.end.ypos) &&
-            ypos < Math.max(a.start.ypos, a.end.ypos);
-          if (x && y) {
-            // Clicked within an area
-            stopNotifying = onAreaClicked(a, xpos, ypos);
-            notified = true;
+          if (a.seriesId) {
+            const s = series.find(s1 => s1.id === a.seriesId);
+            if (s) {
+              const { [Axes.y]: ySubDomain } = subDomainsByItemId[
+                s.collectionId || s.id
+              ];
+              const yScale = createYScale(ySubDomain, height);
+              const unScaled = {
+                xpos: xScale.invert(xpos),
+                ypos: yScale.invert(ypos),
+              };
+              const x = unScaled.xpos > a.xMin && unScaled.xpos < a.xMax;
+              const y = unScaled.ypos > a.yMin && unScaled.ypos < a.yMax;
+              if (x && y) {
+                // Clicked within an area
+                stopNotifying = onAreaClicked(a, xpos, ypos);
+                notified = true;
+              }
+            }
           }
         });
       }
@@ -497,13 +501,8 @@ class InteractionLayer extends React.Component {
 
       let s = null;
 
-      if (a.start !== undefined) {
-        scaledArea.start.xpos = xScale(a.start.xval || timeSubDomain[0]);
-      }
-
-      if (a.end !== undefined) {
-        scaledArea.end.xpos = xScale(a.end.xval || timeSubDomain[1]);
-      }
+      scaledArea.xMin = xScale(a.xMin || timeSubDomain[0]);
+      scaledArea.xMax = xScale(a.xMax || timeSubDomain[1]);
 
       if (a.seriesId) {
         s = series.find(s1 => s1.id === a.seriesId);
@@ -513,23 +512,8 @@ class InteractionLayer extends React.Component {
           ];
           const yScale = createYScale(ySubDomain, height);
 
-          if (a.start !== undefined) {
-            scaledArea.start.ypos = yScale(a.start.yval || ySubDomain[0]);
-          } else {
-            scaledArea.start = {
-              xpos: xScale(timeSubDomain[0]),
-              ypos: yScale(ySubDomain[0]),
-            };
-          }
-
-          if (a.end !== undefined) {
-            scaledArea.end.ypos = yScale(a.end.yval || ySubDomain[1]);
-          } else {
-            scaledArea.end = {
-              xpos: xScale(timeSubDomain[1]),
-              ypos: yScale(ySubDomain[1]),
-            };
-          }
+          scaledArea.yMin = yScale(a.yMin || ySubDomain[0]);
+          scaledArea.yMax = yScale(a.yMax || ySubDomain[1]);
         }
       }
       const color = scaledArea.color || (s ? s.color : null);
