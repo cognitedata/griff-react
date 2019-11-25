@@ -1,11 +1,12 @@
-import * as React from 'react';
+import React from 'react';
 import * as d3 from 'd3';
-import Points from '../Points';
-import { boundedSeries } from '../../utils/boundedseries';
-import { ScalerFunction } from '../../utils/scale-helpers';
-import { AccessorFunction, Datapoint } from '../../external';
+import Points from 'components/Points';
+import { boundedSeries } from 'utils/boundedseries';
+import { ScalerFunction } from 'utils/scale-helpers';
+import { AccessorFunction, Datapoint, ItemId } from 'external';
 
 export interface Props {
+  id: ItemId;
   data: Datapoint[];
   xScale: ScalerFunction;
   xAxisAccessor: AccessorFunction;
@@ -25,7 +26,8 @@ export interface Props {
   clipPath: string;
 }
 
-const Line: React.FunctionComponent<Props> = ({
+const Line: React.FC<Props> = ({
+  id,
   data,
   xAxisAccessor,
   xScale,
@@ -43,7 +45,7 @@ const Line: React.FunctionComponent<Props> = ({
   pointWidth = 6,
   pointWidthAccessor,
   clipPath,
-}) => {
+}: Props) => {
   let area;
   const curve = step ? d3.curveStepAfter : d3.curveLinear;
   const line = d3
@@ -147,6 +149,7 @@ const Line: React.FunctionComponent<Props> = ({
         />
       )}
       <path
+        data-testid={`Line-${id}`}
         className="line"
         d={line(
           // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.

@@ -2,20 +2,20 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
-import ScalerContext from '../../context/Scaler';
-import { createYScale, createXScale } from '../../utils/scale-helpers';
+import ScalerContext from 'context/Scaler';
+import { createYScale, createXScale } from 'utils/scale-helpers';
 import GriffPropTypes, {
   areaPropType,
   seriesPropType,
   annotationPropType,
   rulerPropType,
-} from '../../utils/proptypes';
-import Annotation from '../Annotation';
-import Ruler from '../Ruler';
-import Area from '../Area';
-import ZoomRect from '../ZoomRect';
-import Axes from '../../utils/Axes';
-import { withDisplayName } from '../../utils/displayName';
+} from 'utils/proptypes';
+import Annotation from 'components/Annotation';
+import Ruler from 'components/Ruler';
+import Area from 'components/Area';
+import ZoomRect from 'components/ZoomRect';
+import Axes from 'utils/Axes';
+import { withDisplayName } from 'utils/displayName';
 
 export const ZoomMode = {
   X: 0,
@@ -29,55 +29,6 @@ const isLargeEnough = area =>
   Math.abs(area.start.ypos - area.end.ypos) > MINIMUM_AREA_DIMENSION_PIXELS;
 
 class InteractionLayer extends React.Component {
-  static propTypes = {
-    crosshair: PropTypes.bool,
-    ruler: rulerPropType,
-    height: PropTypes.number.isRequired,
-    // area => void
-    onAreaDefined: PropTypes.func,
-    // (area, xpos, ypos) => void
-    onAreaClicked: PropTypes.func,
-    onClick: PropTypes.func,
-    onClickAnnotation: PropTypes.func,
-    // event => void
-    onDoubleClick: PropTypes.func,
-    onMouseMove: PropTypes.func,
-    onMouseOut: PropTypes.func,
-    // ({ xSubDomain, transformation }) => void
-    onZoomXAxis: PropTypes.func,
-    areas: PropTypes.arrayOf(areaPropType),
-    annotations: PropTypes.arrayOf(annotationPropType),
-    width: PropTypes.number.isRequired,
-    zoomAxes: GriffPropTypes.zoomAxes.isRequired,
-
-    // These are all populated by Griff.
-    series: seriesPropType,
-    collections: GriffPropTypes.collections,
-    subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
-  };
-
-  static defaultProps = {
-    areas: [],
-    annotations: [],
-    collections: [],
-    crosshair: false,
-    onAreaDefined: null,
-    onAreaClicked: null,
-    onClick: null,
-    onClickAnnotation: null,
-    onDoubleClick: null,
-    onMouseMove: null,
-    onMouseOut: null,
-    onZoomXAxis: null,
-    series: [],
-    ruler: {
-      visible: false,
-      timeLabel: () => {},
-      yLabel: () => {},
-      timestamp: null,
-    },
-  };
-
   state = {
     area: null,
     crosshair: {
@@ -96,7 +47,8 @@ class InteractionLayer extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillReceiveProps(nextProps) {
     const {
       subDomainsByItemId: prevSubDomainsByItemId,
       ruler,
@@ -510,7 +462,7 @@ class InteractionLayer extends React.Component {
     let lines = null;
     if (crosshair && x !== null && y !== null) {
       lines = (
-        <React.Fragment>
+        <>
           <line
             key="x"
             x1={0}
@@ -529,7 +481,7 @@ class InteractionLayer extends React.Component {
             x1={x}
             x2={x}
           />
-        </React.Fragment>
+        </>
       );
     }
     // FIXME: Don't rely on a single time domain
@@ -581,13 +533,7 @@ class InteractionLayer extends React.Component {
         }
       }
       const color = scaledArea.color || (s ? s.color : null);
-      return (
-        <Area
-          key={`${scaledArea.id || ''}-${scaledArea.seriesId || ''}`}
-          color={color}
-          {...scaledArea}
-        />
-      );
+      return <Area key={scaledArea.id} color={color} {...scaledArea} />;
     });
     const areaBeingDefined = area ? (
       <Area key="user" {...area} color="#999" />
@@ -598,7 +544,7 @@ class InteractionLayer extends React.Component {
       zoomableAxes = {};
     }
     return (
-      <React.Fragment>
+      <>
         {lines}
         {annotations}
         {ruler.visible && points.length && (
@@ -626,10 +572,59 @@ class InteractionLayer extends React.Component {
           onTouchMove={this.onTouchMove}
           onTouchMoveEnd={this.onTouchMoveEnd}
         />
-      </React.Fragment>
+      </>
     );
   }
 }
+
+InteractionLayer.propTypes = {
+  crosshair: PropTypes.bool,
+  ruler: rulerPropType,
+  height: PropTypes.number.isRequired,
+  // area => void
+  onAreaDefined: PropTypes.func,
+  // (area, xpos, ypos) => void
+  onAreaClicked: PropTypes.func,
+  onClick: PropTypes.func,
+  onClickAnnotation: PropTypes.func,
+  // event => void
+  onDoubleClick: PropTypes.func,
+  onMouseMove: PropTypes.func,
+  onMouseOut: PropTypes.func,
+  // ({ xSubDomain, transformation }) => void
+  onZoomXAxis: PropTypes.func,
+  areas: PropTypes.arrayOf(areaPropType),
+  annotations: PropTypes.arrayOf(annotationPropType),
+  width: PropTypes.number.isRequired,
+  zoomAxes: GriffPropTypes.zoomAxes.isRequired,
+
+  // These are all populated by Griff.
+  series: seriesPropType,
+  collections: GriffPropTypes.collections,
+  subDomainsByItemId: GriffPropTypes.subDomainsByItemId.isRequired,
+};
+
+InteractionLayer.defaultProps = {
+  areas: [],
+  annotations: [],
+  collections: [],
+  crosshair: false,
+  onAreaDefined: null,
+  onAreaClicked: null,
+  onClick: null,
+  onClickAnnotation: null,
+  onDoubleClick: null,
+  onMouseMove: null,
+  onMouseOut: null,
+  onZoomXAxis: null,
+  series: [],
+  ruler: {
+    visible: false,
+    timeLabel: () => {},
+    yLabel: () => {},
+    timestamp: null,
+  },
+};
 
 export default withDisplayName('InteractionLayer', props => (
   <ScalerContext.Consumer>

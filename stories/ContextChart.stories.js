@@ -14,7 +14,7 @@ const exampleAnnotations = [
 ];
 
 export default {
-  title: 'components/ContextChart',
+  title: 'Demo|components/ContextChart',
 
   decorators: [
     story => (
@@ -68,7 +68,7 @@ annotationsStory.story = {
 };
 
 export const zoomableStory = () => (
-  <React.Fragment>
+  <>
     <div style={{ width: '100%' }}>
       <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
         <ContextChart zoomable />
@@ -81,7 +81,7 @@ export const zoomableStory = () => (
         <ContextChart zoomable={false} />
       </DataProvider>
     </div>
-  </React.Fragment>
+  </>
 );
 
 zoomableStory.story = {

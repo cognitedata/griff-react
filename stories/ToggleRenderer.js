@@ -52,8 +52,16 @@ const OPTIONS = {
   step: [true, false],
   zoomable: [true, false],
   name: ['readable-name'],
-  yDomain: [[-1, 2], [0, 10], [0.25, 0.75]].map(makePrintable),
-  ySubDomain: [[-1, 2], [0, 10], [0.25, 0.75]].map(makePrintable),
+  yDomain: [
+    [-1, 2],
+    [0, 10],
+    [0.25, 0.75],
+  ].map(makePrintable),
+  ySubDomain: [
+    [-1, 2],
+    [0, 10],
+    [0.25, 0.75],
+  ].map(makePrintable),
   yAxisPlacement: [
     AxisPlacement.LEFT,
     AxisPlacement.RIGHT,

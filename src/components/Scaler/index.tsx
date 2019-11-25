@@ -1,12 +1,12 @@
-import * as React from 'react';
-import * as PropTypes from 'prop-types';
-import DataContext from '../../context/Data';
-import ScalerContext from '../../context/Scaler';
-import GriffPropTypes, { seriesPropType } from '../../utils/proptypes';
-import Axes, { Domains } from '../../utils/Axes';
-import { Domain, Series, Collection } from '../../external';
-import { Item } from '../../internal';
-import { withDisplayName } from '../../utils/displayName';
+import React from 'react';
+import PropTypes from 'prop-types';
+import DataContext from 'context/Data';
+import ScalerContext from 'context/Scaler';
+import GriffPropTypes, { seriesPropType } from 'utils/proptypes';
+import Axes, { Domains } from 'utils/Axes';
+import { Domain, Series, Collection } from 'external';
+import { Item } from 'internal';
+import { withDisplayName } from 'utils/displayName';
 
 // TODO: Move this to DataProvider.
 type OnTimeSubDomainChanged = (timeSubDomain: Domain) => void;
@@ -137,6 +137,7 @@ export const firstResolvedDomain = (
  * made available through the {@link ScalerContext}.
  */
 class Scaler extends React.Component<Props, State> {
+  // eslint-disable-next-line react/static-property-placement
   static propTypes = {
     children: PropTypes.node.isRequired,
     dataContext: PropTypes.shape({
@@ -150,6 +151,7 @@ class Scaler extends React.Component<Props, State> {
     }).isRequired,
   };
 
+  // eslint-disable-next-line react/static-property-placement
   static defaultProps = {};
 
   static getDerivedStateFromProps(
@@ -249,8 +251,8 @@ class Scaler extends React.Component<Props, State> {
           time:
             firstResolvedDomain(
               dataContext.timeSubDomain ||
-                (item.timeSubDomain ||
-                  Axes.time(oldSubDomainsByItemId[item.id]))
+                item.timeSubDomain ||
+                Axes.time(oldSubDomainsByItemId[item.id])
             ) ||
             // Set a large range because this is a subdomain.
             placeholder(0, Date.now()),
@@ -439,7 +441,7 @@ class Scaler extends React.Component<Props, State> {
     };
 
     return (
-      <ScalerContext.Provider value={finalContext}>
+      <ScalerContext.Provider value={finalContext as any}>
         {children}
       </ScalerContext.Provider>
     );
@@ -448,8 +450,11 @@ class Scaler extends React.Component<Props, State> {
 
 export default withDisplayName('Scaler', (props: Props) => (
   <DataContext.Consumer>
-    {(dataContext: DataContext) => (
-      <Scaler {...props} dataContext={dataContext} />
+    {dataContext => (
+      <Scaler
+        {...props}
+        dataContext={(dataContext as unknown) as DataContext}
+      />
     )}
   </DataContext.Consumer>
 ));

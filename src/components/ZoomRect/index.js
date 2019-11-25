@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
-import ScalerContext from '../../context/Scaler';
-import GriffPropTypes from '../../utils/proptypes';
-import Axes from '../../utils/Axes';
-import { withDisplayName } from '../../utils/displayName';
+import ScalerContext from 'context/Scaler';
+import GriffPropTypes from 'utils/proptypes';
+import Axes from 'utils/Axes';
+import { withDisplayName } from 'utils/displayName';
 
 const propTypes = {
   width: PropTypes.number.isRequired,
@@ -57,8 +57,14 @@ class ZoomRect extends React.Component {
     const { width, height } = this.props;
     this.zoom = d3
       .zoom()
-      .translateExtent([[0, 0], [width, height]])
-      .extent([[0, 0], [width, height]]);
+      .translateExtent([
+        [0, 0],
+        [width, height],
+      ])
+      .extent([
+        [0, 0],
+        [width, height],
+      ]);
     this.rectSelection = d3.select(this.zoomNode);
     this.syncZoomingState();
   }

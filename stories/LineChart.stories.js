@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 /* eslint-disable react/no-multi-comp */
 /* eslint-disable react/no-this-in-sfc */
 import React from 'react';
@@ -20,7 +21,7 @@ const liveXDomain = [Date.now() - 1000 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
 export default {
-  title: 'LineChart',
+  title: 'Demo|LineChart',
 
   decorators: [
     story => (
@@ -131,7 +132,7 @@ customOfYAxisTicks.story = {
 };
 
 export const multiple = () => (
-  <React.Fragment>
+  <>
     <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" />
       <Series id="2" color="maroon" />
@@ -149,18 +150,18 @@ export const multiple = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-  </React.Fragment>
+  </>
 );
 
 export const singleValueInYAxis = () => (
-  <React.Fragment>
+  <>
     <DataProvider timeDomain={staticXDomain}>
       <Series id="1" color="steelblue" loader={monoLoader(0)} />
       <Series id="2" color="maroon" loader={monoLoader(0.5)} />
       <Series id="3" color="orange" loader={monoLoader(-0.5)} />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-  </React.Fragment>
+  </>
 );
 
 singleValueInYAxis.story = {
@@ -269,7 +270,7 @@ export const resizing = () => {
       const nextHeight =
         height === CHART_HEIGHT ? CHART_HEIGHT * 2 : CHART_HEIGHT;
       return (
-        <React.Fragment>
+        <>
           <p>
             All of the components should be entirely contained in the red box
           </p>
@@ -301,7 +302,7 @@ export const resizing = () => {
               <LineChart />
             </DataProvider>
           </div>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -422,7 +423,7 @@ export const hideSeries = () => {
     render() {
       const { hiddenSeries } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" hidden={hiddenSeries[1]} />
             <Series id="2" color="maroon" hidden={hiddenSeries[2]} />
@@ -434,7 +435,7 @@ export const hideSeries = () => {
           <button type="button" onClick={() => this.toggleHide(2)}>
             Hide series 2
           </button>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -486,7 +487,7 @@ export const specifyYDomain = () => {
       const isEnabled = domain => (domain ? '(enabled)' : '(disabled)');
 
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series
               id="1"
@@ -514,7 +515,7 @@ export const specifyYDomain = () => {
           <button type="button" onClick={() => this.setStaticSubDomain(2)}>
             Set maroon subdomain {isEnabled(ySubDomains[2])}
           </button>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -587,7 +588,7 @@ clickEvents.story = {
 };
 
 export const drawPointsStory = () => (
-  <React.Fragment>
+  <>
     <DataProvider
       defaultLoader={staticLoader}
       timeDomain={staticXDomain}
@@ -630,7 +631,7 @@ export const drawPointsStory = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} pointWidth={4} />
     </DataProvider>
-  </React.Fragment>
+  </>
 );
 
 drawPointsStory.story = {
@@ -670,7 +671,7 @@ export const nonZoomable = () => {
     render() {
       const { zoomable, yZoomable } = this.state;
       return (
-        <React.Fragment>
+        <>
           <DataProvider defaultLoader={staticLoader} timeDomain={staticXDomain}>
             <Series id="1" color="steelblue" zoomable={yZoomable[1]} />
             <Series id="2" color="maroon" zoomable={yZoomable[2]} />
@@ -688,7 +689,7 @@ export const nonZoomable = () => {
           <button type="button" onClick={() => this.toggleZoom(2)}>
             Toggle y2 zoom [{yZoomable[2] !== false ? 'on' : 'off'}]
           </button>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -739,7 +740,7 @@ dynamicTimeDomain.story = {
 };
 
 export const ySubDomainStory = () => (
-  <React.Fragment>
+  <>
     <h1>Set on DataProvider ([0.25, 0.5])</h1>
     <p>
       The ySubDomain for the chart should be [0.25, 0.5]. The context chart
@@ -796,7 +797,7 @@ export const ySubDomainStory = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-  </React.Fragment>
+  </>
 );
 
 ySubDomainStory.story = {
@@ -822,7 +823,7 @@ export const dynamicTimeSubDomain = () => {
     render() {
       const { isFirst } = this.state;
       return (
-        <React.Fragment>
+        <>
           <button
             type="button"
             onClick={() => this.setState({ isFirst: !isFirst })}
@@ -838,7 +839,7 @@ export const dynamicTimeSubDomain = () => {
             <Series id="2" color="maroon" />
             <LineChart height={CHART_HEIGHT} />
           </DataProvider>
-        </React.Fragment>
+        </>
       );
     }
   }
@@ -959,7 +960,7 @@ export const enableDisableSeries = () => {
     render() {
       const { series } = this.state;
       return (
-        <React.Fragment>
+        <>
           <Select
             isMulti
             value={series}
@@ -977,7 +978,7 @@ export const enableDisableSeries = () => {
             ))}
             <LineChart height={CHART_HEIGHT} />
           </DataProvider>
-        </React.Fragment>
+        </>
       );
     }
   }

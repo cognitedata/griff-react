@@ -1,13 +1,13 @@
 import React from 'react';
 import * as d3 from 'd3';
 import PropTypes from 'prop-types';
-import { createYScale } from '../../utils/scale-helpers';
-import GriffPropTypes, { singleSeriePropType } from '../../utils/proptypes';
-import AxisPlacement from '../AxisPlacement';
-import ScalerContext from '../../context/Scaler';
-import ZoomRect from '../ZoomRect';
-import Axes from '../../utils/Axes';
-import { withDisplayName } from '../../utils/displayName';
+import { createYScale } from 'utils/scale-helpers';
+import GriffPropTypes, { singleSeriePropType } from 'utils/proptypes';
+import AxisPlacement from 'components/AxisPlacement';
+import ScalerContext from 'context/Scaler';
+import ZoomRect from 'components/ZoomRect';
+import Axes from 'utils/Axes';
+import { withDisplayName } from 'utils/displayName';
 
 const propTypes = {
   zoomable: PropTypes.bool,
@@ -179,6 +179,7 @@ const YAxis = ({
   const range = scale.range().map(r => r + halfStrokeWidth);
   const axisElement = (
     <g
+      data-testid={`yAxis-${item.id}`}
       className="axis y-axis"
       fill="none"
       fontSize={tickFontSize}
@@ -229,9 +230,11 @@ const YAxis = ({
     </g>
   );
   const cursor = zoomable ? 'move' : 'inherit';
+  const id = collection ? collection.id : series.id;
+
   return (
     <g
-      className="axis-y"
+      className={`axis-y axis-y-${id}`}
       transform={`translate(${offsetx}, 0)`}
       cursor={cursor}
       onMouseEnter={onMouseEnter}

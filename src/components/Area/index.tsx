@@ -1,6 +1,6 @@
-import * as React from 'react';
+import React from 'react';
 import * as PropTypes from 'prop-types';
-import { coordinatePropType } from '../../utils/proptypes';
+import { coordinatePropType } from 'utils/proptypes';
 
 export interface Position {
   xpos: number;
@@ -8,6 +8,7 @@ export interface Position {
 }
 
 export interface Props {
+  id: string;
   start: Position;
   end: Position;
   color?: string;
@@ -15,6 +16,7 @@ export interface Props {
 }
 
 const Area: React.FunctionComponent<Props> = ({
+  id,
   start,
   end,
   color = '#000',
@@ -29,6 +31,7 @@ const Area: React.FunctionComponent<Props> = ({
   const top = Math.min(start.ypos, end.ypos);
   return (
     <rect
+      className={`area area-${id}`}
       width={width}
       height={height}
       x={left}
@@ -40,6 +43,7 @@ const Area: React.FunctionComponent<Props> = ({
 };
 
 Area.propTypes = {
+  id: PropTypes.string.isRequired,
   color: PropTypes.string,
   start: coordinatePropType.isRequired,
   end: coordinatePropType.isRequired,

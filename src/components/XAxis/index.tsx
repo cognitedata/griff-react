@@ -1,17 +1,17 @@
-import * as React from 'react';
+import React from 'react';
 import * as d3 from 'd3';
-import { SizeMe } from 'react-sizeme';
+import { SizeMe, SizeMeProps } from 'react-sizeme';
 import AxisPlacement, {
   AxisPlacement as AxisPlacementType,
-} from '../AxisPlacement';
-import ScalerContext from '../../context/Scaler';
-import ZoomRect from '../ZoomRect';
-import { createXScale, ScalerFunctionFactory } from '../../utils/scale-helpers';
-import { Domain, Series } from '../../external';
-import { DomainsByItemId } from '../Scaler';
-import { withDisplayName } from '../../utils/displayName';
+} from 'components/AxisPlacement';
+import ScalerContext from 'context/Scaler';
+import ZoomRect from 'components/ZoomRect';
+import { createXScale, ScalerFunctionFactory } from 'utils/scale-helpers';
+import { Domain, Series } from 'external';
+import { DomainsByItemId } from 'components/Scaler';
+import { withDisplayName } from 'utils/displayName';
 
-export interface Props {
+export interface Props extends ScalerProps {
   axis: 'time' | 'x';
   placement: AxisPlacementType;
   scaled: boolean;
@@ -19,16 +19,13 @@ export interface Props {
   tickFormatter: TickFormatter;
   ticks: number;
   height: number;
+  width?: number;
 }
 
 interface ScalerProps {
   domainsByItemId: DomainsByItemId;
   subDomainsByItemId: DomainsByItemId;
   series: Series[];
-}
-
-interface SizeProps {
-  width: number;
 }
 
 export type TickFormatter = (value: number, values: number[]) => string;
@@ -149,7 +146,7 @@ const getTextProps = ({
   }
 };
 
-const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
+const XAxis: React.FC<Props> = ({
   axis: a = 'time',
   domainsByItemId,
   height = 50,
@@ -158,10 +155,10 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   series,
   stroke = 'black',
   subDomainsByItemId,
-  tickFormatter = Number,
+  tickFormatter = x => Number(x).toString(),
   ticks = 0,
   width = 1,
-}) => {
+}: Props) => {
   if (series.length === 0) {
     return null;
   }
@@ -218,6 +215,7 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
 
   const axisElement = (
     <g
+      data-testid="xAxis"
       className="axis x-axis"
       fill="none"
       fontSize={tickFontSize}
@@ -264,20 +262,26 @@ const XAxis: React.FunctionComponent<Props & ScalerProps & SizeProps> = ({
   );
 };
 
-export default withDisplayName('XAxis', (props: Props) => (
-  <ScalerContext.Consumer>
-    {({ domainsByItemId, subDomainsByItemId, series }: ScalerProps) => (
-      <SizeMe monitorWidth>
-        {({ size }: { size: SizeProps }) => (
-          <XAxis
-            series={series}
-            {...props}
-            width={size.width}
-            domainsByItemId={domainsByItemId}
-            subDomainsByItemId={subDomainsByItemId}
-          />
-        )}
-      </SizeMe>
-    )}
-  </ScalerContext.Consumer>
-));
+export default withDisplayName('XAxis', (props: Props) => {
+  const newProps = { ...props };
+  if (props.width === undefined) {
+    delete newProps.width;
+  }
+  return (
+    <ScalerContext.Consumer>
+      {({ domainsByItemId, subDomainsByItemId, series }: ScalerProps) => (
+        <SizeMe monitorWidth>
+          {({ size }: SizeMeProps) => (
+            <XAxis
+              series={series}
+              width={size.width || undefined}
+              {...newProps}
+              domainsByItemId={domainsByItemId}
+              subDomainsByItemId={subDomainsByItemId}
+            />
+          )}
+        </SizeMe>
+      )}
+    </ScalerContext.Consumer>
+  );
+});

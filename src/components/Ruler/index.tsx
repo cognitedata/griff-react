@@ -1,6 +1,6 @@
-import * as React from 'react';
-import RulerTooltip from '../RulerTooltip';
-import { ItemId } from '../../external';
+import React from 'react';
+import RulerTooltip from 'components/RulerTooltip';
+import { ItemId } from 'external';
 
 export interface RulerConfig {
   visible: boolean;
@@ -40,7 +40,7 @@ const calculateY = (points: RulerPoint[], yTooltipPosition: number) => {
 
   const pointsSorted = [...points].sort((a, b) => a.y - b.y);
 
-  let prevPoint = undefined;
+  let prevPoint;
   for (let i = 0; i < pointsSorted.length; i += 1) {
     const realSpace = yTooltipPosition - pointsSorted[i].y;
     const neededSpace = (pointsSorted.length - i) * labelHeight;
@@ -102,7 +102,7 @@ const Ruler: React.FunctionComponent<Props> = ({
 
   const positionX = xScale(newestPoint.x);
   return (
-    <React.Fragment>
+    <>
       <line
         className="ruler-line"
         y1={0}
@@ -142,7 +142,7 @@ const Ruler: React.FunctionComponent<Props> = ({
           strokeOpacity="0.5"
         />,
       ])}
-    </React.Fragment>
+    </>
   );
 };
 

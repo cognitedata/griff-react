@@ -13,7 +13,7 @@ const staticXDomain = [Date.now() - 1000 * 60 * 60 * 24 * 30, Date.now()];
 const CHART_HEIGHT = 500;
 
 export default {
-  title: 'Y-Axis Placement',
+  title: 'Demo|Y-Axis Placement',
 };
 
 export const unspecified = () => [

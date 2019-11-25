@@ -1,5 +1,5 @@
-import * as React from 'react';
-import { Domain } from '../../external';
+import React from 'react';
+import { Domain } from 'external';
 
 export type OnUpdateSelection = (domain: Domain) => void;
 
@@ -26,14 +26,6 @@ interface State {
 }
 
 class Brush extends React.Component<Props, State> {
-  static defaultProps = {
-    handleColor: '#333',
-    selectionColor: 'none',
-    outsideColor: '#777',
-    zoomable: true,
-    handleWidth: 2,
-  };
-
   state: State = {
     dragStartOverlay: undefined,
     dragStartSelection: undefined,
@@ -52,7 +44,7 @@ class Brush extends React.Component<Props, State> {
   }
 
   onMouseDownOverlay = (e: React.MouseEvent<SVGRectElement, MouseEvent>) => {
-    const { zoomable } = this.props;
+    const { zoomable = true } = this.props;
     if (!zoomable) {
       return;
     }
@@ -63,7 +55,7 @@ class Brush extends React.Component<Props, State> {
   };
 
   onMouseDownHandleEast = () => {
-    const { zoomable } = this.props;
+    const { zoomable = true } = this.props;
     if (!zoomable) {
       return;
     }
@@ -73,7 +65,7 @@ class Brush extends React.Component<Props, State> {
   };
 
   onMouseDownHandleWest = () => {
-    const { zoomable } = this.props;
+    const { zoomable = true } = this.props;
     if (!zoomable) {
       return;
     }
@@ -83,7 +75,7 @@ class Brush extends React.Component<Props, State> {
   };
 
   onMouseDownSelection = (e: React.MouseEvent<SVGRectElement, MouseEvent>) => {
-    const { zoomable } = this.props;
+    const { zoomable = true } = this.props;
     if (!zoomable) {
       return;
     }
@@ -94,7 +86,7 @@ class Brush extends React.Component<Props, State> {
   };
 
   onMouseUpSelection = () => {
-    const { zoomable } = this.props;
+    const { zoomable = true } = this.props;
     if (!zoomable) {
       return;
     }
@@ -104,7 +96,7 @@ class Brush extends React.Component<Props, State> {
   };
 
   onMouseUp = () => {
-    const { zoomable } = this.props;
+    const { zoomable = true } = this.props;
     if (!zoomable) {
       return;
     }
@@ -185,11 +177,11 @@ class Brush extends React.Component<Props, State> {
       width,
       height,
       selection,
-      selectionColor,
-      outsideColor,
-      handleColor,
-      zoomable,
-      handleWidth,
+      handleColor = '#333',
+      selectionColor = 'none',
+      outsideColor = '#777',
+      zoomable = true,
+      handleWidth = 2,
     } = this.props;
     const selectionWidth = selection[1] - selection[0];
     const disabledCursor = zoomable ? null : 'inherit';

@@ -11,16 +11,16 @@ type StoryProps = {
 };
 
 export default {
-  title: 'components/RulerTooltip',
+  title: 'Demo|components/RulerTooltip',
 
   decorators: [
-    story => {
+    (story: React.FC<StoryProps>) => {
       class FakeChart extends React.Component {
         state = {
           x: CHART_WIDTH / 2,
         };
 
-        onMouseMove = ({ nativeEvent: { offsetX } }) => {
+        onMouseMove = ({ nativeEvent: { offsetX } }: React.MouseEvent) => {
           this.setState({ x: offsetX });
         };
 
@@ -93,7 +93,7 @@ hugePadding.story = {
 };
 
 export const colors = ({ options: { x } }: StoryProps) => (
-  <React.Fragment>
+  <>
     <RulerTooltip
       label="sample"
       x={x}
@@ -118,5 +118,5 @@ export const colors = ({ options: { x } }: StoryProps) => (
       labelHeight={20}
       chartWidth={CHART_WIDTH}
     />
-  </React.Fragment>
+  </>
 );

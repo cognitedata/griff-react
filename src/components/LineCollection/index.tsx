@@ -1,49 +1,45 @@
-import * as React from 'react';
+import React from 'react';
 import {
   createXScale,
   createYScale,
   ScalerFunction,
-} from '../../utils/scale-helpers';
-import ScalerContext from '../../context/Scaler';
-import Line from '../Line';
-import AxisDisplayMode from '../../utils/AxisDisplayMode';
-import Axes, { Dimension } from '../../utils/Axes';
-import { Series } from '../../external';
-import { DomainsByItemId } from '../Scaler';
-import { withDisplayName } from '../../utils/displayName';
+} from 'utils/scale-helpers';
+import ScalerContext from 'context/Scaler';
+import Line from 'components/Line';
+import AxisDisplayMode from 'utils/AxisDisplayMode';
+import Axes, { Dimension } from 'utils/Axes';
+import { Series } from 'external';
+import { DomainsByItemId } from 'components/Scaler';
+import { withDisplayName } from 'utils/displayName';
 
-const { time, x } = Axes;
+const { time } = Axes;
 
-export interface Props {
+export interface Props extends InternalProps {
   width: number;
   height: number;
   xAxis: Dimension;
-  series?: Series[];
   pointWidth?: number;
   scaleX?: boolean;
   yScalerFactory?: (series: Series, height: number) => ScalerFunction;
 }
 
 interface InternalProps {
-  series: Series[];
+  series?: Series[];
   domainsByItemId: DomainsByItemId;
   subDomainsByItemId: DomainsByItemId;
 }
 
-const LineCollection: React.FunctionComponent<
-  Props & InternalProps
-> = props => {
-  const {
-    domainsByItemId,
-    subDomainsByItemId,
-    series = new Array<Series>(),
-    width,
-    height,
-    xAxis = time,
-    yScalerFactory,
-    pointWidth = 6,
-    scaleX = true,
-  } = props;
+const LineCollection: React.FC<Props> = ({
+  domainsByItemId,
+  subDomainsByItemId,
+  series = new Array<Series>(),
+  width,
+  height,
+  xAxis = time,
+  yScalerFactory,
+  pointWidth = 6,
+  scaleX = true,
+}: Props) => {
   if (!subDomainsByItemId) {
     return null;
   }
