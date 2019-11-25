@@ -76,45 +76,56 @@ describe('LineChart', () => {
     expect(asFragment()).toMatchSnapshot();
   });
 
-  it('should render all prop stories correctly', () => {
-    // xAxisHeight
-    const xAxisHeight = render(<CustomXAxisHeight />);
-    expect(xAxisHeight.asFragment()).toMatchSnapshot('xAxisHeight');
+  describe('Prop snapshots', () => {
+    it('should render xAxisHeight prop story correctly', () => {
+      const xAxisHeight = render(<CustomXAxisHeight />);
+      expect(xAxisHeight.asFragment()).toMatchSnapshot('xAxisHeight');
+    });
 
-    // yAxisWidth
-    const yAxisWidth = render(<CustomYAxisWidth />);
-    expect(yAxisWidth.asFragment()).toMatchSnapshot('yAxisWidth');
+    it('should render yAxisWidth prop story correctly', () => {
+      const yAxisWidth = render(<CustomYAxisWidth />);
+      expect(yAxisWidth.asFragment()).toMatchSnapshot('yAxisWidth');
+    });
 
-    // xAxisDisplayMode
-    const xAxisDisplayModeCollapsed = render(<DisplayModeCollapsed />);
-    expect(xAxisDisplayModeCollapsed.asFragment()).toMatchSnapshot(
-      'xAxisDisplayMode - Collapsed'
-    );
-    const xAxisDisplayModeNone = render(<DisplayModeNone />);
-    expect(xAxisDisplayModeNone.asFragment()).toMatchSnapshot(
-      'xAxisDisplayMode - None'
-    );
+    it('should render xAxisDisplayMode prop stories correctly', () => {
+      const xAxisDisplayModeCollapsed = render(<DisplayModeCollapsed />);
+      expect(xAxisDisplayModeCollapsed.asFragment()).toMatchSnapshot(
+        'xAxisDisplayMode - Collapsed'
+      );
+      const xAxisDisplayModeNone = render(<DisplayModeNone />);
+      expect(xAxisDisplayModeNone.asFragment()).toMatchSnapshot(
+        'xAxisDisplayMode - None'
+      );
+    });
 
-    // xAxisPlacement
-    const xAxisPlacementTop = render(<XAxisPlacementTop />);
-    expect(xAxisPlacementTop.asFragment()).toMatchSnapshot(
-      'xAxisPlacement - Top'
-    );
-    const xAxisPlacementBoth = render(<XAxisPlacementBoth />);
-    expect(xAxisPlacementBoth.asFragment()).toMatchSnapshot(
-      'xAxisPlacement - Both'
-    );
+    it('should render xAxisPlacement prop stories correctly', () => {
+      const xAxisPlacementTop = render(<XAxisPlacementTop />);
+      expect(xAxisPlacementTop.asFragment()).toMatchSnapshot(
+        'xAxisPlacement - Top'
+      );
+      const xAxisPlacementBoth = render(<XAxisPlacementBoth />);
+      expect(xAxisPlacementBoth.asFragment()).toMatchSnapshot(
+        'xAxisPlacement - Both'
+      );
+    });
 
-    // xAxisFormatter
-    const customXAxisFormatter = render(<CustomXAxisFormatter />);
-    expect(customXAxisFormatter.asFragment()).toMatchSnapshot('xAxisFormatter');
+    it('should render xAxisFormatter prop stories correctly', () => {
+      const customXAxisFormatter = render(<CustomXAxisFormatter />);
+      expect(customXAxisFormatter.asFragment()).toMatchSnapshot(
+        'xAxisFormatter'
+      );
+    });
 
-    // yAxisFormatter
-    const customYAxisFormatter = render(<CustomYAxisFormatter />);
-    expect(customYAxisFormatter.asFragment()).toMatchSnapshot('yAxisFormatter');
+    it('should render yAxisFormatter prop stories correctly', () => {
+      const customYAxisFormatter = render(<CustomYAxisFormatter />);
+      expect(customYAxisFormatter.asFragment()).toMatchSnapshot(
+        'yAxisFormatter'
+      );
+    });
 
-    // yAxisTicks
-    const customYAxisTicks = render(<CustomYAxisTicks />);
-    expect(customYAxisTicks.asFragment()).toMatchSnapshot('yAxitTicks');
+    it('should render yAxisTicks prop stories correctly', () => {
+      const customYAxisTicks = render(<CustomYAxisTicks />);
+      expect(customYAxisTicks.asFragment()).toMatchSnapshot('yAxitTicks');
+    });
   });
 });
