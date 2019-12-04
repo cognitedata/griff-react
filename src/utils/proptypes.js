@@ -107,16 +107,19 @@ export const scaleFuncPropType = PropTypes.func;
 const axisPlacement = PropTypes.oneOf(Object.values(AxisPlacement));
 
 export const coordinatePropType = PropTypes.shape({
-  xpos: PropTypes.number.isRequired,
-  ypos: PropTypes.number.isRequired,
+  xval: PropTypes.number,
+  yval: PropTypes.number,
   points: PropTypes.arrayOf(pointPropType),
 });
 
 export const areaPropType = PropTypes.shape({
   id: idPropType,
+  seriesId: idPropType,
   color: PropTypes.string,
-  start: coordinatePropType.isRequired,
-  end: coordinatePropType,
+  xMin: PropTypes.number.isRequired,
+  xMax: PropTypes.number.isRequired,
+  yMin: PropTypes.number.isRequired,
+  yMax: PropTypes.number.isRequired,
 });
 
 const collection = PropTypes.shape({
