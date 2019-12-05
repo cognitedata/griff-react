@@ -528,7 +528,7 @@ const mockAreas = [
     seriesId: '1',
     color: 'lightblue',
     xMin: 1571577832254,
-    yMin: 0.5,
+    yMin: 0,
     xMax: 1574169832254,
     yMax: 1,
   },
