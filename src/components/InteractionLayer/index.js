@@ -506,8 +506,12 @@ class InteractionLayer extends React.Component {
 
       let s = null;
 
-      scaledArea.xMin = xScale(a.xMin || timeSubDomain[0]);
-      scaledArea.xMax = xScale(a.xMax || timeSubDomain[1]);
+      scaledArea.xMin = xScale(
+        a.xMin !== undefined ? a.xMin : timeSubDomain[0]
+      );
+      scaledArea.xMax = xScale(
+        a.xMax !== undefined ? a.xMax : timeSubDomain[1]
+      );
 
       if (a.seriesId) {
         s = series.find(s1 => s1.id === a.seriesId);
@@ -517,8 +521,12 @@ class InteractionLayer extends React.Component {
           ];
           const yScale = createYScale(ySubDomain, height);
 
-          scaledArea.yMin = yScale(a.yMin || ySubDomain[0]);
-          scaledArea.yMax = yScale(a.yMax || ySubDomain[1]);
+          scaledArea.yMin = yScale(
+            a.yMin !== undefined ? a.yMin : ySubDomain[0]
+          );
+          scaledArea.yMax = yScale(
+            a.yMax !== undefined ? a.yMax : ySubDomain[1]
+          );
         }
       }
       const color = scaledArea.color || (s ? s.color : null);
