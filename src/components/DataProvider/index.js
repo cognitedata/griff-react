@@ -378,7 +378,8 @@ export default class DataProvider extends Component {
           // We either couldn't have any data before ...
           reason === 'MOUNTED' ||
           // ... or we didn't have data before, but do now!
-          (freshSeries.data.length === 0 && loaderResult.data.length > 0)
+          ((freshSeries.data || []).length === 0 &&
+            (loaderResult.data || []).length > 0)
         ) {
           const collection = series.collectionId
             ? collectionsById[series.collectionId] || {}
