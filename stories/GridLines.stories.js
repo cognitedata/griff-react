@@ -155,7 +155,6 @@ export const colorStory = () => (
         <GridLines y={{ count: 5, color: 'red' }} />
       </LineChart>
     </DataProvider>
-    ,
     <DataProvider
       key="x-dimension"
       defaultLoader={staticLoader}
@@ -167,7 +166,6 @@ export const colorStory = () => (
         <GridLines x={{ count: 5, color: 'red' }} />
       </LineChart>
     </DataProvider>
-    ,
     <DataProvider
       key="grid-object"
       defaultLoader={staticLoader}
@@ -179,7 +177,6 @@ export const colorStory = () => (
         <GridLines color="red" x={{ count: 5 }} y={{ count: 5 }} />
       </LineChart>
     </DataProvider>
-    ,
     <DataProvider
       key="different"
       defaultLoader={staticLoader}
@@ -195,7 +192,6 @@ export const colorStory = () => (
         />
       </LineChart>
     </DataProvider>
-    ,
   </>
 );
 
@@ -216,7 +212,6 @@ export const opacityStory = () => (
         <GridLines y={{ count: 5, opacity: 1 }} />
       </LineChart>
     </DataProvider>
-    ,
     <DataProvider
       key="x-dimension"
       defaultLoader={staticLoader}
@@ -228,7 +223,6 @@ export const opacityStory = () => (
         <GridLines x={{ count: 5, opacity: 1 }} />
       </LineChart>
     </DataProvider>
-    ,
     <DataProvider
       key="grid-object"
       defaultLoader={staticLoader}
@@ -240,7 +234,6 @@ export const opacityStory = () => (
         <GridLines opacity={1} x={{ count: 5 }} y={{ count: 5 }} />
       </LineChart>
     </DataProvider>
-    ,
     <DataProvider
       key="different"
       defaultLoader={staticLoader}
@@ -256,7 +249,6 @@ export const opacityStory = () => (
         />
       </LineChart>
     </DataProvider>
-    ,
   </>
 );
 
@@ -277,7 +269,6 @@ export const strokeWidthStory = () => (
         <GridLines y={{ count: 5, strokeWidth: 5 }} />
       </LineChart>
     </DataProvider>
-    ,
     <DataProvider
       key="x-dimension"
       defaultLoader={staticLoader}
@@ -289,7 +280,6 @@ export const strokeWidthStory = () => (
         <GridLines x={{ count: 5, strokeWidth: 5 }} />
       </LineChart>
     </DataProvider>
-    ,
     <DataProvider
       key="grid-object"
       defaultLoader={staticLoader}
@@ -301,7 +291,6 @@ export const strokeWidthStory = () => (
         <GridLines strokeWidth={5} x={{ count: 5 }} y={{ count: 5 }} />
       </LineChart>
     </DataProvider>
-    ,
     <DataProvider
       key="different"
       defaultLoader={staticLoader}
@@ -317,7 +306,6 @@ export const strokeWidthStory = () => (
         />
       </LineChart>
     </DataProvider>
-    ,
   </>
 );
 

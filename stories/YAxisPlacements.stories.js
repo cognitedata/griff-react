@@ -27,7 +27,6 @@ export const unspecified = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -39,7 +38,6 @@ export const unspecified = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -54,7 +52,6 @@ export const left = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -66,7 +63,6 @@ export const left = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -81,7 +77,6 @@ export const right = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -93,7 +88,6 @@ export const right = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -108,7 +102,6 @@ export const both = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -120,7 +113,6 @@ export const both = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -135,7 +127,6 @@ export const split = () => (
       <Series id="2" color="maroon" yAxisPlacement={AxisPlacement.RIGHT} />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -149,7 +140,6 @@ export const split = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -165,7 +155,6 @@ export const splitWithBoth = () => (
       <Series id={3} color="orange" yAxisPlacement={AxisPlacement.BOTH} />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -182,7 +171,6 @@ export const splitWithBoth = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -202,7 +190,6 @@ export const splitOverridingChart = () => (
       <Series id={3} color="orange" yAxisPlacement={AxisPlacement.BOTH} />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -219,7 +206,6 @@ export const splitOverridingChart = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.LEFT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -238,7 +224,6 @@ export const allOnTheWrongSide = () => (
       <Series id="2" color="maroon" yAxisPlacement={AxisPlacement.LEFT} />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -250,7 +235,6 @@ export const allOnTheWrongSide = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -269,7 +253,6 @@ export const misleadingPlacements = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.RIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -292,7 +275,6 @@ export const collapsedAxis = () => (
         yAxisPlacement={AxisPlacement.BOTH}
       />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -308,7 +290,6 @@ export const collapsedAxis = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -336,7 +317,6 @@ export const mixedAxisModes = () => (
       <Series id="3" color="orange" yAxisDisplayMode={AxisDisplayMode.ALL} />
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -357,7 +337,6 @@ export const mixedAxisModes = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} yAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>
-    ,
   </>
 );
 

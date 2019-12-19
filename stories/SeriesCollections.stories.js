@@ -28,7 +28,6 @@ export const singleCollection = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="scaled"
       timeDomain={staticXDomain}
@@ -40,7 +39,6 @@ export const singleCollection = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -94,7 +92,6 @@ export const drawPointsStory = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="override"
       timeDomain={staticXDomain}
@@ -106,7 +103,6 @@ export const drawPointsStory = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -127,7 +123,6 @@ export const hiddenStory = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="preference"
       timeDomain={staticXDomain}
@@ -139,7 +134,6 @@ export const hiddenStory = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="override"
       timeDomain={staticXDomain}
@@ -151,7 +145,6 @@ export const hiddenStory = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -172,7 +165,6 @@ export const strokeWidthStory = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="preference"
       timeDomain={staticXDomain}
@@ -184,7 +176,6 @@ export const strokeWidthStory = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="override"
       timeDomain={staticXDomain}
@@ -196,7 +187,6 @@ export const strokeWidthStory = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -278,7 +268,6 @@ export const yAxisDisplayModeStory = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="override"
       timeDomain={staticXDomain}
@@ -290,7 +279,6 @@ export const yAxisDisplayModeStory = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -384,7 +372,6 @@ export const colors = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
   </>
 );
 

@@ -26,7 +26,6 @@ export const unspecified = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -38,7 +37,6 @@ export const unspecified = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -53,7 +51,6 @@ export const top = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} xAxisPlacement={AxisPlacement.TOP} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -65,7 +62,6 @@ export const top = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} xAxisPlacement={AxisPlacement.TOP} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -80,7 +76,6 @@ export const bottom = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} xAxisPlacement={AxisPlacement.BOTTOM} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -92,7 +87,6 @@ export const bottom = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} xAxisPlacement={AxisPlacement.BOTTOM} />
     </DataProvider>
-    ,
   </>
 );
 
@@ -107,7 +101,6 @@ export const both = () => (
       <Series id="2" color="maroon" />
       <LineChart height={CHART_HEIGHT} xAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>
-    ,
     <DataProvider
       key="collections"
       defaultLoader={staticLoader}
@@ -119,6 +112,5 @@ export const both = () => (
       </Collection>
       <LineChart height={CHART_HEIGHT} xAxisPlacement={AxisPlacement.BOTH} />
     </DataProvider>
-    ,
   </>
 );
