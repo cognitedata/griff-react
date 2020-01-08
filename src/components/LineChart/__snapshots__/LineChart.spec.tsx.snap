@@ -10,7 +10,7 @@ exports[`LineChart should base render correctly 1`] = `
     >
       <div
         class="linechart-container"
-        style="display: grid; grid-template-areas: 'chart yaxis' 'xaxis .' 'context .'; height: 100%;"
+        style="display: grid; grid-template-areas: 'chart yaxis' 'xaxis .' 'context .'; grid-template-rows: 1fr auto auto; grid-template-columns: 1fr auto auto; height: 100%;"
       >
         <div
           class="lines-container"
@@ -764,7 +764,7 @@ exports[`LineChart should render multiple series correctly 1`] = `
     >
       <div
         class="linechart-container"
-        style="display: grid; grid-template-areas: 'chart yaxis' 'xaxis .' 'context .'; height: 100%;"
+        style="display: grid; grid-template-areas: 'chart yaxis' 'xaxis .' 'context .'; grid-template-rows: 1fr auto auto; grid-template-columns: 1fr auto auto; height: 100%;"
       >
         <div
           class="lines-container"
@@ -1842,7 +1842,7 @@ exports[`LineChart should render multiple series in a single collection correctl
     >
       <div
         class="linechart-container"
-        style="display: grid; grid-template-areas: 'chart yaxis' 'xaxis .' 'context .'; height: 100%;"
+        style="display: grid; grid-template-areas: 'chart yaxis' 'xaxis .' 'context .'; grid-template-rows: 1fr auto auto; grid-template-columns: 1fr auto auto; height: 100%;"
       >
         <div
           class="lines-container"

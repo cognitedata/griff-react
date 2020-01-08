@@ -130,6 +130,18 @@ const Layout = ({
     .map(s => `'${s}'`)
     .join(' ');
 
+  const gridTemplateSpec = axisPlacement => {
+    switch (axisPlacement) {
+      case AxisPlacement.BOTH:
+        return 'auto 1fr auto auto';
+      case AxisPlacement.LEFT:
+      case AxisPlacement.TOP:
+        return 'auto 1fr auto';
+      default:
+        return '1fr auto auto';
+    }
+  };
+
   switch (yAxisPlacement) {
     case AxisPlacement.BOTH: {
       yAxes.push(yAxisContainer('yaxis-left')(yAxis, AxisPlacement.LEFT));
@@ -164,6 +176,8 @@ const Layout = ({
       style={{
         display: 'grid',
         gridTemplateAreas: areas,
+        gridTemplateRows: gridTemplateSpec(xAxisPlacement),
+        gridTemplateColumns: gridTemplateSpec(yAxisPlacement),
         height: '100%',
       }}
     >
