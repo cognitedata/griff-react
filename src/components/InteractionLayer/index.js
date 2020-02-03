@@ -506,8 +506,9 @@ class InteractionLayer extends React.Component {
 
       let s = null;
 
-      scaledArea.xMin = xScale(
-        a.xMin !== undefined ? a.xMin : timeSubDomain[0]
+      scaledArea.xMin = Math.max(
+        0,
+        xScale(a.xMin !== undefined ? a.xMin : timeSubDomain[0])
       );
       scaledArea.xMax = xScale(
         a.xMax !== undefined ? a.xMax : timeSubDomain[1]
@@ -521,8 +522,9 @@ class InteractionLayer extends React.Component {
           ];
           const yScale = createYScale(ySubDomain, height);
 
-          scaledArea.yMin = yScale(
-            a.yMin !== undefined ? a.yMin : ySubDomain[0]
+          scaledArea.yMin = Math.max(
+            0,
+            yScale(a.yMin !== undefined ? a.yMin : ySubDomain[0])
           );
           scaledArea.yMax = yScale(
             a.yMax !== undefined ? a.yMax : ySubDomain[1]
