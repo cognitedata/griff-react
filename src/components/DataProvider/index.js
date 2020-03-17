@@ -262,6 +262,12 @@ export default class DataProvider extends Component {
         // Then the global props from DataProvider, if any are set.
         ...dataProvider,
 
+        // Next, copy over defaults from the parent collection, if there is one.
+        ...collection,
+
+        // Finally, the series configuration itself.
+        ...series,
+
         // Then the domains because these are in the DataProvider state, which
         // supercedes the props.
         timeSubDomain: smallerDomain(
@@ -273,12 +279,6 @@ export default class DataProvider extends Component {
         timeDomain,
         xDomain,
         yDomain,
-
-        // Next, copy over defaults from the parent collection, if there is one.
-        ...collection,
-
-        // Finally, the series configuration itself.
-        ...series,
       };
       return [...acc, completedSeries];
     }, []);
@@ -349,7 +349,7 @@ export default class DataProvider extends Component {
       timeDomain,
       timeSubDomain,
       pointsPerSeries,
-      oldSeries: { data: [], ...seriesObject },
+      oldSeries: { data: [], ...seriesObject, xAccessor },
       reason,
     };
     try {
