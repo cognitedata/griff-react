@@ -333,6 +333,7 @@ export default class DataProvider extends Component {
       y1Accessor,
       yAccessor,
       onFetchDataError,
+      recalcDataTimeSubDomainChanged,
     } = this.props;
     const { timeDomain, timeSubDomain, seriesById } = this.state;
     const seriesObject = seriesById[id];
@@ -377,6 +378,8 @@ export default class DataProvider extends Component {
         if (
           // We either couldn't have any data before ...
           reason === 'MOUNTED' ||
+          // Or the subdomain changed and we need to recalc the yDomain
+          (reason === 'UPDATE_SUBDOMAIN' && recalcDataTimeSubDomainChanged) ||
           // ... or we didn't have data before, but do now!
           ((freshSeries.data || []).length === 0 &&
             (loaderResult.data || []).length > 0)
@@ -809,6 +812,8 @@ DataProvider.propTypes = {
       id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
     })
   ),
+  // Determines whether to recalc the data if the time subdomain changed
+  recalcDataTimeSubDomainChanged: PropTypes.bool,
 };
 
 DataProvider.defaultProps = {
@@ -847,4 +852,5 @@ DataProvider.defaultProps = {
   },
   series: [],
   collections: [],
+  recalcDataTimeSubDomainChanged: false,
 };
