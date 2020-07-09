@@ -1,6 +1,6 @@
 {
   "name": "@cognite/griff-react",
-  "version": "0.5.0-rc.0",
+  "version": "0.5.1-rc.0",
   "description": "Charting library that relies on React's virtual diffing.",
   "main": "lib/index.js",
   "module": "es/index.js",
@@ -92,7 +92,7 @@
     "typescript": "^3.6.4"
   },
   "author": "Cognite AS",
-  "homepage": "https://griff.surge.sh/",
+  "homepage": "https://github.com/cognitedata/griff-react",
   "license": "Apache-2.0",
   "repository": "https://github.com/cognitedata/griff-react",
   "keywords": [
