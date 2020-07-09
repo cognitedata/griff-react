@@ -23,7 +23,7 @@ jobs:
 
       - name: Print slug variables
         run: |
-          echo ${{ github.event.issue.number }}
+          echo ${{ github.run_id }}
 
       - name: Cache node_modules
         id: cache-modules
@@ -43,14 +43,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages # The branch the action should deploy to.
           FOLDER: storybook-static
-          TARGET_FOLDER: 'pulls/${{ github.event.issue.number }}' # The folder the action should deploy
+          TARGET_FOLDER: 'pulls/${{ github.run_id }}' # The folder the action should deploy
 
       - name: comment PR
         uses: unsplash/comment-on-pr@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          msg: 'The `@cognite/griff-react` storybook is now available at https://cognitedata.github.io/griff-react/pulls/${{ github.event.issue.number }}'
+          msg: 'The `@cognite/griff-react` storybook is now available at https://cognitedata.github.io/griff-react/pulls/${{ github.run_id }}'
           check_for_duplicate_msg: false # OPTIONAL
 
       - name: Lint
