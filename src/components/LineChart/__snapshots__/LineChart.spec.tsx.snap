@@ -645,7 +645,7 @@ exports[`LineChart should base render correctly 1`] = `
           <svg
             height="50"
             style="width: 100%; display: block;"
-            width="1"
+            width="950"
           >
             <g
               class="axis x-axis"
@@ -656,12 +656,172 @@ exports[`LineChart should base render correctly 1`] = `
               text-anchor="middle"
             >
               <path
-                d="M1,6V1H0V6"
+                d="M1,6V1H949V6"
                 stroke="black"
               />
               <g
                 opacity="1"
-                transform="translate(0.72, 0)"
+                transform="translate(0, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  01:00
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(85.5, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  01:15
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(171, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  01:30
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(256.5, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  01:45
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(342, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  02:00
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(427.5, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  02:15
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(513, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  02:30
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(598.5, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  02:45
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(684, 0)"
               >
                 <line
                   stroke="black"
@@ -679,12 +839,72 @@ exports[`LineChart should base render correctly 1`] = `
                   03:00
                 </text>
               </g>
+              <g
+                opacity="1"
+                transform="translate(769.5, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  03:15
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(855, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  03:30
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(940.5, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  03:45
+                </text>
+              </g>
             </g>
             <rect
               fill="none"
               height="50"
               pointer-events="all"
-              width="1"
+              width="950"
             />
             <div
               class="erd_scroll_detection_container erd_scroll_detection_container_animation_active"
@@ -1723,7 +1943,7 @@ exports[`LineChart should render multiple series correctly 1`] = `
           <svg
             height="50"
             style="width: 100%; display: block;"
-            width="1"
+            width="850"
           >
             <g
               class="axis x-axis"
@@ -1734,12 +1954,152 @@ exports[`LineChart should render multiple series correctly 1`] = `
               text-anchor="middle"
             >
               <path
-                d="M1,6V1H0V6"
+                d="M1,6V1H849V6"
                 stroke="black"
               />
               <g
                 opacity="1"
-                transform="translate(0.828, 0)"
+                transform="translate(61.199999999999996, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  03:00
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(153, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  06:00
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(244.79999999999998, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  09:00
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(336.6, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  12:00
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(428.4, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  15:00
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(520.2, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  18:00
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(612, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  21:00
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(703.8, 0)"
               >
                 <line
                   stroke="black"
@@ -1757,12 +2117,32 @@ exports[`LineChart should render multiple series correctly 1`] = `
                   02/01
                 </text>
               </g>
+              <g
+                opacity="1"
+                transform="translate(795.6, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  03:00
+                </text>
+              </g>
             </g>
             <rect
               fill="none"
               height="50"
               pointer-events="all"
-              width="1"
+              width="850"
             />
             <div
               class="erd_scroll_detection_container erd_scroll_detection_container_animation_active"
@@ -2581,7 +2961,7 @@ exports[`LineChart should render multiple series in a single collection correctl
           <svg
             height="50"
             style="width: 100%; display: block;"
-            width="1"
+            width="950"
           >
             <g
               class="axis x-axis"
@@ -2592,12 +2972,52 @@ exports[`LineChart should render multiple series in a single collection correctl
               text-anchor="middle"
             >
               <path
-                d="M1,6V1H0V6"
+                d="M1,6V1H949V6"
                 stroke="black"
               />
               <g
                 opacity="1"
-                transform="translate(0.2556, 0)"
+                transform="translate(78.66, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  02/01
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(160.73999999999998, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  03/01
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(242.82, 0)"
               >
                 <line
                   stroke="black"
@@ -2617,7 +3037,127 @@ exports[`LineChart should render multiple series in a single collection correctl
               </g>
               <g
                 opacity="1"
-                transform="translate(0.8604, 0)"
+                transform="translate(324.90000000000003, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  05/01
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(406.98, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  06/01
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(489.06000000000006, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  07/01
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(571.14, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  08/01
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(653.22, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  09/01
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(735.3000000000001, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  10/01
+                </text>
+              </g>
+              <g
+                opacity="1"
+                transform="translate(817.38, 0)"
               >
                 <line
                   stroke="black"
@@ -2635,12 +3175,32 @@ exports[`LineChart should render multiple series in a single collection correctl
                   11/01
                 </text>
               </g>
+              <g
+                opacity="1"
+                transform="translate(899.4599999999999, 0)"
+              >
+                <line
+                  stroke="black"
+                  x1="1"
+                  x2="1"
+                  y2="6"
+                />
+                <text
+                  class="tick-value"
+                  dy="0.71em"
+                  fill="black"
+                  x="1"
+                  y="9"
+                >
+                  12/01
+                </text>
+              </g>
             </g>
             <rect
               fill="none"
               height="50"
               pointer-events="all"
-              width="1"
+              width="950"
             />
             <div
               class="erd_scroll_detection_container erd_scroll_detection_container_animation_active"
