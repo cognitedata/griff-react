@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "build": "yarn clean && yarn compile && rollup -c",
-    "build:watch": "yarn rollup -w -c",
+    "build:watch": "yarn rollup -w -c -m",
     "clean": "rm -rf build/ es/ lib/",
     "compile": "tsc -p .",
     "fix": "gts fix",
