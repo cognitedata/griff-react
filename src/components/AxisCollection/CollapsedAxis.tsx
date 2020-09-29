@@ -1,38 +1,18 @@
 import React from 'react';
 import * as d3 from 'd3';
-import PropTypes from 'prop-types';
 import { createYScale } from 'utils/scale-helpers';
-import GriffPropTypes from 'utils/proptypes';
-import AxisPlacement from 'components/AxisPlacement';
+import AxisPlacements, { AxisPlacement } from 'components/AxisPlacement';
 
-const propTypes = {
-  height: PropTypes.number.isRequired,
-  width: PropTypes.number.isRequired,
-  offsetx: PropTypes.number,
-  color: PropTypes.string,
-  onMouseEnter: PropTypes.func,
-  onMouseLeave: PropTypes.func,
-  yAxisPlacement: GriffPropTypes.axisPlacement,
-};
-
-const defaultProps = {
-  color: '#666',
-  offsetx: 0,
-  onMouseEnter: null,
-  onMouseLeave: null,
-  yAxisPlacement: AxisPlacement.RIGHT,
-};
-
-const getPath = ({
-  offsetx,
-  strokeWidth,
-  tickSizeOuter,
-  range,
-  yAxisPlacement,
-  width,
-}) => {
+const getPath = (
+  offsetx: number,
+  strokeWidth: number,
+  tickSizeOuter: number,
+  range: number[],
+  yAxisPlacement: AxisPlacement,
+  width: number
+) => {
   switch (yAxisPlacement) {
-    case AxisPlacement.LEFT:
+    case AxisPlacements.LEFT:
       return [
         // Move to this (x,y); start drawing
         `M ${width - offsetx} ${strokeWidth}`,
@@ -43,12 +23,12 @@ const getPath = ({
         // Finish with another horizontal line
         `h -${tickSizeOuter - strokeWidth / 2}`,
       ].join(' ');
-    case AxisPlacement.BOTH:
+    case AxisPlacements.BOTH:
       throw new Error(
         'BOTH is not a valid option for CollapsedAxis -- please specify RIGHT or LEFT'
       );
-    case AxisPlacement.RIGHT:
-    case AxisPlacement.UNSPECIFIED:
+    case AxisPlacements.RIGHT:
+    case AxisPlacements.UNSPECIFIED:
     default:
       return [
         // Move to this (x,y); start drawing
@@ -63,6 +43,16 @@ const getPath = ({
   }
 };
 
+type Props = {
+  height: number;
+  width: number;
+  offsetx: number;
+  color: string;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  yAxisPlacement: AxisPlacement;
+};
+
 const CollapsedAxis = ({
   height,
   width,
@@ -71,7 +61,7 @@ const CollapsedAxis = ({
   onMouseEnter,
   onMouseLeave,
   yAxisPlacement,
-}) => {
+}: Props) => {
   const renderAxis = () => {
     const scale = createYScale([0, 100], height);
     const axis = d3.axisRight(scale);
@@ -79,19 +69,21 @@ const CollapsedAxis = ({
     const strokeWidth = 2;
     const tickSizeOuter = axis.tickSizeOuter();
     const range = scale.range();
-    const paths = {};
+    const paths: {
+      [k: number]: { path: string; color: string; opacity: number };
+    } = {};
     let offsetx = 0;
     for (let i = 1; i < 4; i += 1) {
       offsetx += tickSizeOuter;
       paths[i] = {
-        path: getPath({
+        path: getPath(
           offsetx,
           strokeWidth,
           tickSizeOuter,
           range,
           yAxisPlacement,
-          width,
-        }),
+          width
+        ),
         color,
         opacity: 1 - (i - 1) / 4,
       };
@@ -111,9 +103,9 @@ const CollapsedAxis = ({
         {Object.keys(paths).map(key => (
           <path
             key={key}
-            stroke={paths[key].color}
-            opacity={paths[key].opacity || 1}
-            d={paths[key].path}
+            stroke={paths[+key].color}
+            opacity={paths[+key].opacity || 1}
+            d={paths[+key].path}
           />
         ))}
       </g>
@@ -129,8 +121,5 @@ const CollapsedAxis = ({
     </g>
   );
 };
-
-CollapsedAxis.propTypes = propTypes;
-CollapsedAxis.defaultProps = defaultProps;
 
 export default CollapsedAxis;
