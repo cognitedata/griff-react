@@ -90,7 +90,7 @@
     "source-map-loader": "^0.2.4",
     "ts-jest": "^24.1.0",
     "typescript": "^3.6.4",
-    "@cognite/react-griff-provider": "*"
+    "@cognite/react-griff-provider": "0.0.1"
   },
   "author": "Cognite AS",
   "homepage": "https://griff.surge.sh/",
