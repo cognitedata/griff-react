@@ -4,7 +4,7 @@ import { SizeMe, SizeMeProps } from 'react-sizeme';
 import AxisPlacement, {
   AxisPlacement as AxisPlacementType,
 } from 'components/AxisPlacement';
-import ScalerContext from 'context/Scaler';
+import { ScalerContext } from '@cognite/react-griff-provider';
 import ZoomRect from 'components/ZoomRect';
 import { createXScale, ScalerFunctionFactory } from 'utils/scale-helpers';
 import { Domain, Series } from 'external';
@@ -234,6 +234,7 @@ const XAxis: React.FC<Props> = ({
           }),
         };
         return (
+          // @ts-ignore
           <g key={+v} opacity={1} transform={tickTransformer(scale(v))}>
             <line stroke={stroke} {...lineProps} />
             <text className="tick-value" {...textProps}>
@@ -269,7 +270,7 @@ export default withDisplayName('XAxis', (props: Props) => {
   }
   return (
     <ScalerContext.Consumer>
-      {({ domainsByItemId, subDomainsByItemId, series }: ScalerProps) => (
+      {({ domainsByItemId, subDomainsByItemId, series }: any) => (
         <SizeMe monitorWidth>
           {({ size }: SizeMeProps) => (
             <XAxis

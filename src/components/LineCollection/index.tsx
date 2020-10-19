@@ -4,7 +4,7 @@ import {
   createYScale,
   ScalerFunction,
 } from 'utils/scale-helpers';
-import ScalerContext from 'context/Scaler';
+import {ScalerContext} from '@cognite/react-griff-provider';
 import Line from 'components/Line';
 import AxisDisplayMode from 'utils/AxisDisplayMode';
 import Axes, { Dimension } from 'utils/Axes';
@@ -93,7 +93,7 @@ const LineCollection: React.FC<Props> = ({
 
 export default withDisplayName('LineCollection', (props: Props) => (
   <ScalerContext.Consumer>
-    {({ domainsByItemId, subDomainsByItemId, series }: InternalProps) => (
+    {({ domainsByItemId, subDomainsByItemId, series }: any) => (
       <LineCollection
         series={series}
         {...props}

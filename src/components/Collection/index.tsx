@@ -1,5 +1,5 @@
 import React from 'react';
-import Data from 'context/Data';
+import { DataContext } from '@cognite/react-griff-provider';
 import {
   ItemProps,
   WATCHED_PROP_NAMES,
@@ -72,7 +72,7 @@ const Collection: React.FunctionComponent<Props & InternalProps> = ({
 export default withDisplayName(
   'Collection',
   (props: Props & { children: React.ReactNode[] }) => (
-    <Data.Consumer>
+    <DataContext.Consumer>
       {({ registerCollection, updateCollection }: any) => (
         <Collection
           registerCollection={registerCollection}
@@ -82,6 +82,6 @@ export default withDisplayName(
           {props.children}
         </Collection>
       )}
-    </Data.Consumer>
+    </DataContext.Consumer>
   )
 );

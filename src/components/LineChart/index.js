@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
 import AxisCollection from 'components/AxisCollection';
-import ScalerContext from 'context/Scaler';
+import {ScalerContext} from '@cognite/react-griff-provider';
 import ContextChart from 'components/ContextChart';
 import GriffPropTypes, {
   areaPropType,

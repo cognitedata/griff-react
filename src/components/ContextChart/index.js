@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { SizeMe } from 'react-sizeme';
-import ScalerContext from 'context/Scaler';
+import {ScalerContext} from '@cognite/react-griff-provider';
 import LineCollection from 'components/LineCollection';
 import XAxis from 'components/XAxis';
 import Annotation from 'components/Annotation';
@@ -12,7 +12,6 @@ import { multiFormat } from 'utils/multiFormat';
 import Axes from 'utils/Axes';
 import { createYScale, createXScale } from 'utils/scale-helpers';
 import { firstResolvedDomain } from 'components/Scaler';
-import { calculateDomainFromData } from 'components/DataProvider';
 import { withDisplayName } from 'utils/displayName';
 
 const propTypes = {
@@ -99,7 +98,7 @@ const ContextChart = ({
         s.yDomain,
         Axes.y(domainsByItemId[s.collectionId || s.id])
       ) ||
-      calculateDomainFromData(s.data, s.yAccessor, s.y0Accessor, s.y1Accessor);
+      [0,0];
     return createYScale(domain, height);
   };
 

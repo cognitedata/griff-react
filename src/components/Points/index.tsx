@@ -51,6 +51,7 @@ const Points: React.FC<Props> = ({
       if (!func) {
         return Number.NaN;
       }
+      // @ts-ignore
       return +boundedSeries(xScale(func(d, i, arr)));
     });
 
@@ -58,6 +59,7 @@ const Points: React.FC<Props> = ({
       if (!func) {
         return Number.NaN;
       }
+      // @ts-ignore
       return +boundedSeries(yScale(func(d, i, arr)));
     });
 

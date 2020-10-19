@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ScalerContext from 'context/Scaler';
+import { ScalerContext } from '@cognite/react-griff-provider';
 import GriffPropTypes, {
   seriesPropType,
   axisDisplayModeType,

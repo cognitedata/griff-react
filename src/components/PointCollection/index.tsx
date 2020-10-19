@@ -1,5 +1,5 @@
 import React from 'react';
-import ScalerContext from 'context/Scaler';
+import {ScalerContext} from '@cognite/react-griff-provider';
 import { createYScale, createXScale } from 'utils/scale-helpers';
 import Axes from 'utils/Axes';
 import { SizeProps } from 'internal';

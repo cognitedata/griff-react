@@ -26,6 +26,7 @@ const Annotation: React.FC<Props> = ({
     x={xScale(data[0])}
     y={0}
     height={height}
+    // @ts-ignore
     width={xScale(data[1]) - xScale(data[0])}
     style={{ stroke: color, fill: color, fillOpacity }}
   />

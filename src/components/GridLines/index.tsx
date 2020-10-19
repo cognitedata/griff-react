@@ -1,9 +1,8 @@
 import React from 'react';
-import ScalerContext from 'context/Scaler';
+import { ScalerContext } from '@cognite/react-griff-provider';
 import { createYScale, createXScale } from 'utils/scale-helpers';
 import Axes from 'utils/Axes';
 import { ItemId, Series } from 'external';
-import { DomainsByItemId } from 'components/Scaler/index';
 import { SizeProps, ItemIdMap } from 'internal';
 import { withDisplayName } from 'utils/displayName';
 
@@ -36,6 +35,14 @@ export interface Props extends InternalProps, SizeProps {
   x?: GridX;
   y?: GridY;
 }
+
+type DomainsByItemId = {
+  [k: string]: {
+    x: [number, number];
+    y: [number, number];
+    time: [number, number];
+  };
+};
 
 interface InternalProps {
   series: Series[];
@@ -213,10 +220,7 @@ export default withDisplayName(
       {({
         series,
         subDomainsByItemId,
-      }: {
-        series: Series[];
-        subDomainsByItemId: DomainsByItemId;
-      }) => (
+      }: any) => (
         <GridLines
           {...props}
           width={width}
