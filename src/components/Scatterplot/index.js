@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import sizeMe from 'react-sizeme';
-import ScalerContext from 'context/Scaler';
+import { ScalerContext } from '@cognite/react-griff-provider';
 import PointCollection from 'components/PointCollection';
 import InteractionLayer, { ZoomMode } from 'components/InteractionLayer';
 import GriffPropTypes, { seriesPropType } from 'utils/proptypes';

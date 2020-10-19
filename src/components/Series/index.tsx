@@ -1,7 +1,7 @@
 import React from 'react';
 import { Domain } from 'domain';
 import { ItemId, AccessorFunction, PointRenderer } from 'external';
-import Data from 'context/Data';
+import { DataContext } from '@cognite/react-griff-provider';
 import { AxisPlacement } from 'components/AxisPlacement';
 import { AxisDisplayMode } from 'utils/AxisDisplayMode';
 import { withDisplayName } from 'utils/displayName';
@@ -111,7 +111,7 @@ const Series: React.FunctionComponent<Props & InternalProps> = ({
 };
 
 export default withDisplayName('Series', (props: Props) => (
-  <Data.Consumer>
+  <DataContext.Consumer>
     {({ registerSeries, updateSeries }: any) => (
       <Series
         {...props}
@@ -119,5 +119,5 @@ export default withDisplayName('Series', (props: Props) => (
         updateSeries={updateSeries}
       />
     )}
-  </Data.Consumer>
+  </DataContext.Consumer>
 ));

@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import { createYScale } from 'utils/scale-helpers';
 import GriffPropTypes, { singleSeriePropType } from 'utils/proptypes';
 import AxisPlacement from 'components/AxisPlacement';
-import ScalerContext from 'context/Scaler';
+import {ScalerContext} from '@cognite/react-griff-provider';
 import ZoomRect from 'components/ZoomRect';
 import Axes from 'utils/Axes';
 import { withDisplayName } from 'utils/displayName';

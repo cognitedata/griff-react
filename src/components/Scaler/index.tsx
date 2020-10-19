@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import DataContext from 'context/Data';
-import ScalerContext from 'context/Scaler';
+import { DataContext, ScalerContext } from '@cognite/react-griff-provider';
 import GriffPropTypes, { seriesPropType } from 'utils/proptypes';
 import Axes, { Domains } from 'utils/Axes';
 import { Domain, Series, Collection } from 'external';
@@ -450,7 +449,7 @@ class Scaler extends React.Component<Props, State> {
 
 export default withDisplayName('Scaler', (props: Props) => (
   <DataContext.Consumer>
-    {dataContext => (
+    {(dataContext: unknown) => (
       <Scaler
         {...props}
         dataContext={(dataContext as unknown) as DataContext}

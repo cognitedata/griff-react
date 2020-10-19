@@ -53,22 +53,14 @@ const Line: React.FC<Props> = ({
     .curve(curve)
     .x(d =>
       boundedSeries(
-        xScale(
-          xAxisAccessor(
-            // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.
-            d
-          )
-        )
+        // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.
+        xScale(xAxisAccessor(d))
       )
     )
     .y(d =>
       boundedSeries(
-        yScale(
-          yAccessor(
-            // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.
-            d
-          )
-        )
+        // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.
+        yScale(yAccessor(d))
       )
     );
   if (drawPoints !== true && y0Accessor && y1Accessor) {
@@ -77,32 +69,20 @@ const Line: React.FC<Props> = ({
       .curve(curve)
       .x(d =>
         boundedSeries(
-          xScale(
-            xAxisAccessor(
-              // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.
-              d
-            )
-          )
+          // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.
+          xScale(xAxisAccessor(d))
         )
       )
       .y0(d =>
         boundedSeries(
-          yScale(
-            y0Accessor(
-              // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.
-              d
-            )
-          )
+          // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.
+          yScale(y0Accessor(d))
         )
       )
       .y1(d =>
         boundedSeries(
-          yScale(
-            y1Accessor(
-              // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.
-              d
-            )
-          )
+          // @ts-ignore - I'm pretty sure that d3 has the wrong type annotations.
+          yScale(y1Accessor(d))
         )
       );
   }

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import * as d3 from 'd3';
 import isEqual from 'lodash.isequal';
-import ScalerContext from 'context/Scaler';
+import {ScalerContext} from '@cognite/react-griff-provider';
 import { createYScale, createXScale } from 'utils/scale-helpers';
 import GriffPropTypes, {
   areaPropType,
