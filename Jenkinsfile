@@ -43,7 +43,7 @@ podTemplate(
                   mountPath: '/cognite-cicd-ssh',
                   readOnly: true),
   ]) {
-    properties([buildDiscarder(logRotator(daysToKeepStr: '30', numToKeepStr: '20'))])
+    properties([])
     node(label) {
 
     def context_checkout = "continuous-integration/jenkins/checkout"
