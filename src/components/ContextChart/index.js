@@ -66,12 +66,12 @@ const getChartHeight = ({ height, xAxisHeight, xAxisPlacement }) =>
   xAxisHeight -
   (xAxisPlacement === AxisPlacement.BOTH ? xAxisHeight : 0);
 
-const renderXAxis = (position, xAxis, { xAxisPlacement }) => {
+const renderXAxis = (position, xAxis, { xAxisPlacement, width }) => {
   if (position === xAxisPlacement) {
-    return xAxis;
+    return React.cloneElement(xAxis, { width });
   }
   if (xAxisPlacement === AxisPlacement.BOTH) {
-    return React.cloneElement(xAxis, { placement: position });
+    return React.cloneElement(xAxis, { width, placement: position });
   }
   return null;
 };
@@ -130,7 +130,7 @@ const ContextChart = ({
 
   return (
     <>
-      {renderXAxis(AxisPlacement.TOP, xAxis, { xAxisPlacement })}
+      {renderXAxis(AxisPlacement.TOP, xAxis, { xAxisPlacement, width })}
       <svg
         height={height}
         width={width}
@@ -161,7 +161,7 @@ const ContextChart = ({
           zoomable={zoomable}
         />
       </svg>
-      {renderXAxis(AxisPlacement.BOTTOM, xAxis, { xAxisPlacement })}
+      {renderXAxis(AxisPlacement.BOTTOM, xAxis, { xAxisPlacement, width })}
     </>
   );
 };
